@@ -30,6 +30,11 @@ const navigationItems = [
 		label: 'Gebäude',
 		link: '/building',
 	},
+	{
+		type: 'Campus',
+		label: 'Räume',
+		link: '/room',
+	},
 ]
 </script>
 

@@ -132,6 +132,13 @@ export const rooms = pgTable('rooms', {
 	capacity: integer().notNull(),
 })
 
+export const roomsRelations = relations(rooms, ({ one }) => ({
+	building: one(buildings, {
+		fields: [ rooms.building ],
+		references: [ buildings.id ],
+	}),
+}))
+
 export const sessions = pgTable('sessions', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	organizationItem: uuid().notNull().references(() => organizationItems.id),
