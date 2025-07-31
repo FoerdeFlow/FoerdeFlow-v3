@@ -1,0 +1,49 @@
+export default defineNuxtConfig({
+	compatibilityDate: '2025-07-15',
+	app: {
+		head: {
+			title: 'FördeFlow',
+			htmlAttrs: {
+				lang: 'de',
+			},
+		},
+	},
+	devtools: {
+		enabled: true,
+	},
+	modules: [
+		'@nuxt/eslint',
+		'@nuxtjs/tailwindcss',
+		'@pinia/nuxt',
+		'pinia-plugin-persistedstate/nuxt',
+	],
+	nitro: {
+		experimental: {
+			asyncContext: true,
+			tasks: true,
+		},
+	},
+	css: [
+		'~/assets/css/main.scss',
+	],
+	tailwindcss: {
+		exposeConfig: true,
+		viewer: true,
+	},
+	runtimeConfig: {
+		database: {
+			user: 'foerdeflow',
+			password: 'foerdeflow',
+			host: 'localhost',
+			port: 5432,
+			name: 'foerdeflow',
+		},
+		externalURL: 'http://localhost:3000',
+		sessionSecret: '00000000000000000000000000000000',
+		oidcProvider: {
+			clientId: 'dev',
+			clientSecret: 'dev',
+			server: 'http://localhost:9901',
+		},
+	},
+})
