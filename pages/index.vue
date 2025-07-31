@@ -25,6 +25,11 @@ const navigationItems = [
 		label: 'Personen',
 		link: '/person',
 	},
+	{
+		type: 'Campus',
+		label: 'Gebäude',
+		link: '/building',
+	},
 ]
 </script>
 

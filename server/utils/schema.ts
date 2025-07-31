@@ -120,7 +120,7 @@ export const buildings = pgTable('buildings', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	code: varchar({ length: 16 }).notNull().unique(),
 	name: varchar({ length: 256 }).notNull(),
-	postalAddress: varchar({ length: 256 }),
+	postalAddress: varchar({ length: 256 }).notNull(),
 })
 
 export const rooms = pgTable('rooms', {
@@ -134,6 +134,7 @@ export const rooms = pgTable('rooms', {
 
 export const sessions = pgTable('sessions', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
+	organizationItem: uuid().notNull().references(() => organizationItems.id),
 	period: integer().notNull(),
 	number: integer().notNull(),
 	plannedDate: timestamp().notNull(),
