@@ -10,7 +10,8 @@ export const useAuthStore = defineStore('auth', () => {
 		pronouns?: string
 		permissions: string[]
 	}
-	const userInfo = ref<UserInfo | null>(null)
+
+	const { data: userInfo } = useFetch<UserInfo>('/api/auth/userInfo')
 
 	const loggedIn = computed(() => userInfo.value !== null)
 
@@ -20,14 +21,10 @@ export const useAuthStore = defineStore('auth', () => {
 		if(route?.query?.returnTo) {
 			router.replace(route.query.returnTo as string)
 		}
-
-		try {
-			userInfo.value = await $fetch<UserInfo>('/api/auth/userInfo')
-		} catch(e) { /**/ }
 	}
 
-	function hasPermission(permission: string): boolean {
-		return userInfo.value?.permissions.includes(permission) || false
+	function hasPermission(permission: string): Ref<boolean> {
+		return computed(() => userInfo.value?.permissions.includes(permission) || false)
 	}
 
 	function login() {
