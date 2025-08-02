@@ -149,3 +149,14 @@ export const sessions = pgTable('sessions', {
 	endDate: timestamp(),
 	room: uuid().notNull().references(() => rooms.id),
 })
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+	organizationItem: one(organizationItems, {
+		fields: [ sessions.organizationItem ],
+		references: [ organizationItems.id ],
+	}),
+	room: one(rooms, {
+		fields: [ sessions.room ],
+		references: [ rooms.id ],
+	}),
+}))

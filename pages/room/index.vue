@@ -92,7 +92,7 @@ table.kern-table
 		tr.kern-table__row(v-if="data?.length === 0")
 			td.kern-table__cell(colspan="2") Keine Einträge gefunden.
 		tr.kern-table__row(v-for="item of data")
-			td.kern-table__cell {{ item.building.code }}-{{ item.level < 0 ? 'K' : item.level }}.{{ item.code }} ({{ item.name }})
+			td.kern-table__cell {{ formatRoom(item) }}
 			td.kern-table__cell(
 				v-if="authStore.hasPermission('rooms.update') || authStore.hasPermission('rooms.delete')"
 			)

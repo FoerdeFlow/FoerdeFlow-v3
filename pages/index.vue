@@ -35,6 +35,11 @@ const navigationItems = [
 		label: 'Räume',
 		link: '/room',
 	},
+	{
+		type: 'Sitzung',
+		label: 'Sitzungen',
+		link: '/session',
+	},
 ]
 </script>
 
