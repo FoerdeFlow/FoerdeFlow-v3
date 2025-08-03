@@ -45,5 +45,10 @@ export default defineNuxtConfig({
 			clientSecret: 'dev',
 			server: 'http://localhost:9901',
 		},
+		openslides: {
+			server: 'https://localhost:8000',
+			username: 'superadmin',
+			password: 'superadmin',
+		},
 	},
 })
