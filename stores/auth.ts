@@ -13,7 +13,7 @@ export const useAuthStore = defineStore('auth', () => {
 
 	const { data: userInfo } = useFetch<UserInfo>('/api/auth/userInfo')
 
-	const loggedIn = computed(() => userInfo.value !== null)
+	const loggedIn = computed(() => Boolean(userInfo.value))
 
 	async function initialize() {
 		const route = useRoute()

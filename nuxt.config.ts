@@ -43,7 +43,7 @@ export default defineNuxtConfig({
 		oidcProvider: {
 			clientId: 'dev',
 			clientSecret: 'dev',
-			server: 'http://localhost:9901',
+			server: 'http://localhost:3000/api/auth/oidc/provider',
 		},
 		openslides: {
 			server: 'https://localhost:8000',

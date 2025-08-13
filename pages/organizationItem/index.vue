@@ -38,8 +38,8 @@ async function edit(id: string) {
 	dialogErrorMessage.value = null
 
 	const item = await $fetch(`/api/organizationItems/${id}`)
-	dialogInputModel.parent = item.parent || ''
-	dialogInputModel.organizationType = item.organizationType
+	dialogInputModel.parent = item.parent?.id || ''
+	dialogInputModel.organizationType = item.organizationType.id
 	dialogInputModel.code = item.code
 	dialogInputModel.name = item.name
 	dialog.value?.showModal()

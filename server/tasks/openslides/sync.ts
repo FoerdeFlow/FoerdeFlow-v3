@@ -1,20 +1,25 @@
+import { useOpenslides } from '~/server/utils/openslides'
+
 export default defineTask({
 	meta: {
 		name: 'openslides:sync',
 	},
 	async run({ payload, context }) {
-		const runtimeConfig = useRuntimeConfig()
 		const database = useDatabase()
+		const client = useOpenslides()
 
 		const persons = await database.query.persons.findMany({})
 		for(const person of persons) {
-			const openslidesUserId = await createOrUpdateOpenslidesUser({
-				firstName: person.firstName,
-				lastName: person.lastName,
+			const data = {
+				first_name: person.callName || person.firstName,
+				last_name: person.lastName,
 				email: person.email,
-				...(person.callName ? { callName: person.callName } : {}),
-				...(person.pronouns ? { pronouns: person.pronouns } : {}),
-			})
+				saml_id: person.email,
+				username: person.email,
+				...(person.pronouns ? { pronoun: person.pronouns } : {}),
+			}
+			await client.user.create(data)
+
 		}
 
 		return { result: 'success' }

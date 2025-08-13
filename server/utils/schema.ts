@@ -10,7 +10,7 @@ import {
 	timestamp,
 	uuid,
 	varchar,
-	AnyPgColumn,
+	type AnyPgColumn,
 	check,
 } from 'drizzle-orm/pg-core'
 
