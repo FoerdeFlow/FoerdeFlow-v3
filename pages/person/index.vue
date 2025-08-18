@@ -1,6 +1,12 @@
 <script setup lang="ts">
 const authStore = useAuthStore()
 const { data, refresh } = useFetch('/api/persons')
+const genders = [
+	{ id: 'male', name: 'Männlich', code: 'M' },
+	{ id: 'female', name: 'Weiblich', code: 'W' },
+	{ id: 'non_binary', name: 'Nicht-binär', code: 'N' },
+	{ id: 'diverse', name: 'Divers', code: 'D' },
+]
 
 const dialog = useTemplateRef<HTMLDialogElement>('dialog')
 
@@ -9,6 +15,7 @@ const dialogInputModel = reactive({
 	firstName: '',
 	lastName: '',
 	callName: '',
+	gender: '',
 	pronouns: '',
 	email: '',
 })
@@ -19,6 +26,7 @@ function create() {
 	dialogInputModel.firstName = ''
 	dialogInputModel.lastName = ''
 	dialogInputModel.callName = ''
+	dialogInputModel.gender = ''
 	dialogInputModel.pronouns = ''
 	dialogInputModel.email = ''
 	dialogErrorMessage.value = null
@@ -34,6 +42,7 @@ async function edit(id: string) {
 	dialogInputModel.firstName = item.firstName
 	dialogInputModel.lastName = item.lastName
 	dialogInputModel.callName = item.callName || ''
+	dialogInputModel.gender = item.gender || ''
 	dialogInputModel.pronouns = item.pronouns || ''
 	dialog.value?.showModal()
 }
@@ -125,6 +134,11 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 				.kern-col.kern-form-input
 					label.kern-label(for="callName") Selbstgewählter Name #[span.kern-label__optional - Optional]
 					input.kern-form-input__input#callName(v-model="dialogInputModel.callName" type="text")
+			.kern-row
+				.kern-col.kern-form-input
+					label.kern-label(for="gender") Geschlecht #[span.kern-label__optional - Optional]
+					select.kern-form-input__input#gender(v-model="dialogInputModel.gender")
+						option(v-for="item of genders" :value="item.id") {{ item.name }} ({{ item.code }})
 				.kern-col.kern-form-input
 					label.kern-label(for="pronouns") Pronomen #[span.kern-label__optional - Optional]
 					input.kern-form-input__input#pronouns(v-model="dialogInputModel.pronouns" type="text")

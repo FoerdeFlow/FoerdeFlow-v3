@@ -1,4 +1,5 @@
 import { createInsertSchema } from 'drizzle-zod'
+import { mapGender } from 'openslides-client/utils/mapGender'
 
 export default defineEventHandler(async (event) => {
 	const database = useDatabase()
@@ -16,6 +17,7 @@ export default defineEventHandler(async (event) => {
 			first_name: body.callName || body.firstName,
 			last_name: body.lastName,
 			email: body.email,
+			...(body.gender ? { gender_id: mapGender(body.gender) } : {}),
 			...(body.pronouns ? { pronoun: body.pronouns } : {}),
 			is_physical_person: true,
 			can_change_own_password: false,
