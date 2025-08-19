@@ -36,6 +36,19 @@ export function formatDatetime(date: string | Date | null, style: 'verbose' | 'c
 	}
 }
 
+const timeFormatter = new Intl.DateTimeFormat('de-DE', {
+	timeStyle: 'short',
+})
+
+export function formatTime(date: string | Date | null): string {
+	if(!date) return ''
+	try {
+		return timeFormatter.format(new Date(date))
+	} catch(e) {
+		return ''
+	}
+}
+
 export function formatRoom(room: { building: { code: string }, code: string, level: number, name: string } | null): string {
 	if(!room) return ''
 	const level = room.level < 0 ? 'K' : room.level

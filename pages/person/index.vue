@@ -53,15 +53,21 @@ function cancel() {
 
 async function save() {
 	try {
+		const model = {
+			...dialogInputModel,
+			callName: dialogInputModel.callName || null,
+			gender: dialogInputModel.gender || null,
+			pronouns: dialogInputModel.pronouns || null,
+		}
 		if(dialogItemId.value) {
 			await $fetch(`/api/persons/${dialogItemId.value}`, {
 				method: 'PUT',
-				body: dialogInputModel,
+				body: model,
 			})
 		} else {
 			await $fetch('/api/persons', {
 				method: 'POST',
-				body: dialogInputModel,
+				body: model,
 			})
 		}
 		dialog.value?.close()

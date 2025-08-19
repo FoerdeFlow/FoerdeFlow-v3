@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm'
 import { createInsertSchema } from 'drizzle-zod'
 import z from 'zod'
 import { useOpenslides } from '~/server/utils/openslides'
@@ -17,14 +18,43 @@ export default defineEventHandler(async (event) => {
 		)
 	)
 
-	await client.connect()
-	await client.meeting.clone({
-		meeting_id: 1,
-		name: body.period + "/" + body.number,
-	})
+	return await database.transaction(async (tx) => {
+		const [ result ] = await tx.insert(sessions).values(body).returning({ id: sessions.id })
+		const committee = await tx.query.organizationItems.findFirst({
+			where: eq(organizationItems.id, body.organizationItem),
+		})
+		if(!committee) throw new Error('Committee not found')
+		const room = await tx.query.rooms.findFirst({
+			where: eq(rooms.id, body.room),
+			with: {
+				building: true,
+			},
+		})
+		if(!room) throw new Error('Room not found')
 
-	return await database
-		.insert(sessions)
-		.values(body)
-		.returning({ id: sessions.id })
+		await client.connect()
+		const { id: committeeId } = await client.presenters.search_for_id_by_external_id({
+			collection: 'committee',
+			external_id: body.organizationItem,
+			context_id: 1,
+		})
+		const { id: templateId } = await client.presenters.search_for_id_by_external_id({
+			collection: 'meeting',
+			external_id: `${body.organizationItem}-Template`,
+			context_id: committeeId,
+		})
+		await client.meeting.clone({
+			meeting_id: templateId,
+			external_id: result.id,
+			committee_id: committeeId,
+			name: `${committee.code}-Sitzung ${formatSessionNumber(body.period, body.number)}`,
+			welcome_title: `${committee.code}-Sitzung ${formatSessionNumber(body.period, body.number)}`,
+			description: `${body.number}. Sitzung | ${formatTime(body.plannedDate)} Uhr`,
+			start_time: body.plannedDate,
+			end_time: body.plannedDate,
+			location: formatRoom(room),
+		})
+
+		return result
+	})
 })
