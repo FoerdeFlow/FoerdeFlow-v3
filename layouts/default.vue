@@ -1,5 +1,7 @@
 <script setup lang="ts">
 const authStore = useAuthStore()
+const alertStore = useAlertStore()
+
 const displayName = computed(() => authStore.userInfo
 	? `${authStore.userInfo.callName || authStore.userInfo.firstName} ${authStore.userInfo.lastName}`
 	: 'Gast')
@@ -29,5 +31,12 @@ const displayName = computed(() => authStore.userInfo
 				span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
 				span.kern-label Anmelden
 	hr.kern-divider(aria-hidden="true")
+	KernAlert(
+		v-for="(alert, idx) of alertStore.alerts"
+		:type="alert.type"
+		:title="alert.title"
+		:text="alert.text"
+		@close="alertStore.alerts.splice(idx, 1)"
+	)
 	slot
 </template>

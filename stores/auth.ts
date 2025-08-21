@@ -18,9 +18,6 @@ export const useAuthStore = defineStore('auth', () => {
 	async function initialize() {
 		const route = useRoute()
 		const router = useRouter()
-		if(route?.query?.returnTo) {
-			router.replace(route.query.returnTo as string)
-		}
 	}
 
 	function hasPermission(permission: string): Ref<boolean> {

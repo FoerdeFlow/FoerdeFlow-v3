@@ -10,5 +10,5 @@ export default defineEventHandler(async (event) => {
 	const oidcConfig = await getOidcConfig()
 
 	await session.clear()
-	await sendRedirect(event, `/?returnTo=${returnTo}`, 307)
+	await sendRedirect(event, returnTo || '/', 307)
 })

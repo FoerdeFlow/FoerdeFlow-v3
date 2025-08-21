@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
 			} : {}),
 		})
 		await session.update({ userId })
-		sendRedirect(event, `/?returnTo=${session.data.returnTo}`, 307)
+		sendRedirect(event, session.data.returnTo, 307)
 	} catch(e: any) {
 		throw createError({
 			statusCode: 400,
