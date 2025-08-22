@@ -14,6 +14,11 @@ const emit = defineEmits<{
 	remove: [T]
 }>()
 
+const slots = defineSlots<{
+	[slotName: `${string}-header`]: (props: {}) => unknown
+	[slotName: `${string}-body`]: (props: { item: T }) => unknown
+}>()
+
 const authStore = useAuthStore()
 
 const showActions = computed(() => authStore.hasPermission(props.updatePermission).value || authStore.hasPermission(props.deletePermission).value)
@@ -45,7 +50,7 @@ table.kern-table
 				v-for="column of props.columns"
 			)
 				slot(
-					:name="`${column}`"
+					:name="`${column}-body`"
 					:item="item"
 				)
 			td.kern-table__cell(

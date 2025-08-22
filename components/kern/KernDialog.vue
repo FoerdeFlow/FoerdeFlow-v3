@@ -25,6 +25,7 @@ defineExpose({
 	},
 	hide() {
 		if(!dialog.value) return
+		alerts.value = []
 		dialog.value.close()
 	},
 	showAlert(props: AlertProps) {
@@ -39,6 +40,7 @@ defineExpose({
 
 function close() {
 	if(!dialog.value) return
+	alerts.value = []
 	dialog.value.close()
 }
 </script>

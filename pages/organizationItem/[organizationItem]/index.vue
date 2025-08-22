@@ -1,11 +1,38 @@
 <script setup lang="ts">
 const route = useRoute()
 const authStore = useAuthStore()
+const confirmDialogStore = useConfirmDialogStore()
+
 const { data } = useFetch(() => `/api/organizationItems/${route.params.organizationItem}`)
 const { data: memberships, refresh: refreshMemberships } = useFetch(() => `/api/memberships?organizationItem=${route.params.organizationItem}`)
+const { data: organizationItemParticipants, refresh: refreshOrganizationItemParticipants } = useFetch(() => `/api/organizationItemParticipants?organizationItem=${route.params.organizationItem}`)
 
-import MembershipEditor from '~/components/MembershipEditor.vue'
+import { MembershipEditor } from '#components'
 const dialog = useTemplateRef<InstanceType<typeof MembershipEditor>>('dialog')
+
+const organizationItemParticipantEditor = useTemplateRef<InstanceType<typeof MembershipEditor>>('organizationItemParticipantEditor')
+
+function create() {
+	if(!organizationItemParticipantEditor.value) return
+	organizationItemParticipantEditor.value.create()
+}
+
+async function edit({ id }: { id: string }) {
+	if(!organizationItemParticipantEditor.value) return
+	organizationItemParticipantEditor.value.edit(id)
+}
+
+async function remove({ id }: { id: string }) {
+	if(await confirmDialogStore.askConfirm({
+		title: 'Sitzungsteilnahmegruppe entfernen',
+		text: 'Möchten Sie diese Sitzungsteilnahmegruppe wirklich entfernen?',
+	})) {
+		await $fetch(`/api/organizationItemParticipants/${id}`, {
+			method: 'DELETE',
+		})
+		await refreshOrganizationItemParticipants()
+	}
+}
 </script>
 
 <template lang="pug">
@@ -85,5 +112,33 @@ template(v-if="data")
 		:organizationItem="route.params.organizationItem"
 		:readonly="!authStore.hasPermission('memberships.update')"
 		@refresh="refreshMemberships"
+	)
+	KernTable(
+		caption="Liste der Sitzungsteilnehmer"
+		create-permission="organizationItemParticipants.create"
+		update-permission="organizationItemParticipants.update"
+		delete-permission="organizationItemParticipants.delete"
+		:data="organizationItemParticipants || []"
+		:columns="['name', 'participant']"
+		@create="create"
+		@edit="edit"
+		@remove="remove"
+	)
+		template(#name-header)
+			| Name
+		template(#name-body="{ item }")
+			| {{ item.groupName }}
+		template(#participant-header)
+			| Organisationseinheit
+			br
+			em Mitgliedschaftsart
+		template(#participant-body="{ item }")
+			| {{ item.participantOrganizationItem.name }} ({{ item.participantOrganizationItem.code }})
+			br
+			em {{ item.participantMembershipType.name }} ({{ item.participantMembershipType.code }})
+	OrganizationItemParticipantEditor(
+		ref="organizationItemParticipantEditor"
+		:organizationItem="route.params.organizationItem"
+		@refresh="refreshOrganizationItemParticipants"
 	)
 </template>

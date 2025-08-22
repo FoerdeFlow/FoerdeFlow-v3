@@ -60,6 +60,32 @@ export const organizationItemsRelations = relations(organizationItems, ({ one, m
 	}),
 }))
 
+export const organizationItemParticipants = pgTable('organization_item_participants', {
+	id: uuid().notNull().primaryKey().defaultRandom(),
+	organizationItem: uuid().notNull().references(() => organizationItems.id),
+	groupName: varchar({ length: 256 }).notNull(),
+	participantOrganizationItem: uuid().notNull().references(() => organizationItems.id),
+	participantMembershipType: uuid().notNull().references(() => membershipTypes.id),
+})
+
+export const organizationItemParticipantsRelations = relations(organizationItemParticipants, ({ one }) => ({
+	organizationItem: one(organizationItems, {
+		fields: [ organizationItemParticipants.organizationItem ],
+		references: [ organizationItems.id ],
+		relationName: 'organizationItem',
+	}),
+	participantOrganizationItem: one(organizationItems, {
+		fields: [ organizationItemParticipants.participantOrganizationItem ],
+		references: [ organizationItems.id ],
+		relationName: 'participantOrganizationItem',
+	}),
+	participantMembershipType: one(membershipTypes, {
+		fields: [ organizationItemParticipants.participantMembershipType ],
+		references: [ membershipTypes.id ],
+		relationName: 'participantMembershipType',
+	}),
+}))
+
 export const membershipTypes = pgTable('membership_types', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	code: varchar({ length: 32 }).notNull().unique(),

@@ -58,7 +58,7 @@ KernTable(
 		| Nummer (Funktion)
 		br
 		em Anschrift
-	template(#name="{ item }")
+	template(#name-body="{ item }")
 		| {{ item.code }} ({{ item.name }})
 		br
 		em {{ item.postalAddress }}
