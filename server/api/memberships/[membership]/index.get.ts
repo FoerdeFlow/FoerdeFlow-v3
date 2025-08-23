@@ -4,9 +4,9 @@ import { z } from 'zod'
 export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 
-	const params = await getValidatedRouterParams(event, z.object({
+	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		membership: idSchema,
-	}).parseAsync)
+	}).parseAsync(data))
 
 	const membership = await database.query.memberships.findFirst({
 		where: eq(memberships.id, params.membership),
@@ -22,5 +22,15 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return membership
+	return membership as typeof membership & (
+		{
+			memberType: 'person'
+			memberPerson: Exclude<typeof membership.memberPerson, null>
+			memberOrganizationItem: null
+		} | {
+			memberType: 'organization_item'
+			memberPerson: null
+			memberOrganizationItem: Exclude<typeof membership.memberOrganizationItem, null>
+		}
+	)
 })

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { FetchError } from 'ofetch'
+
 const authStore = useAuthStore()
 const { data, refresh } = useFetch('/api/rooms')
 const { data: buildings } = useFetch('/api/buildings')
@@ -64,8 +66,10 @@ async function save() {
 			})
 		}
 		dialog.value?.close()
-	} catch(e: any) {
-		dialogErrorMessage.value = e?.data?.message || 'Ein unbekannter Fehler ist aufgetreten.'
+	} catch(e) {
+		if(e instanceof FetchError) {
+			dialogErrorMessage.value = e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.'
+		}
 	}
 	await refresh()
 }
@@ -91,7 +95,10 @@ table.kern-table
 	tbody.kern-table__body
 		tr.kern-table__row(v-if="data?.length === 0")
 			td.kern-table__cell(colspan="2") Keine Einträge gefunden.
-		tr.kern-table__row(v-for="item of data")
+		tr.kern-table__row(
+			v-for="item of data"
+			:key="item.id"
+		)
 			td.kern-table__cell {{ formatRoom(item) }}
 			td.kern-table__cell(
 				v-if="authStore.hasPermission('rooms.update') || authStore.hasPermission('rooms.delete')"
@@ -104,14 +111,18 @@ button.my-4.kern-btn.kern-btn--primary(
 	@click="create()"
 )
 	span.kern-label Erstellen
-dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
+dialog#dialog.kern-dialog(
+ref="dialog"
+aria-labelledby="dialog_heading")
 	header.kern-dialog__header
 		h2.kern-title.kern-title--large#dialog_heading Raum {{ dialogItemId ? 'bearbeiten' : 'erstellen' }}
 		button.kern-btn.kern-btn--tertiary(@click="close()")
 			span.kern-icon.kern-icon--close(aria-hidden="true")
 			span.kern-sr-only Schließen
 	section.kern-dialog__body
-		.kern-alert.kern-alert--danger(v-if="dialogErrorMessage" role="alert")
+		.kern-alert.kern-alert--danger(
+v-if="dialogErrorMessage"
+role="alert")
 			.kern-alert__header
 				span.kern-icon.kern-icon--danger(aria-hidden="true")
 				span.kern-title Fehler bei der {{ dialogItemId ? 'Bearbeitung' : 'Erstellung' }}
@@ -120,19 +131,37 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 		.kern-form-input
 			label.kern-label(for="building") Gebäude
 			select.kern-form-input__input#building(v-model="dialogInputModel.building")
-				option(v-for="building of buildings" :value="building.id") {{ building.code }} ({{ building.name }})
+				option(
+					v-for="building of buildings"
+					:key="building.id"
+					:value="building.id"
+				) {{ building.code }} ({{ building.name }})
 		.kern-form-input
 			label.kern-label(for="level") Stockwerk
-			input.kern-form-input__input#code(v-model="dialogInputModel.level" type="text" inputmode="numeric")
+			input.kern-form-input__input#level(
+				v-model="dialogInputModel.level"
+				type="text"
+				inputmode="numeric"
+			)
 		.kern-form-input
 			label.kern-label(for="code") Raumnummer
-			input.kern-form-input__input#code(v-model="dialogInputModel.code" type="text")
+			input.kern-form-input__input#code(
+				v-model="dialogInputModel.code"
+				type="text"
+			)
 		.kern-form-input
 			label.kern-label(for="name") Funktion
-			input.kern-form-input__input#name(v-model="dialogInputModel.name" type="text")
+			input.kern-form-input__input#name(
+				v-model="dialogInputModel.name"
+				type="text"
+			)
 		.kern-form-input
 			label.kern-label(for="capacity") Raumkapazität
-			input.kern-form-input__input#capacity(v-model="dialogInputModel.capacity" type="text" inputmode="numeric")
+			input.kern-form-input__input#capacity(
+				v-model="dialogInputModel.capacity"
+				type="text"
+				inputmode="numeric"
+			)
 	footer.kern-dialog__footer
 		button.kern-btn.kern-btn--secondary(@click="cancel()")
 			span.kern-label Abbrechen

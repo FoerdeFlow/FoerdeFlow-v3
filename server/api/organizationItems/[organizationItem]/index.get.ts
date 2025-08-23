@@ -4,9 +4,9 @@ import { z } from 'zod'
 export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 
-	const params = await getValidatedRouterParams(event, z.object({
+	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		organizationItem: idSchema,
-	}).parseAsync)
+	}).parseAsync(data))
 
 	const organizationItem = await database.query.organizationItems.findFirst({
 		where: eq(organizationItems.id, params.organizationItem),

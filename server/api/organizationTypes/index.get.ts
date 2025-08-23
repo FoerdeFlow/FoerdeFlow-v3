@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (_event) => {
 	const database = useDatabase()
 
 	const organizationTypes = await database.query.organizationTypes.findMany()

@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { KernConfirmDialog } from '#components'
 
-const authStore = useAuthStore()
-await authStore.initialize()
-
 const confirmDialogStore = useConfirmDialogStore()
 const confirmDialog = useTemplateRef<typeof KernConfirmDialog>('confirmDialog')
 </script>
@@ -17,8 +14,8 @@ KernConfirmDialog(
 	ref="confirmDialog"
 	:title="confirmDialogStore.title"
 	:text="confirmDialogStore.text"
-	:abortLabel="confirmDialogStore.abortLabel"
-	:confirmLabel="confirmDialogStore.confirmLabel"
+	:abort-label="confirmDialogStore.abortLabel"
+	:confirm-label="confirmDialogStore.confirmLabel"
 	@abort="() => confirmDialogStore.onAbort?.()"
 	@confirm="() => confirmDialogStore.onConfirm?.()"
 )

@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { FetchError } from 'ofetch'
+
 const authStore = useAuthStore()
 const { data, refresh } = useFetch('/api/organizationItems')
 const { data: organizationTypes } = useFetch('/api/organizationTypes')
 
-const flattenTree = (tree: any[], prefix = ''): any[] => tree.flatMap(item => ([
+type ElementType<T> = T extends (infer U)[] ? U : never
+type TreeItem = ElementType<typeof data.value>
+const flattenTree = (tree: TreeItem[], prefix = ''): (TreeItem & { displayName: string })[] => tree.flatMap((item) => ([
 	{
 		...item,
 		displayName: `${prefix}${item.name} (${item.code})`,
@@ -38,7 +42,7 @@ async function edit(id: string) {
 	dialogErrorMessage.value = null
 
 	const item = await $fetch(`/api/organizationItems/${id}`)
-	dialogInputModel.parent = item.parent?.id || ''
+	dialogInputModel.parent = item.parent?.id ?? ''
 	dialogInputModel.organizationType = item.organizationType.id
 	dialogInputModel.code = item.code
 	dialogInputModel.name = item.name
@@ -67,8 +71,10 @@ async function save() {
 			})
 		}
 		dialog.value?.close()
-	} catch(e: any) {
-		dialogErrorMessage.value = e?.data?.message || 'Ein unbekannter Fehler ist aufgetreten.'
+	} catch(e) {
+		if(e instanceof FetchError) {
+			dialogErrorMessage.value = e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.'
+		}
 	}
 	await refresh()
 }
@@ -97,7 +103,10 @@ table.kern-table
 	tbody.kern-table__body
 		tr.kern-table__row(v-if="data?.length === 0")
 			td.kern-table__cell(colspan="2") Keine Einträge gefunden.
-		tr.kern-table__row(v-for="item of organizationItems" :key="item.id")
+		tr.kern-table__row(
+			v-for="item of organizationItems"
+			:key="item.id"
+		)
 			td.kern-table__cell
 				em {{ item.organizationType.name }} ({{ item.organizationType.code }})
 				br
@@ -116,14 +125,18 @@ button.my-4.kern-btn.kern-btn--primary(
 	@click="create()"
 )
 	span.kern-label Erstellen
-dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
+dialog#dialog.kern-dialog(
+ref="dialog"
+aria-labelledby="dialog_heading")
 	header.kern-dialog__header
 		h2.kern-title.kern-title--large#dialog_heading Organisationseinheit {{ dialogItemId ? 'bearbeiten' : 'erstellen' }}
 		button.kern-btn.kern-btn--tertiary(@click="close()")
 			span.kern-icon.kern-icon--close(aria-hidden="true")
 			span.kern-sr-only Schließen
 	section.kern-dialog__body
-		.kern-alert.kern-alert--danger(v-if="dialogErrorMessage" role="alert")
+		.kern-alert.kern-alert--danger(
+v-if="dialogErrorMessage"
+role="alert")
 			.kern-alert__header
 				span.kern-icon.kern-icon--danger(aria-hidden="true")
 				span.kern-title Fehler bei der {{ dialogItemId ? 'Bearbeitung' : 'Erstellung' }}
@@ -133,17 +146,31 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 			label.kern-label(for="parent") Übergeordnete Organisationseinheit #[span.kern-label__optional - Optional]
 			select.kern-form-input__input#parent(v-model="dialogInputModel.parent")
 				option(value="") - Keine -
-				option(v-for="item of organizationItems" :value="item.id") {{ item.displayName }}
+				option(
+					v-for="item of organizationItems"
+					:key="item.id"
+					:value="item.id"
+				) {{ item.displayName }}
 		.kern-form-input
 			label.kern-label(for="organizationType") OE-Kategorie
 			select.kern-form-input__input#organizationType(v-model="dialogInputModel.organizationType")
-				option(v-for="item of organizationTypes" :value="item.id") {{ item.name }} ({{ item.code }})
+				option(
+					v-for="item of organizationTypes"
+					:key="item.id"
+					:value="item.id"
+				) {{ item.name }} ({{ item.code }})
 		.kern-form-input
 			label.kern-label(for="code") Kürzel
-			input.kern-form-input__input#code(v-model="dialogInputModel.code" type="text")
+			input.kern-form-input__input#code(
+				v-model="dialogInputModel.code"
+				type="text"
+			)
 		.kern-form-input
 			label.kern-label(for="name") Name
-			input.kern-form-input__input#name(v-model="dialogInputModel.name" type="text")
+			input.kern-form-input__input#name(
+				v-model="dialogInputModel.name"
+				type="text"
+			)
 	footer.kern-dialog__footer
 		button.kern-btn.kern-btn--secondary(@click="cancel()")
 			span.kern-label Abbrechen

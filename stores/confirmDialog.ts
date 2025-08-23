@@ -13,8 +13,8 @@ export const useConfirmDialogStore = defineStore('confirmDialog', () => {
 	async function askConfirm(props: { title: string, text: string, abortLabel?: string, confirmLabel?: string }) {
 		title.value = props.title
 		text.value = props.text
-		abortLabel.value = props.abortLabel || 'Nein, abbrechen'
-		confirmLabel.value = props.confirmLabel || 'Ja, bestätigen'
+		abortLabel.value = props.abortLabel ?? 'Nein, abbrechen'
+		confirmLabel.value = props.confirmLabel ?? 'Ja, bestätigen'
 		visible.value = true
 
 		return await new Promise((resolve) => {

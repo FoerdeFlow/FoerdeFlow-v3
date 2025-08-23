@@ -1,13 +1,12 @@
-import { createUpdateSchema } from 'drizzle-zod'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 
-	const params = await getValidatedRouterParams(event, z.object({
+	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		building: idSchema,
-	}).parseAsync)
+	}).parseAsync(data))
 
 	const result = await database
 		.delete(buildings)

@@ -4,9 +4,9 @@ import { z } from 'zod'
 export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 
-	const params = await getValidatedRouterParams(event, z.object({
+	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		building: idSchema,
-	}).parseAsync)
+	}).parseAsync(data))
 
 	const building = await database.query.buildings.findFirst({
 		where: eq(buildings.id, params.building),

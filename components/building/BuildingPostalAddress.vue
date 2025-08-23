@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const id = useId()
-const model = defineModel()
+const model = defineModel<string>()
 </script>
 
 <template lang="pug">

@@ -114,7 +114,7 @@ export const memberships = pgTable('memberships', {
 	memberType: memberTypes().notNull(),
 	memberPerson: uuid().references(() => persons.id),
 	memberOrganizationItem: uuid().references(() => organizationItems.id),
-}, table => [
+}, (table) => [
 	check('member_type', sql`(
 		${table.memberType} = 'person' AND
 		${table.memberPerson} IS NOT NULL AND
@@ -124,7 +124,10 @@ export const memberships = pgTable('memberships', {
 		${table.memberOrganizationItem} IS NOT NULL AND
 		${table.memberPerson} IS NULL
 	)`),
-	check('date_order', sql`${table.startDate} IS NULL OR ${table.endDate} IS NULL OR ${table.startDate} < ${table.endDate}`),
+	check(
+		'date_order',
+		sql`${table.startDate} IS NULL OR ${table.endDate} IS NULL OR ${table.startDate} < ${table.endDate}`,
+	),
 ])
 
 export const membershipsRelations = relations(memberships, ({ one }) => ({
@@ -133,7 +136,7 @@ export const membershipsRelations = relations(memberships, ({ one }) => ({
 		references: [ organizationItems.id ],
 	}),
 	membershipType: one(membershipTypes, {
-		fields: [ memberships.membershipType ],	
+		fields: [ memberships.membershipType ],
 		references: [ membershipTypes.id ],
 	}),
 	endReason: one(membershipEndReasons, {

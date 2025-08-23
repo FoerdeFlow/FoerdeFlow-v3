@@ -6,6 +6,9 @@
 .cache
 dist
 
+# Caches
+.eslintcache
+
 # Node dependencies
 node_modules
 

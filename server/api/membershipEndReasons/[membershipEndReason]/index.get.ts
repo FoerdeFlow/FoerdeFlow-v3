@@ -4,9 +4,9 @@ import { z } from 'zod'
 export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 
-	const params = await getValidatedRouterParams(event, z.object({
+	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		membershipEndReason: idSchema,
-	}).parseAsync)
+	}).parseAsync(data))
 
 	const membershipEndReason = await database.query.membershipEndReasons.findFirst({
 		where: eq(membershipEndReasons.id, params.membershipEndReason),

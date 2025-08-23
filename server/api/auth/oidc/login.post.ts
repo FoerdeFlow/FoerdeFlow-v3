@@ -4,9 +4,9 @@ import { z } from 'zod'
 export default defineEventHandler(async (event) => {
 	const runtimeConfig = useRuntimeConfig()
 	const session = await useSession(event, { password: runtimeConfig.sessionSecret })
-	const { returnTo } = await getValidatedQuery(event, z.object({
+	const { returnTo } = await getValidatedQuery(event, async (data) => await z.object({
 		returnTo: z.string().optional(),
-	}).strict().parseAsync)
+	}).strict().parseAsync(data))
 
 	const oidcConfig = await getOidcConfig()
 

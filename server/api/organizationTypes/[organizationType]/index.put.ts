@@ -5,11 +5,12 @@ import { z } from 'zod'
 export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 
-	const params = await getValidatedRouterParams(event, z.object({
+	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		organizationType: idSchema,
-	}).parseAsync)
+	}).parseAsync(data))
 
-	const body = await readValidatedBody(event, createUpdateSchema(organizationTypes).omit({ id: true }).parseAsync)
+	const body = await readValidatedBody(event, async (data) =>
+		await createUpdateSchema(organizationTypes).omit({ id: true }).parseAsync(data))
 
 	const result = await database
 		.update(organizationTypes)

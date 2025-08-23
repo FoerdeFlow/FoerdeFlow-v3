@@ -14,14 +14,17 @@ const emit = defineEmits<{
 	remove: [T]
 }>()
 
-const slots = defineSlots<{
+defineSlots<{
 	[slotName: `${string}-header`]: (props: {}) => unknown
 	[slotName: `${string}-body`]: (props: { item: T }) => unknown
 }>()
 
 const authStore = useAuthStore()
 
-const showActions = computed(() => authStore.hasPermission(props.updatePermission).value || authStore.hasPermission(props.deletePermission).value)
+const showActions = computed(() =>
+	authStore.hasPermission(props.updatePermission).value ||
+	authStore.hasPermission(props.deletePermission).value,
+)
 </script>
 
 <template lang="pug">
@@ -31,6 +34,7 @@ table.kern-table
 		tr.kern-table__row
 			th.kern-table__header(
 				v-for="column of props.columns"
+				:key="column"
 				scope="col"
 			)
 				slot(
@@ -45,9 +49,13 @@ table.kern-table
 			td.kern-table__cell(
 				:colspan="props.columns.length + (showActions ? 1 : 0)"
 			) Keine Einträge gefunden.
-		tr.kern-table__row(v-for="item of data")
+		tr.kern-table__row(
+			v-for="(item, idx) of data"
+			:key="idx"
+		)
 			td.kern-table__cell(
 				v-for="column of props.columns"
+				:key="column"
 			)
 				slot(
 					:name="`${column}-body`"

@@ -1,5 +1,11 @@
 <script setup lang="ts">
-const navigationItems = [
+const navigationItems: {
+	type: string
+	label: string
+	sublabel?: string
+	description?: string
+	link: string
+}[] = [
 	{
 		type: 'Organisation',
 		label: 'Organisationseinheiten',
@@ -48,7 +54,10 @@ h1.kern-heading-large Studierendenparlament der HAW Kiel
 h2.kern-heading-medium Sitzungsverwaltung und Antragsmanagement
 .kern-container
 	.kern-row
-		.kern-col(v-for="item of navigationItems")
+		.kern-col(
+			v-for="item of navigationItems"
+			:key="item.link"
+		)
 			article.kern-card
 				.kern-card__container
 					header.kern-card__header

@@ -5,19 +5,19 @@ import { z } from 'zod'
 export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 
-	const params = await getValidatedRouterParams(event, z.object({
+	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		session: idSchema,
-	}).parseAsync)
+	}).parseAsync(data))
 
 	const sessionSchema = createUpdateSchema(sessions).omit({ id: true })
-	const body = await readValidatedBody(event, async (body: any) =>
+	const body = await readValidatedBody(event, async (body: unknown) =>
 		await sessionSchema.parseAsync(
 			await z.object({
 				plannedDate: z.coerce.date(),
 				startDate: z.coerce.date().optional(),
 				endDate: z.coerce.date().optional(),
-			}).passthrough().parseAsync(body)
-		)
+			}).passthrough().parseAsync(body),
+		),
 	)
 	const updateBody = {
 		startDate: null,

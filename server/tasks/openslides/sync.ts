@@ -19,7 +19,6 @@ export default defineTask({
 				...(person.pronouns ? { pronoun: person.pronouns } : {}),
 			}
 			await client.user.create(data)
-
 		}
 
 		return { result: 'success' }

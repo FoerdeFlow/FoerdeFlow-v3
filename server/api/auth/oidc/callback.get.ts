@@ -13,7 +13,10 @@ async function createOrGetPerson(email: string, data: { firstName?: string, last
 	})
 	let personId = person?.id
 	if(person) {
-		if((data.firstName && person.firstName !== data.firstName) || (data.lastName && person.lastName !== data.lastName)) {
+		if(
+			(data.firstName && person.firstName !== data.firstName) ||
+			(data.lastName && person.lastName !== data.lastName)
+		) {
 			;[ { id: personId } ] = await database
 				.update(persons)
 				.set(data)
@@ -25,12 +28,15 @@ async function createOrGetPerson(email: string, data: { firstName?: string, last
 			.insert(persons)
 			.values({
 				email,
-				firstName: data.firstName || '',
-				lastName: data.lastName || '',
+				firstName: data.firstName ?? '',
+				lastName: data.lastName ?? '',
 			})
 			.returning({ id: persons.id })
 	}
-	return personId!
+	if(!personId) {
+		throw new Error('Person could not be created or found')
+	}
+	return personId
 }
 
 export default defineEventHandler(async (event) => {
@@ -52,23 +58,27 @@ export default defineEventHandler(async (event) => {
 		)
 		const claims = tokens.claims()
 		if(!claims) throw new Error('No claims found in the token')
-		const email = claims.email || claims.sub
+		const email = claims.email ?? claims.sub
 		if(typeof email !== 'string') throw new Error('Missing email claim (mandatory)')
 		const userId = await createOrGetPerson(email, {
-			...(typeof claims.given_name === 'string' && claims.given_name.length ? {
-				firstName: claims.given_name,
-			} : {}),
-			...(typeof claims.family_name === 'string' && claims.family_name.length ? {
-				lastName: claims.family_name,
-			} : {}),
+			...(typeof claims.given_name === 'string' && claims.given_name.length
+				? {
+					firstName: claims.given_name,
+				}
+				: {}),
+			...(typeof claims.family_name === 'string' && claims.family_name.length
+				? {
+					lastName: claims.family_name,
+				}
+				: {}),
 		})
 		await session.update({ userId })
-		sendRedirect(event, session.data.returnTo, 307)
-	} catch(e: any) {
+		await sendRedirect(event, session.data.returnTo, 307)
+	} catch(e) {
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'Bad Request',
-			data: e.toString(),
+			data: e?.toString?.(),
 		})
 	}
 })

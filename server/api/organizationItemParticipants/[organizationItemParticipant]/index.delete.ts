@@ -5,9 +5,9 @@ export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 	const client = useOpenslides()
 
-	const params = await getValidatedRouterParams(event, z.object({
+	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		organizationItemParticipant: idSchema,
-	}).parseAsync)
+	}).parseAsync(data))
 
 	await database.transaction(async (tx) => {
 		const [ result ] = await tx

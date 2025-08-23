@@ -6,11 +6,13 @@ export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 	const client = useOpenslides()
 
-	const params = await getValidatedRouterParams(event, z.object({
+	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		organizationItem: idSchema,
-	}).parseAsync)
+	}).parseAsync(data))
 
-	const body = await readValidatedBody(event, createUpdateSchema(organizationItems).omit({ id: true }).parseAsync)
+	const body = await readValidatedBody(event, async (data) =>
+		await createUpdateSchema(organizationItems).omit({ id: true }).parseAsync(data))
+
 	for(let parent = body.parent; parent;) {
 		if(parent === params.organizationItem) {
 			throw createError({
@@ -33,7 +35,10 @@ export default defineEventHandler(async (event) => {
 	}
 
 	await database.transaction(async (tx) => {
-		const result = await tx.update(organizationItems).set(body).where(eq(organizationItems.id, params.organizationItem))
+		const result = await tx
+			.update(organizationItems)
+			.set(body)
+			.where(eq(organizationItems.id, params.organizationItem))
 		if(result.rowCount === 0) {
 			throw createError({
 				statusCode: 404,
@@ -59,7 +64,7 @@ export default defineEventHandler(async (event) => {
 			}))
 		}
 		await client.committee.update({
-			id: id,
+			id,
 			name: `${body.name} (${body.code})`,
 			...(parentId ? { parent_id: parentId } : {}),
 		})

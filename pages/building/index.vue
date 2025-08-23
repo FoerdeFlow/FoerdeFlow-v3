@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { BuildingEditor } from '#components'
 import { FetchError } from 'ofetch'
+import { BuildingEditor } from '#components'
 
-const authStore = useAuthStore()
 const confirmDialogStore = useConfirmDialogStore()
 const alertStore = useAlertStore()
 
@@ -15,7 +14,7 @@ function create() {
 	editor.value.create()
 }
 
-async function edit({ id }: { id: string }) {
+function edit({ id }: { id: string }) {
 	if(!editor.value) return
 	editor.value.edit(id)
 }
@@ -33,7 +32,7 @@ async function remove({ id }: { id: string }) {
 				alertStore.showAlert({
 					type: 'danger',
 					title: 'Fehler beim Löschen',
-					text: e.data?.message || 'Ein unbekannter Fehler ist aufgetreten.',
+					text: e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.',
 				})
 			}
 		}

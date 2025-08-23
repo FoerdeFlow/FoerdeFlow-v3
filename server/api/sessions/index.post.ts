@@ -14,8 +14,8 @@ export default defineEventHandler(async (event) => {
 				plannedDate: z.coerce.date(),
 				startDate: z.coerce.date().optional(),
 				endDate: z.coerce.date().optional(),
-			}).passthrough().parseAsync(body)
-		)
+			}).passthrough().parseAsync(body),
+		),
 	)
 
 	return await database.transaction(async (tx) => {
@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
 			committee_id: committeeId,
 			name: `${committee.code}-Sitzung ${formatSessionNumber(body.period, body.number)}`,
 			welcome_title: `${committee.code}-Sitzung ${formatSessionNumber(body.period, body.number)}`,
-			description: `${body.number}. Sitzung | ${formatTime(body.plannedDate)} Uhr`,
+			description: `${body.number.toString()}. Sitzung | ${formatTime(body.plannedDate)} Uhr`,
 			start_time: body.plannedDate,
 			end_time: body.plannedDate,
 			location: formatRoom(room),

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { FetchError } from 'ofetch'
+
 const authStore = useAuthStore()
 const { data, refresh } = useFetch('/api/organizationTypes')
 
@@ -47,8 +49,10 @@ async function save() {
 			})
 		}
 		dialog.value?.close()
-	} catch(e: any) {
-		dialogErrorMessage.value = e?.data?.message || 'Ein unbekannter Fehler ist aufgetreten.'
+	} catch(e) {
+		if(e instanceof FetchError) {
+			dialogErrorMessage.value = e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.'
+		}
 	}
 	await refresh()
 }
@@ -74,7 +78,10 @@ table.kern-table
 	tbody.kern-table__body
 		tr.kern-table__row(v-if="data?.length === 0")
 			td.kern-table__cell(colspan="2") Keine Einträge gefunden.
-		tr.kern-table__row(v-for="item of data")
+		tr.kern-table__row(
+			v-for="item of data"
+			:key="item.id"
+		)
 			td.kern-table__cell {{ item.name }} ({{ item.code }})
 			td.kern-table__cell(
 				v-if="authStore.hasPermission('organizationTypes.update') || authStore.hasPermission('organizationTypes.delete')"
@@ -87,14 +94,20 @@ button.my-4.kern-btn.kern-btn--primary(
 	@click="create()"
 )
 	span.kern-label Erstellen
-dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
+dialog#dialog.kern-dialog(
+	ref="dialog"
+	aria-labelledby="dialog_heading"
+)
 	header.kern-dialog__header
 		h2.kern-title.kern-title--large#dialog_heading OE-Kategorie {{ dialogItemId ? 'bearbeiten' : 'erstellen' }}
 		button.kern-btn.kern-btn--tertiary(@click="close()")
 			span.kern-icon.kern-icon--close(aria-hidden="true")
 			span.kern-sr-only Schließen
 	section.kern-dialog__body
-		.kern-alert.kern-alert--danger(v-if="dialogErrorMessage" role="alert")
+		.kern-alert.kern-alert--danger(
+			v-if="dialogErrorMessage"
+			role="alert"
+		)
 			.kern-alert__header
 				span.kern-icon.kern-icon--danger(aria-hidden="true")
 				span.kern-title Fehler bei der {{ dialogItemId ? 'Bearbeitung' : 'Erstellung' }}
@@ -102,10 +115,16 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 				p.kern-body {{ dialogErrorMessage }}
 		.kern-form-input
 			label.kern-label(for="code") Kürzel
-			input.kern-form-input__input#code(v-model="dialogInputModel.code" type="text")
+			input.kern-form-input__input#code(
+				v-model="dialogInputModel.code"
+				type="text"
+			)
 		.kern-form-input
 			label.kern-label(for="name") Name
-			input.kern-form-input__input#name(v-model="dialogInputModel.name" type="text")
+			input.kern-form-input__input#name(
+				v-model="dialogInputModel.name"
+				type="text"
+			)
 	footer.kern-dialog__footer
 		button.kern-btn.kern-btn--secondary(@click="cancel()")
 			span.kern-label Abbrechen
@@ -113,7 +132,7 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 			span.kern-label Speichern
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 #dialog {
 	width: 100%;
 }

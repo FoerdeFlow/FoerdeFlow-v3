@@ -5,7 +5,8 @@ export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 	const client = useOpenslides()
 
-	const body = await readValidatedBody(event, createInsertSchema(persons).omit({ id: true }).parseAsync)
+	const body = await readValidatedBody(event, async (data) =>
+		await createInsertSchema(persons).omit({ id: true }).parseAsync(data))
 
 	return await database.transaction(async (tx) => {
 		const [ result ] = await tx.insert(persons).values(body).returning({ id: persons.id })
@@ -14,7 +15,7 @@ export default defineEventHandler(async (event) => {
 		await client.user.create({
 			saml_id: body.email,
 			username: body.email,
-			first_name: body.callName || body.firstName,
+			first_name: body.callName ?? body.firstName,
 			last_name: body.lastName,
 			email: body.email,
 			...(body.gender ? { gender_id: mapGender(body.gender) } : {}),

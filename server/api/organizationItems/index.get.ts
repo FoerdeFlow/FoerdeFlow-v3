@@ -1,4 +1,4 @@
-interface OrganizationTreeItem {
+interface OrganizationItem {
 	id: string
 	organizationType: {
 		id: string
@@ -7,20 +7,25 @@ interface OrganizationTreeItem {
 	}
 	code: string
 	name: string
+}
+
+interface OrganizationTreeItem extends OrganizationItem {
 	children: OrganizationTreeItem[]
 }
 
-function buildTree(items: OrganizationTreeItem[], parentId: string | null = null): OrganizationTreeItem[] {
+function buildTree(
+	items: (OrganizationItem & { parent: string | null })[],
+	parentId: string | null = null,
+): OrganizationTreeItem[] {
 	return items
-		// @ts-expect-error
-		.filter(item => item.parent === parentId)
-		.map(item => ({
+		.filter((item) => item.parent === parentId)
+		.map((item) => ({
 			...item,
 			children: buildTree(items, item.id),
 		}))
 }
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (_event) => {
 	const database = useDatabase()
 
 	const organizationItems = (await database.query.organizationItems.findMany({
@@ -28,7 +33,7 @@ export default defineEventHandler(async (event) => {
 			organizationType: true,
 		},
 	}))
-		.map(item => ({ ...item, children: [] }))
+		.map((item) => ({ ...item, children: [] }))
 
 	return buildTree(organizationItems)
 })

@@ -14,13 +14,14 @@ const emit = defineEmits<{
 	select: [ taskId: string ]
 }>()
 
+type InferT<T> = T extends (infer U)[] ? U : never
 const items = computed(() => {
 	const result = []
 	let number = 1
 	for(const item of props.items) {
 		const resultItem = {
 			title: item.title,
-			tasks: [] as any[],
+			tasks: [] as ({ number: number } & InferT<typeof item.tasks>)[],
 		}
 		for(const task of item.tasks) {
 			resultItem.tasks.push({ number, ...task })
@@ -35,7 +36,8 @@ const items = computed(() => {
 <template lang="pug">
 .kern-task-list.w-full
 	template(
-		v-for="item of items"
+		v-for="(item, idx) of items"
+		:key="idx"
 	)
 		.kern-task-list__header(
 			v-if="item.title"
@@ -43,7 +45,8 @@ const items = computed(() => {
 			h2.kern-title.kern-title--medium {{ item.title }}
 		ul.kern-task-list__list
 			li.kern-task-list__item(
-				v-for="task of item.tasks"
+				v-for="(task, subidx) of item.tasks"
+				:key="subidx"
 			)
 				span.kern-number {{ task.number }}
 				.kern-task-list__title(
@@ -52,8 +55,8 @@ const items = computed(() => {
 					a.kern-link.kern-link--stretched(
 						v-if="[ 'done', 'partial', 'open' ].includes(task.status)"
 						href="#"
-						@click.prevent="() => emit('select', task.id)"
 						:aria-describedby="`task${task.number}-status`"
+						@click.prevent="() => emit('select', task.id)"
 					) {{ task.label }}
 					p.kern-body(
 						v-else

@@ -4,10 +4,14 @@ export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 	const client = useOpenslides()
 
-	const body = await readValidatedBody(event, createInsertSchema(organizationItems).omit({ id: true }).parseAsync)
+	const body = await readValidatedBody(event, async (data) =>
+		await createInsertSchema(organizationItems).omit({ id: true }).parseAsync(data))
 
 	return await database.transaction(async (tx) => {
-		const [ result ] = await tx.insert(organizationItems).values(body).returning({ id: organizationItems.id })
+		const [ result ] = await tx
+			.insert(organizationItems)
+			.values(body)
+			.returning({ id: organizationItems.id })
 
 		await client.connect()
 		let parentId

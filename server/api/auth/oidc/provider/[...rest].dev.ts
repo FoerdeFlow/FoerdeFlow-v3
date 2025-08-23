@@ -10,8 +10,8 @@ const provider = new oidc.Provider('http://localhost:3000/api/auth/oidc/provider
 	],
 })
 
-export default defineEventHandler(async event => {
-	event.node.req.originalUrl = event.node.req.url;
-	event.node.req.url = event.node.req.url?.replace('/api/auth/oidc/provider', '');
+export default defineEventHandler(async (event) => {
+	event.node.req.originalUrl = event.node.req.url
+	event.node.req.url = event.node.req.url?.replace('/api/auth/oidc/provider', '')
 	await provider.callback()(event.node.req, event.node.res)
 })

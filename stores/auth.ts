@@ -15,13 +15,8 @@ export const useAuthStore = defineStore('auth', () => {
 
 	const loggedIn = computed(() => Boolean(userInfo.value))
 
-	async function initialize() {
-		const route = useRoute()
-		const router = useRouter()
-	}
-
 	function hasPermission(permission: string): Ref<boolean> {
-		return computed(() => userInfo.value?.permissions.includes(permission) || false)
+		return computed(() => userInfo.value?.permissions.includes(permission) ?? false)
 	}
 
 	function login() {
@@ -45,7 +40,6 @@ export const useAuthStore = defineStore('auth', () => {
 	}
 
 	return {
-		initialize,
 		hasPermission,
 		login,
 		logout,

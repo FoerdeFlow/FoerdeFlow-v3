@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { KernDialog } from '#components'
 import { FetchError } from 'ofetch'
+import { KernDialog } from '#components'
 
 const dialog = useTemplateRef<typeof KernDialog>('dialog')
 
 const itemId = ref<string | null>(null)
 
-type Model = {
+interface Model {
 	code: string
 	name: string
 	postalAddress: string
@@ -70,15 +70,10 @@ async function save() {
 			dialog.value.showAlert({
 				type: 'danger',
 				title: `Fehler bei der ${itemId.value ? 'Bearbeitung' : 'Erstellung'}`,
-				text: e.data?.message || 'Ein unbekannter Fehler ist aufgetreten.',
+				text: e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.',
 			})
 		}
 	}
-}
-
-function close() {
-	if(!dialog.value) return
-	dialog.value.close()
 }
 </script>
 

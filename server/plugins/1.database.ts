@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
 import * as schema from '../utils/schema'
 
-export default defineNitroPlugin(async (nitroApp) => {
+export default defineNitroPlugin((nitroApp) => {
 	const runtimeConfig = useRuntimeConfig()
 	const database = drizzle({
 		connection: {
@@ -16,8 +16,10 @@ export default defineNitroPlugin(async (nitroApp) => {
 		schema,
 	})
 
-	await migrate(database, {
+	migrate(database, {
 		migrationsFolder: 'server/migrations',
+	}).catch((e: unknown) => {
+		console.error('Migration failed:', e)
 	})
 
 	nitroApp.hooks.hook('request', (event) => {

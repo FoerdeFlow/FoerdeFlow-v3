@@ -7,11 +7,12 @@ export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 	const client = useOpenslides()
 
-	const params = await getValidatedRouterParams(event, z.object({
+	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		person: idSchema,
-	}).parseAsync)
+	}).parseAsync(data))
 
-	const body = await readValidatedBody(event, createUpdateSchema(persons).omit({ id: true }).parseAsync)
+	const body = await readValidatedBody(event, async (data) =>
+		await createUpdateSchema(persons).omit({ id: true }).parseAsync(data))
 
 	await database.transaction(async (tx) => {
 		const result = await tx.update(persons).set(body).where(eq(persons.id, params.person))
@@ -35,7 +36,7 @@ export default defineEventHandler(async (event) => {
 			id,
 			saml_id: body.email,
 			username: body.email,
-			first_name: body.callName || body.firstName,
+			first_name: body.callName ?? body.firstName,
 			last_name: body.lastName,
 			email: body.email,
 			...(body.gender ? { gender_id: mapGender(body.gender) } : {}),

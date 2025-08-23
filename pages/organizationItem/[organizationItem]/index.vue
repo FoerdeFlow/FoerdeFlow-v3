@@ -1,23 +1,26 @@
 <script setup lang="ts">
-const route = useRoute()
+import { MembershipEditor } from '#components'
+
+const route = useRoute('organizationItem-organizationItem')
 const authStore = useAuthStore()
 const confirmDialogStore = useConfirmDialogStore()
 
 const { data } = useFetch(() => `/api/organizationItems/${route.params.organizationItem}`)
-const { data: memberships, refresh: refreshMemberships } = useFetch(() => `/api/memberships?organizationItem=${route.params.organizationItem}`)
-const { data: organizationItemParticipants, refresh: refreshOrganizationItemParticipants } = useFetch(() => `/api/organizationItemParticipants?organizationItem=${route.params.organizationItem}`)
-
-import { MembershipEditor } from '#components'
+const { data: memberships, refresh: refreshMemberships } =
+	useFetch(() => `/api/memberships?organizationItem=${route.params.organizationItem}`)
+const { data: organizationItemParticipants, refresh: refreshOrganizationItemParticipants } =
+	useFetch(() => `/api/organizationItemParticipants?organizationItem=${route.params.organizationItem}`)
 const dialog = useTemplateRef<InstanceType<typeof MembershipEditor>>('dialog')
 
-const organizationItemParticipantEditor = useTemplateRef<InstanceType<typeof MembershipEditor>>('organizationItemParticipantEditor')
+const organizationItemParticipantEditor =
+	useTemplateRef<InstanceType<typeof MembershipEditor>>('organizationItemParticipantEditor')
 
 function create() {
 	if(!organizationItemParticipantEditor.value) return
 	organizationItemParticipantEditor.value.create()
 }
 
-async function edit({ id }: { id: string }) {
+function edit({ id }: { id: string }) {
 	if(!organizationItemParticipantEditor.value) return
 	organizationItemParticipantEditor.value.edit(id)
 }
@@ -55,7 +58,10 @@ template(v-if="data")
 							h2.kern-title Untergeordnete Organisationseinheiten
 						.kern-card__body
 							ul
-								li(v-for="item of data.children" :key="item.id")
+								li(
+									v-for="item of data.children"
+									:key="item.id"
+								)
 									| {{ item.name }} ({{ item.code }})
 	table.kern-table
 		caption.kern-title Liste der Mitglieder
@@ -77,7 +83,10 @@ template(v-if="data")
 		tbody.kern-table__body
 			tr.kern-table__row(v-if="memberships?.length === 0")
 				td.kern-table__cell(colspan="3") Keine Einträge gefunden.
-			tr.kern-table__row(v-for="item of memberships" :key="item.id")
+			tr.kern-table__row(
+				v-for="item of memberships"
+				:key="item.id"
+			)
 				td.kern-table__cell
 					em {{ item.membershipType.name }} ({{ item.membershipType.code }})
 					br
@@ -109,7 +118,7 @@ template(v-if="data")
 		span.kern-label Erstellen
 	MembershipEditor(
 		ref="dialog"
-		:organizationItem="route.params.organizationItem"
+		:organization-item="route.params.organizationItem"
 		:readonly="!authStore.hasPermission('memberships.update')"
 		@refresh="refreshMemberships"
 	)
@@ -138,7 +147,7 @@ template(v-if="data")
 			em {{ item.participantMembershipType.name }} ({{ item.participantMembershipType.code }})
 	OrganizationItemParticipantEditor(
 		ref="organizationItemParticipantEditor"
-		:organizationItem="route.params.organizationItem"
+		:organization-item="route.params.organizationItem"
 		@refresh="refreshOrganizationItemParticipants"
 	)
 </template>

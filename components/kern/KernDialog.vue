@@ -4,7 +4,7 @@ import { KernAlert } from '#components'
 const id = useId()
 const dialog = useTemplateRef<HTMLDialogElement>('dialog')
 
-type AlertProps = InstanceType<typeof KernAlert>["$props"]
+type AlertProps = InstanceType<typeof KernAlert>['$props']
 const alerts: Ref<AlertProps[]> = ref([])
 
 const { title, modal = false } = defineProps<{
@@ -48,8 +48,8 @@ function close() {
 <template lang="pug">
 dialog.kern-dialog(
 	:id="`${id}`"
-	:class="$style.dialog"
 	ref="dialog"
+	:class="$style.dialog"
 	:closedby="modal ? 'none' : 'closerequest'"
 	:aria-labelledby="`${id}-heading`"
 )
@@ -61,6 +61,7 @@ dialog.kern-dialog(
 	section.kern-dialog__body
 		KernAlert(
 			v-for="(alert, idx) of alerts"
+			:key="idx"
 			:type="alert.type"
 			:title="alert.title"
 			:text="alert.text"

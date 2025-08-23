@@ -2,7 +2,7 @@
 const props = defineProps<{
 	id: string
 }>()
-const model = defineModel()
+const model = defineModel<string>()
 
 const { data } = await useFetch('/api/membershipTypes')
 </script>

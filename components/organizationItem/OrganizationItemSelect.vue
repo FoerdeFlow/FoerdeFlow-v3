@@ -2,7 +2,11 @@
 const props = defineProps<{
 	id: string
 }>()
-const model = defineModel()
+const model = defineModel<string | null>({
+	required: true,
+	get: (v) => v ?? '',
+	set: (v) => v === '' ? null : v,
+})
 
 const { data } = await useFetch('/api/organizationItems')
 
@@ -10,7 +14,7 @@ const flattenTree = <T extends {
 	name: string,
 	code: string,
 	children: T[],
-}>(tree: T[], prefix = ''): (T & { displayName: string })[] => tree.flatMap(item => ([
+}>(tree: T[], prefix = ''): (T & { displayName: string })[] => tree.flatMap((item) => ([
 	{
 		...item,
 		displayName: `${prefix}${item.name} (${item.code})`,

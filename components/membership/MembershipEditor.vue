@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { FetchError } from 'ofetch'
+
 const props = defineProps<{
 	organizationItem: string
 }>()
@@ -13,17 +15,21 @@ const dialog = useTemplateRef<HTMLDialogElement>('dialog')
 
 const { data: persons } = useFetch('/api/persons')
 const personFilter = ref('')
-const filteredPersons = computed(() => personFilter.value && persons.value?.filter(person =>
-	[
-		person.callName,
-		person.firstName,
-		person.lastName,
-		person.email,
-	].some(field => field && field.toUpperCase().includes(personFilter.value.toUpperCase()))
-).slice(0, 10) || [])
+const filteredPersons = computed(() =>
+	personFilter.value.length > 0
+		? (persons.value?.filter((person) =>
+			[
+				person.callName,
+				person.firstName,
+				person.lastName,
+				person.email,
+			].some((field) => field?.toUpperCase().includes(personFilter.value.toUpperCase())),
+		).slice(0, 10) ?? [])
+		: [],
+)
 
 const { data: organizationItemsTree } = useFetch('/api/organizationItems')
-const flattenTree = (tree: any[], prefix = ''): any[] => tree.flatMap(item => ([
+const flattenTree = (tree: any[], prefix = ''): any[] => tree.flatMap((item) => ([
 	{
 		...item,
 		displayName: `${prefix}${item.name} (${item.code})`,
@@ -46,7 +52,7 @@ const model = reactive({
 	endDate: '',
 	endReason: '',
 })
-const selectedPerson = computed(() => persons.value?.find(person => person.id === model.memberPerson))
+const selectedPerson = computed(() => persons.value?.find((person) => person.id === model.memberPerson))
 
 defineExpose({
 	create: () => {
@@ -114,13 +120,13 @@ const tasks = [
 const _currentTask = ref('')
 const currentTask = computed({
 	get: () => _currentTask.value,
-	set: value => {
+	set: (value) => {
 		if(value) edited[value] = true
 		_currentTask.value = value
 	},
 })
-const flatTasks = computed(() => tasks.flatMap(item => item.tasks))
-const currentTaskIndex = computed(() => flatTasks.value.findIndex(task => task.id === currentTask.value))
+const flatTasks = computed(() => tasks.flatMap((item) => item.tasks))
+const currentTaskIndex = computed(() => flatTasks.value.findIndex((task) => task.id === currentTask.value))
 
 type TaskId = (typeof flatTasks.value)[number]['id']
 type TaskBooleanRecord = Record<TaskId, boolean>
@@ -131,7 +137,7 @@ const valid = computed<TaskBooleanRecord>(() => ({
 	'select-membership-type': Boolean(model.membershipType),
 	'select-period': true,
 }))
-const edited = reactive<TaskBooleanRecord>(Object.fromEntries(flatTasks.value.map(task => [ task.id, false ])) as any)
+const edited = reactive<TaskBooleanRecord>(Object.fromEntries(flatTasks.value.map((task) => [ task.id, false ])) as any)
 
 const tasksStatus = computed(() => {
 	const result = []
@@ -198,14 +204,18 @@ async function save() {
 		}
 		emit('refresh')
 		dialog.value?.close()
-	} catch(e: any) {
-		errorMessage.value = e?.data?.message || 'Ein unbekannter Fehler ist aufgetreten.'
+	} catch(e) {
+		if(e instanceof FetchError) {
+			errorMessage.value = e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.'
+		}
 	}
 }
 </script>
 
 <template lang="pug">
-dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
+dialog#dialog.kern-dialog(
+ref="dialog"
+aria-labelledby="dialog_heading")
 	header.kern-dialog__header
 		h2.kern-title.kern-title--large#dialog_heading Mitgliedschaft {{ itemId ? 'bearbeiten' : 'erstellen' }}
 		button.kern-btn.kern-btn--tertiary
@@ -228,14 +238,20 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 		template(v-if="currentTask === 'select-member'")
 			.kern-form-input
 				label.kern-label(for="memberType") Art des Mitglieds
-				select.kern-form-input__input#memberType(v-model="model.memberType" @change="model.memberPerson = null; model.memberOrganizationItem = null")
+				select.kern-form-input__input#memberType(
+					v-model="model.memberType"
+					@change="model.memberPerson = null; model.memberOrganizationItem = null"
+				)
 					option(value="person") Person
 					option(value="organizationItem") Organisationseinheit
 			template(v-if="model.memberType === 'person'")
 				.kern-form-input(v-if="model.person")
 					label.kern-label(for="person") Person
 					.flex.flex-row.gap-2.w-full
-						input.flex-1.kern-form-input__input#person(:value="`${selectedPerson.callName || selectedPerson.firstName} ${selectedPerson.lastName}`" readonly)
+						input.flex-1.kern-form-input__input#person(
+							:value="`${selectedPerson.callName || selectedPerson.firstName} ${selectedPerson.lastName}`"
+							readonly
+						)
 						button.kern-btn.kern-btn--tertiary(@click="model.person = null")
 							span.kern-icon.kern-icon--edit(aria-hidden="true")
 							span.kern-label.kern-sr-only Neu auswählen
@@ -246,14 +262,21 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 							td.kern-table__cell(colspan="2")
 								.kern-form-input
 									label.kern-label(for="search") Suche
-									input.kern-form-input__input#search(type="text" v-model="personFilter" placeholder="Nach Name oder E-Mail-Adresse suchen...")
+									input.kern-form-input__input#search(
+										v-model="personFilter"
+										type="text"
+										placeholder="Nach Name oder E-Mail-Adresse suchen..."
+									)
 						tr.kern-table__row
 							th.kern-table__header(scope="col") Name
 							th.kern-table__header(scope="col") Auswahl
 					tbody.kern-table__body
 						tr.kern-table__row(v-if="data?.length === 0")
 							td.kern-table__cell(colspan="2") Keine Einträge gefunden.
-						tr.kern-table__row(v-for="person of filteredPersons" :key="person.id")
+						tr.kern-table__row(
+							v-for="person of filteredPersons"
+							:key="person.id"
+						)
 							td.kern-table__cell {{ person.callName || person.firstName }} {{ person.lastName }}
 							td.kern-table__cell
 								button.kern-btn.kern-btn--tertiary(@click="model.memberPerson = person.id")
@@ -261,27 +284,38 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 									span.kern-label.kern-sr-only Auswählen
 			.kern-form-input(v-if="model.memberType === 'organizationItem'")
 				label.kern-label(for="organizationItem") Organisationseinheit
-				select.kern-form-input__input#organizationItem(v-model="model.memberOrganizationItem")
-					option(v-for="item of organizationItems" :value="item.id") {{ item.displayName }}
+				OrganizationItemSelect#organizationItem(v-model="model.memberOrganizationItem")
 		template(v-if="currentTask === 'select-membership-type'")
 			.kern-form-input
 				label.kern-label(for="membershipType") Mitgliedschaftsart
-				select.kern-form-input__input#membershipType(v-model="model.membershipType")
-					option(v-for="item of membershipTypes" :value="item.id") {{ item.name }} ({{ item.code }})
+				MembershipTypeSelect#membershipType(v-model="model.membershipType")
 			.kern-form-input
 				label.kern-label(for="comment") Besondere Rolle #[span.kern-label__optional - Optional]
-				input.kern-form-input__input#comment(v-model="model.comment" type="text")
+				input.kern-form-input__input#comment(
+					v-model="model.comment"
+					type="text"
+				)
 		template(v-if="currentTask === 'select-period'")
 			fieldset.kern-fieldset
 				legend.kern-label Beginn der Mitgliedschaft #[span.kern-label__optional - Optional]
-				KernDateInput#startDate(v-model="model.startDate")
+				KernDateInput#startDate(
+					v-model="model.startDate"
+					show-time
+				)
 			fieldset.kern-fieldset
 				legend.kern-label Ende der Mitgliedschaft #[span.kern-label__optional - Optional]
-				KernDateInput#endDate(v-model="model.endDate")
+				KernDateInput#endDate(
+					v-model="model.endDate"
+					show-time
+				)
 			.kern-form-input
 				label.kern-label(for="endReason") Grund des Ausscheidens #[span.kern-label__optional - Optional]
 				select.kern-form-input__input#endReason(v-model="model.endReason")
-					option(v-for="item of membershipEndReasons" :value="item.id") {{ item.name }} ({{ item.code }})
+					option(
+						v-for="item of membershipEndReasons"
+						:key="item.id"
+						:value="item.id"
+					) {{ item.name }} ({{ item.code }})
 		template(v-if="currentTask === 'check-data'")
 			.kern-summary-group.w-full
 				.kern-summary
@@ -295,12 +329,19 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 								dd.kern-description-list-item__value {{ model.memberType === 'person' ? 'Person' : 'Organisationseinheit' }}
 							.kern-description-list-item
 								dt.kern-description-list-item__key Mitglied
-								template(v-if="model.memberType === 'person'")
-									dd.kern-description-list-item__value {{ selectedPerson.callName || selectedPerson.firstName }} {{ selectedPerson.lastName }}
-								template(v-if="model.memberType === 'organizationItem'")
-									dd.kern-description-list-item__value {{ organizationItems.find(item => item.id === model.memberOrganizationItem)?.name }}
+								dd.kern-description-list-item__value
+									template(v-if="model.memberType === 'person' && selectedPerson")
+										| {{ selectedPerson.callName || selectedPerson.firstName }} {{ selectedPerson.lastName }}
+									template(v-else-if="model.memberType === 'organizationItem'")
+										| {{ organizationItems.find(item => item.id === model.memberOrganizationItem)?.name }}
+									template(v-else)
+										em unbekannt
 						.kern-summary__actions
-							a.kern-link(href="#" @click.prevent="currentTask = 'select-member'" aria-describedby="title")
+							a.kern-link(
+								href="#"
+								aria-describedby="title"
+								@click.prevent="currentTask = 'select-member'"
+							)
 								span.kern-icon.kern-icon--edit(aria-hidden="true")
 								| Bearbeiten
 				.kern-summary
@@ -316,7 +357,11 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 								dt.kern-description-list-item__key Besondere Rolle
 								dd.kern-description-list-item__value {{ model.comment }}
 						.kern-summary__actions
-							a.kern-link(href="#" @click.prevent="currentTask = 'select-membership-type'" aria-describedby="title")
+							a.kern-link(
+								href="#"
+								aria-describedby="title"
+								@click.prevent="currentTask = 'select-membership-type'"
+							)
 								span.kern-icon.kern-icon--edit(aria-hidden="true")
 								| Bearbeiten
 				.kern-summary
@@ -336,10 +381,17 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 								dd.kern-description-list-item__value {{ membershipEndReasons.find(item => item.id === model.endReason)?.name }}
 						p.kern-body(v-else) Keine Angaben
 						.kern-summary__actions
-							a.kern-link(href="#" @click.prevent="currentTask = 'select-period'" aria-describedby="title")
+							a.kern-link(
+								href="#"
+								aria-describedby="title"
+								@click.prevent="currentTask = 'select-period'"
+							)
 								span.kern-icon.kern-icon--edit(aria-hidden="true")
 								| Bearbeiten
-		.kern-alert.kern-alert--danger(v-if="errorMessage" role="alert")
+		.kern-alert.kern-alert--danger(
+			v-if="errorMessage"
+			role="alert"
+		)
 			.kern-alert__header
 				span.kern-icon.kern-icon--danger(aria-hidden="true")
 				span.kern-title Fehler bei der {{ itemId ? 'Bearbeitung' : 'Erstellung' }}
@@ -355,10 +407,16 @@ dialog#dialog.kern-dialog(ref="dialog" aria-labelledby="dialog_heading")
 			button.kern-btn.kern-btn--primary(@click="currentTask = 'check-data'")
 				span.kern-label Übernehmen
 		template(v-else)
-			button.kern-btn.kern-btn--secondary(v-if="currentTask !== 'select-member'" @click="moveTask(-1)")
+			button.kern-btn.kern-btn--secondary(
+				v-if="currentTask !== 'select-member'"
+				@click="moveTask(-1)"
+			)
 				span.kern-icon.kern-icon--arrow-back(aria-hidden="true")
 				span.kern-label Zurück
-			button.kern-btn.kern-btn--primary(:disabled="!valid[currentTask]" @click="moveTask(1)")
+			button.kern-btn.kern-btn--primary(
+				:disabled="!valid[currentTask]"
+				@click="moveTask(1)"
+			)
 				span.kern-label Weiter
 				span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
 </template>

@@ -23,8 +23,8 @@ onMounted(() => {
 <template lang="pug">
 dialog.kern-dialog(
 	:id="`${id}`"
-	:class="$style.dialog"
 	ref="dialog"
+	:class="$style.dialog"
 	closedby="none"
 	:aria-labelledby="`${id}-heading`"
 )

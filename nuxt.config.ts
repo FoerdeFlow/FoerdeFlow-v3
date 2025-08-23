@@ -1,5 +1,24 @@
 export default defineNuxtConfig({
 	compatibilityDate: '2025-07-15',
+	typescript: {
+		tsConfig: {
+			compilerOptions: {
+				moduleResolution: 'bundler',
+			},
+		},
+	},
+	experimental: {
+		typedPages: true,
+	},
+	nitro: {
+		experimental: {
+			asyncContext: true,
+			tasks: true,
+		},
+	},
+	devtools: {
+		enabled: true,
+	},
 	app: {
 		head: {
 			title: 'FördeFlow',
@@ -8,21 +27,12 @@ export default defineNuxtConfig({
 			},
 		},
 	},
-	devtools: {
-		enabled: true,
-	},
 	modules: [
 		'@nuxt/eslint',
 		'@nuxtjs/tailwindcss',
 		'@pinia/nuxt',
 		'pinia-plugin-persistedstate/nuxt',
 	],
-	nitro: {
-		experimental: {
-			asyncContext: true,
-			tasks: true,
-		},
-	},
 	css: [
 		'~/assets/css/main.scss',
 	],

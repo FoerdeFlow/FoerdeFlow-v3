@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { KernDialog } from '#components'
 import { FetchError } from 'ofetch'
+import { KernDialog } from '#components'
 
 const props = defineProps<{
 	organizationItem: string
@@ -10,7 +10,7 @@ const dialog = useTemplateRef<typeof KernDialog>('dialog')
 
 const itemId = ref<string | null>(null)
 
-type Model = {
+interface Model {
 	groupName: string
 	participantMembershipType: string
 	participantOrganizationItem: string
@@ -78,7 +78,7 @@ async function save() {
 			dialog.value.showAlert({
 				type: 'danger',
 				title: `Fehler bei der ${itemId.value ? 'Bearbeitung' : 'Erstellung'}`,
-				text: e.data?.message || 'Ein unbekannter Fehler ist aufgetreten.',
+				text: e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.',
 			})
 		}
 	}

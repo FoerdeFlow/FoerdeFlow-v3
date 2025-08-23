@@ -3,7 +3,7 @@ const authStore = useAuthStore()
 const alertStore = useAlertStore()
 
 const displayName = computed(() => authStore.userInfo
-	? `${authStore.userInfo.callName || authStore.userInfo.firstName} ${authStore.userInfo.lastName}`
+	? `${authStore.userInfo.callName ?? authStore.userInfo.firstName} ${authStore.userInfo.lastName}`
 	: 'Gast')
 </script>
 
@@ -17,22 +17,35 @@ const displayName = computed(() => authStore.userInfo
 		.flex.flex-col.justify-between.gap-2.mb-4(class="md:flex-row")
 			p.flex-1.kern-text Willkommen, #[b {{ displayName }}]!
 			.flex.flex-row.gap-2
-				button.kern-btn.kern-btn--primary(type="button" @click="$router.push('/')")
+				button.kern-btn.kern-btn--primary(
+					type="button"
+					@click="$router.push('/')"
+				)
 					span.kern-icon.kern-icon--home(aria-hidden="true")
 					span.kern-sr-only Startseite
-				button.flex-1.kern-btn.kern-btn--primary(type="button" @click="authStore.logout()")
+				button.flex-1.kern-btn.kern-btn--primary(
+					type="button"
+					@click="authStore.logout()"
+				)
 					span.kern-label Abmelden
 	template(v-else)
 		.flex.flex-row.justify-between.gap-2.mb-4
-			button.kern-btn.kern-btn--primary(type="button" @click="$router.push('/')")
+			button.kern-btn.kern-btn--primary(
+				type="button"
+				@click="$router.push('/')"
+			)
 				span.kern-icon.kern-icon--home(aria-hidden="true")
 				span.kern-sr-only Startseite
-			button.flex-1.kern-btn.kern-btn--primary(type="button" @click="authStore.login()")
+			button.flex-1.kern-btn.kern-btn--primary(
+				type="button"
+				@click="authStore.login()"
+			)
 				span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
 				span.kern-label Anmelden
 	hr.kern-divider(aria-hidden="true")
 	KernAlert(
 		v-for="(alert, idx) of alertStore.alerts"
+		:key="idx"
 		:type="alert.type"
 		:title="alert.title"
 		:text="alert.text"
