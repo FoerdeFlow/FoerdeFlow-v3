@@ -178,7 +178,7 @@ role="alert")
 			span.kern-label Speichern
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 #dialog {
 	width: 100%;
 }

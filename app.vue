@@ -21,7 +21,7 @@ KernConfirmDialog(
 )
 </template>
 
-<style lang="scss">
+<style>
 body {
 	margin: 0;
 	padding: 0;

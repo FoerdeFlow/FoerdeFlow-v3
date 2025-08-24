@@ -34,7 +34,7 @@ export default defineNuxtConfig({
 		'pinia-plugin-persistedstate/nuxt',
 	],
 	css: [
-		'~/assets/css/main.scss',
+		'~/assets/css/main.css',
 	],
 	tailwindcss: {
 		exposeConfig: true,

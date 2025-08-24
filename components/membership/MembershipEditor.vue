@@ -421,7 +421,7 @@ aria-labelledby="dialog_heading")
 				span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 #dialog {
 	width: 100%;
 }
