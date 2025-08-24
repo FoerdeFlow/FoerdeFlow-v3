@@ -3,6 +3,8 @@ import * as client from 'openid-client'
 
 async function createOrGetPerson(email: string, data: { firstName?: string, lastName?: string }) {
 	const database = useDatabase()
+	const client = useOpenslides()
+
 	const person = await database.query.persons.findFirst({
 		where: eq(persons.email, email),
 		columns: {
@@ -24,14 +26,29 @@ async function createOrGetPerson(email: string, data: { firstName?: string, last
 				.returning({ id: persons.id })
 		}
 	} else {
-		;[ { id: personId } ] = await database
-			.insert(persons)
-			.values({
+		personId = await database.transaction(async (tx) => {
+			const [ result ] = await tx
+				.insert(persons)
+				.values({
+					email,
+					firstName: data.firstName ?? '',
+					lastName: data.lastName ?? '',
+				})
+				.returning({ id: persons.id })
+
+			await client.connect()
+			await client.user.create({
+				saml_id: email,
+				username: email,
+				first_name: data.firstName,
+				last_name: data.lastName,
 				email,
-				firstName: data.firstName ?? '',
-				lastName: data.lastName ?? '',
+				is_physical_person: true,
+				can_change_own_password: false,
 			})
-			.returning({ id: persons.id })
+
+			return result.id
+		})
 	}
 	if(!personId) {
 		throw new Error('Person could not be created or found')

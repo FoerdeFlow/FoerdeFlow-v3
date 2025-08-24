@@ -109,7 +109,16 @@ table.kern-table
 			v-for="item of data"
 			:key="item.id"
 		)
-			td.kern-table__cell {{ item.firstName }} {{ item.callName ? `"${item.callName}"` : '' }} {{ item.lastName }} ({{ item.pronouns }})
+			td.kern-table__cell
+				| {{ item.firstName }}
+				template(v-if="item.callName")
+					|
+					| "{{ item.callName }}"
+				|
+				| {{ item.lastName }}
+				template(v-if="item.pronouns")
+					|
+					| ({{ item.pronouns }})
 			td.kern-table__cell {{ item.email }}
 			td.kern-table__cell(
 				v-if="authStore.hasPermission('persons.update') || authStore.hasPermission('persons.delete')"
