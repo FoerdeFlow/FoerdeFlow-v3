@@ -1,7 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { createInsertSchema } from 'drizzle-zod'
 import z from 'zod'
-import { useOpenslides } from '~/server/utils/openslides'
 
 export default defineEventHandler(async (event) => {
 	const database = useDatabase()

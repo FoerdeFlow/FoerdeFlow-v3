@@ -1,0 +1,3 @@
+ALTER TABLE "organization_item_group_members" DROP CONSTRAINT "organization_item_group_members_organization_item_group_organization_item_groups_id_fk";
+--> statement-breakpoint
+ALTER TABLE "organization_item_group_members" ADD CONSTRAINT "organization_item_group_members_organization_item_group_organization_item_groups_id_fk" FOREIGN KEY ("organization_item_group") REFERENCES "public"."organization_item_groups"("id") ON DELETE cascade ON UPDATE no action;

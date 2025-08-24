@@ -1,4 +1,4 @@
-import { useOpenslides } from '~/server/utils/openslides'
+import { useOpenslides } from '~/server/utils/openslides/useOpenslides'
 
 export default defineTask({
 	meta: {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 import { KernDialog } from '#components'
+import type { MembershipType, OrganizationItem } from '~/types'
 
 const props = defineProps<{
 	organizationItem: string
@@ -12,8 +13,12 @@ const itemId = ref<string | null>(null)
 
 interface Model {
 	groupName: string
-	participantMembershipType: string
-	participantOrganizationItem: string
+	roleName: string
+	isSessionParticipant: boolean
+	members: {
+		organizationItem: OrganizationItem
+		membershipType: MembershipType
+	}[]
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -34,12 +39,13 @@ defineExpose({
 	create() {
 		openDialog(null, {
 			groupName: '',
-			participantMembershipType: '',
-			participantOrganizationItem: '',
+			roleName: '',
+			isSessionParticipant: false,
+			members: [],
 		})
 	},
 	async edit(id: string) {
-		const item = await $fetch(`/api/organizationItemParticipants/${id}`)
+		const item = await $fetch(`/api/organizationItemGroups/${id}`)
 		openDialog(id, item)
 	},
 })
@@ -54,19 +60,25 @@ function cancel() {
 }
 
 async function save() {
-	if(!dialog.value) return
+	if(!dialog.value || !model.value) return
 	try {
 		const body = {
-			...model.value,
 			organizationItem: props.organizationItem,
+			groupName: model.value.groupName,
+			roleName: model.value.roleName,
+			isSessionParticipant: model.value.isSessionParticipant,
+			members: model.value.members.map((member) => ({
+				organizationItem: member.organizationItem?.id,
+				membershipType: member.membershipType?.id,
+			})),
 		}
 		if(itemId.value) {
-			await $fetch(`/api/organizationItemParticipants/${itemId.value}`, {
+			await $fetch(`/api/organizationItemGroups/${itemId.value}`, {
 				method: 'PUT',
 				body,
 			})
 		} else {
-			await $fetch('/api/organizationItemParticipants', {
+			await $fetch('/api/organizationItemGroups', {
 				method: 'POST',
 				body,
 			})
@@ -88,13 +100,13 @@ async function save() {
 <template lang="pug">
 KernDialog(
 	ref="dialog"
-	:title="`Sitzungsteilnahmegruppe ${itemId ? 'bearbeiten' : 'erstellen'}`"
+	:title="`OE-Gruppe ${itemId ? 'bearbeiten' : 'erstellen'}`"
 	:modal="modified"
 	@cancel="cancel"
 	@save="save"
 )
 	template(v-if="model")
-		OrganizationItemParticipantGroupNameInput(v-model="model.groupName")
-		OrganizationItemParticipantParticipantOrganizationItemInput(v-model="model.participantOrganizationItem")
-		OrganizationItemParticipantParticipantMembershipTypeInput(v-model="model.participantMembershipType")
+		OrganizationItemGroupGroupNameInput(v-model="model.groupName")
+		OrganizationItemGroupRoleNameInput(v-model="model.roleName")
+		OrganizationItemGroupMembersInput(v-model="model.members")
 </template>

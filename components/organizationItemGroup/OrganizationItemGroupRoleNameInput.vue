@@ -7,9 +7,10 @@ const model = defineModel<string>()
 .kern-form-input
 	label.kern-label(
 		:for="id"
-	) Mitgliedschaftsart
-	MembershipTypeSelect(
+	) Rollenname
+	input.kern-form-input__input(
 		:id="id"
 		v-model="model"
+		type="text"
 	)
 </template>

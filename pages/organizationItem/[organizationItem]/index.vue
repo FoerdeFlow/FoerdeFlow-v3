@@ -8,32 +8,32 @@ const confirmDialogStore = useConfirmDialogStore()
 const { data } = useFetch(() => `/api/organizationItems/${route.params.organizationItem}`)
 const { data: memberships, refresh: refreshMemberships } =
 	useFetch(() => `/api/memberships?organizationItem=${route.params.organizationItem}`)
-const { data: organizationItemParticipants, refresh: refreshOrganizationItemParticipants } =
-	useFetch(() => `/api/organizationItemParticipants?organizationItem=${route.params.organizationItem}`)
+const { data: organizationItemGroups, refresh: refreshOrganizationItemGroups } =
+	useFetch(() => `/api/organizationItemGroups?organizationItem=${route.params.organizationItem}`)
 const dialog = useTemplateRef<InstanceType<typeof MembershipEditor>>('dialog')
 
-const organizationItemParticipantEditor =
-	useTemplateRef<InstanceType<typeof MembershipEditor>>('organizationItemParticipantEditor')
+const organizationItemGroupEditor =
+	useTemplateRef<InstanceType<typeof MembershipEditor>>('organizationItemGroupEditor')
 
 function create() {
-	if(!organizationItemParticipantEditor.value) return
-	organizationItemParticipantEditor.value.create()
+	if(!organizationItemGroupEditor.value) return
+	organizationItemGroupEditor.value.create()
 }
 
 function edit({ id }: { id: string }) {
-	if(!organizationItemParticipantEditor.value) return
-	organizationItemParticipantEditor.value.edit(id)
+	if(!organizationItemGroupEditor.value) return
+	organizationItemGroupEditor.value.edit(id)
 }
 
 async function remove({ id }: { id: string }) {
 	if(await confirmDialogStore.askConfirm({
-		title: 'Sitzungsteilnahmegruppe entfernen',
-		text: 'Möchten Sie diese Sitzungsteilnahmegruppe wirklich entfernen?',
+		title: 'OE-Gruppe entfernen',
+		text: 'Möchten Sie diese OE-Gruppe wirklich entfernen?',
 	})) {
-		await $fetch(`/api/organizationItemParticipants/${id}`, {
+		await $fetch(`/api/organizationItemGroups/${id}`, {
 			method: 'DELETE',
 		})
-		await refreshOrganizationItemParticipants()
+		await refreshOrganizationItemGroups()
 	}
 }
 </script>
@@ -124,30 +124,39 @@ template(v-if="data")
 	)
 	KernTable(
 		caption="Liste der Sitzungsteilnehmer"
-		create-permission="organizationItemParticipants.create"
-		update-permission="organizationItemParticipants.update"
-		delete-permission="organizationItemParticipants.delete"
-		:data="organizationItemParticipants || []"
+		create-permission="organizationItemGroups.create"
+		update-permission="organizationItemGroups.update"
+		delete-permission="organizationItemGroups.delete"
+		:data="organizationItemGroups || []"
 		:columns="['name', 'participant']"
 		@create="create"
 		@edit="edit"
 		@remove="remove"
 	)
 		template(#name-header)
-			| Name
+			| Gruppenname
+			br
+			em Rollenname
 		template(#name-body="{ item }")
 			| {{ item.groupName }}
+			br
+			em {{ item.roleName }}
 		template(#participant-header)
-			| Organisationseinheit
-			br
-			em Mitgliedschaftsart
+			| Mitgliedschaftsart in Organisationseinheit
 		template(#participant-body="{ item }")
-			| {{ item.participantOrganizationItem.name }} ({{ item.participantOrganizationItem.code }})
-			br
-			em {{ item.participantMembershipType.name }} ({{ item.participantMembershipType.code }})
-	OrganizationItemParticipantEditor(
-		ref="organizationItemParticipantEditor"
+			ul
+				li(
+					v-for="(member, idx) of item.members"
+					:key="idx"
+				)
+					| {{ member.membershipType.name }} ({{ member.membershipType.code }})
+					|
+					| in
+					|
+					| {{ member.organizationItem.name }} ({{ member.organizationItem.code }})
+	OrganizationItemGroupEditor(
+		ref="organizationItemGroupEditor"
 		:organization-item="route.params.organizationItem"
-		@refresh="refreshOrganizationItemParticipants"
+		@refresh="refreshOrganizationItemGroups"
 	)
 </template>

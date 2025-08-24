@@ -2,11 +2,6 @@
 const props = defineProps<{
 	id: string
 }>()
-const model = defineModel<string | null>({
-	required: true,
-	get: (v) => v ?? '',
-	set: (v) => v === '' ? null : v,
-})
 
 const { data } = await useFetch('/api/organizationItems')
 
@@ -22,13 +17,32 @@ const flattenTree = <T extends {
 	...flattenTree(item.children, `${prefix}— `),
 ]))
 const items = computed(() => data.value ? flattenTree(data.value) : [])
+
+const model = defineModel<{
+	id: string
+	code: string
+	name: string
+} | null>({
+	required: true,
+})
+
+const selectModel = computed({
+	get: () => model.value?.id ?? '',
+	set: (v) => {
+		if(v === '') {
+			model.value = null
+			return
+		}
+		model.value = items.value?.find(({ id }) => id === v) ?? null
+	},
+})
 </script>
 
 <template lang="pug">
 .kern-form-input__select-wrapper
 	select.kern-form-input__select(
 		:id="props.id"
-		v-model="model"
+		v-model="selectModel"
 	)
 		option(
 			disabled
