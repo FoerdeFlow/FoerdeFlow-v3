@@ -24,6 +24,7 @@ const dialogInputModel = reactive({
 	organizationType: '',
 	code: '',
 	name: '',
+	description: '',
 })
 const dialogErrorMessage = ref<string | null>(null)
 
@@ -33,6 +34,7 @@ function create() {
 	dialogInputModel.organizationType = ''
 	dialogInputModel.code = ''
 	dialogInputModel.name = ''
+	dialogInputModel.description = ''
 	dialogErrorMessage.value = null
 	dialog.value?.showModal()
 }
@@ -46,6 +48,7 @@ async function edit(id: string) {
 	dialogInputModel.organizationType = item.organizationType.id
 	dialogInputModel.code = item.code
 	dialogInputModel.name = item.name
+	dialogInputModel.description = item.description
 	dialog.value?.showModal()
 }
 
@@ -117,7 +120,9 @@ table.kern-table
 				button.kern-btn.kern-btn--tertiary(@click="edit(item.id)")
 					span.kern-icon.kern-icon--edit(aria-hidden="true")
 					span.kern-label.kern-sr-only Bearbeiten
-				button.kern-btn.kern-btn--tertiary(@click="$router.push(`/organizationItem/${item.id}`)")
+				NuxtLink.kern-btn.kern-btn--tertiary(
+					:to="{ name: 'organizationItems-organizationItem', params: { organizationItem: item.id } }"
+				)
 					span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
 					span.kern-label.kern-sr-only Aufrufen
 button.my-4.kern-btn.kern-btn--primary(
@@ -126,8 +131,9 @@ button.my-4.kern-btn.kern-btn--primary(
 )
 	span.kern-label Erstellen
 dialog#dialog.kern-dialog(
-ref="dialog"
-aria-labelledby="dialog_heading")
+	ref="dialog"
+	aria-labelledby="dialog_heading"
+)
 	header.kern-dialog__header
 		h2.kern-title.kern-title--large#dialog_heading Organisationseinheit {{ dialogItemId ? 'bearbeiten' : 'erstellen' }}
 		button.kern-btn.kern-btn--tertiary(@click="close()")
@@ -135,8 +141,9 @@ aria-labelledby="dialog_heading")
 			span.kern-sr-only Schließen
 	section.kern-dialog__body
 		.kern-alert.kern-alert--danger(
-v-if="dialogErrorMessage"
-role="alert")
+			v-if="dialogErrorMessage"
+			role="alert"
+		)
 			.kern-alert__header
 				span.kern-icon.kern-icon--danger(aria-hidden="true")
 				span.kern-title Fehler bei der {{ dialogItemId ? 'Bearbeitung' : 'Erstellung' }}
@@ -144,7 +151,7 @@ role="alert")
 				p.kern-body {{ dialogErrorMessage }}
 		.kern-form-input
 			label.kern-label(for="parent") Übergeordnete Organisationseinheit #[span.kern-label__optional - Optional]
-			select.kern-form-input__input#parent(v-model="dialogInputModel.parent")
+			select.kern-form-input__select#parent(v-model="dialogInputModel.parent")
 				option(value="") - Keine -
 				option(
 					v-for="item of organizationItems"
@@ -153,7 +160,7 @@ role="alert")
 				) {{ item.displayName }}
 		.kern-form-input
 			label.kern-label(for="organizationType") OE-Kategorie
-			select.kern-form-input__input#organizationType(v-model="dialogInputModel.organizationType")
+			select.kern-form-input__select#organizationType(v-model="dialogInputModel.organizationType")
 				option(
 					v-for="item of organizationTypes"
 					:key="item.id"
@@ -171,6 +178,9 @@ role="alert")
 				v-model="dialogInputModel.name"
 				type="text"
 			)
+		OrganizationItemDescriptionInput(
+			v-model="dialogInputModel.description"
+		)
 	footer.kern-dialog__footer
 		button.kern-btn.kern-btn--secondary(@click="cancel()")
 			span.kern-label Abbrechen

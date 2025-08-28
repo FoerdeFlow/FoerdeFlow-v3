@@ -10,14 +10,11 @@ export default defineEventHandler(async (event) => {
 	}).parseAsync(data))
 
 	const membershipSchema = createUpdateSchema(memberships).omit({ id: true })
-	const body = await readValidatedBody(event, async (body: unknown) =>
-		await membershipSchema.parseAsync(
-			await z.object({
-				startDate: z.coerce.date().optional(),
-				endDate: z.coerce.date().optional(),
-			}).passthrough().parseAsync(body),
-		),
-	)
+	const body = await readValidatedBody(event, async (body: unknown) => z.object({
+		...membershipSchema.shape,
+		startDate: z.coerce.date().nullish().optional(),
+		endDate: z.coerce.date().nullish().optional(),
+	}).parseAsync(body))
 
 	const result = await database
 		.update(memberships)

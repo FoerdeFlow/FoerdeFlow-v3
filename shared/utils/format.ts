@@ -64,3 +64,50 @@ export function formatSessionNumber(period: number, number: number): string {
 	].join('')
 	return `${periodCode}-${number.toString().padStart(2, '0')}`
 }
+
+export function formatPerson(
+	person: {
+		firstName: string,
+		lastName: string,
+		callName: string | null,
+		pronouns: string | null,
+	} | null,
+	style: 'short' | 'long' = 'short',
+): string {
+	if(!person) return ''
+	let result = `${person.callName ?? person.firstName} ${person.lastName}`
+	if(style === 'long' && person.pronouns) {
+		result += ` (${person.pronouns})`
+	}
+	return result
+}
+
+export function formatOrganizationItem(
+	item: {
+		name: string,
+		code: string,
+	} | null,
+): string {
+	if(!item) return ''
+	return `${item.name} (${item.code})`
+}
+
+export function formatMembershipType(
+	membershipType: {
+		name: string,
+		code: string,
+	} | null,
+): string {
+	if(!membershipType) return ''
+	return `${membershipType.name} (${membershipType.code})`
+}
+
+export function formatMembershipEndReason(
+	endReason: {
+		name: string,
+		code: string,
+	} | null,
+): string {
+	if(!endReason) return ''
+	return `${endReason.name} (${endReason.code})`
+}

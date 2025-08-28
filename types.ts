@@ -1,7 +1,17 @@
 import type {
+	MembershipEndReasonSelect,
 	MembershipTypeSelect,
 	OrganizationItemSelect,
+	PersonSelect,
+
+	KernCardNav,
+	KernTaskList,
 } from '#components'
 
+export type MembershipEndReason = InstanceType<typeof MembershipEndReasonSelect>['$props']['modelValue']
 export type MembershipType = InstanceType<typeof MembershipTypeSelect>['$props']['modelValue']
 export type OrganizationItem = InstanceType<typeof OrganizationItemSelect>['$props']['modelValue']
+export type Person = InstanceType<typeof PersonSelect>['$props']['modelValue']
+
+export type KernCardNavItems = InstanceType<typeof KernCardNav>['$props']['items']
+export type KernTaskListItems = InstanceType<typeof KernTaskList>['$props']['items']

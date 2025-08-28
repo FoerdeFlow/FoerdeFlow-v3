@@ -147,7 +147,7 @@ dialog#dialog.kern-dialog(
 				p.kern-body {{ dialogErrorMessage }}
 		.kern-form-input
 			label.kern-label(for="organizationItem") Organisationseinheit
-			select.kern-form-input__input#organizationItem(v-model="dialogInputModel.organizationItem")
+			select.kern-form-input__select#organizationItem(v-model="dialogInputModel.organizationItem")
 				option(
 					v-for="organizationItem of organizationItems"
 					:key="organizationItem.id"
@@ -194,7 +194,7 @@ dialog#dialog.kern-dialog(
 			)
 		.kern-form-input
 			label.kern-label(for="room") Raum
-			select.kern-form-input__input#room(v-model="dialogInputModel.room")
+			select.kern-form-input__select#room(v-model="dialogInputModel.room")
 				option(
 					v-for="room of rooms"
 					:key="room.id"

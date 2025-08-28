@@ -33,7 +33,7 @@ const selectModel = computed({
 			model.value = null
 			return
 		}
-		model.value = items.value?.find(({ id }) => id === v) ?? null
+		model.value = items.value.find(({ id }) => id === v) ?? null
 	},
 })
 </script>

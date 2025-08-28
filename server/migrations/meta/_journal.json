@@ -43,6 +43,20 @@
       "when": 1756065455302,
       "tag": "0005_known_blizzard",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1756069089260,
+      "tag": "0006_happy_wolf_cub",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1756413121847,
+      "tag": "0007_woozy_scarecrow",
+      "breakpoints": true
     }
   ]
 }

@@ -174,7 +174,7 @@ dialog#dialog.kern-dialog(
 			.kern-row
 				.kern-col.kern-form-input
 					label.kern-label(for="gender") Geschlecht #[span.kern-label__optional - Optional]
-					select.kern-form-input__input#gender(v-model="dialogInputModel.gender")
+					select.kern-form-input__select#gender(v-model="dialogInputModel.gender")
 						option(
 							v-for="item of genders"
 							:key="item.id"

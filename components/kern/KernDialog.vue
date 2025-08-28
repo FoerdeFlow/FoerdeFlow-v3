@@ -69,12 +69,13 @@ dialog.kern-dialog(
 		)
 		slot
 	footer.kern-dialog__footer
-		button.kern-btn.kern-btn--secondary(@click="emit('cancel')")
-			span.kern-icon.kern-icon--close(aria-hidden="true")
-			span.kern-label Abbrechen
-		button.kern-btn.kern-btn--primary(@click="emit('save')")
-			span.kern-icon.kern-icon--check(aria-hidden="true")
-			span.kern-label Speichern
+		slot(name="actions")
+			button.kern-btn.kern-btn--secondary(@click="emit('cancel')")
+				span.kern-icon.kern-icon--close(aria-hidden="true")
+				span.kern-label Abbrechen
+			button.kern-btn.kern-btn--primary(@click="emit('save')")
+				span.kern-icon.kern-icon--check(aria-hidden="true")
+				span.kern-label Speichern
 </template>
 
 <style module>

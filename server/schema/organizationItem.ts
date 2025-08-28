@@ -3,6 +3,7 @@ import {
 } from 'drizzle-orm'
 import {
 	pgTable,
+	text,
 	uuid,
 	varchar,
 	type AnyPgColumn,
@@ -20,6 +21,7 @@ export const organizationItems = pgTable('organization_items', {
 	parent: uuid().references((): AnyPgColumn => organizationItems.id),
 	code: varchar({ length: 32 }).notNull().unique(),
 	name: varchar({ length: 256 }).notNull().unique(),
+	description: text().notNull(),
 })
 
 export const organizationItemsRelations = relations(organizationItems, ({ one, many }) => ({

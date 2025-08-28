@@ -5,7 +5,7 @@ const props = defineProps<{
 	id: string
 }>()
 
-const { data } = useFetch('/api/membershipTypes')
+const { data } = useFetch('/api/membershipEndReasons')
 
 const model = defineModel<DestructureArray<typeof data.value> | null>({
 	required: true,
@@ -30,7 +30,6 @@ const selectModel = computed({
 		v-model="selectModel"
 	)
 		option(
-			disabled
 			value=""
 		) - Bitte wählen -
 		option(

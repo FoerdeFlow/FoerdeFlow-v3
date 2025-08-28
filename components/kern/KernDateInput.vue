@@ -10,52 +10,30 @@ const year = ref('')
 const hour = ref('')
 const minute = ref('')
 
-const model = defineModel<string>()
+const model = defineModel<Date | null>()
 
 watch([ day, month, year, hour, minute ], ([ d, m, y, h, i ]) => {
 	if(!(/^\d{1,2}$/.exec(d)) || !(/^\d{1,2}$/.exec(m)) || !(/^\d{4}$/.exec(y))) {
-		model.value = ''
+		model.value = null
 		return
 	}
 	if(props.showTime && (!(/^\d{1,2}$/.exec(h)) || !(/^\d{1,2}$/.exec(i)))) {
-		model.value = ''
+		model.value = null
 		return
 	}
-	model.value = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}T${h.padStart(2, '0')}:${i.padStart(2, '0')}:00`
+	const date = new Date()
+	date.setFullYear(Number(y), Number(m) - 1, Number(d))
+	date.setHours(props.showTime ? Number(h) : 0, props.showTime ? Number(i) : 0, 0, 0)
+	model.value = date
 }, { immediate: true })
 
 watch(model, (value) => {
 	if(!value) return
-	if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.exec(value)) {
-		const date = new Date(value)
-		day.value = String(date.getDate())
-		month.value = String(date.getMonth() + 1)
-		year.value = String(date.getFullYear())
-		hour.value = String(date.getHours())
-		minute.value = String(date.getMinutes())
-		return
-	}
-	if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.exec(value)) {
-		const [ datePart, timePart ] = value.split('T')
-		if(!datePart || !timePart) return
-		const [ y, m, d ] = datePart.split('-') as [ string, string, string ]
-		const [ h, i ] = timePart.split(':') as [ string, string ]
-		if(day.value.padStart(2, '0') === d && month.value.padStart(2, '0') === m && year.value === y) return
-		if(hour.value.padStart(2, '0') === h && minute.value.padStart(2, '0') === i) return
-		day.value = d
-		month.value = m
-		year.value = y
-		hour.value = h
-		minute.value = i
-		return
-	}
-	if(/^\d{4}-\d{2}-\d{2}$/.exec(value)) {
-		const [ y, m, d ] = value.split('-') as [ string, string, string ]
-		if(day.value.padStart(2, '0') === d && month.value.padStart(2, '0') === m && year.value === y) return
-		day.value = d
-		month.value = m
-		year.value = y
-	}
+	day.value = String(value.getDate())
+	month.value = String(value.getMonth() + 1)
+	year.value = String(value.getFullYear())
+	hour.value = String(value.getHours())
+	minute.value = String(value.getMinutes())
 }, { immediate: true })
 
 const dayInput = ref<HTMLInputElement | null>(null)
@@ -85,7 +63,7 @@ function onYearInput() {
 }
 
 function onHourInput() {
-	if(/^\d{2}|[2-9]$/.exec(hour.value)) {
+	if(/^\d{2}|[3-9]$/.exec(hour.value)) {
 		minuteInput.value?.focus()
 	}
 }

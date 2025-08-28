@@ -1,50 +1,59 @@
 <script setup lang="ts">
 const navigationItems: {
-	type: string
-	label: string
-	sublabel?: string
+	preline: string
+	title: string
+	subline?: string
 	description?: string
 	link: string
+	linkLabel: string
 }[] = [
 	{
-		type: 'Organisation',
-		label: 'Organisationseinheiten',
-		link: '/organizationItem',
+		preline: 'Organisation',
+		title: 'Organisationseinheiten',
+		link: '/organizationItems',
+		linkLabel: 'Liste anzeigen',
 	},
 	{
-		type: 'Organisation',
-		label: 'OE-Kategorien',
+		preline: 'Organisation',
+		title: 'OE-Kategorien',
 		link: '/organizationType',
+		linkLabel: 'Liste anzeigen',
 	},
 	{
-		type: 'Organisation',
-		label: 'Mitgliedschaftsarten',
+		preline: 'Organisation',
+		title: 'Mitgliedschaftsarten',
 		link: '/membershipType',
+		linkLabel: 'Liste anzeigen',
 	},
 	{
-		type: 'Organisation',
-		label: 'Gründe für das Ende der Mitgliedschaft',
+		preline: 'Organisation',
+		title: 'Gründe für das Ende der Mitgliedschaft',
 		link: '/membershipEndReason',
+		linkLabel: 'Liste anzeigen',
 	},
 	{
-		type: 'Organisation',
-		label: 'Personen',
+		preline: 'Organisation',
+		title: 'Personen',
 		link: '/person',
+		linkLabel: 'Liste anzeigen',
 	},
 	{
-		type: 'Campus',
-		label: 'Gebäude',
+		preline: 'Campus',
+		title: 'Gebäude',
 		link: '/building',
+		linkLabel: 'Liste anzeigen',
 	},
 	{
-		type: 'Campus',
-		label: 'Räume',
+		preline: 'Campus',
+		title: 'Räume',
 		link: '/room',
+		linkLabel: 'Liste anzeigen',
 	},
 	{
-		type: 'Sitzung',
-		label: 'Sitzungen',
+		preline: 'Sitzung',
+		title: 'Sitzungen',
 		link: '/session',
+		linkLabel: 'Liste anzeigen',
 	},
 ]
 </script>
@@ -52,21 +61,5 @@ const navigationItems: {
 <template lang="pug">
 h1.kern-heading-large Studierendenparlament der HAW Kiel
 h2.kern-heading-medium Sitzungsverwaltung und Antragsmanagement
-.kern-container
-	.kern-row
-		.kern-col(
-			v-for="item of navigationItems"
-			:key="item.link"
-		)
-			article.kern-card
-				.kern-card__container
-					header.kern-card__header
-						p.kern-preline {{ item.type }}
-						h2.kern-title {{ item.label }}
-						h3.kern-subline(v-if="item.sublabel") {{ item.sublabel }}
-					section.kern-card__body(v-if="item.description")
-						p.kern-body {{ item.description }}
-					footer.kern-card__footer
-						button.kern-btn.kern-btn--primary(@click="$router.push(item.link)")
-							span.kern-label Liste anzeigen
+KernCardNav(:items="navigationItems")
 </template>

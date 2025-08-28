@@ -130,7 +130,7 @@ role="alert")
 				p.kern-body {{ dialogErrorMessage }}
 		.kern-form-input
 			label.kern-label(for="building") Gebäude
-			select.kern-form-input__input#building(v-model="dialogInputModel.building")
+			select.kern-form-input__select#building(v-model="dialogInputModel.building")
 				option(
 					v-for="building of buildings"
 					:key="building.id"

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."member_types" RENAME VALUE 'organization_item' TO 'organizationItem';--> statement-breakpoint

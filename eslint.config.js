@@ -53,6 +53,7 @@ export default withNuxt(
 						for: { after: false },
 						while: { after: false },
 						catch: { after: false },
+						switch: { after: false },
 					},
 				},
 			],

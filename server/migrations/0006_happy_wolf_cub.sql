@@ -1,0 +1,1 @@
+ALTER TABLE "organization_items" ADD COLUMN "description" text NOT NULL;

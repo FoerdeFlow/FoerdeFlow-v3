@@ -28,7 +28,7 @@ export const membershipEndReasons = pgTable('membership_end_reasons', {
 
 export const memberTypes = pgEnum('member_types', [
 	'person',
-	'organization_item',
+	'organizationItem',
 ])
 
 export const memberships = pgTable('memberships', {

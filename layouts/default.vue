@@ -12,7 +12,7 @@ const displayName = computed(() => authStore.userInfo
 	.kern-container
 		.kern-kopfzeile__content
 			span.kern-kopfzeile__label Studierendenparlament der HAW Kiel
-.m-4
+header(:class="$style.header")
 	template(v-if="authStore.loggedIn")
 		.flex.flex-col.justify-between.gap-2.mb-4(class="md:flex-row")
 			p.flex-1.kern-text Willkommen, #[b {{ displayName }}]!
@@ -42,7 +42,8 @@ const displayName = computed(() => authStore.userInfo
 			)
 				span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
 				span.kern-label Anmelden
-	hr.kern-divider(aria-hidden="true")
+hr.kern-divider(aria-hidden="true")
+main(:class="$style.main")
 	KernAlert(
 		v-for="(alert, idx) of alertStore.alerts"
 		:key="idx"
@@ -53,3 +54,27 @@ const displayName = computed(() => authStore.userInfo
 	)
 	slot
 </template>
+
+<style module>
+.header {
+	margin: 1em;
+	max-width: 80em;
+}
+
+.main {
+	margin: 2em;
+	max-width: 80em;
+}
+
+@media (min-width: 90em) {
+	.header {
+		margin: 1em auto;
+		max-width: 80em;
+	}
+
+	.main {
+		margin: 4em auto;
+		max-width: 80em;
+	}
+}
+</style>

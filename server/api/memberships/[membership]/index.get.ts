@@ -10,6 +10,15 @@ export default defineEventHandler(async (event) => {
 
 	const membership = await database.query.memberships.findFirst({
 		where: eq(memberships.id, params.membership),
+		with: {
+			membershipType: true,
+			endReason: true,
+			memberPerson: true,
+			memberOrganizationItem: true,
+		},
+		columns: {
+			id: false,
+		},
 	})
 
 	if(!membership) {
