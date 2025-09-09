@@ -60,5 +60,9 @@ export default defineNuxtConfig({
 			username: 'superadmin',
 			password: 'superadmin',
 		},
+		minutes: {
+			url: 'https://dfncloud.fh-kiel.de/s/8XpT4EqmAZwtoNQ/download' +
+				'?path=%2F__PERIOD__&files=P-__ITEM__-__QNUMBER__.pdf',
+		},
 	},
 })

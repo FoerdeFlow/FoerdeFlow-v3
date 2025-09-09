@@ -62,6 +62,7 @@ export const membershipsRelations = relations(memberships, ({ one }) => ({
 	organizationItem: one(organizationItems, {
 		fields: [ memberships.organizationItem ],
 		references: [ organizationItems.id ],
+		relationName: 'organizationItem',
 	}),
 	membershipType: one(membershipTypes, {
 		fields: [ memberships.membershipType ],

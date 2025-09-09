@@ -108,5 +108,6 @@ KernDialog(
 	template(v-if="model")
 		OrganizationItemGroupGroupNameInput(v-model="model.groupName")
 		OrganizationItemGroupRoleNameInput(v-model="model.roleName")
+		OrganizationItemGroupIsSessionParticipantInput(v-model="model.isSessionParticipant")
 		OrganizationItemGroupMembersInput(v-model="model.members")
 </template>

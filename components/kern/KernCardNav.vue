@@ -8,6 +8,7 @@ const props = defineProps<{
 		subline?: string
 		description?: string
 		link: NuxtLinkProps['to']
+		linkTarget?: '_blank'
 		linkLabel: string
 	}[]
 }>()
@@ -29,6 +30,9 @@ const props = defineProps<{
 					section.kern-card__body(v-if="item.description")
 						p.kern-body {{ item.description }}
 					footer.kern-card__footer
-						NuxtLink.kern-btn.kern-btn--primary(:to="item.link")
+						NuxtLink.kern-btn.kern-btn--primary(
+							:to="item.link"
+							:target="item.linkTarget"
+						)
 							span.kern-label {{ item.linkLabel }}
 </template>

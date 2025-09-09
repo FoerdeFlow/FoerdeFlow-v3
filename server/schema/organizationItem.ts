@@ -37,4 +37,7 @@ export const organizationItemsRelations = relations(organizationItems, ({ one, m
 		fields: [ organizationItems.organizationType ],
 		references: [ organizationTypes.id ],
 	}),
+	members: many(memberships, {
+		relationName: 'organizationItem',
+	}),
 }))

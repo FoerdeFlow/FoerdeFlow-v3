@@ -51,6 +51,10 @@ export default defineEventHandler(async (event) => {
 			'buildings.create',
 			'buildings.update',
 			'buildings.delete',
+			'sessions.read',
+			'sessions.create',
+			'sessions.update',
+			'sessions.delete',
 		],
 	}
 })

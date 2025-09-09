@@ -17,6 +17,7 @@ const emit = defineEmits<{
 defineSlots<{
 	[slotName: `${string}-header`]: (props: {}) => unknown
 	[slotName: `${string}-body`]: (props: { item: T }) => unknown
+	actions: (props: { item: T }) => unknown
 }>()
 
 const authStore = useAuthStore()
@@ -64,6 +65,10 @@ table.kern-table
 			td.kern-table__cell(
 				v-if="showActions"
 			)
+				slot(
+					name="actions"
+					:item="item"
+				)
 				button.kern-btn.kern-btn--tertiary(
 					v-if="authStore.hasPermission(props.updatePermission).value"
 					@click="emit('edit', item)"

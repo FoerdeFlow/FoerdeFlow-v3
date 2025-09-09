@@ -31,6 +31,15 @@ const subPages: KernCardNavItems = [
 		},
 		linkLabel: 'Gruppen anzeigen',
 	},
+	{
+		title: 'Sitzungen',
+		description: 'Übersicht über die Sitzungen',
+		link: {
+			name: 'organizationItems-organizationItem-sessions',
+			params: { organizationItem: route.params.organizationItem },
+		},
+		linkLabel: 'Sitzungen anzeigen',
+	},
 ]
 </script>
 
