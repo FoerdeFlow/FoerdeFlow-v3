@@ -49,12 +49,6 @@ const navigationItems: {
 		link: '/room',
 		linkLabel: 'Liste anzeigen',
 	},
-	{
-		preline: 'Sitzung',
-		title: 'Sitzungen',
-		link: '/session',
-		linkLabel: 'Liste anzeigen',
-	},
 ]
 </script>
 
