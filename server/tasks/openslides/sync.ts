@@ -1,13 +1,14 @@
-import { useOpenslides } from '~/server/utils/openslides/useOpenslides'
+// import { useOpenslides } from '~/server/utils/openslides/useOpenslides'
 
 export default defineTask({
 	meta: {
 		name: 'openslides:sync',
 	},
 	async run({ payload, context }) {
-		const database = useDatabase()
-		const client = useOpenslides()
+		// const database = useDatabase()
+		// const client = useOpenslides()
 
+		/*
 		const persons = await database.query.persons.findMany({})
 		for(const person of persons) {
 			const data = {
@@ -20,6 +21,7 @@ export default defineTask({
 			}
 			await client.user.create(data)
 		}
+			*/
 
 		return { result: 'success' }
 	},

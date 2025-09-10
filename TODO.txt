@@ -1,6 +1,5 @@
 - Autorisierung/ACL/Rollen
 - Anwesenheiten mit OpenSlides koppeln
-- app-Folder
 - Dependencies aktualisieren
 - Migrations zusammenziehen -> Drizzle-Änderungen?
 - Produktivdeployment
