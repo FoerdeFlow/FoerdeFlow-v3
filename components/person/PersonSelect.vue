@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { DestructureArray } from '~/shared/types'
 
-const props = defineProps<{
+const { id, readonly = false } = defineProps<{
 	id: string
+	readonly?: boolean
 }>()
 
 const localId = useId()
@@ -41,11 +42,12 @@ async function selectPerson(person: DestructureArray<typeof data.value>) {
 <template lang="pug">
 .flex.flex-row.gap-2.w-full(v-if="model")
 	input.flex-1.kern-form-input__input(
-		:id="props.id"
+		:id="id"
 		:value="formatPerson(model)"
 		readonly
 	)
 	button.kern-btn.kern-btn--tertiary(
+		v-if="!readonly"
 		ref="edit-button"
 		@click="model = null"
 	)

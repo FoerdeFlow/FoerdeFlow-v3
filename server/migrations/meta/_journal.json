@@ -57,6 +57,13 @@
       "when": 1756413121847,
       "tag": "0007_woozy_scarecrow",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1757421710052,
+      "tag": "0008_stiff_clea",
+      "breakpoints": true
     }
   ]
 }
