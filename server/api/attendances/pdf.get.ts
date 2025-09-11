@@ -130,6 +130,17 @@ export default defineEventHandler(async (event) => {
 		doc.setFontSize(12)
 		doc.text(guest.name, 20, pos.y, { maxWidth: 75 })
 
+		if(guest.status) {
+			doc.setFont('OpenSans', 'italic')
+			doc.setFontSize(9)
+			doc.text({
+				present: '(anwesend)',
+				excused: '(entschuldigt)',
+				absent: '(fehlt)',
+				late: '(verspätet)',
+			}[guest.status], docWidth - 20, pos.y + 5, { align: 'right' })
+		}
+
 		doc.setLineDashPattern([ 1, 1 ], 0)
 		doc.line(100, pos.y + 7, 190, pos.y + 7)
 
