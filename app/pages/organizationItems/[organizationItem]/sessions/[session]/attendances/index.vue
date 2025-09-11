@@ -11,7 +11,11 @@ const authStore = useAuthStore()
 const alertStore = useAlertStore()
 const confirmDialogStore = useConfirmDialogStore()
 
-const { data, refresh } = useFetch(`/api/attendances?session=${route.params.session}`)
+const { data, refresh } = useFetch('/api/attendances', {
+	params: {
+		session: route.params.session,
+	},
+})
 
 function create() {
 	if(!editor.value) return
@@ -51,6 +55,10 @@ async function remove({ id }: { id: string | null }) {
 		}
 	}
 }
+
+function downloadAsPdf() {
+	open(`/api/attendances/pdf?session=${route.params.session}`)
+}
 </script>
 
 <template lang="pug">
@@ -66,6 +74,12 @@ template(v-if="data")
 			| Anwesenheitsliste zur
 			| {{ data.session.organizationItem.code }}-Sitzung
 			| {{ formatSessionNumber(data.session.period, data.session.number) }}
+	.mb-8
+		button.kern-btn.kern-btn--secondary(
+			@click="downloadAsPdf"
+		)
+			span.kern-icon.kern-icon--download(aria-hidden="true")
+			span.kern-label Als PDF exportieren
 	.mb-8(
 		v-for="group of data.groups"
 		:key="group.id"

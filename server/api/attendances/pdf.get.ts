@@ -1,6 +1,40 @@
+import { z } from 'zod'
 import { jsPDF } from 'jspdf'
 
 export default defineEventHandler(async (event) => {
+	const query = await getValidatedQuery(event, async (data) => await z.object({
+		session: z.uuid(),
+	}).parseAsync(data))
+
+	const result = await $fetch('/api/attendances', {
+		params: {
+			session: query.session,
+		},
+	})
+
+	const session = result.session
+	const participantGroups = result.groups
+		.map((group) => ({
+			name: group.name,
+			participants: group.members.map((member) => ({
+				name: formatPerson(member.person),
+				status: member.status,
+			})),
+		}))
+	const guests = result.guests.map((guest) => ({
+		name: formatPerson(guest.person),
+		status: guest.status,
+	}))
+
+	const sessionTitle = [
+		`${session.organizationItem.code}-Sitzung`,
+		formatSessionNumber(session.period, session.number),
+	].join(' ')
+	const filenameCode = [
+		session.organizationItem.code,
+		formatSessionNumber(session.period, session.number),
+	].join('-')
+
 	// eslint-disable-next-line new-cap
 	const doc = new jsPDF()
 	const docWidth = doc.internal.pageSize.getWidth()
@@ -23,7 +57,7 @@ export default defineEventHandler(async (event) => {
 				doc.setFont('OpenSans', 'italic')
 				doc.setFontSize(14)
 				doc.text('Anwesenheitsliste', 20, 15, { align: 'left' })
-				doc.text('StuPa-Sitzung 2526-03', docWidth - 20, 15, { align: 'right' })
+				doc.text(sessionTitle, docWidth - 20, 15, { align: 'right' })
 				return
 			}
 			this._y = value
@@ -48,34 +82,8 @@ export default defineEventHandler(async (event) => {
 
 	doc.setFont('OpenSans', 'normal')
 	doc.setFontSize(24)
-	doc.text('StuPa-Sitzung 2526-03', 20, pos.y)
+	doc.text(sessionTitle, 20, pos.y)
 	pos.y += 20
-
-	const participantGroups = [
-		{
-			name: 'Parlamentarier*innen',
-			participants: [
-				'Felix Ansheim',
-				'Kevin Breuel',
-				'Ibrahim Celik',
-				'Anton Hartmann',
-				'Lukas Heuer',
-				'Kristina Holzke',
-				'Maira-Sophie Philipps',
-				'Jan Winter',
-				'Nele Zurlage',
-				'Veronica Zylla',
-			],
-		},
-		{
-			name: 'AStA-Vorsitz',
-			participants: [
-				'Daniel Elich',
-				'Janine Wiese',
-				'Till Hillekamp',
-			],
-		},
-	]
 
 	for(const participantGroup of participantGroups) {
 		if(pos.y + 12 > docHeight - 42) {
@@ -89,7 +97,18 @@ export default defineEventHandler(async (event) => {
 		for(const participant of participantGroup.participants) {
 			doc.setFont('OpenSans', 'normal')
 			doc.setFontSize(12)
-			doc.text(participant, 20, pos.y, { maxWidth: 75 })
+			doc.text(participant.name, 20, pos.y, { maxWidth: 75 })
+
+			if(participant.status) {
+				doc.setFont('OpenSans', 'italic')
+				doc.setFontSize(9)
+				doc.text({
+					present: '(anwesend)',
+					excused: '(entschuldigt)',
+					absent: '(fehlt)',
+					late: '(verspätet)',
+				}[participant.status], docWidth - 20, pos.y + 5, { align: 'right' })
+			}
 
 			doc.setLineDashPattern([ 1, 1 ], 0)
 			doc.line(100, pos.y + 7, 190, pos.y + 7)
@@ -97,8 +116,6 @@ export default defineEventHandler(async (event) => {
 		}
 		pos.y += 8
 	}
-
-	const guests: string[] = []
 
 	if(pos.y + 12 > docHeight - 42) {
 		pos.y = docHeight
@@ -111,7 +128,7 @@ export default defineEventHandler(async (event) => {
 	for(const guest of guests) {
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(12)
-		doc.text(guest, 20, pos.y, { maxWidth: 75 })
+		doc.text(guest.name, 20, pos.y, { maxWidth: 75 })
 
 		doc.setLineDashPattern([ 1, 1 ], 0)
 		doc.line(100, pos.y + 7, 190, pos.y + 7)
@@ -131,6 +148,6 @@ export default defineEventHandler(async (event) => {
 
 	pos.finalize()
 	const blob = doc.output('blob')
-	setResponseHeader(event, 'Content-Disposition', 'inline; filename="StuPa-2526-03_Anwesenheitsliste.pdf"')
+	setResponseHeader(event, 'Content-Disposition', `inline; filename="${filenameCode}_Anwesenheitsliste.pdf"`)
 	return blob
 })
