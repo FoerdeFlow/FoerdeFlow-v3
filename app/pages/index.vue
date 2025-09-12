@@ -49,6 +49,12 @@ const navigationItems: {
 		link: '/room',
 		linkLabel: 'Liste anzeigen',
 	},
+	{
+		preline: 'Berechtigungen',
+		title: 'Rollen',
+		link: '/roles',
+		linkLabel: 'Liste anzeigen',
+	},
 ]
 </script>
 

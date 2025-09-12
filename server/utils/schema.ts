@@ -1,3 +1,4 @@
+export * from '../schema/accessControl'
 export * from '../schema/building'
 export * from '../schema/membership'
 export * from '../schema/organizationItem'

@@ -59,6 +59,10 @@ export default defineEventHandler(async (event) => {
 			'sessionAttendances.create',
 			'sessionAttendances.update',
 			'sessionAttendances.delete',
+			'roles.read',
+			'roles.create',
+			'roles.update',
+			'roles.delete',
 		],
 	}
 })
