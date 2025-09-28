@@ -82,6 +82,15 @@ export function formatPerson(
 	return result
 }
 
+export function formatOrganizationType(
+	item: {
+		name: string,
+		code: string,
+	} | null,
+): string {
+	if(!item) return ''
+	return `${item.name} (${item.code})`
+}
 export function formatOrganizationItem(
 	item: {
 		name: string,

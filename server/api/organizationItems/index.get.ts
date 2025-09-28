@@ -26,6 +26,8 @@ function buildTree(
 }
 
 export default defineEventHandler(async (_event) => {
+	await checkPermission('organizationItems.read')
+
 	const database = useDatabase()
 
 	const organizationItems = (await database.query.organizationItems.findMany({

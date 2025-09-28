@@ -2,10 +2,12 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
+	await checkPermission('organizationItemGroups.read')
+
 	const database = useDatabase()
 
 	const query = await getValidatedQuery(event, async (data) => await z.object({
-		organizationItem: z.string().uuid(),
+		organizationItem: z.uuid(),
 	}).parseAsync(data))
 
 	return await database.query.organizationItemGroups.findMany({

@@ -1,12 +1,13 @@
 import z from 'zod'
-
-type InferT<T> = T extends (infer U)[] ? U : never
+import type { DestructureArray } from '~~/shared/types'
 
 export default defineEventHandler(async (event) => {
+	await checkPermission('memberships.read')
+
 	const database = useDatabase()
 
 	const query = await getValidatedQuery(event, async (data) => await z.object({
-		organizationItem: z.string().uuid(),
+		organizationItem: z.uuid(),
 	}).parseAsync(data))
 
 	const memberships = await database.query.memberships.findMany({
@@ -22,15 +23,21 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	return memberships as (InferT<typeof memberships> & (
+	return memberships as (DestructureArray<typeof memberships> & (
 		{
 			memberType: 'person'
-			memberPerson: Exclude<(InferT<typeof memberships>)['memberPerson'], null>
+			memberPerson: Exclude<
+				(DestructureArray<typeof memberships>)['memberPerson'],
+				null
+			>
 			memberOrganizationItem: null
 		} | {
 			memberType: 'organization_item'
 			memberPerson: null
-			memberOrganizationItem: Exclude<(InferT<typeof memberships>)['memberOrganizationItem'], null>
+			memberOrganizationItem: Exclude<
+				(DestructureArray<typeof memberships>)['memberOrganizationItem'],
+				null
+			>
 		}
 	))[]
 })

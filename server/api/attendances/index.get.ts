@@ -2,6 +2,8 @@ import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
+	await checkPermission('attendances.read')
+
 	const database = useDatabase()
 
 	const query = await getValidatedQuery(event, async (data) => await z.object({

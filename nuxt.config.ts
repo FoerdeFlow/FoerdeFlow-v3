@@ -32,6 +32,7 @@ export default defineNuxtConfig({
 		'@nuxtjs/tailwindcss',
 		'@pinia/nuxt',
 		'pinia-plugin-persistedstate/nuxt',
+		'@nuxtjs/i18n',
 	],
 	css: [
 		'~/assets/css/main.css',
@@ -39,6 +40,14 @@ export default defineNuxtConfig({
 	tailwindcss: {
 		exposeConfig: true,
 		viewer: true,
+	},
+	i18n: {
+		strategy: 'no_prefix',
+		defaultLocale: 'de',
+		locales: [
+			{ code: 'de', name: 'Deutsch', file: 'de.json' },
+			{ code: 'en', name: 'English', file: 'en.json' },
+		],
 	},
 	runtimeConfig: {
 		database: {

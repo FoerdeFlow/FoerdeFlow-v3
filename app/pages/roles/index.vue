@@ -41,6 +41,12 @@ async function remove({ id }: { id: string }) {
 </script>
 
 <template lang="pug">
+aside
+	NuxtLink.kern-link(
+		:to="{ name: 'index' }"
+	)
+		span.kern-icon.kern-icon--arrow-back(aria-hidden="true")
+		| Zurück zur Übersicht
 h1.kern-heading-large Rollen
 KernTable(
 	caption="Liste der Rollen"

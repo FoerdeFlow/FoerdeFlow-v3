@@ -3,6 +3,8 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
+	await checkPermission('organizationItems.update')
+
 	const database = useDatabase()
 	const client = useOpenslides()
 

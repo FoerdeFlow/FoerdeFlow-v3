@@ -1,0 +1,31 @@
+{
+	"permissions": {
+		"adminAlert": {
+			"title": "Administratorrolle",
+			"text": "Da die Rolle Administrator ist, hat sie alle Berechtigungen. Die Berechtigungen können nicht bearbeitet werden. Um die Berechtigungen einzuschränken, entfernen Sie den Administratorstatus der Rolle."
+		},
+		"actions": {
+			"read": "Lesen",
+			"create": "Erstellen",
+			"update": "Bearbeiten",
+			"delete": "Löschen"
+		},
+		"relations": {
+			"organizationTypes": "OE-Kategorien",
+			"membershipTypes": "Mitgliedschaftsarten",
+			"membershipEndReasons": "Gründe für das Mitgliedschaftsende",
+			"persons": "Personen",
+			"organizationItems": "Organisationseinheiten",
+			"organizationItemGroups": "OE-Gruppen",
+			"memberships": "Mitgliedschaften",
+			"buildings": "Gebäude",
+			"rooms": "Räume",
+			"sessions": "Sitzungen",
+			"sessionAttendances": "Sitzungsteilnahmen",
+			"roles": "Rollen",
+			"rolePermissions": "Rollenberechtigungen",
+			"roleOccupants": "Rolleninhaber",
+			"permissions": "Berechtigungen"
+		}
+	}
+}

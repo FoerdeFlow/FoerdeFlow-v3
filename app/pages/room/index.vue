@@ -112,8 +112,9 @@ button.my-4.kern-btn.kern-btn--primary(
 )
 	span.kern-label Erstellen
 dialog#dialog.kern-dialog(
-ref="dialog"
-aria-labelledby="dialog_heading")
+	ref="dialog"
+	aria-labelledby="dialog_heading"
+)
 	header.kern-dialog__header
 		h2.kern-title.kern-title--large#dialog_heading Raum {{ dialogItemId ? 'bearbeiten' : 'erstellen' }}
 		button.kern-btn.kern-btn--tertiary(@click="close()")
@@ -121,8 +122,9 @@ aria-labelledby="dialog_heading")
 			span.kern-sr-only Schließen
 	section.kern-dialog__body
 		.kern-alert.kern-alert--danger(
-v-if="dialogErrorMessage"
-role="alert")
+			v-if="dialogErrorMessage"
+			role="alert"
+		)
 			.kern-alert__header
 				span.kern-icon.kern-icon--danger(aria-hidden="true")
 				span.kern-title Fehler bei der {{ dialogItemId ? 'Bearbeitung' : 'Erstellung' }}

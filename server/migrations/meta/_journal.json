@@ -71,6 +71,27 @@
       "when": 1757612635612,
       "tag": "0009_conscious_butterfly",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1757866483281,
+      "tag": "0010_spooky_speedball",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1758988666731,
+      "tag": "0011_medical_professor_monster",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1759051318157,
+      "tag": "0012_sturdy_kid_colt",
+      "breakpoints": true
     }
   ]
 }

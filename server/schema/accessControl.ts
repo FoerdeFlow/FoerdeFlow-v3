@@ -1,11 +1,14 @@
 import {
 	relations,
+	sql,
 } from 'drizzle-orm'
 import {
 	pgTable,
 	boolean,
 	uuid,
 	varchar,
+	unique,
+	check,
 } from 'drizzle-orm/pg-core'
 
 import { persons } from './person'
@@ -22,11 +25,34 @@ export const roles = pgTable('roles', {
 export const roleOccupants = pgTable('role_occupants', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	role: uuid().notNull().references(() => roles.id),
-	person: uuid().notNull().references(() => persons.id),
-	organizationType: uuid().notNull().references(() => organizationTypes.id),
-	organizationItem: uuid().notNull().references(() => organizationItems.id),
-	membershipType: uuid().notNull().references(() => membershipTypes.id),
-})
+	person: uuid().references(() => persons.id),
+	organizationType: uuid().references(() => organizationTypes.id),
+	organizationItem: uuid().references(() => organizationItems.id),
+	membershipType: uuid().references(() => membershipTypes.id),
+}, (table) => [
+	check('occupant_type', sql`(
+		${table.person} IS NULL AND
+		${table.organizationItem} IS NULL AND
+		${table.organizationType} IS NULL AND
+		${table.membershipType} IS NULL
+	) OR (
+		${table.person} IS NOT NULL AND
+		${table.organizationItem} IS NULL AND
+		${table.organizationType} IS NULL AND
+		${table.membershipType} IS NULL
+	) OR (
+		${table.person} IS NULL AND
+		(
+			(
+				${table.organizationItem} IS NOT NULL AND
+				${table.organizationType} IS NULL
+			) OR (
+				${table.organizationItem} IS NULL AND
+				${table.organizationType} IS NOT NULL
+			)
+		)
+	)`),
+])
 
 export const roleOccupantsRelations = relations(roleOccupants, ({ one }) => ({
 	role: one(roles, {
@@ -55,7 +81,12 @@ export const rolePermissions = pgTable('role_permissions', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	role: uuid().notNull().references(() => roles.id),
 	permission: varchar({ length: 64 }).notNull(),
-})
+}, (table) => [
+	unique().on(
+		table.role,
+		table.permission,
+	),
+])
 
 export const rolePermissionsRelations = relations(rolePermissions, ({ one }) => ({
 	role: one(roles, {

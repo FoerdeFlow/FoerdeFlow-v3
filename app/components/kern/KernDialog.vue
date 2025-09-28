@@ -7,9 +7,10 @@ const dialog = useTemplateRef<HTMLDialogElement>('dialog')
 type AlertProps = InstanceType<typeof KernAlert>['$props']
 const alerts: Ref<AlertProps[]> = ref([])
 
-const { title, modal = false } = defineProps<{
+const { title, modal = false, valid = true } = defineProps<{
 	title: string
 	modal?: boolean
+	valid?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -73,7 +74,10 @@ dialog.kern-dialog(
 			button.kern-btn.kern-btn--secondary(@click="emit('cancel')")
 				span.kern-icon.kern-icon--close(aria-hidden="true")
 				span.kern-label Abbrechen
-			button.kern-btn.kern-btn--primary(@click="emit('save')")
+			button.kern-btn.kern-btn--primary(
+				:disabled="!valid"
+				@click="emit('save')"
+			)
 				span.kern-icon.kern-icon--check(aria-hidden="true")
 				span.kern-label Speichern
 </template>

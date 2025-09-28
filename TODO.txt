@@ -1,4 +1,3 @@
-- Autorisierung/ACL/Rollen
 - Anwesenheiten mit OpenSlides koppeln
 - Dependencies aktualisieren
 - Migrations zusammenziehen -> Drizzle-Änderungen?

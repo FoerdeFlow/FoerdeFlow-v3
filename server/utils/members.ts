@@ -1,4 +1,4 @@
-import { and, gt, inArray, isNull, lt, or } from 'drizzle-orm'
+import { and, eq, gt, inArray, isNull, lt, or } from 'drizzle-orm'
 import type { DestructureArray } from '#shared/types'
 
 export async function getEffectiveMembers(organizationItems: string[], membershipTypes: string[] | null) {
@@ -39,5 +39,50 @@ export async function getEffectiveMembers(organizationItems: string[], membershi
 				break
 		}
 	}
+	return result
+}
+
+export async function getEffectiveMemberships(member: {
+	type: 'person'
+	person: string
+} | {
+	type: 'organizationItem'
+	organizationItem: string
+}) {
+	const database = useDatabase()
+
+	const members = await database.query.memberships.findMany({
+		where: and(
+			eq(memberships.memberType, member.type),
+			...(member.type === 'person'
+				? [
+					eq(memberships.memberPerson, member.person),
+				]
+				: []),
+			...(member.type === 'organizationItem'
+				? [
+					eq(memberships.memberOrganizationItem, member.organizationItem),
+				]
+				: []),
+		),
+		columns: {},
+		with: {
+			membershipType: true,
+			organizationItem: true,
+		},
+	})
+
+	const result = [
+		...members,
+		...(await Promise.all(
+			members.map(async (membership) =>
+				await getEffectiveMemberships({
+					type: 'organizationItem',
+					organizationItem: membership.organizationItem.id,
+				}),
+			),
+		)).flat(),
+	] as typeof members
+
 	return result
 }

@@ -19,6 +19,7 @@ const subPages: KernCardNavItems = [
 			params: { role: route.params.role },
 		},
 		linkLabel: 'Rolleninhaber anzeigen',
+		permission: 'roleOccupants.read',
 	},
 	{
 		title: 'Berechtigungen',
@@ -28,6 +29,7 @@ const subPages: KernCardNavItems = [
 			params: { role: route.params.role },
 		},
 		linkLabel: 'Berechtigungen anzeigen',
+		permission: 'rolePermissions.read',
 	},
 ]
 </script>

@@ -7,6 +7,8 @@ export default defineEventHandler(async (event) => {
 		return
 	}
 
+	await checkPermission('sessions.read')
+
 	const runtimeConfig = useRuntimeConfig()
 	const database = useDatabase()
 

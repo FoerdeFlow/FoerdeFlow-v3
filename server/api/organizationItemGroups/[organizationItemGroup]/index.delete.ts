@@ -2,6 +2,8 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
+	await checkPermission('organizationItemGroups.delete')
+
 	const database = useDatabase()
 	const client = useOpenslides()
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DestructureArray } from '~/shared/types'
+import type { DestructureArray } from '#shared/types'
 
 const { id, readonly = false } = defineProps<{
 	id: string

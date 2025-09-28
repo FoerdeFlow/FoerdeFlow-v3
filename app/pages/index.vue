@@ -1,59 +1,62 @@
 <script setup lang="ts">
-const navigationItems: {
-	preline: string
-	title: string
-	subline?: string
-	description?: string
-	link: string
-	linkLabel: string
-}[] = [
+import type { KernCardNavItems } from '~/types'
+
+const navigationItems: KernCardNavItems = [
 	{
 		preline: 'Organisation',
 		title: 'Organisationseinheiten',
 		link: '/organizationItems',
 		linkLabel: 'Liste anzeigen',
+		permission: 'organizationItems.read',
 	},
 	{
 		preline: 'Organisation',
 		title: 'OE-Kategorien',
 		link: '/organizationType',
 		linkLabel: 'Liste anzeigen',
+		permission: 'organizationTypes.read',
 	},
 	{
 		preline: 'Organisation',
 		title: 'Mitgliedschaftsarten',
 		link: '/membershipType',
 		linkLabel: 'Liste anzeigen',
+		permission: 'membershipTypes.read',
 	},
 	{
 		preline: 'Organisation',
 		title: 'Gründe für das Ende der Mitgliedschaft',
 		link: '/membershipEndReason',
 		linkLabel: 'Liste anzeigen',
+		permission: 'membershipEndReasons.read',
 	},
 	{
 		preline: 'Organisation',
 		title: 'Personen',
 		link: '/person',
 		linkLabel: 'Liste anzeigen',
+		permission: 'persons.read',
 	},
 	{
 		preline: 'Campus',
 		title: 'Gebäude',
 		link: '/building',
 		linkLabel: 'Liste anzeigen',
+		permission: 'buildings.read',
 	},
 	{
 		preline: 'Campus',
 		title: 'Räume',
 		link: '/room',
 		linkLabel: 'Liste anzeigen',
+		permission: 'rooms.read',
 	},
 	{
 		preline: 'Berechtigungen',
 		title: 'Rollen',
 		link: '/roles',
 		linkLabel: 'Liste anzeigen',
+		permission: 'roles.read',
 	},
 ]
 </script>

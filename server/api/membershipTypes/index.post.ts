@@ -1,6 +1,8 @@
 import { createInsertSchema } from 'drizzle-zod'
 
 export default defineEventHandler(async (event) => {
+	await checkPermission('membershipTypes.create')
+
 	const database = useDatabase()
 
 	const body = await readValidatedBody(event, async (data) =>

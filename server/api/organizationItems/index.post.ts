@@ -1,6 +1,8 @@
 import { createInsertSchema } from 'drizzle-zod'
 
 export default defineEventHandler(async (event) => {
+	await checkPermission('organizationItems.create')
+
 	const database = useDatabase()
 	const client = useOpenslides()
 

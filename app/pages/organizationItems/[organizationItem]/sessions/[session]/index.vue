@@ -25,6 +25,7 @@ const subPages = computed<KernCardNavItems>(() => [
 			params: { organizationItem: route.params.organizationItem, session: route.params.session },
 		},
 		linkLabel: 'Zur Anwesenheitsliste',
+		permission: 'attendances.read',
 	},
 	...(minutesStatus.value === 'success'
 		? [ {
@@ -33,6 +34,7 @@ const subPages = computed<KernCardNavItems>(() => [
 			link: `/api/sessions/${route.params.session}/minutes`,
 			linkTarget: '_blank' as const,
 			linkLabel: 'Protokoll herunterladen (PDF)',
+			permission: 'sessions.read',
 		} ]
 		: []),
 ])

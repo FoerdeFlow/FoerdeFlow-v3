@@ -21,6 +21,7 @@ const subPages: KernCardNavItems = [
 			params: { organizationItem: route.params.organizationItem },
 		},
 		linkLabel: 'Mitglieder anzeigen',
+		permission: 'memberships.read',
 	},
 	{
 		title: 'Gruppen',
@@ -30,6 +31,7 @@ const subPages: KernCardNavItems = [
 			params: { organizationItem: route.params.organizationItem },
 		},
 		linkLabel: 'Gruppen anzeigen',
+		permission: 'organizationItemGroups.read',
 	},
 	{
 		title: 'Sitzungen',
@@ -39,6 +41,7 @@ const subPages: KernCardNavItems = [
 			params: { organizationItem: route.params.organizationItem },
 		},
 		linkLabel: 'Sitzungen anzeigen',
+		permission: 'sessions.read',
 	},
 ]
 </script>

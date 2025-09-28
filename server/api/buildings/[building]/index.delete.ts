@@ -2,6 +2,8 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
+	await checkPermission('buildings.delete')
+
 	const database = useDatabase()
 
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({

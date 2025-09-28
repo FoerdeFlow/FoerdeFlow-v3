@@ -2,8 +2,8 @@
 const authStore = useAuthStore()
 const alertStore = useAlertStore()
 
-const displayName = computed(() => authStore.userInfo
-	? `${authStore.userInfo.callName ?? authStore.userInfo.firstName} ${authStore.userInfo.lastName}`
+const displayName = computed(() => authStore.userInfo.person
+	? `${authStore.userInfo.person.callName ?? authStore.userInfo.person.firstName} ${authStore.userInfo.person.lastName}`
 	: 'Gast')
 </script>
 

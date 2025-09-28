@@ -3,6 +3,8 @@ import { createInsertSchema } from 'drizzle-zod'
 import z from 'zod'
 
 export default defineEventHandler(async (event) => {
+	await checkPermission('sessions.create')
+
 	const database = useDatabase()
 	const client = useOpenslides()
 

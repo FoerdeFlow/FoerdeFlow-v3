@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { mapGender } from 'openslides-client/utils/mapGender'
 
 export default defineEventHandler(async (event) => {
+	await checkPermission('persons.update')
+
 	const database = useDatabase()
 	const client = useOpenslides()
 

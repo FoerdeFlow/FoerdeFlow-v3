@@ -1,8 +1,9 @@
 <script setup lang="ts">
 const props = defineProps<{
-	type: 'danger'
+	type: 'danger' | 'info' | 'warning' | 'success'
 	title: string
 	text: string
+	dismissible?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -22,7 +23,10 @@ const emit = defineEmits<{
 		)
 		span.kern-title {{ props.title }}
 		.flex-1(aria-hidden="true")
-		button.kern-btn.kern-btn--tertiary(@click="emit('close')")
+		button.kern-btn.kern-btn--tertiary(
+			v-if="props.dismissible !== false"
+			@click="emit('close')"
+		)
 			span.kern-icon.kern-icon--close(aria-hidden="true")
 			span.kern-sr-only Schließen
 	.kern-alert__body

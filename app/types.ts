@@ -3,6 +3,7 @@ import type {
 	MembershipEndReasonSelect,
 	MembershipTypeSelect,
 	OrganizationItemSelect,
+	OrganizationTypeSelect,
 	PersonSelect,
 	RoomSelect,
 
@@ -14,6 +15,7 @@ export type AttendanceStatus = InstanceType<typeof AttendanceStatusSelect>['$pro
 export type MembershipEndReason = InstanceType<typeof MembershipEndReasonSelect>['$props']['modelValue']
 export type MembershipType = InstanceType<typeof MembershipTypeSelect>['$props']['modelValue']
 export type OrganizationItem = InstanceType<typeof OrganizationItemSelect>['$props']['modelValue']
+export type OrganizationType = InstanceType<typeof OrganizationTypeSelect>['$props']['modelValue']
 export type Person = InstanceType<typeof PersonSelect>['$props']['modelValue']
 export type Room = InstanceType<typeof RoomSelect>['$props']['modelValue']
 

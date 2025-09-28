@@ -2,6 +2,8 @@ import { createInsertSchema } from 'drizzle-zod'
 import { mapGender } from 'openslides-client/utils/mapGender'
 
 export default defineEventHandler(async (event) => {
+	await checkPermission('persons.create')
+
 	const database = useDatabase()
 	const client = useOpenslides()
 
