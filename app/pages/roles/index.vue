@@ -53,6 +53,7 @@ KernTable(
 	create-permission="roles.create"
 	update-permission="roles.update"
 	delete-permission="roles.delete"
+	show-actions
 	:columns="['name']"
 	:data="data || []"
 	@create="create"

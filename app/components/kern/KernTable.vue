@@ -8,6 +8,7 @@ const props = defineProps<{
 	createPermission: string | null
 	updatePermission: string | null
 	deletePermission: string | null
+	showActions?: boolean
 	data: T[]
 }>()
 
@@ -30,6 +31,7 @@ const columns = computed(() =>
 const authStore = useAuthStore()
 
 const showActions = computed(() =>
+	props.showActions ||
 	(props.updatePermission && authStore.hasPermission(props.updatePermission).value) ||
 	(props.deletePermission && authStore.hasPermission(props.deletePermission).value),
 )

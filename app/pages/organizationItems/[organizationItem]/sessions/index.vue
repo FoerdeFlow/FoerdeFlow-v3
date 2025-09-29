@@ -56,6 +56,7 @@ KernTable(
 	create-permission="sessions.create"
 	update-permission="sessions.update"
 	delete-permission="sessions.delete"
+	show-actions
 	:columns="['qualifiedNumber', 'timeAndLocation']"
 	:data="data || []"
 	@create="create"
