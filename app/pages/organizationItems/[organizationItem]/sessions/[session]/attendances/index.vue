@@ -87,7 +87,7 @@ template(v-if="data")
 		KernTable(
 			:caption="`Anwesenheitsliste für ${group.name}`"
 			:create-permission="null"
-			update-permission="sessionAttendances.update"
+			update-permission="attendances.update"
 			:delete-permission="null"
 			:columns="[ { name: 'name' }, { name: 'status', width: '12em' } ]"
 			:data="group.members"
@@ -105,7 +105,7 @@ template(v-if="data")
 				AttendanceStatusBadge(:status="item.status")
 			template(#actions="{ item }")
 				button.kern-btn.kern-btn--tertiary(
-					v-if="authStore.hasPermission('sessionAttendances.delete').value && item.id"
+					v-if="authStore.hasPermission('attendances.delete').value && item.id"
 					@click="remove(item)"
 				)
 					span.kern-icon.kern-icon--close(aria-hidden="true")
@@ -113,9 +113,9 @@ template(v-if="data")
 	.mb-8
 		KernTable(
 			caption="Anwesenheitsliste für Gäste"
-			create-permission="sessionAttendances.create"
-			update-permission="sessionAttendances.update"
-			delete-permission="sessionAttendances.delete"
+			create-permission="attendances.create"
+			update-permission="attendances.update"
+			delete-permission="attendances.delete"
 			:columns="[ { name: 'name' }, { name: 'status', width: '12em' } ]"
 			:data="data.guests"
 			@create="create"
