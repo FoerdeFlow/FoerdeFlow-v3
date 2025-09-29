@@ -14,4 +14,5 @@ export function checkPermission(permission: string) {
 			data: 'User does not have the required permission',
 		})
 	}
+	return Promise.resolve()
 }
