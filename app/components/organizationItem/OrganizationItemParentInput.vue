@@ -1,0 +1,17 @@
+<script setup lang="ts">
+import type { OrganizationItem } from '~/types'
+
+const id = useId()
+const model = defineModel<OrganizationItem>({
+	required: true,
+})
+</script>
+
+<template lang="pug">
+.kern-form-input
+	label.kern-label(:for="id") Übergeordnete Organisationseinheit #[span.kern-label__optional - Optional]
+	OrganizationItemSelect(
+		:id="id"
+		v-model="model"
+	)
+</template>

@@ -45,7 +45,6 @@ const selectModel = computed({
 		v-model="selectModel"
 	)
 		option(
-			disabled
 			value=""
 		) - Bitte wählen -
 		option(

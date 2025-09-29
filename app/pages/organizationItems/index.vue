@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { FetchError } from 'ofetch'
+import type { OrganizationItemEditor } from '#components'
+import type { DestructureArray } from '#shared/types'
 
-const authStore = useAuthStore()
 const { data, refresh } = useFetch('/api/organizationItems')
-const { data: organizationTypes } = useFetch('/api/organizationTypes')
 
-type ElementType<T> = T extends (infer U)[] ? U : never
-type TreeItem = ElementType<typeof data.value>
+type TreeItem = DestructureArray<typeof data.value>
 const flattenTree = (tree: TreeItem[], prefix = ''): (TreeItem & { displayName: string })[] => tree.flatMap((item) => ([
 	{
 		...item,
@@ -16,186 +14,48 @@ const flattenTree = (tree: TreeItem[], prefix = ''): (TreeItem & { displayName: 
 ]))
 const organizationItems = computed(() => data.value ? flattenTree(data.value) : [])
 
-const dialog = useTemplateRef<HTMLDialogElement>('dialog')
-
-const dialogItemId = ref<string | null>(null)
-const dialogInputModel = reactive({
-	parent: '',
-	organizationType: '',
-	code: '',
-	name: '',
-	description: '',
-})
-const dialogErrorMessage = ref<string | null>(null)
+const editor = useTemplateRef<typeof OrganizationItemEditor>('editor')
 
 function create() {
-	dialogItemId.value = null
-	dialogInputModel.parent = ''
-	dialogInputModel.organizationType = ''
-	dialogInputModel.code = ''
-	dialogInputModel.name = ''
-	dialogInputModel.description = ''
-	dialogErrorMessage.value = null
-	dialog.value?.showModal()
+	if(!editor.value) return
+	editor.value.create()
 }
 
-async function edit(id: string) {
-	dialogItemId.value = id
-	dialogErrorMessage.value = null
-
-	const item = await $fetch(`/api/organizationItems/${id}`)
-	dialogInputModel.parent = item.parent?.id ?? ''
-	dialogInputModel.organizationType = item.organizationType.id
-	dialogInputModel.code = item.code
-	dialogInputModel.name = item.name
-	dialogInputModel.description = item.description
-	dialog.value?.showModal()
-}
-
-function cancel() {
-	dialog.value?.close()
-}
-
-async function save() {
-	try {
-		const model = {
-			...dialogInputModel,
-			parent: dialogInputModel.parent || null,
-		}
-		if(dialogItemId.value) {
-			await $fetch(`/api/organizationItems/${dialogItemId.value}`, {
-				method: 'PUT',
-				body: model,
-			})
-		} else {
-			await $fetch('/api/organizationItems', {
-				method: 'POST',
-				body: model,
-			})
-		}
-		dialog.value?.close()
-	} catch(e) {
-		if(e instanceof FetchError) {
-			dialogErrorMessage.value = e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.'
-		}
-	}
-	await refresh()
-}
-
-function close() {
-	dialog.value?.close()
+function edit({ id }: { id: string }) {
+	if(!editor.value) return
+	editor.value.edit(id)
 }
 </script>
 
 <template lang="pug">
 h1.kern-heading-large Organisationseinheiten
-table.kern-table
-	caption.kern-title Liste der Organisationseinheiten
-	thead.kern-table__head
-		tr.kern-table__row
-			th.kern-table__header(
-				scope="col"
-			)
-				em OE-Kategorie
-				br
-				| Name (Kürzel)
-			th.kern-table__header(
-				v-if="authStore.hasPermission('organizationItems.update') || authStore.hasPermission('organizationItems.delete')"
-				scope="col"
-			) Aktionen
-	tbody.kern-table__body
-		tr.kern-table__row(v-if="data?.length === 0")
-			td.kern-table__cell(colspan="2") Keine Einträge gefunden.
-		tr.kern-table__row(
-			v-for="item of organizationItems"
-			:key="item.id"
-		)
-			td.kern-table__cell
-				em {{ item.organizationType.name }} ({{ item.organizationType.code }})
-				br
-				| {{ item.displayName }}
-			td.kern-table__cell(
-				v-if="authStore.hasPermission('organizationItems.update') || authStore.hasPermission('organizationItems.delete')"
-			)
-				button.kern-btn.kern-btn--tertiary(@click="edit(item.id)")
-					span.kern-icon.kern-icon--edit(aria-hidden="true")
-					span.kern-label.kern-sr-only Bearbeiten
-				NuxtLink.kern-btn.kern-btn--tertiary(
-					:to="{ name: 'organizationItems-organizationItem', params: { organizationItem: item.id } }"
-				)
-					span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
-					span.kern-label.kern-sr-only Aufrufen
-button.my-4.kern-btn.kern-btn--primary(
-	v-if="authStore.hasPermission('organizationItems.create')"
-	@click="create()"
+KernTable(
+	caption="Liste der Organisationseinheiten"
+	create-permission="organizationItems.create"
+	update-permission="organizationItems.update"
+	delete-permission="organizationItems.delete"
+	show-actions
+	:columns="[ 'name' ]"
+	:data="organizationItems"
+	@create="create"
+	@edit="edit"
 )
-	span.kern-label Erstellen
-dialog#dialog.kern-dialog(
-	ref="dialog"
-	aria-labelledby="dialog_heading"
+	template(#name-header)
+		em OE-Kategorie
+		br
+		| Name (Kürzel)
+	template(#name-body="{ item }")
+		em {{ item.organizationType.name }} ({{ item.organizationType.code }})
+		br
+		| {{ item.displayName }}
+	template(#actions="{ item }")
+		NuxtLink.kern-btn.kern-btn--tertiary(
+			:to="{ name: 'organizationItems-organizationItem', params: { organizationItem: item.id } }"
+		)
+			span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
+			span.kern-label.kern-sr-only Aufrufen
+OrganizationItemEditor(
+	ref="editor"
+	@refresh="refresh"
 )
-	header.kern-dialog__header
-		h2.kern-title.kern-title--large#dialog_heading Organisationseinheit {{ dialogItemId ? 'bearbeiten' : 'erstellen' }}
-		button.kern-btn.kern-btn--tertiary(@click="close()")
-			span.kern-icon.kern-icon--close(aria-hidden="true")
-			span.kern-sr-only Schließen
-	section.kern-dialog__body
-		.kern-alert.kern-alert--danger(
-			v-if="dialogErrorMessage"
-			role="alert"
-		)
-			.kern-alert__header
-				span.kern-icon.kern-icon--danger(aria-hidden="true")
-				span.kern-title Fehler bei der {{ dialogItemId ? 'Bearbeitung' : 'Erstellung' }}
-			.kern-alert__body
-				p.kern-body {{ dialogErrorMessage }}
-		.kern-form-input
-			label.kern-label(for="parent") Übergeordnete Organisationseinheit #[span.kern-label__optional - Optional]
-			select.kern-form-input__select#parent(v-model="dialogInputModel.parent")
-				option(value="") - Keine -
-				option(
-					v-for="item of organizationItems"
-					:key="item.id"
-					:value="item.id"
-				) {{ item.displayName }}
-		.kern-form-input
-			label.kern-label(for="organizationType") OE-Kategorie
-			select.kern-form-input__select#organizationType(v-model="dialogInputModel.organizationType")
-				option(
-					v-for="item of organizationTypes"
-					:key="item.id"
-					:value="item.id"
-				) {{ item.name }} ({{ item.code }})
-		.kern-form-input
-			label.kern-label(for="code") Kürzel
-			input.kern-form-input__input#code(
-				v-model="dialogInputModel.code"
-				type="text"
-			)
-		.kern-form-input
-			label.kern-label(for="name") Name
-			input.kern-form-input__input#name(
-				v-model="dialogInputModel.name"
-				type="text"
-			)
-		OrganizationItemDescriptionInput(
-			v-model="dialogInputModel.description"
-		)
-	footer.kern-dialog__footer
-		button.kern-btn.kern-btn--secondary(@click="cancel()")
-			span.kern-label Abbrechen
-		button.kern-btn.kern-btn--primary(@click="save()")
-			span.kern-label Speichern
 </template>
-
-<style scoped>
-#dialog {
-	width: 100%;
-}
-
-@media (min-width: 50rem) {
-	#dialog {
-		width: 50rem;
-	}
-}
-</style>
