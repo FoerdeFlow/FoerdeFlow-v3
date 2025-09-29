@@ -9,6 +9,9 @@ export default defineEventHandler(async (event) => {
 	}).parseAsync(data))
 
 	const result = await $fetch('/api/attendances', {
+		headers: {
+			cookie: getHeader(event, 'cookie') ?? '',
+		},
 		params: {
 			session: query.session,
 		},
