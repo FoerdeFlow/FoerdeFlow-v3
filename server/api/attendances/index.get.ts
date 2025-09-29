@@ -1,6 +1,13 @@
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 
+function sortPerson(a: { firstName: string, lastName: string }, b: { firstName: string, lastName: string }) {
+	if(a.lastName === b.lastName) {
+		return a.firstName.localeCompare(b.firstName)
+	}
+	return a.lastName.localeCompare(b.lastName)
+}
+
 export default defineEventHandler(async (event) => {
 	await checkPermission('attendances.read')
 
@@ -69,7 +76,9 @@ export default defineEventHandler(async (event) => {
 						status: null,
 					},
 				),
-		))).flat(),
+		)))
+			.flat()
+			.sort(({ person: a }, { person: b }) => sortPerson(a, b)),
 	})))
 
 	return {
@@ -80,6 +89,7 @@ export default defineEventHandler(async (event) => {
 				.some((group) => group.members
 					.some((member) => member.id === attendance.id),
 				),
-			),
+			)
+			.sort(({ person: a }, { person: b }) => sortPerson(a, b)),
 	}
 })
