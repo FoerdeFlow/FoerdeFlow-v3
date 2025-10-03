@@ -21,7 +21,7 @@
 			"buildings": "Gebäude",
 			"rooms": "Räume",
 			"sessions": "Sitzungen",
-			"sessionAttendances": "Sitzungsteilnahmen",
+			"attendances": "Sitzungsteilnahmen",
 			"roles": "Rollen",
 			"rolePermissions": "Rollenberechtigungen",
 			"roleOccupants": "Rolleninhaber",
