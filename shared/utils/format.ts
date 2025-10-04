@@ -49,6 +49,16 @@ export function formatTime(date: string | Date | null): string {
 	}
 }
 
+export function formatBuilding(
+	building: {
+		code: string
+		name: string
+	} | null,
+): string {
+	if(!building) return ''
+	return `${building.code} (${building.name})`
+}
+
 export function formatRoom(
 	room: { building: { code: string }, code: string, level: number, name: string } | null,
 ): string {

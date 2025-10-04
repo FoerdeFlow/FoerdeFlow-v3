@@ -1,5 +1,6 @@
 import type {
 	AttendanceStatusSelect,
+	BuildingSelect,
 	GenderSelect,
 	MembershipEndReasonSelect,
 	MembershipTypeSelect,
@@ -13,6 +14,7 @@ import type {
 } from '#components'
 
 export type AttendanceStatus = InstanceType<typeof AttendanceStatusSelect>['$props']['modelValue']
+export type Building = InstanceType<typeof BuildingSelect>['$props']['modelValue']
 export type Gender = InstanceType<typeof GenderSelect>['$props']['modelValue']
 export type MembershipEndReason = InstanceType<typeof MembershipEndReasonSelect>['$props']['modelValue']
 export type MembershipType = InstanceType<typeof MembershipTypeSelect>['$props']['modelValue']
