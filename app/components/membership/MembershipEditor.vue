@@ -68,7 +68,6 @@ async function save() {
 		startDate: model.startDate ? model.startDate.toISOString() : null,
 		endDate: model.endDate ? model.endDate.toISOString() : null,
 		endReason: model.endReason ? model.endReason.id : null,
-		organizationItem: props.organizationItem,
 	}
 	try {
 		if(itemId.value) {
@@ -79,7 +78,10 @@ async function save() {
 		} else {
 			await $fetch('/api/memberships', {
 				method: 'POST',
-				body,
+				body: {
+					...body,
+					organizationItem: props.organizationItem,
+				},
 			})
 		}
 		emit('refresh')
