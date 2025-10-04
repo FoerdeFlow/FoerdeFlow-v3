@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { FetchError } from 'ofetch'
 import type { OrganizationItemEditor } from '#components'
 import type { DestructureArray } from '#shared/types'
 
+const alertStore = useAlertStore()
+const confirmDialogStore = useConfirmDialogStore()
 const { data, refresh } = useFetch('/api/organizationItems')
 
 type TreeItem = DestructureArray<typeof data.value>
@@ -25,6 +28,26 @@ function edit({ id }: { id: string }) {
 	if(!editor.value) return
 	editor.value.edit(id)
 }
+
+async function remove({ id }: { id: string }) {
+	if(await confirmDialogStore.askConfirm({
+		title: 'Organisationseinheit löschen?',
+		text: 'Sind Sie sicher, dass Sie diese Organisationseinheit löschen möchten?',
+	})) {
+		try {
+			await $fetch(`/api/organizationItems/${id}`, { method: 'DELETE' })
+			await refresh()
+		} catch(e: unknown) {
+			if(e instanceof FetchError) {
+				alertStore.showAlert({
+					type: 'danger',
+					title: 'Fehler beim Löschen',
+					text: e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.',
+				})
+			}
+		}
+	}
+}
 </script>
 
 <template lang="pug">
@@ -39,6 +62,7 @@ KernTable(
 	:data="organizationItems"
 	@create="create"
 	@edit="edit"
+	@remove="remove"
 )
 	template(#name-header)
 		em OE-Kategorie
