@@ -41,12 +41,19 @@ async function remove({ id }: { id: string }) {
 		}
 	}
 }
+
+const scope = computed(() => ({
+	organizationItem: route.params.organizationItem,
+}))
 </script>
 
 <template lang="pug">
 aside
 	NuxtLink.kern-link(
-		:to="{ name: 'organizationItems-organizationItem', params: { organizationItem: route.params.organizationItem } }"
+		:to=`{
+			name: 'organizationItems-organizationItem',
+			params: { organizationItem: route.params.organizationItem },
+		}`
 	)
 		span.kern-icon.kern-icon--arrow-back(aria-hidden="true")
 		| Zurück zum Gremium
@@ -59,6 +66,7 @@ KernTable(
 	show-actions
 	:columns="['qualifiedNumber', 'timeAndLocation']"
 	:data="data || []"
+	:scope="scope"
 	@create="create"
 	@edit="edit"
 	@remove="remove"
@@ -75,7 +83,10 @@ KernTable(
 		| {{ formatRoom(item.room) }}
 	template(#actions="{ item }")
 		NuxtLink.kern-btn.kern-btn--tertiary(
-			:to="{ name: 'organizationItems-organizationItem-sessions-session', params: { organizationItem: route.params.organizationItem, session: item.id } }"
+			:to=`{
+				name: 'organizationItems-organizationItem-sessions-session',
+				params: { organizationItem: route.params.organizationItem, session: item.id },
+			}`
 		)
 			span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
 			span.kern-label.kern-sr-only Aufrufen

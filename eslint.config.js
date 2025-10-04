@@ -5,7 +5,6 @@ import neostandard from 'neostandard'
 import tseslint from 'typescript-eslint'
 import tsdoc from 'eslint-plugin-tsdoc'
 import vue from 'eslint-plugin-vue'
-// @ts-expect-error | eslint-plugin-vue-pug has no TypeScript declarations
 import vuePug from 'eslint-plugin-vue-pug'
 
 import withNuxt from './.nuxt/eslint.config.mjs'
@@ -29,6 +28,7 @@ export default withNuxt(
 	...tseslint.configs.strictTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,
 	...vue.configs['flat/recommended'],
+	// @ts-expect-error | eslint-plugin-vue-pug has unspecific types
 	...vuePug.configs['flat/recommended'],
 
 	{
@@ -72,6 +72,7 @@ export default withNuxt(
 
 			'import-x/order': 'error',
 
+			'vue/html-quotes': 'off',
 		},
 	},
 	{
