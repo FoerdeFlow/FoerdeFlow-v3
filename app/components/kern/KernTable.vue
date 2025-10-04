@@ -57,6 +57,7 @@ table.kern-table
 			:style="column.width ? { width: column.width } : ''"
 		)
 		col(
+			v-if="showActions"
 			span="1"
 			style="width: 10em"
 		)
