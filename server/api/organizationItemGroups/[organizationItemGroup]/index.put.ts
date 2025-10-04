@@ -3,24 +3,35 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('organizationItemGroups.update')
-
-	const database = useDatabase()
-	const client = useOpenslides()
-
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		organizationItemGroup: idSchema,
 	}).parseAsync(data))
 
-	const body = await readValidatedBody(event, async (data) => await z.object({
+	const database = useDatabase()
+
+	const organizationItemGroup = await database.query.organizationItemGroups.findFirst({
+		where: eq(organizationItemGroups.id, params.organizationItemGroup),
+		columns: {
+			organizationItem: true,
+		},
+	})
+
+	await checkPermission('organizationItemGroups.update', {
+		organizationItem: organizationItemGroup?.organizationItem,
+	})
+
+	const body = await readValidatedBody(event, async (data) => await z.strictObject({
 		...createUpdateSchema(organizationItemGroups).omit({
 			id: true,
+			organizationItem: true,
 		}).shape,
 		members: z.array(createInsertSchema(organizationItemGroupMembers).omit({
 			id: true,
 			organizationItemGroup: true,
 		})).optional(),
 	}).parseAsync(data))
+
+	const client = useOpenslides()
 
 	await database.transaction(async (tx) => {
 		const { members: newMembers, ...group } = body

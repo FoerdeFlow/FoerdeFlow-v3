@@ -50,5 +50,8 @@ aside
 header
 	p.kern-preline Sitzung
 	h1.kern-heading-large {{ data.organizationItem.code }}-Sitzung {{ formatSessionNumber(data.period, data.number) }}
-KernCardNav(:items="subPages")
+KernCardNav(
+	:items="subPages"
+	:scope="{ organizationItem: route.params.organizationItem }"
+)
 </template>

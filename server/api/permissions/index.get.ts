@@ -7,10 +7,7 @@ export default defineEventHandler(async (event) => {
 		filter: z.enum([ 'all', 'assignable' ]).default('all'),
 	}).parseAsync(data))
 
-	const permissions = availablePermissions.map((permission) => ({
-		permission,
-		assignable: !permission.startsWith('role'),
-	}))
+	const permissions = availablePermissions
 
 	if(query.filter === 'assignable') {
 		return permissions.filter((permission) => permission.assignable)

@@ -77,6 +77,7 @@ export async function getRolePermissions(role: string) {
 		where: eq(rolePermissions.role, role),
 		columns: {
 			permission: true,
+			organizationItem: true,
 		},
 	})
 }

@@ -9,20 +9,23 @@ function sortPerson(a: { firstName: string, lastName: string }, b: { firstName: 
 }
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('attendances.read')
-
-	const database = useDatabase()
-
 	const query = await getValidatedQuery(event, async (data) => await z.object({
 		session: z.uuid(),
 	}).parseAsync(data))
+
+	const database = useDatabase()
 
 	const session = await database.query.sessions.findFirst({
 		where: eq(sessions.id, query.session),
 		with: {
 			organizationItem: true,
 		},
+		columns: {
+			organizationItem: false,
+		},
 	})
+
+	await checkPermission('attendances.read', { organizationItem: session?.organizationItem.id })
 
 	if(!session) {
 		throw createError({

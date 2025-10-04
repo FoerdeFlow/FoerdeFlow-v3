@@ -2,13 +2,11 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('organizationItemGroups.read')
-
-	const database = useDatabase()
-
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		organizationItemGroup: idSchema,
 	}).parseAsync(data))
+
+	const database = useDatabase()
 
 	const organizationItemGroup = await database.query.organizationItemGroups.findFirst({
 		where: eq(organizationItemGroups.id, params.organizationItemGroup),
@@ -21,13 +19,18 @@ export default defineEventHandler(async (event) => {
 				columns: {
 					id: false,
 					organizationItemGroup: false,
+					organizationItem: false,
+					membershipType: false,
 				},
 			},
 		},
 		columns: {
 			id: false,
-			organizationItem: false,
 		},
+	})
+
+	await checkPermission('organizationItemGroups.read', {
+		organizationItem: organizationItemGroup?.organizationItem,
 	})
 
 	if(!organizationItemGroup) {

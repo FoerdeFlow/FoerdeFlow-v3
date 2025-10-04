@@ -2,8 +2,6 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('sessions.read')
-
 	const database = useDatabase()
 
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({
@@ -18,9 +16,18 @@ export default defineEventHandler(async (event) => {
 				with: {
 					building: true,
 				},
+				columns: {
+					building: false,
+				},
 			},
 		},
+		columns: {
+			organizationItem: false,
+			room: false,
+		},
 	})
+
+	await checkPermission('sessions.read', { organizationItem: session?.organizationItem.id })
 
 	if(!session) {
 		throw createError({

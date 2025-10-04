@@ -3,11 +3,6 @@ import { createInsertSchema } from 'drizzle-zod'
 import z from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('sessions.create')
-
-	const database = useDatabase()
-	const client = useOpenslides()
-
 	const sessionSchema = createInsertSchema(sessions).omit({ id: true })
 	const body = await readValidatedBody(event, async (body) =>
 		await sessionSchema.parseAsync(
@@ -18,6 +13,11 @@ export default defineEventHandler(async (event) => {
 			}).passthrough().parseAsync(body),
 		),
 	)
+
+	await checkPermission('sessions.create', { organizationItem: body.organizationItem })
+
+	const database = useDatabase()
+	const client = useOpenslides()
 
 	return await database.transaction(async (tx) => {
 		const [ result ] = await tx.insert(sessions).values(body).returning({ id: sessions.id })

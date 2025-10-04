@@ -7,21 +7,25 @@ export default defineEventHandler(async (event) => {
 		return
 	}
 
-	await checkPermission('sessions.read')
-
 	const runtimeConfig = useRuntimeConfig()
-	const database = useDatabase()
 
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		session: idSchema,
 	}).parseAsync(data))
+
+	const database = useDatabase()
 
 	const data = await database.query.sessions.findFirst({
 		where: eq(sessions.id, params.session),
 		with: {
 			organizationItem: true,
 		},
+		columns: {
+			organizationItem: false,
+		},
 	})
+
+	await checkPermission('minutes.read', { organizationItem: data?.organizationItem.id })
 
 	if(!data) {
 		throw createError({

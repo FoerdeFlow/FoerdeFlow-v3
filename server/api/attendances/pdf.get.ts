@@ -2,8 +2,6 @@ import { z } from 'zod'
 import { jsPDF } from 'jspdf'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('attendances.read')
-
 	const query = await getValidatedQuery(event, async (data) => await z.object({
 		session: z.uuid(),
 	}).parseAsync(data))

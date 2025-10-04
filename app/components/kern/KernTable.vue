@@ -1,4 +1,6 @@
 <script setup lang="ts" generic="T extends Record<string, unknown>">
+import type { Scope } from '~/types'
+
 const props = defineProps<{
 	caption: string
 	columns: (string | {
@@ -10,6 +12,7 @@ const props = defineProps<{
 	deletePermission: string | null
 	showActions?: boolean
 	data: T[]
+	scope?: Scope
 }>()
 
 const emit = defineEmits<{
@@ -30,11 +33,17 @@ const columns = computed(() =>
 
 const authStore = useAuthStore()
 
-const showActions = computed(() =>
-	props.showActions ||
-	(props.updatePermission && authStore.hasPermission(props.updatePermission).value) ||
-	(props.deletePermission && authStore.hasPermission(props.deletePermission).value),
+const createAllowed = computed(() =>
+	Boolean(props.createPermission && authStore.hasPermission(props.createPermission, props.scope).value),
 )
+const updateAllowed = computed(() =>
+	Boolean(props.updatePermission && authStore.hasPermission(props.updatePermission, props.scope).value),
+)
+const deleteAllowed = computed(() =>
+	Boolean(props.deletePermission && authStore.hasPermission(props.deletePermission, props.scope).value),
+)
+
+const showActions = computed(() => props.showActions || updateAllowed.value || deleteAllowed.value)
 </script>
 
 <template lang="pug">
@@ -90,19 +99,19 @@ table.kern-table
 					:item="item"
 				)
 				button.kern-btn.kern-btn--tertiary(
-					v-if="props.updatePermission && authStore.hasPermission(props.updatePermission).value"
+					v-if="updateAllowed"
 					@click="emit('edit', item)"
 				)
 					span.kern-icon.kern-icon--edit(aria-hidden="true")
 					span.kern-label.kern-sr-only Bearbeiten
 				button.kern-btn.kern-btn--tertiary(
-					v-if="props.deletePermission && authStore.hasPermission(props.deletePermission).value"
+					v-if="deleteAllowed"
 					@click="emit('remove', item)"
 				)
 					span.kern-icon.kern-icon--delete(aria-hidden="true")
 					span.kern-label.kern-sr-only Löschen
 button.my-4.kern-btn.kern-btn--primary(
-	v-if="props.createPermission && authStore.hasPermission(props.createPermission).value"
+	v-if="createAllowed"
 	@click="emit('create')"
 )
 	span.kern-icon.kern-icon--add(aria-hidden="true")

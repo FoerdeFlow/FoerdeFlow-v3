@@ -2,16 +2,16 @@ import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('memberships.create')
-
-	const database = useDatabase()
-
 	const membershipSchema = createInsertSchema(memberships).omit({ id: true })
 	const body = await readValidatedBody(event, async (body: unknown) => z.object({
 		...membershipSchema.shape,
 		startDate: z.coerce.date().nullish().optional(),
 		endDate: z.coerce.date().nullish().optional(),
 	}).parseAsync(body))
+
+	await checkPermission('memberships.create', { organizationItem: body.organizationItem })
+
+	const database = useDatabase()
 
 	return await database
 		.insert(memberships)

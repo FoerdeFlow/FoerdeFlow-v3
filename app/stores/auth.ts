@@ -1,20 +1,7 @@
 import { defineStore } from 'pinia'
+import type { UserInfo } from '#shared/types'
 
 export const useAuthStore = defineStore('auth', () => {
-	interface UserInfo {
-		person?: {
-			id: string
-			email: string
-			firstName: string
-			lastName: string
-			callName?: string
-			pronouns?: string
-		}
-		memberships?: unknown[]
-		roles: unknown[]
-		permissions: string[]
-	}
-
 	const { data: userInfo } = useFetch<UserInfo>('/api/auth/userInfo', {
 		default: () => ({
 			roles: [],
@@ -24,8 +11,18 @@ export const useAuthStore = defineStore('auth', () => {
 
 	const loggedIn = computed(() => Boolean(userInfo.value.person))
 
-	function hasPermission(permission: string): Ref<boolean> {
-		return computed(() => userInfo.value.permissions.includes(permission))
+	function hasPermission(
+		permission: string,
+		scope: {
+			organizationItem?: string
+		} = {},
+	): Ref<boolean> {
+		return computed(() =>
+			userInfo.value.permissions.some((item) =>
+				item.permission === permission &&
+				(item.organizationItem === null || item.organizationItem === scope.organizationItem),
+			),
+		)
 	}
 
 	function login() {

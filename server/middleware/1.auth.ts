@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+import type { EventContextUser } from '../types'
 
 export default defineEventHandler(async (event) => {
 	const runtimeConfig = useRuntimeConfig()
@@ -9,12 +10,12 @@ export default defineEventHandler(async (event) => {
 		const roles = await getAnonymousRoles()
 		const permissions = (await Promise.all(
 			roles.map((role) => getRolePermissions(role.id)),
-		)).flat().map((permission) => permission.permission)
+		)).flat()
 
 		event.context.user = {
 			roles,
 			permissions,
-		}
+		} satisfies EventContextUser
 		return
 	}
 
@@ -35,15 +36,18 @@ export default defineEventHandler(async (event) => {
 	})
 	const roles = await getPersonRoles(person.id)
 	const permissions = roles.some((role) => role.isAdmin)
-		? availablePermissions
+		? availablePermissions.map((permission) => ({
+			permission: permission.id,
+			organizationItem: null,
+		}))
 		: (await Promise.all(
 			roles.map(async (role) => await getRolePermissions(role.id)),
-		)).flat().map((permission) => permission.permission)
+		)).flat()
 
 	event.context.user = {
 		person,
 		memberships,
 		roles,
 		permissions,
-	}
+	} satisfies EventContextUser
 })

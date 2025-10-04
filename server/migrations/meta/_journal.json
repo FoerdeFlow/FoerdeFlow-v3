@@ -92,6 +92,13 @@
       "when": 1759051318157,
       "tag": "0012_sturdy_kid_colt",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1759526269282,
+      "tag": "0013_quick_ironclad",
+      "breakpoints": true
     }
   ]
 }

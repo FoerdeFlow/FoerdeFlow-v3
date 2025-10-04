@@ -21,3 +21,14 @@ export type Room = InstanceType<typeof RoomSelect>['$props']['modelValue']
 
 export type KernCardNavItems = InstanceType<typeof KernCardNav>['$props']['items']
 export type KernTaskListItems = InstanceType<typeof KernTaskList>['$props']['items']
+
+interface PermissionNotNull {
+	id: string
+	scope: 'global' | 'organizationItem'
+	assignable: boolean
+}
+export type Permission = PermissionNotNull | null
+
+export interface Scope {
+	organizationItem: string
+}

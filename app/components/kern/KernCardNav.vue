@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NuxtLinkProps } from '#app'
+import type { Scope } from '~/types'
 
 const props = defineProps<{
 	items: {
@@ -12,6 +13,7 @@ const props = defineProps<{
 		linkLabel: string
 		permission?: string
 	}[]
+	scope?: Scope
 }>()
 
 const authStore = useAuthStore()
@@ -25,7 +27,7 @@ const authStore = useAuthStore()
 			:key="idx"
 		)
 			.kern-col-12.kern-col-lg-6(
-				v-if="!item.permission || authStore.hasPermission(item.permission).value"
+				v-if="!item.permission || authStore.hasPermission(item.permission, props.scope || {}).value"
 			)
 				article.kern-card
 					.kern-card__container

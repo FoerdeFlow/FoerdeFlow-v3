@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { OrganizationItem } from '~/types'
+
 const route = useRoute('roles-role-permissions')
 const { t } = useI18n()
 const authStore = useAuthStore()
@@ -13,14 +15,17 @@ const { data: roleData } = useFetch(() => `/api/roles/${route.params.role}`, {
 const { data, refresh } = useFetch(() => `/api/rolePermissions?role=${route.params.role}`)
 
 const { data: permissions } = useFetch('/api/permissions', {
+	default: () => [] as { id: string, scope: 'global' | 'organizationItem', assignable: boolean }[],
 	query: {
 		filter: 'all',
 	},
 })
 
+const scope = ref<OrganizationItem>(null)
+
 const relations = computed(() => permissions.value
-	?.filter(({ permission }) => permission.endsWith('.read'))
-	?.map(({ permission }) => permission.split('.')[0] ?? '') ?? [])
+	.filter(({ id }) => id.endsWith('.read'))
+	.map(({ id }) => id.split('.')[0] ?? ''))
 
 const actions = [
 	'read',
@@ -28,30 +33,6 @@ const actions = [
 	'update',
 	'delete',
 ]
-
-async function addPermission(permission: string) {
-	await $fetch('/api/rolePermissions', {
-		method: 'POST',
-		body: {
-			role: route.params.role,
-			permission,
-		},
-	})
-	await refresh()
-}
-
-async function removePermission(id: string) {
-	await $fetch(`/api/rolePermissions/${id}`, {
-		method: 'DELETE',
-	})
-	await refresh()
-}
-
-function isEditable(editAction: 'create' | 'delete', relation: string, action: string) {
-	return authStore.hasPermission(`rolePermissions.${editAction}`).value &&
-		!roleData.value.isAdmin &&
-		permissions.value?.find((item) => item.permission === `${relation}.${action}`)?.assignable
-}
 </script>
 
 <template lang="pug">
@@ -70,8 +51,19 @@ KernAlert(
 	:text="t('permissions.adminAlert.text')"
 	:dismissible="false"
 )
+.mb-8
+	.kern-form-input
+		label.kern-label(for="scope") Geltungsbereich auswählen
+		OrganizationItemSelect#scope(
+			v-model="scope"
+			label-null="Global"
+		)
 table.kern-table
-	caption.kern-title Berechtigungsübersicht
+	caption.kern-title
+		template(v-if="scope")
+			| Berechtigungsübersicht für: {{ formatOrganizationItem(scope) }}
+		template(v-else)
+			| Globale Berechtigungsübersicht
 	colgroup
 		col(span="1")
 		col(
@@ -93,34 +85,18 @@ table.kern-table
 			v-for="relation of relations"
 			:key="relation"
 		)
-			th(scope="row") {{ t(`permissions.relations.${relation}`) }}
+			th.text-left(scope="row") {{ t(`permissions.relations.${relation}`) }}
 			td.p-2(
 				v-for="action of actions"
 				:key="action"
 			)
-				.flex.gap-2
-					template(v-if="!permissions?.some(item => item.permission === `${relation}.${action}`)")
-						span.kern-badge.kern-badge--info.flex-1
-							span.kern-icon.kern-icon--info(aria-hidden="true")
-							span.kern-label.kern-label--small Nicht vorhanden
-					template(v-else-if="roleData.isAdmin || data?.some(item => item.permission === `${relation}.${action}`)")
-						span.kern-badge.kern-badge--success.flex-1
-							span.kern-icon.kern-icon--success(aria-hidden="true")
-							span.kern-label.kern-label--small Berechtigt
-						button.kern-btn.kern-btn--tertiary(
-							v-if="isEditable('delete', relation, action)"
-							@click="removePermission(data?.find(item => item.permission === `${relation}.${action}`)?.id ?? '')"
-						)
-							span.kern-icon.kern-icon--close(aria-hidden="true")
-							span.kern-label.kern-sr-only Verweigern
-					template(v-else)
-						span.kern-badge.kern-badge--danger.flex-1
-							span.kern-icon.kern-icon--danger(aria-hidden="true")
-							span.kern-label.kern-label--small Verboten
-						button.kern-btn.kern-btn--tertiary(
-							v-if="isEditable('create', relation, action)"
-							@click="addPermission(`${relation}.${action}`)"
-						)
-							span.kern-icon.kern-icon--check(aria-hidden="true")
-							span.kern-label.kern-sr-only Erlauben
+				RolePermissionBadge(
+					:id="data?.find(item => item.permission === `${relation}.${action}` && item.organizationItem === (scope?.id ?? null))?.id"
+					:role="route.params.role"
+					:permission="permissions.find(item => item.id === `${relation}.${action}`) ?? null"
+					:scope="scope ? 'organizationItem' : 'global'"
+					:organization-item="scope"
+					:is-admin="roleData.isAdmin"
+					@refresh="refresh()"
+				)
 </template>

@@ -80,6 +80,7 @@ export const roleOccupantsRelations = relations(roleOccupants, ({ one }) => ({
 export const rolePermissions = pgTable('role_permissions', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	role: uuid().notNull().references(() => roles.id),
+	organizationItem: uuid().references(() => organizationItems.id),
 	permission: varchar({ length: 64 }).notNull(),
 }, (table) => [
 	unique().on(
@@ -92,5 +93,9 @@ export const rolePermissionsRelations = relations(rolePermissions, ({ one }) => 
 	role: one(roles, {
 		fields: [ rolePermissions.role ],
 		references: [ roles.id ],
+	}),
+	organizationItem: one(organizationItems, {
+		fields: [ rolePermissions.organizationItem ],
+		references: [ organizationItems.id ],
 	}),
 }))

@@ -2,8 +2,6 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('memberships.read')
-
 	const database = useDatabase()
 
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({
@@ -19,9 +17,15 @@ export default defineEventHandler(async (event) => {
 			memberOrganizationItem: true,
 		},
 		columns: {
-			id: false,
+			organizationItem: true,
+			comment: true,
+			startDate: true,
+			endDate: true,
+			memberType: true,
 		},
 	})
+
+	await checkPermission('memberships.read', { organizationItem: membership?.organizationItem })
 
 	if(!membership) {
 		throw createError({

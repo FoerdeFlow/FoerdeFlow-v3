@@ -1,14 +1,14 @@
 import z from 'zod'
-import type { DestructureArray } from '~~/shared/types'
+import type { DestructureArray } from '#shared/types'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('memberships.read')
-
-	const database = useDatabase()
-
 	const query = await getValidatedQuery(event, async (data) => await z.object({
 		organizationItem: z.uuid(),
 	}).parseAsync(data))
+
+	await checkPermission('memberships.read', { organizationItem: query.organizationItem })
+
+	const database = useDatabase()
 
 	const memberships = await database.query.memberships.findMany({
 		where: (memberships, { eq }) => eq(memberships.organizationItem, query.organizationItem),

@@ -78,5 +78,8 @@ header
 								:key="item.id"
 							)
 								| {{ item.name }} ({{ item.code }})
-KernCardNav(:items="subPages")
+KernCardNav(
+	:items="subPages"
+	:scope="{ organizationItem: route.params.organizationItem }"
+)
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
 	id: string
+	labelNull?: string
 }>()
 
 const { data } = await useFetch('/api/organizationItems')
@@ -46,7 +47,7 @@ const selectModel = computed({
 	)
 		option(
 			value=""
-		) - Bitte wählen -
+		) {{ props.labelNull || '- Bitte wählen -' }}
 		option(
 			v-for="item of items"
 			:key="item.id"

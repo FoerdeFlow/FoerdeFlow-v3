@@ -2,14 +2,24 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('organizationItemGroups.delete')
-
-	const database = useDatabase()
-	const client = useOpenslides()
-
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		organizationItemGroup: idSchema,
 	}).parseAsync(data))
+
+	const database = useDatabase()
+
+	const organizationItemGroup = await database.query.organizationItemGroups.findFirst({
+		where: eq(organizationItemGroups.id, params.organizationItemGroup),
+		columns: {
+			organizationItem: true,
+		},
+	})
+
+	await checkPermission('organizationItemGroups.delete', {
+		organizationItem: organizationItemGroup?.organizationItem,
+	})
+
+	const client = useOpenslides()
 
 	await database.transaction(async (tx) => {
 		const [ result = null ] = await tx

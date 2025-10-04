@@ -2,11 +2,6 @@ import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('organizationItemGroups.create')
-
-	const database = useDatabase()
-	const client = useOpenslides()
-
 	const body = await readValidatedBody(event, async (data) => z.object({
 		...createInsertSchema(organizationItemGroups).omit({
 			id: true,
@@ -16,6 +11,11 @@ export default defineEventHandler(async (event) => {
 			organizationItemGroup: true,
 		})),
 	}).parseAsync(data))
+
+	await checkPermission('organizationItemGroups.create', { organizationItem: body.organizationItem })
+
+	const database = useDatabase()
+	const client = useOpenslides()
 
 	return await database.transaction(async (tx) => {
 		const { members, ...group } = body

@@ -1,3 +1,5 @@
+import type { UserInfo } from '#shared/types'
+
 export default defineEventHandler((event) => {
 	if(!event.context.user) {
 		throw createError({
@@ -7,5 +9,5 @@ export default defineEventHandler((event) => {
 		})
 	}
 
-	return event.context.user
+	return event.context.user as UserInfo
 })
