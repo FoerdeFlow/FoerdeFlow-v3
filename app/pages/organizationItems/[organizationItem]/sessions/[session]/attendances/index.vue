@@ -59,6 +59,10 @@ async function remove({ id }: { id: string | null }) {
 function downloadAsPdf() {
 	open(`/api/attendances/pdf?session=${route.params.session}`)
 }
+
+const scope = computed(() => ({
+	organizationItem: route.params.organizationItem,
+}))
 </script>
 
 <template lang="pug">
@@ -91,6 +95,7 @@ template(v-if="data")
 			:delete-permission="null"
 			:columns="[ { name: 'name' }, { name: 'status', width: '12em' } ]"
 			:data="group.members"
+			:scope="scope"
 			@create="create"
 			@edit="edit"
 			@remove="remove"
