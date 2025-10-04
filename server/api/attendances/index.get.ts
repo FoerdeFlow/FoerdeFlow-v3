@@ -1,12 +1,5 @@
-import { and, eq } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-
-function sortPerson(a: { firstName: string, lastName: string }, b: { firstName: string, lastName: string }) {
-	if(a.lastName === b.lastName) {
-		return a.firstName.localeCompare(b.firstName)
-	}
-	return a.lastName.localeCompare(b.lastName)
-}
 
 export default defineEventHandler(async (event) => {
 	const query = await getValidatedQuery(event, async (data) => await z.object({
@@ -37,62 +30,16 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const groups = await database.query.organizationItemGroups.findMany({
-		where: and(
-			eq(organizationItemGroups.organizationItem, session.organizationItem.id),
-			eq(organizationItemGroups.isSessionParticipant, true),
-		),
-		with: {
-			members: {
-				columns: {
-					organizationItemGroup: false,
-				},
-			},
-		},
-		columns: {
-			organizationItem: false,
-			isSessionParticipant: false,
-		},
-	})
-
-	const attendances = await database.query.sessionAttendances.findMany({
-		where: eq(sessionAttendances.session, session.id),
-		columns: {
-			id: true,
-			status: true,
-		},
-		with: {
-			person: true,
-		},
-	})
-
-	const groupsWithStatus = await Promise.all(groups.map(async (group) => ({
-		id: group.id,
-		name: group.groupName,
-		members: (await Promise.all(group.members.map(async (member) =>
-			(await getEffectiveMembers([ member.organizationItem ], [ member.membershipType ]))
-				.map((person) => attendances
-					.find((attendance) => attendance.person.id === person.id) ??
-					{
-						id: null,
-						person,
-						status: null,
-					},
-				),
-		)))
-			.flat()
-			.sort(({ person: a }, { person: b }) => sortPerson(a, b)),
-	})))
+	const sessionMembers = await getSessionMembers(session.id, { isSessionParticipant: true })
 
 	return {
 		session,
-		groups: groupsWithStatus,
-		guests: attendances
-			.filter((attendance) => !groupsWithStatus
-				.some((group) => group.members
-					.some((member) => member.id === attendance.id),
-				),
-			)
-			.sort(({ person: a }, { person: b }) => sortPerson(a, b)),
+		groups: sessionMembers.groups
+			.map((group) => ({
+				id: group.id,
+				name: group.groupName,
+				members: group.members,
+			})),
+		guests: sessionMembers.guests,
 	}
 })
