@@ -211,7 +211,7 @@ KernTaskDialog(
 		)
 	template(#task-select-membership-type)
 		MembershipMembershipTypeInput(v-model="model.membershipType")
-		MembershipComment(v-model="model.comment")
+		MembershipCommentInput(v-model="model.comment")
 	template(#task-select-period)
 		MembershipStartDateInput(v-model="model.startDate")
 		MembershipEndDateInput(v-model="model.endDate")
