@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { FetchError } from 'ofetch'
 import { MembershipEditor } from '#components'
 
 const route = useRoute('organizationItems-organizationItem-members')
 const authStore = useAuthStore()
+const alertStore = useAlertStore()
+const confirmDialogStore = useConfirmDialogStore()
 
 const { data: organizationItem } =
 	useFetch(() => `/api/organizationItems/${route.params.organizationItem}`, {
@@ -12,7 +15,41 @@ const { data: organizationItem } =
 const { data, refresh } =
 	useFetch(() => `/api/memberships?organizationItem=${route.params.organizationItem}`)
 
-const dialog = useTemplateRef<InstanceType<typeof MembershipEditor>>('dialog')
+const editor = useTemplateRef<InstanceType<typeof MembershipEditor>>('editor')
+
+function create() {
+	if(!editor.value) return
+	editor.value.create()
+}
+
+function edit({ id }: { id: string }) {
+	if(!editor.value) return
+	editor.value.edit(id)
+}
+
+async function remove({ id }: { id: string }) {
+	if(await confirmDialogStore.askConfirm({
+		title: 'Mitgliedschaft löschen?',
+		text: 'Sind Sie sicher, dass Sie diese Mitgliedschaft löschen möchten?',
+	})) {
+		try {
+			await $fetch(`/api/memberships/${id}`, { method: 'DELETE' })
+			await refresh()
+		} catch(e: unknown) {
+			if(e instanceof FetchError) {
+				alertStore.showAlert({
+					type: 'danger',
+					title: 'Fehler beim Löschen',
+					text: e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.',
+				})
+			}
+		}
+	}
+}
+
+const scope = computed(() => ({
+	organizationItem: route.params.organizationItem,
+}))
 </script>
 
 <template lang="pug">
@@ -27,63 +64,52 @@ header
 p.mb-8.kern-text
 	| Mitglieder sind Personen oder Organisationseinheiten, die Teil dieser Organisationseinheit sind.
 	| Ihre Rolle in der Organisationseinheit ergibt sich aus der Mitgliedschaftsart.
-table.kern-table
-	caption.kern-title Liste der Mitglieder
-	thead.kern-table__head
-		tr.kern-table__row
-			th.kern-table__header(
-				scope="col"
-			)
-				em Mitgliedschaftsart
-				br
-				| Mitglied
-			th.kern-table__header(
-				scope="col"
-			) Dauer der Mitgliedschaft
-			th.kern-table__header(
-				v-if="authStore.hasPermission('memberships.update') || authStore.hasPermission('memberships.delete')"
-				scope="col"
-			) Aktionen
-	tbody.kern-table__body
-		tr.kern-table__row(v-if="data?.length === 0")
-			td.kern-table__cell(colspan="3") Keine Einträge gefunden.
-		tr.kern-table__row(
-			v-for="item of data"
-			:key="item.id"
-		)
-			td.kern-table__cell
-				em {{ item.membershipType.name }} ({{ item.membershipType.code }})
-				br
-				template(v-if="item.memberType === 'person'")
-					| {{ item.memberPerson.callName || item.memberPerson.firstName }} {{ item.memberPerson.lastName }}
-				template(v-if="item.memberType === 'organization_item'")
-					| {{ item.memberOrganizationItem.name }} ({{ item.memberOrganizationItem.code }})
-			td.kern-table__cell
-				template(v-if="item.startDate")
-					| seit {{ formatDate(item.startDate, 'compact') }}
-				br
-				template(v-if="item.endDate")
-					| bis {{ formatDate(item.endDate, 'compact') }}
-				template(v-if="item.endReason")
-					|
-					| ({{ item.endReason.name }})
-			td.kern-table__cell
-				button.kern-btn.kern-btn--tertiary(@click="dialog.edit(item.id)")
-					template(v-if="authStore.hasPermission('memberships.update')")
-						span.kern-icon.kern-icon--edit(aria-hidden="true")
-						span.kern-label.kern-sr-only Bearbeiten
-					template(v-else)
-						span.kern-icon.kern-icon--visibility(aria-hidden="true")
-						span.kern-label.kern-sr-only Anzeigen
-button.my-4.kern-btn.kern-btn--primary(
-	v-if="authStore.hasPermission('memberships.create')"
-	@click="dialog.create()"
+KernTable(
+	caption="Liste der Mitglieder"
+	:columns="[ 'member', 'duration' ]"
+	create-permission="memberships.create"
+	update-permission="memberships.update"
+	delete-permission="memberships.delete"
+	show-actions
+	:data="data ?? []"
+	:scope="scope"
+	@create="create"
+	@edit="edit"
+	@remove="remove"
 )
-	span.kern-label Erstellen
+	template(#member-header)
+		em Mitgliedschaftsart
+		br
+		| Mitglied
+	template(#member-body="{ item }")
+		em {{ item.membershipType.name }} ({{ item.membershipType.code }})
+		br
+		template(v-if="item.memberType === 'person'")
+			| {{ item.memberPerson.callName || item.memberPerson.firstName }} {{ item.memberPerson.lastName }}
+		template(v-if="item.memberType === 'organizationItem'")
+			| {{ item.memberOrganizationItem.name }} ({{ item.memberOrganizationItem.code }})
+	template(#duration-header)
+		| Dauer der Mitgliedschaft
+	template(#duration-body="{ item }")
+		template(v-if="item.startDate")
+			| seit {{ formatDate(item.startDate, 'compact') }}
+		br
+		template(v-if="item.endDate")
+			| bis {{ formatDate(item.endDate, 'compact') }}
+		template(v-if="item.endReason")
+			|
+			| ({{ item.endReason.name }})
+	template(#actions="{ item }")
+		button.kern-btn.kern-btn--tertiary(
+			v-if="!authStore.hasPermission('memberships.update', scope).value"
+			@click="edit(item)"
+		)
+			span.kern-icon.kern-icon--visibility(aria-hidden="true")
+			span.kern-label.kern-sr-only Anzeigen
 MembershipEditor(
-	ref="dialog"
+	ref="editor"
 	:organization-item="route.params.organizationItem"
-	:readonly="!authStore.hasPermission('memberships.update')"
+	:readonly="!authStore.hasPermission('memberships.update', scope).value"
 	@refresh="refresh"
 )
 </template>

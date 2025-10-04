@@ -4,6 +4,7 @@ import type { KernTaskListItems } from '~/types'
 
 const props = defineProps<{
 	title: string
+	readonly?: boolean
 	sections: {
 		title: string
 		tasks: {
@@ -190,7 +191,7 @@ KernDialog(
 									template(v-if="value !== null") {{ value }}
 									template(v-else) #[em unbekannt]
 						p.kern-body(v-else) Keine Angaben
-						.kern-summary__actions
+						.kern-summary__actions(v-if="!props.readonly")
 							a.kern-link(
 								href="#"
 								aria-describedby="title"
@@ -200,12 +201,17 @@ KernDialog(
 								| Bearbeiten
 	template(#actions)
 		template(v-if="currentView === 'check-data'")
-			button.kern-btn.kern-btn--secondary(@click="cancel()")
-				span.kern-icon.kern-icon--close(aria-hidden="true")
-				span.kern-label Abbrechen
-			button.kern-btn.kern-btn--primary(@click="emit('save')")
-				span.kern-icon.kern-icon--check(aria-hidden="true")
-				span.kern-label Speichern
+			template(v-if="props.readonly")
+				button.kern-btn.kern-btn--primary(@click="cancel()")
+					span.kern-icon.kern-icon--close(aria-hidden="true")
+					span.kern-label Schließen
+			template(v-else)
+				button.kern-btn.kern-btn--secondary(@click="cancel()")
+					span.kern-icon.kern-icon--close(aria-hidden="true")
+					span.kern-label Abbrechen
+				button.kern-btn.kern-btn--primary(@click="emit('save')")
+					span.kern-icon.kern-icon--check(aria-hidden="true")
+					span.kern-label Speichern
 		template(v-else-if="currentView === 'task-detail' && currentTask")
 			template(v-if="mode === 'create'")
 				button.kern-btn.kern-btn--secondary(

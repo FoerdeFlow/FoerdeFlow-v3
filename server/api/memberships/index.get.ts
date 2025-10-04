@@ -20,6 +20,10 @@ export default defineEventHandler(async (event) => {
 		},
 		columns: {
 			organizationItem: false,
+			membershipType: false,
+			memberPerson: false,
+			memberOrganizationItem: false,
+			endReason: false,
 		},
 	})
 
@@ -32,7 +36,7 @@ export default defineEventHandler(async (event) => {
 			>
 			memberOrganizationItem: null
 		} | {
-			memberType: 'organization_item'
+			memberType: 'organizationItem'
 			memberPerson: null
 			memberOrganizationItem: Exclude<
 				(DestructureArray<typeof memberships>)['memberOrganizationItem'],

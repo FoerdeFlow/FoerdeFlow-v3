@@ -5,6 +5,7 @@ import type { MembershipEndReason, MembershipType, OrganizationItem, Person } fr
 
 const props = defineProps<{
 	organizationItem: string
+	readonly?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -197,6 +198,7 @@ KernTaskDialog(
 	ref="dialog"
 	title="Mitgliedschaft"
 	:sections="sections"
+	:readonly="props.readonly"
 	@save="save"
 )
 	template(#task-select-member)
