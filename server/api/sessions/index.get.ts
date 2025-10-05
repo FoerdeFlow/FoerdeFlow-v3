@@ -17,7 +17,14 @@ export default defineEventHandler(async (event) => {
 				with: {
 					building: true,
 				},
+				columns: {
+					building: false,
+				},
 			},
+		},
+		columns: {
+			organizationItem: false,
+			room: false,
 		},
 	})
 

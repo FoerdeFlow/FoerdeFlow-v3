@@ -7,6 +7,9 @@ export default defineEventHandler(async (_event) => {
 		with: {
 			building: true,
 		},
+		columns: {
+			building: false,
+		},
 	})
 
 	return rooms
