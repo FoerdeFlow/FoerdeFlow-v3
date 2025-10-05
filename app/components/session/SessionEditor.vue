@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 import type { KernDialog } from '#components'
-import type { OrganizationItem, Room } from '~/types'
+import type { Room } from '~/types'
 
 const props = defineProps<{
 	organizationItem: string
@@ -26,17 +26,19 @@ const modified = computed(() => {
 	return JSON.stringify(itemModel.value) !== JSON.stringify(model.value)
 })
 
-function openDialog(id: string | null, data: Model) {
+async function openDialog(id: string | null, data: Model) {
 	if(!dialog.value) return
 	itemId.value = id
 	itemModel.value = structuredClone(data)
+	model.value = null
+	await nextTick()
 	model.value = structuredClone(data)
 	dialog.value.show()
 }
 
 defineExpose({
-	create() {
-		openDialog(null, {
+	async create() {
+		await openDialog(null, {
 			period: null,
 			number: null,
 			plannedDate: null,
@@ -47,13 +49,12 @@ defineExpose({
 	},
 	async edit(id: string) {
 		const item = await $fetch(`/api/sessions/${id}`)
-		openDialog(id, {
+		await openDialog(id, {
 			period: item.period,
 			number: item.number,
 			plannedDate: item.plannedDate ? new Date(item.plannedDate) : null,
 			startDate: item.startDate ? new Date(item.startDate) : null,
 			endDate: item.endDate ? new Date(item.endDate) : null,
-			// @ts-expect-error | Sadly, drizzle's typing isn't perfect yet
 			room: item.room,
 		})
 	},
@@ -72,7 +73,6 @@ async function save() {
 	if(!dialog.value) return
 	try {
 		const body = {
-			organizationItem: props.organizationItem,
 			period: model.value?.period,
 			number: model.value?.number,
 			plannedDate: model.value?.plannedDate ? model.value.plannedDate.toISOString() : null,
@@ -88,7 +88,10 @@ async function save() {
 		} else {
 			await $fetch('/api/sessions', {
 				method: 'POST',
-				body,
+				body: {
+					...body,
+					organizationItem: props.organizationItem,
+				},
 			})
 		}
 		dialog.value.hide()
