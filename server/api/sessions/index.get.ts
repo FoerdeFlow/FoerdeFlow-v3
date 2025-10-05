@@ -26,6 +26,9 @@ export default defineEventHandler(async (event) => {
 			organizationItem: false,
 			room: false,
 		},
+		orderBy: (sessions, { asc }) => [
+			asc(sessions.plannedDate),
+		],
 	})
 
 	return sessions
