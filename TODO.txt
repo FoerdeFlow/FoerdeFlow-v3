@@ -1,7 +1,8 @@
-- Anwesenheiten mit OpenSlides koppeln
+Daueraufgaben:
 - Dependencies aktualisieren
-- Migrations zusammenziehen -> Drizzle-Änderungen?
-- Produktivdeployment
+
+ToDos:
+- Anwesenheiten mit OpenSlides koppeln
 - Haushaltspläne (beschlossene)
 - Anträge für HHP
 - I18n
