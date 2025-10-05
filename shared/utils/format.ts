@@ -67,6 +67,10 @@ export function formatRoom(
 	return `${room.building.code}-${level}.${room.code} (${room.name})`
 }
 
+export function formatPeriod(period: number): string {
+	return `${period}/${period + 1}`
+}
+
 export function formatSessionNumber(period: number, number: number): string {
 	const periodCode = [
 		(period % 100).toString().padStart(2, '0'),

@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 	const client = useOpenslides()
 
-	return await database.transaction(async (tx) => {
+	const result = await database.transaction(async (tx) => {
 		const [ result ] = await tx.insert(sessions).values(body).returning({ id: sessions.id })
 		const committee = await tx.query.organizationItems.findFirst({
 			where: eq(organizationItems.id, body.organizationItem),
@@ -58,4 +58,12 @@ export default defineEventHandler(async (event) => {
 
 		return result
 	})
+
+	try {
+		await syncOpenslidesParticipants(client, result.id)
+	} catch(e) {
+		console.error('Error syncing participants:', e)
+	}
+
+	return result
 })
