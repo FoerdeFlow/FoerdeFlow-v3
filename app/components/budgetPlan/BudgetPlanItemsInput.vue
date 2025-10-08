@@ -68,6 +68,7 @@ KernTable(
 		},
 	]`
 	:data="model ?? []"
+	show-footer
 	@create="create"
 	@edit="edit"
 	@remove="remove"

@@ -12,6 +12,7 @@ const props = defineProps<{
 	updatePermission: string | null
 	deletePermission: string | null
 	showActions?: boolean
+	showFooter?: boolean
 	data: T[]
 	scope?: Scope
 }>()
@@ -115,7 +116,7 @@ table.kern-table
 				)
 					span.kern-icon.kern-icon--delete(aria-hidden="true")
 					span.kern-label.kern-sr-only Löschen
-	tfoot.kern-table__footer
+	tfoot.kern-table__footer(v-if="props.showFooter")
 		tr.kern-table__row
 			th.kern-table__header(
 				v-for="column of columns"
@@ -126,6 +127,10 @@ table.kern-table
 				slot(
 					:name="`${column.name}-footer`"
 				)
+			th.kern-table__header(
+				v-if="showActions"
+				scope="col"
+			)
 button.my-4.kern-btn.kern-btn--primary(
 	v-if="createAllowed"
 	@click="emit('create')"
