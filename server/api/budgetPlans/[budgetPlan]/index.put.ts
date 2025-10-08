@@ -14,7 +14,21 @@ export default defineEventHandler(async (event) => {
 				id: z.uuid().optional(),
 				...createInsertSchema(budgetPlanItems).omit({ id: true, plan: true }).shape,
 			}),
-		).min(1),
+		)
+			.min(1)
+			.check((ctx) => {
+				const balance = ctx.value
+					.map((item) => item.revenues - item.expenses)
+					.reduce((a, b) => a + b, 0)
+
+				if(balance !== 0) {
+					ctx.issues.push({
+						code: 'custom',
+						message: 'Sum of revenues and expenses must be equal.',
+						input: ctx.value,
+					})
+				}
+			}),
 	}).parseAsync(data))
 
 	const database = useDatabase()
