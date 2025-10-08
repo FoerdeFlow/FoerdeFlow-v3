@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 					.map((item) => item.revenues - item.expenses)
 					.reduce((a, b) => a + b, 0)
 
-				if(balance !== 0) {
+				if(Math.abs(balance) > 0.00001) {
 					ctx.issues.push({
 						code: 'custom',
 						message: 'Sum of revenues and expenses must be equal.',
