@@ -2,6 +2,7 @@
 const props = defineProps<{
 	id: string
 	showTime: boolean
+	readonly?: boolean
 }>()
 
 const day = ref('')
@@ -85,6 +86,7 @@ function onMinuteInput() {
 			v-model="day"
 			type="text"
 			inputmode="numeric"
+			:readonly="props.readonly"
 			@input="onDayInput()"
 		)
 	.kern-form-input
@@ -95,6 +97,7 @@ function onMinuteInput() {
 			v-model="month"
 			type="text"
 			inputmode="numeric"
+			:readonly="props.readonly"
 			@input="onMonthInput()"
 		)
 	.kern-form-input
@@ -105,6 +108,7 @@ function onMinuteInput() {
 			v-model="year"
 			type="text"
 			inputmode="numeric"
+			:readonly="props.readonly"
 			@input="onYearInput()"
 		)
 	template(v-if="props.showTime")
@@ -116,6 +120,7 @@ function onMinuteInput() {
 				v-model="hour"
 				type="text"
 				inputmode="numeric"
+				:readonly="props.readonly"
 				@input="onHourInput()"
 			)
 		.kern-form-input
@@ -126,9 +131,11 @@ function onMinuteInput() {
 				v-model="minute"
 				type="text"
 				inputmode="numeric"
+				:readonly="props.readonly"
 				@input="onMinuteInput()"
 			)
 	button.mt-8.kern-button.kern-button--secondary(
+		v-if="!props.readonly"
 		type="button"
 		@click="day = ''; month = ''; year = ''; hour = ''; minute = ''"
 	)

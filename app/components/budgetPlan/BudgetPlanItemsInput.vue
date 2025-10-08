@@ -56,6 +56,7 @@ KernTable(
 		{
 			name: 'revenues',
 			width: '8em',
+			class: 'numeric',
 		},
 		{
 			name: 'title',
@@ -63,6 +64,7 @@ KernTable(
 		{
 			name: 'expenses',
 			width: '8em',
+			class: 'numeric',
 		},
 	]`
 	:data="model ?? []"
@@ -74,16 +76,22 @@ KernTable(
 		| {{ $t('budgetPlanItem.field.revenues') }}
 	template(#revenues-body="{ item }")
 		| {{ formatCurrency(item.revenues) }}
+	template(#revenues-footer)
+		| {{ formatCurrency(model.map(item => item.revenues ?? 0).reduce((a, b) => a + b, 0)) }}
 	template(#title-header)
 		| {{ $t('budgetPlanItem.field.title') }}
 	template(#title-body="{ item }")
 		span.kern-body {{ item.title }}
 		br
 		span.kern-body.kern-body--small {{ item.description }}
+	template(#title-footer)
+		| {{ $t('budgetPlanItem.table.footer') }}
 	template(#expenses-header)
 		| {{ $t('budgetPlanItem.field.expenses') }}
 	template(#expenses-body="{ item }")
 		| {{ formatCurrency(item.expenses) }}
+	template(#expenses-footer)
+		| {{ formatCurrency(model.map(item => item.expenses ?? 0).reduce((a, b) => a + b, 0)) }}
 BudgetPlanItemEditor(
 	ref="editor"
 	@save="save"

@@ -7,10 +7,11 @@ const dialog = useTemplateRef<HTMLDialogElement>('dialog')
 type AlertProps = InstanceType<typeof KernAlert>['$props']
 const alerts: Ref<AlertProps[]> = ref([])
 
-const { title, modal = false, valid = true } = defineProps<{
+const { title, modal = false, valid = true, readonly = false } = defineProps<{
 	title: string
 	modal?: boolean
 	valid?: boolean
+	readonly?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -71,15 +72,20 @@ dialog.kern-dialog(
 		slot
 	footer.kern-dialog__footer
 		slot(name="actions")
-			button.kern-btn.kern-btn--secondary(@click="emit('cancel')")
-				span.kern-icon.kern-icon--close(aria-hidden="true")
-				span.kern-label Abbrechen
-			button.kern-btn.kern-btn--primary(
-				:disabled="!valid"
-				@click="emit('save')"
-			)
-				span.kern-icon.kern-icon--check(aria-hidden="true")
-				span.kern-label Speichern
+			template(v-if="readonly")
+				button.kern-btn.kern-btn--primary(@click="emit('cancel')")
+					span.kern-icon.kern-icon--close(aria-hidden="true")
+					span.kern-label Schließen
+			template(v-else)
+				button.kern-btn.kern-btn--secondary(@click="emit('cancel')")
+					span.kern-icon.kern-icon--close(aria-hidden="true")
+					span.kern-label Abbrechen
+				button.kern-btn.kern-btn--primary(
+					:disabled="!valid"
+					@click="emit('save')"
+				)
+					span.kern-icon.kern-icon--check(aria-hidden="true")
+					span.kern-label Speichern
 </template>
 
 <style module>

@@ -97,7 +97,8 @@
 	"budgetPlanItem": {
 		"title": "Haushaltstitel",
 		"table": {
-			"caption": "Liste der Haushaltstitel"
+			"caption": "Liste der Haushaltstitel",
+			"footer": "Summe"
 		},
 		"field": {
 			"title": "Titel",

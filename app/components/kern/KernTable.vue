@@ -6,6 +6,7 @@ const props = defineProps<{
 	columns: (string | {
 		name: string
 		width?: string
+		class?: string
 	})[]
 	createPermission: string | null
 	updatePermission: string | null
@@ -24,6 +25,7 @@ const emit = defineEmits<{
 defineSlots<{
 	[slotName: `${string}-header`]: (props: {}) => unknown
 	[slotName: `${string}-body`]: (props: { item: T }) => unknown
+	[slotName: `${string}-footer`]: (props: {}) => unknown
 	actions: (props: { item: T }) => unknown
 }>()
 
@@ -66,6 +68,7 @@ table.kern-table
 			th.kern-table__header(
 				v-for="column of columns"
 				:key="column.name"
+				:class="column.class ? `kern-table__header--${column.class}` : ''"
 				scope="col"
 			)
 				slot(
@@ -87,6 +90,7 @@ table.kern-table
 			td.kern-table__cell(
 				v-for="column of columns"
 				:key="column.name"
+				:class="column.class ? `kern-table__cell--${column.class}` : ''"
 			)
 				slot(
 					:name="`${column.name}-body`"
@@ -111,6 +115,17 @@ table.kern-table
 				)
 					span.kern-icon.kern-icon--delete(aria-hidden="true")
 					span.kern-label.kern-sr-only Löschen
+	tfoot.kern-table__footer
+		tr.kern-table__row
+			th.kern-table__header(
+				v-for="column of columns"
+				:key="column.name"
+				:class="column.class ? `kern-table__header--${column.class}` : ''"
+				scope="col"
+			)
+				slot(
+					:name="`${column.name}-footer`"
+				)
 button.my-4.kern-btn.kern-btn--primary(
 	v-if="createAllowed"
 	@click="emit('create')"

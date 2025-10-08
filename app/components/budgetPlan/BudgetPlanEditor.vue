@@ -5,6 +5,7 @@ import type { BudgetPlanItem } from '~/types'
 
 const props = defineProps<{
 	budget: string
+	readonly?: boolean
 }>()
 
 const { t } = useI18n()
@@ -104,12 +105,19 @@ KernDialog(
 	ref="dialog"
 	:title="itemId ? $t('budgetPlan.edit.title') : $t('budgetPlan.create.title')"
 	:modal="modified"
+	:readonly="props.readonly"
 	@cancel="cancel"
 	@save="save"
 )
 	template(v-if="model")
 		.kern-fieldset__body.kern-fieldset__body--horizontal
-			BudgetPlanStartDateInput.flex-1(v-model="model.startDate")
-			BudgetPlanEndDateInput.flex-1(v-model="model.endDate")
+			BudgetPlanStartDateInput.flex-1(
+				v-model="model.startDate"
+				:readonly="props.readonly"
+			)
+			BudgetPlanEndDateInput.flex-1(
+				v-model="model.endDate"
+				:readonly="props.readonly"
+			)
 		BudgetPlanItemsInput(v-model="model.items")
 </template>
