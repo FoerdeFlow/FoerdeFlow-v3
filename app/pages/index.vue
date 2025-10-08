@@ -52,6 +52,13 @@ const navigationItems: KernCardNavItems = [
 		permission: 'rooms.read',
 	},
 	{
+		preline: 'Finanzen',
+		title: 'Haushalte',
+		link: '/budgets',
+		linkLabel: 'Liste anzeigen',
+		permission: 'budgets.read',
+	},
+	{
 		preline: 'Berechtigungen',
 		title: 'Rollen',
 		link: '/roles',

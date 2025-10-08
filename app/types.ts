@@ -36,3 +36,11 @@ export type Permission = PermissionNotNull | null
 export interface Scope {
 	organizationItem: string
 }
+
+export interface BudgetPlanItem {
+	id: string | symbol | null
+	title: string
+	description: string
+	revenues: number | null
+	expenses: number | null
+}

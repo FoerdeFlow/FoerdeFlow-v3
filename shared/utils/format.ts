@@ -49,6 +49,22 @@ export function formatTime(date: string | Date | null): string {
 	}
 }
 
+const currencyFormatter = new Intl.NumberFormat('de-DE', {
+	style: 'currency',
+	currency: 'EUR',
+})
+
+export function formatCurrency(
+	value: number | null,
+): string {
+	if(!value) return ''
+	try {
+		return currencyFormatter.format(value)
+	} catch(_) {
+		return ''
+	}
+}
+
 export function formatBuilding(
 	building: {
 		code: string

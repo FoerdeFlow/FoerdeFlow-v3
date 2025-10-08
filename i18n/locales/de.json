@@ -23,10 +23,109 @@
 			"sessions": "Sitzungen",
 			"minutes": "Protokolle",
 			"attendances": "Sitzungsteilnahmen",
+			"budgets": "Haushalte",
+			"budgetPlans": "Haushaltspläne",
 			"roles": "Rollen",
 			"rolePermissions": "Rollenberechtigungen",
 			"roleOccupants": "Rolleninhaber",
 			"permissions": "Berechtigungen"
+		}
+	},
+	"budget": {
+		"title": "Haushalte",
+		"table": {
+			"caption": "Liste der Haushalte"
+		},
+		"field": {
+			"name": "Name",
+			"code": "Kürzel"
+		},
+		"create": {
+			"title": "Haushalt erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung des Haushalts ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Haushalt bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung des Haushalts ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Haushalt löschen?",
+			"text": "Sind Sie sicher, dass Sie diesen Haushalt löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen des Haushalts ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
+	"budgetPlan": {
+		"title": "Haushaltspläne",
+		"table": {
+			"caption": "Liste der Haushaltspläne"
+		},
+		"field": {
+			"period": "Haushaltsperiode"
+		},
+		"create": {
+			"title": "Haushaltsplan erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung des Haushaltsplans ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Haushaltsplan bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung des Haushaltsplans ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Haushaltsplan löschen?",
+			"text": "Sind Sie sicher, dass Sie diesen Haushaltsplan löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen des Haushaltsplans ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
+	"budgetPlanItem": {
+		"title": "Haushaltstitel",
+		"table": {
+			"caption": "Liste der Haushaltstitel"
+		},
+		"field": {
+			"title": "Titel",
+			"description": "Hinweise",
+			"revenues": "Einnahmen",
+			"expenses": "Ausgaben"
+		},
+		"create": {
+			"title": "Haushaltstitel erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung des Haushaltstitels ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Haushaltstitel bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung des Haushaltstitels ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Haushaltstitel löschen?",
+			"text": "Sind Sie sicher, dass Sie diesen Haushaltstitel löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen des Haushaltstitels ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
 		}
 	}
 }
