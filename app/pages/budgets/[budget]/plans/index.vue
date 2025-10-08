@@ -30,6 +30,10 @@ function edit({ id }: { id: string }) {
 	editor.value.edit(id)
 }
 
+function download({ id }: { id: string }) {
+	window.open(`/api/budgetPlans/${id}/pdf`, '_blank')
+}
+
 async function remove({ id }: { id: string }) {
 	if(await confirmDialogStore.askConfirm({
 		title: t('budgetPlan.remove.title'),
@@ -85,6 +89,11 @@ KernTable(
 		)
 			span.kern-icon.kern-icon--visibility(aria-hidden="true")
 			span.kern-label.kern-sr-only Anzeigen
+		button.kern-btn.kern-btn--tertiary(
+			@click="download(item)"
+		)
+			span.kern-icon.kern-icon--download(aria-hidden="true")
+			span.kern-label.kern-sr-only Herunterladen
 BudgetPlanEditor(
 	ref="editor"
 	:budget="route.params.budget"

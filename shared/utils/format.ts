@@ -5,9 +5,16 @@ const dateFormatter = {
 	compact: new Intl.DateTimeFormat('de-DE', {
 		dateStyle: 'medium',
 	}),
+	iso: {
+		format: (date: Date) => [
+			date.getFullYear().toString().padStart(4, '0'),
+			(date.getMonth() + 1).toString().padStart(2, '0'),
+			date.getDate().toString().padStart(2, '0'),
+		].join('-'),
+	},
 }
 
-export function formatDate(date: string | Date | null, style: 'verbose' | 'compact' = 'verbose'): string {
+export function formatDate(date: string | Date | null, style: 'verbose' | 'compact' | 'iso' = 'verbose'): string {
 	if(!date) return ''
 	try {
 		return dateFormatter[style].format(new Date(date))
