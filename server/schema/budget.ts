@@ -2,8 +2,10 @@ import { relations, sql } from 'drizzle-orm'
 import {
 	check,
 	date,
+	integer,
 	numeric,
 	pgTable,
+	unique,
 	uuid,
 	varchar,
 } from 'drizzle-orm/pg-core'
@@ -48,11 +50,18 @@ export const budgetPlansRelations = relations(budgetPlans, ({ many, one }) => ({
 export const budgetPlanItems = pgTable('budget_plan_items', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	plan: uuid().notNull().references(() => budgetPlans.id, { onDelete: 'cascade' }),
+	ord: integer(),
 	title: varchar({ length: 256 }).notNull(),
-	description: varchar({ length: 1024 }).notNull(),
+	description: varchar({ length: 1024 }),
 	revenues: numeric({ precision: 16, scale: 2, mode: 'number' }).notNull(),
 	expenses: numeric({ precision: 16, scale: 2, mode: 'number' }).notNull(),
 }, (table) => [
+	unique('plan_ord_unique')
+		.on(table.plan, table.ord),
+	check(
+		'valid_ord',
+		sql`${table.ord} >= 0`,
+	),
 	check(
 		'revenues_non_negative',
 		sql`${table.revenues} >= 0`,

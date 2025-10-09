@@ -3,8 +3,9 @@ import type { BudgetPlanItemEditor } from '#components'
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 type Model = {
+	ord: number | null
 	title: string
-	description: string
+	description: string | null
 	revenues: number | null
 	expenses: number | null
 }
@@ -82,9 +83,14 @@ KernTable(
 	template(#title-header)
 		| {{ $t('budgetPlanItem.field.title') }}
 	template(#title-body="{ item }")
+		template(v-if="item.ord")
+			span.kern-body--small
+				| ({{ item.ord }})
+			| &nbsp;
 		span.kern-body {{ item.title }}
-		br
-		span.kern-body.kern-body--small {{ item.description }}
+		template(v-if="item.description")
+			br
+			span.kern-body.kern-body--small {{ item.description }}
 	template(#title-footer)
 		| {{ $t('budgetPlanItem.table.footer') }}
 	template(#expenses-header)

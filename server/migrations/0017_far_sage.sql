@@ -1,0 +1,1 @@
+ALTER TABLE "budget_plan_items" ALTER COLUMN "description" DROP NOT NULL;

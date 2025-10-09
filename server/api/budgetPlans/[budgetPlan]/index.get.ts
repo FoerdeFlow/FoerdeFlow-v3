@@ -16,6 +16,7 @@ export default defineEventHandler(async (event) => {
 				columns: {
 					plan: false,
 				},
+				orderBy: (items, { asc }) => [ asc(items.ord) ],
 			},
 		},
 		columns: {

@@ -6,10 +6,11 @@ const dialog = useTemplateRef<typeof KernDialog>('dialog')
 const itemId = ref<string | null>(null)
 
 interface Model {
+	ord: number | null
 	title: string
-	description: string
-	revenues: number | null
-	expenses: number | null
+	description: string | null
+	revenues: number
+	expenses: number
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -29,10 +30,11 @@ function openDialog(id: string | null, data: Model) {
 defineExpose({
 	create() {
 		openDialog(null, {
+			ord: null,
 			title: '',
-			description: '',
-			revenues: null,
-			expenses: null,
+			description: null,
+			revenues: 0,
+			expenses: 0,
 		})
 	},
 	edit({ id, ...item }: { id: string } & Model) {
@@ -65,9 +67,13 @@ KernDialog(
 	@save="save"
 )
 	template(v-if="model")
-		BudgetPlanItemTitleInput(
-			v-model="model.title"
-		)
+		.kern-fieldset__body.kern-fieldset__body--horizontal
+			BudgetPlanItemOrdInput(
+				v-model="model.ord"
+			)
+			BudgetPlanItemTitleInput.flex-1(
+				v-model="model.title"
+			)
 		.kern-fieldset__body.kern-fieldset__body--horizontal
 			BudgetPlanItemRevenuesInput.flex-1(
 				v-model="model.revenues"

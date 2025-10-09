@@ -84,7 +84,8 @@ export default defineEventHandler(async (event) => {
 	doc.setFont('OpenSans', 'bold')
 	doc.setFontSize(14)
 	doc.text('Einnahmen', 15, pos.y)
-	doc.text('Titel', docWidth / 2, pos.y, { align: 'center' })
+	doc.text('Titel', 50, pos.y)
+	doc.text('Lfd.', docWidth - 50, pos.y, { align: 'right' })
 	doc.text('Ausgaben', docWidth - 15, pos.y, { align: 'right' })
 	pos.y += 11
 
@@ -108,13 +109,13 @@ export default defineEventHandler(async (event) => {
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(12)
 		const titleHeight =
-			(doc.splitTextToSize(item.title, docWidth - 100) as unknown[]).length *
+			(doc.splitTextToSize(item.title, docWidth - 115) as unknown[]).length *
 			doc.getLineHeight() / doc.internal.scaleFactor
 
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(10)
 		const descriptionHeight = (item.description
-			? (doc.splitTextToSize(item.description, docWidth - 100) as unknown[]).length
+			? (doc.splitTextToSize(item.description, docWidth - 115) as unknown[]).length
 			: 0) *
 			doc.getLineHeight() / doc.internal.scaleFactor
 
@@ -128,16 +129,22 @@ export default defineEventHandler(async (event) => {
 		doc.setFontSize(12)
 		doc.text(
 			item.title,
-			60, pos.y,
-			{ align: 'left', maxWidth: docWidth - 100 },
+			50, pos.y,
+			{ align: 'justify', maxWidth: docWidth - 115 },
 		)
+
+		if(item.ord) {
+			doc.setFont('OpenSans', 'normal')
+			doc.setFontSize(12)
+			doc.text(item.ord.toString(), docWidth - 50, pos.y, { align: 'right' })
+		}
 
 		if(item.description) {
 			doc.setFont('OpenSans', 'italic')
 			doc.setFontSize(10)
 			doc.text(
-				item.description, 60, pos.y + titleHeight,
-				{ align: 'left', maxWidth: docWidth - 100 },
+				item.description, 50, pos.y + titleHeight,
+				{ align: 'justify', maxWidth: docWidth - 115 },
 			)
 		}
 
