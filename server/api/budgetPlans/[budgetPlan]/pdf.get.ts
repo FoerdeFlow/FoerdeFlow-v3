@@ -88,8 +88,37 @@ export default defineEventHandler(async (event) => {
 	doc.text('Ausgaben', docWidth - 15, pos.y, { align: 'right' })
 	pos.y += 11
 
+	let category: string | null = null
 	for(const item of result.items) {
-		doc.rect(10, pos.y - 7, docWidth - 20, 10)
+		if(item.title.includes(' - ')) {
+			const [ itemCategory, itemTitle ] = item.title.split(' - ')
+			if(category !== itemCategory) {
+				doc.setFont('OpenSans', 'bold')
+				doc.setFontSize(12)
+				doc.text(itemCategory, docWidth / 2, pos.y, { align: 'center' })
+				pos.y += 10
+				category = itemCategory
+			}
+			item.title = itemTitle
+		} else if(category !== null) {
+			pos.y += 2
+			category = null
+		}
+
+		doc.setFont('OpenSans', 'normal')
+		doc.setFontSize(12)
+		const titleHeight =
+			(doc.splitTextToSize(item.title, docWidth - 100) as unknown[]).length *
+			doc.getLineHeight() / doc.internal.scaleFactor
+
+		doc.setFont('OpenSans', 'normal')
+		doc.setFontSize(10)
+		const descriptionHeight = (item.description
+			? (doc.splitTextToSize(item.description, docWidth - 100) as unknown[]).length
+			: 0) *
+			doc.getLineHeight() / doc.internal.scaleFactor
+
+		doc.rect(10, pos.y - 7, docWidth - 20, titleHeight + descriptionHeight + 5)
 
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(12)
@@ -97,19 +126,26 @@ export default defineEventHandler(async (event) => {
 
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(12)
-		doc.text(item.title, 60, item.description ? pos.y - 2 : pos.y)
+		doc.text(
+			item.title,
+			60, pos.y,
+			{ align: 'left', maxWidth: docWidth - 100 },
+		)
 
 		if(item.description) {
 			doc.setFont('OpenSans', 'italic')
 			doc.setFontSize(10)
-			doc.text(item.description, 60, pos.y + 2)
+			doc.text(
+				item.description, 60, pos.y + titleHeight,
+				{ align: 'left', maxWidth: docWidth - 100 },
+			)
 		}
 
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(12)
 		doc.text(formatCurrency(item.expenses), docWidth - 15, pos.y, { align: 'right' })
 
-		pos.y += 10
+		pos.y += titleHeight + descriptionHeight + 5
 	}
 
 	pos.y += 1
