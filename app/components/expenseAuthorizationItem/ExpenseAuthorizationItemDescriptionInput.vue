@@ -11,7 +11,9 @@ const model = defineModel<string | null>({
 .kern-form-input
 	label.kern-label(
 		:for="id"
-	) Hinweise #[span.kern-label__optional - Optional]
+	)
+		| {{ $t('expenseAuthorizationItem.input.description.label') }}
+		span.kern-label__optional - Optional
 	textarea.kern-form-input__input(
 		:id="id"
 		v-model="model"

@@ -1,5 +1,6 @@
 import type {
 	AttendanceStatusSelect,
+	BudgetPlanItemSelect,
 	BuildingSelect,
 	GenderSelect,
 	MembershipEndReasonSelect,
@@ -14,6 +15,7 @@ import type {
 } from '#components'
 
 export type AttendanceStatus = InstanceType<typeof AttendanceStatusSelect>['$props']['modelValue']
+export type BudgetPlanItem = InstanceType<typeof BudgetPlanItemSelect>['$props']['modelValue']
 export type Building = InstanceType<typeof BuildingSelect>['$props']['modelValue']
 export type Gender = InstanceType<typeof GenderSelect>['$props']['modelValue']
 export type MembershipEndReason = InstanceType<typeof MembershipEndReasonSelect>['$props']['modelValue']
@@ -37,10 +39,18 @@ export interface Scope {
 	organizationItem: string
 }
 
-export interface BudgetPlanItem {
+export interface BudgetPlanItemInput {
 	id: string | symbol | null
 	title: string
 	description: string
 	revenues: number | null
 	expenses: number | null
+}
+
+export interface ExpenseAuthorizationItemInput {
+	id: string | symbol | null
+	ord: number | null
+	title: string
+	description: string | null
+	amount: number
 }

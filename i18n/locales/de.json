@@ -25,6 +25,7 @@
 			"attendances": "Sitzungsteilnahmen",
 			"budgets": "Haushalte",
 			"budgetPlans": "Haushaltspläne",
+			"expenseAuthorizations": "Ausgabeermächtigungen",
 			"roles": "Rollen",
 			"rolePermissions": "Rollenberechtigungen",
 			"roleOccupants": "Rolleninhaber",
@@ -126,6 +127,93 @@
 			"error": {
 				"title": "Fehler beim Löschen",
 				"message": "Beim Löschen des Haushaltstitels ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
+	"expenseAuthorization": {
+		"title": "Ausgabeermächtigungen",
+		"menu": {
+			"title": "Ausgabeermächtigungen",
+			"description": "Ausgabeermächtigungen sind Genehmigungen des Studierendenparlaments oder des Allgemeinen Studierendenausschusses über Ausgaben, welche im Einzelfall den Betrag von 150 Euro überschreiten.",
+			"linkLabel": "Zu den Ausgabeermächtigungen"
+		},
+		"table": {
+			"caption": "Liste der Ausgabeermächtigungen"
+		},
+		"field": {
+			"budgetPlanItem": "Haushaltstitel",
+			"title": "Titel der Ausgabe",
+			"amount": "Betrag"
+		},
+		"create": {
+			"title": "Ausgabeermächtigung erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung der Ausgabeermächtigung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Ausgabeermächtigung bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung der Ausgabeermächtigung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Ausgabeermächtigung löschen?",
+			"text": "Sind Sie sicher, dass Sie diese Ausgabeermächtigung löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen der Ausgabeermächtigung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
+	"expenseAuthorizationItem": {
+		"title": "Einnahmen- und Ausgabentitel",
+		"table": {
+			"caption": "Kostenaufstellung",
+			"footer": "Summe"
+		},
+		"field": {
+			"title": "Titel",
+			"description": "Hinweise",
+			"amount": "Betrag"
+		},
+		"input": {
+			"ord": {
+				"label": "Lfd."
+			},
+			"title": {
+				"label": "Titel"
+			},
+			"description": {
+				"label": "Erläuterung"
+			},
+			"amount": {
+				"label": "Betrag",
+				"hint": "Einnahmen bitte als negative Beträge eingeben."
+			}
+		},
+		"create": {
+			"title": "Einnahme oder Ausgabe erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung des Einnahme- oder Ausgabentitels ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Einnahme oder Ausgabe bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung des Einnahme- oder Ausgabentitels ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Einnahme oder Ausgabe löschen?",
+			"text": "Sind Sie sicher, dass Sie diesen Einnahme- oder Ausgabentitel löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen des Einnahme- oder Ausgabentitels ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
 			}
 		}
 	}

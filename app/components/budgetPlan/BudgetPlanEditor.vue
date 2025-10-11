@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 import { KernDialog } from '#components'
-import type { BudgetPlanItem } from '~/types'
+import type { BudgetPlanItemInput } from '~/types'
 
 const props = defineProps<{
 	budget: string
@@ -17,7 +17,7 @@ const itemId = ref<string | null>(null)
 interface Model {
 	startDate: Date | null
 	endDate: Date | null
-	items: BudgetPlanItem[]
+	items: BudgetPlanItemInput[]
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)

@@ -265,6 +265,26 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'expenseAuthorizations.read',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'expenseAuthorizations.create',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'expenseAuthorizations.update',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'expenseAuthorizations.delete',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
 		id: 'permissions.read',
 		scope: 'global',
 		assignable: true,

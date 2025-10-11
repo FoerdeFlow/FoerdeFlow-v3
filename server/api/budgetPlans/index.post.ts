@@ -6,10 +6,7 @@ export default defineEventHandler(async (event) => {
 	const body = await readValidatedBody(event, async (data) => await z.strictObject({
 		...createInsertSchema(budgetPlans).omit({ id: true }).shape,
 		items: z.array(
-			z.strictObject({
-				id: z.uuid().optional(),
-				...createInsertSchema(budgetPlanItems).omit({ id: true, plan: true }).shape,
-			}),
+			createInsertSchema(budgetPlanItems).omit({ id: true, plan: true }),
 		)
 			.min(1)
 			.check((ctx) => {
