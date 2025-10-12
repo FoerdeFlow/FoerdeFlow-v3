@@ -8,6 +8,8 @@ const props = defineProps<{
 const model = defineModel<number | null>({
 	required: true,
 })
+
+const readonlyModel = computed(() => formatCurrency(model.value) as unknown as number)
 </script>
 
 <template lang="pug">
@@ -21,7 +23,7 @@ const model = defineModel<number | null>({
 	KernCurrencyInput(
 		v-if="props.readonly"
 		:id="id"
-		:model-value="formatCurrency(model) as unknown as number"
+		:model-value="readonlyModel"
 		:aria-describedby="`${id}-hint`"
 		readonly
 	)
