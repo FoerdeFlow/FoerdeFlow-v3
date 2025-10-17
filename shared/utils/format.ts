@@ -157,3 +157,11 @@ export function formatMembershipEndReason(
 	if(!endReason) return ''
 	return `${endReason.name} (${endReason.code})`
 }
+
+export function formatWorkflowStepType(type: 'comment' | 'task' | 'approval'): string {
+	return {
+		comment: 'Stellungnahme',
+		task: 'Aufgabe',
+		approval: 'Genehmigung',
+	}[type]
+}

@@ -285,6 +285,66 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'workflows.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflows.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflows.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflows.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowSteps.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowSteps.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowSteps.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowSteps.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowMutations.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowMutations.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowMutations.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowMutations.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
 		id: 'permissions.read',
 		scope: 'global',
 		assignable: true,

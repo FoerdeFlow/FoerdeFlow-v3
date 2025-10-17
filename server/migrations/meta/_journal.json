@@ -134,6 +134,13 @@
       "when": 1760096642458,
       "tag": "0018_moaning_genesis",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1760262413754,
+      "tag": "0019_easy_mercury",
+      "breakpoints": true
     }
   ]
 }

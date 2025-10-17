@@ -59,6 +59,13 @@ const navigationItems: KernCardNavItems = [
 		permission: 'budgets.read',
 	},
 	{
+		preline: 'Prozesse',
+		title: 'Workflows',
+		link: '/workflows',
+		linkLabel: 'Liste anzeigen',
+		permission: 'workflows.read',
+	},
+	{
 		preline: 'Berechtigungen',
 		title: 'Rollen',
 		link: '/roles',

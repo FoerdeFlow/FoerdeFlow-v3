@@ -8,3 +8,5 @@ export * from '../schema/session'
 
 export * from '../schema/budget'
 export * from '../schema/expenseAuthorization'
+
+export * from '../schema/workflow'
