@@ -3,23 +3,11 @@ import type { DestructureArray } from '#shared/types'
 
 const props = defineProps<{
 	id: string
-	budgetPlan: string
 }>()
 
-const { data } = useFetch(() => `/api/budgetPlans/${props.budgetPlan}`)
-const items = computed(() => {
-	if(!data.value) return []
-	const { items, ...plan } = data.value
-	return items.map((item) => ({
-		plan: {
-			id: props.budgetPlan,
-			...plan,
-		},
-		...item,
-	}))
-})
+const { data } = useFetch('/api/budgets')
 
-const model = defineModel<DestructureArray<typeof items.value> | null>({
+const model = defineModel<DestructureArray<typeof data.value> | null>({
 	required: true,
 })
 
@@ -30,7 +18,7 @@ const selectModel = computed({
 			model.value = null
 			return
 		}
-		model.value = items.value.find(({ id }) => id === v) ?? null
+		model.value = data.value?.find(({ id }) => id === v) ?? null
 	},
 })
 </script>
@@ -42,15 +30,12 @@ const selectModel = computed({
 		v-model="selectModel"
 	)
 		option(
+			disabled
 			value=""
 		) - Bitte wählen -
 		option(
-			v-for="item of items"
+			v-for="item of data"
 			:key="item.id"
 			:value="item.id"
-		)
-			template(v-if="item.ord")
-				| {{ item.ord }} -
-			|
-			| {{ item.title }}
+		) {{ item.name }} ({{ item.code }})
 </template>

@@ -50,91 +50,98 @@ const showActions = computed(() => props.showActions || updateAllowed.value || d
 </script>
 
 <template lang="pug">
-table.kern-table
-	caption.kern-title {{ props.caption }}
-	colgroup
-		col(
-			v-for="column of columns"
-			:key="column.name"
-			span="1"
-			:style="column.width ? { width: column.width } : ''"
-		)
-		col(
-			v-if="showActions"
-			span="1"
-			style="width: 10em"
-		)
-	thead.kern-table__head
-		tr.kern-table__row
-			th.kern-table__header(
+.kern-table__wrapper
+	table.kern-table
+		caption.kern-title {{ props.caption }}
+		colgroup
+			col(
 				v-for="column of columns"
 				:key="column.name"
-				:class="column.class ? `kern-table__header--${column.class}` : ''"
-				scope="col"
+				span="1"
+				:style="column.width ? { width: column.width } : ''"
 			)
-				slot(
-					:name="`${column.name}-header`"
-				)
-			th.kern-table__header(
+			col(
 				v-if="showActions"
-				scope="col"
-			) Aktionen
-	tbody.kern-table__body
-		tr.kern-table__row(v-if="data.length === 0")
-			td.kern-table__cell(
-				:colspan="columns.length + (showActions ? 1 : 0)"
-			) Keine Einträge gefunden.
-		tr.kern-table__row(
-			v-for="(item, idx) of data"
-			:key="idx"
-		)
-			td.kern-table__cell(
-				v-for="column of columns"
-				:key="column.name"
-				:class="column.class ? `kern-table__cell--${column.class}` : ''"
+				span="1"
+				style="width: 10em"
 			)
-				slot(
-					:name="`${column.name}-body`"
-					:item="item"
+		thead.kern-table__head
+			tr.kern-table__row
+				th.kern-table__header(
+					v-for="column of columns"
+					:key="column.name"
+					:class="column.class ? `kern-table__header--${column.class}` : ''"
+					scope="col"
 				)
-			td.kern-table__cell(
-				v-if="showActions"
+					slot(
+						:name="`${column.name}-header`"
+					)
+				th.kern-table__header(
+					v-if="showActions"
+					scope="col"
+				) Aktionen
+		tbody.kern-table__body
+			tr.kern-table__row(v-if="data.length === 0")
+				td.kern-table__cell(
+					:colspan="columns.length + (showActions ? 1 : 0)"
+				) Keine Einträge gefunden.
+			tr.kern-table__row(
+				v-for="(item, idx) of data"
+				:key="idx"
 			)
-				slot(
-					name="actions"
-					:item="item"
+				td.kern-table__cell(
+					v-for="column of columns"
+					:key="column.name"
+					:class="column.class ? `kern-table__cell--${column.class}` : ''"
 				)
-				button.kern-btn.kern-btn--tertiary(
-					v-if="updateAllowed"
-					@click="emit('edit', item)"
+					slot(
+						:name="`${column.name}-body`"
+						:item="item"
+					)
+				td.kern-table__cell(
+					v-if="showActions"
 				)
-					span.kern-icon.kern-icon--edit(aria-hidden="true")
-					span.kern-label.kern-sr-only Bearbeiten
-				button.kern-btn.kern-btn--tertiary(
-					v-if="deleteAllowed"
-					@click="emit('remove', item)"
+					slot(
+						name="actions"
+						:item="item"
+					)
+					button.kern-btn.kern-btn--tertiary(
+						v-if="updateAllowed"
+						@click="emit('edit', item)"
+					)
+						span.kern-icon.kern-icon--edit(aria-hidden="true")
+						span.kern-label.kern-sr-only Bearbeiten
+					button.kern-btn.kern-btn--tertiary(
+						v-if="deleteAllowed"
+						@click="emit('remove', item)"
+					)
+						span.kern-icon.kern-icon--delete(aria-hidden="true")
+						span.kern-label.kern-sr-only Löschen
+		tfoot.kern-table__footer(v-if="props.showFooter")
+			tr.kern-table__row
+				th.kern-table__header(
+					v-for="column of columns"
+					:key="column.name"
+					:class="column.class ? `kern-table__header--${column.class}` : ''"
+					scope="col"
 				)
-					span.kern-icon.kern-icon--delete(aria-hidden="true")
-					span.kern-label.kern-sr-only Löschen
-	tfoot.kern-table__footer(v-if="props.showFooter")
-		tr.kern-table__row
-			th.kern-table__header(
-				v-for="column of columns"
-				:key="column.name"
-				:class="column.class ? `kern-table__header--${column.class}` : ''"
-				scope="col"
-			)
-				slot(
-					:name="`${column.name}-footer`"
+					slot(
+						:name="`${column.name}-footer`"
+					)
+				th.kern-table__header(
+					v-if="showActions"
+					scope="col"
 				)
-			th.kern-table__header(
-				v-if="showActions"
-				scope="col"
-			)
-button.my-4.kern-btn.kern-btn--primary(
-	v-if="createAllowed"
-	@click="emit('create')"
-)
-	span.kern-icon.kern-icon--add(aria-hidden="true")
-	span.kern-label Erstellen
+	button.my-4.kern-btn.kern-btn--primary(
+		v-if="createAllowed"
+		@click="emit('create')"
+	)
+		span.kern-icon.kern-icon--add(aria-hidden="true")
+		span.kern-label Erstellen
 </template>
+
+<style scoped>
+.kern-table__wrapper {
+	overflow-x: auto;
+}
+</style>

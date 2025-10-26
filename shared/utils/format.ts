@@ -158,10 +158,74 @@ export function formatMembershipEndReason(
 	return `${endReason.name} (${endReason.code})`
 }
 
+export function formatWorkflow(
+	workflow: {
+		name: string,
+		code: string,
+	} | null,
+): string {
+	if(!workflow) return ''
+	return `${workflow.name} (${workflow.code})`
+}
+
 export function formatWorkflowStepType(type: 'comment' | 'task' | 'approval'): string {
 	return {
 		comment: 'Stellungnahme',
 		task: 'Aufgabe',
 		approval: 'Genehmigung',
 	}[type]
+}
+
+export function formatWorkflowMutationAction(action: 'create' | 'update' | 'delete'): string {
+	return {
+		create: 'Erstellen',
+		update: 'Aktualisieren',
+		delete: 'Löschen',
+	}[action]
+}
+
+export function formatProcessStatus(type: 'pending' | 'completed' | 'failed'): string {
+	return {
+		pending: 'Offen',
+		completed: 'Abgeschlossen',
+		failed: 'Fehlgeschlagen',
+	}[type]
+}
+
+export function formatProcessStepStatus(type: 'pending' | 'completed' | 'failed'): string {
+	return {
+		pending: 'Offen',
+		completed: 'Abgeschlossen',
+		failed: 'Fehlgeschlagen',
+	}[type]
+}
+
+export function formatBudget(
+	budget: {
+		name: string,
+		code: string,
+	} | null,
+): string {
+	if(!budget) return ''
+	return `${budget.name} (${budget.code})`
+}
+
+export function formatBudgetPlan(
+	budgetPlan: {
+		startDate: string | Date,
+		endDate: string | Date,
+	} | null,
+): string {
+	if(!budgetPlan) return ''
+	return `${formatDate(budgetPlan.startDate, 'compact')} - ${formatDate(budgetPlan.endDate, 'compact')}`
+}
+
+export function formatBudgetPlanItem(
+	budgetPlanItem: {
+		ord: number | null,
+		title: string,
+	} | null,
+): string {
+	if(!budgetPlanItem) return ''
+	return `${budgetPlanItem.title} (${budgetPlanItem.ord ?? '–'})`
 }

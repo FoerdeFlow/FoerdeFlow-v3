@@ -36,7 +36,7 @@ const authStore = useAuthStore()
 							h2.kern-title {{ item.title }}
 							h3.kern-subline(v-if="item.subline") {{ item.subline }}
 						section.kern-card__body(v-if="item.description")
-							p.kern-body {{ item.description }}
+							KernText(:text="item.description")
 						footer.kern-card__footer
 							NuxtLink.kern-btn.kern-btn--primary(
 								:to="item.link"

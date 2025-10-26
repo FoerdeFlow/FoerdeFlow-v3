@@ -3,7 +3,8 @@ const props = defineProps<{
 	id: string
 }>()
 
-const model = defineModel<number | null>({
+// string is used for readonly mode where the formatted currency string is shown
+const model = defineModel<number | string | null>({
 	required: true,
 })
 </script>

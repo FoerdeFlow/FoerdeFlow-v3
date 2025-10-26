@@ -133,6 +133,7 @@
 	},
 	"expenseAuthorization": {
 		"title": "Ausgabeermächtigungen",
+		"mutationTitle": "Daten zur Ausgabeermächtigung",
 		"menu": {
 			"title": "Ausgabeermächtigungen",
 			"description": "Ausgabeermächtigungen sind Genehmigungen des Studierendenparlaments oder des Allgemeinen Studierendenausschusses über Ausgaben, welche im Einzelfall den Betrag von 150 Euro überschreiten.",

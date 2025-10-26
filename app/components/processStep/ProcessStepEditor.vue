@@ -7,9 +7,8 @@ const dialog = useTemplateRef<typeof KernDialog>('dialog')
 const itemId = ref<string | null>(null)
 
 interface Model {
-	code: string
-	name: string
-	description: string | null
+	status: 'pending' | 'completed' | 'failed'
+	comment: string | null
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -18,24 +17,22 @@ const modified = computed(() => {
 	return JSON.stringify(itemModel.value) !== JSON.stringify(model.value)
 })
 
+const step = ref<{
+	type: 'comment' | 'approval' | 'task'
+} | null>(null)
+
 function openDialog(id: string | null, data: Model) {
 	if(!dialog.value) return
 	itemId.value = id
 	itemModel.value = structuredClone(data)
 	model.value = structuredClone(data)
+	step.value = data.step
 	dialog.value.show()
 }
 
 defineExpose({
-	create() {
-		openDialog(null, {
-			code: '',
-			name: '',
-			description: null,
-		})
-	},
-	async edit(id: string) {
-		const item = await $fetch(`/api/workflows/${id}`)
+	async open(id: string) {
+		const item = await $fetch(`/api/processSteps/${id}`)
 		openDialog(id, item)
 	},
 })
@@ -52,24 +49,17 @@ function cancel() {
 async function save() {
 	if(!dialog.value) return
 	try {
-		if(itemId.value) {
-			await $fetch(`/api/workflows/${itemId.value}`, {
-				method: 'PUT',
-				body: model.value,
-			})
-		} else {
-			await $fetch('/api/workflows', {
-				method: 'POST',
-				body: model.value,
-			})
-		}
+		await $fetch(`/api/processSteps/${itemId.value}`, {
+			method: 'PUT',
+			body: model.value,
+		})
 		dialog.value.hide()
 		emit('refresh')
 	} catch(e: unknown) {
 		if(e instanceof FetchError) {
 			dialog.value.showAlert({
 				type: 'danger',
-				title: `Fehler bei der ${itemId.value ? 'Bearbeitung' : 'Erstellung'}`,
+				title: 'Fehler bei der Bearbeitung',
 				text: e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.',
 			})
 		}
@@ -80,13 +70,15 @@ async function save() {
 <template lang="pug">
 KernDialog(
 	ref="dialog"
-	:title="`Workflow ${itemId ? 'bearbeiten' : 'erstellen'}`"
+	title="Prozessschritt bearbeiten"
 	:modal="modified"
 	@cancel="cancel"
 	@save="save"
 )
-	template(v-if="model")
-		WorkflowCodeInput(v-model="model.code")
-		WorkflowNameInput(v-model="model.name")
-		WorkflowDescriptionInput(v-model="model.description")
+	template(v-if="model && step")
+		ProcessStepStatusInput(
+			v-model="model.status"
+			:type="step.type"
+		)
+		ProcessStepCommentInput(v-model="model.comment")
 </template>

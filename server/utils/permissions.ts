@@ -345,6 +345,11 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'workflowProcesses.create',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
 		id: 'permissions.read',
 		scope: 'global',
 		assignable: true,

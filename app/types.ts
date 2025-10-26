@@ -1,7 +1,10 @@
 import type {
 	AttendanceStatusSelect,
+	BudgetSelect,
+	BudgetPlanSelect,
 	BudgetPlanItemSelect,
 	BuildingSelect,
+	ExpenseAuthorizationForm,
 	GenderSelect,
 	MembershipEndReasonSelect,
 	MembershipTypeSelect,
@@ -16,6 +19,8 @@ import type {
 } from '#components'
 
 export type AttendanceStatus = InstanceType<typeof AttendanceStatusSelect>['$props']['modelValue']
+export type Budget = InstanceType<typeof BudgetSelect>['$props']['modelValue']
+export type BudgetPlan = InstanceType<typeof BudgetPlanSelect>['$props']['modelValue']
 export type BudgetPlanItem = InstanceType<typeof BudgetPlanItemSelect>['$props']['modelValue']
 export type Building = InstanceType<typeof BuildingSelect>['$props']['modelValue']
 export type Gender = InstanceType<typeof GenderSelect>['$props']['modelValue']
@@ -26,6 +31,8 @@ export type OrganizationType = InstanceType<typeof OrganizationTypeSelect>['$pro
 export type Person = InstanceType<typeof PersonSelect>['$props']['modelValue']
 export type Room = InstanceType<typeof RoomSelect>['$props']['modelValue']
 export type WorkflowStepType = InstanceType<typeof WorkflowStepTypeSelect>['$props']['modelValue']
+
+export type ExpenseAuthorizationFormModel = InstanceType<typeof ExpenseAuthorizationForm>['$props']['modelValue']
 
 export type KernCardNavItems = InstanceType<typeof KernCardNav>['$props']['items']
 export type KernTaskListItems = InstanceType<typeof KernTaskList>['$props']['items']

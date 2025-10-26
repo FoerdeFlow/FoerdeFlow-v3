@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const props = defineProps<{
 	text: string
+	size?: 'small' | 'normal'
+	muted?: boolean
 }>()
 
 const text = computed(() => ({
@@ -38,6 +40,10 @@ const text = computed(() => ({
 p.mb-2.kern-body(
 	v-for="(paragraph, idx) in text.paragraphs"
 	:key="idx"
+	:class=`{
+		'kern-body--small': props.size === 'small',
+		'kern-body--muted': props.muted,
+	}`
 )
 	template(
 		v-for="(line, lineIdx) in paragraph.lines"

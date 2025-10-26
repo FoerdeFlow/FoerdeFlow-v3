@@ -66,6 +66,14 @@ const navigationItems: KernCardNavItems = [
 		permission: 'workflows.read',
 	},
 	{
+		preline: 'Prozesse',
+		title: 'Meine Prozesse',
+		link: '/processes',
+		linkLabel: 'Liste anzeigen',
+		// TODO
+		// permission: 'workflowProcesses.read',
+	},
+	{
 		preline: 'Berechtigungen',
 		title: 'Rollen',
 		link: '/roles',

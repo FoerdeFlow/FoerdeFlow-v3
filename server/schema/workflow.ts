@@ -8,13 +8,20 @@ import {
 } from 'drizzle-orm/pg-core'
 
 import { relations } from 'drizzle-orm'
+import { persons } from './person'
 import { organizationItems } from './organizationItem'
 
 export const workflows = pgTable('workflows', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	code: varchar({ length: 32 }).notNull(),
 	name: varchar({ length: 256 }).notNull(),
+	description: varchar({ length: 1024 }),
 })
+
+export const workflowsRelations = relations(workflows, ({ many }) => ({
+	steps: many(workflowSteps),
+	mutations: many(workflowMutations),
+}))
 
 export const workflowParticipants = pgEnum('workflow_participants', [
 	'initiator',
@@ -39,6 +46,10 @@ export const workflowSteps = pgTable('workflow_steps', {
 })
 
 export const workflowStepsRelations = relations(workflowSteps, ({ one }) => ({
+	workflow: one(workflows, {
+		fields: [ workflowSteps.workflow ],
+		references: [ workflows.id ],
+	}),
 	assigneeOrganizationItem: one(organizationItems, {
 		fields: [ workflowSteps.assigneeOrganizationItem ],
 		references: [ organizationItems.id ],
@@ -58,18 +69,49 @@ export const workflowMutations = pgTable('workflow_mutations', {
 	action: workflowMutationActions().notNull(),
 })
 
+export const workflowMutationsRelations = relations(workflowMutations, ({ one }) => ({
+	workflow: one(workflows, {
+		fields: [ workflowMutations.workflow ],
+		references: [ workflows.id ],
+	}),
+}))
+
 export const workflowStatuses = pgEnum('workflow_statuses', [
 	'pending',
 	'completed',
 	'failed',
 ])
 
+export const workflowInitiator = pgEnum('workflow_initiator', [
+	'person',
+	'organizationItem',
+])
+
 export const workflowProcesses = pgTable('workflow_processes', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	workflow: uuid().notNull().references(() => workflows.id),
 	status: workflowStatuses().notNull().default('pending'),
-	initiator: uuid().references(() => organizationItems.id),
+	initiatorType: workflowInitiator().notNull(),
+	initiatorPerson: uuid().references(() => persons.id),
+	initiatorOrganizationItem: uuid().references(() => organizationItems.id),
 })
+
+export const workflowProcessesRelations = relations(workflowProcesses, ({ one, many }) => ({
+	workflow: one(workflows, {
+		fields: [ workflowProcesses.workflow ],
+		references: [ workflows.id ],
+	}),
+	initiatorPerson: one(persons, {
+		fields: [ workflowProcesses.initiatorPerson ],
+		references: [ persons.id ],
+	}),
+	initiatorOrganizationItem: one(organizationItems, {
+		fields: [ workflowProcesses.initiatorOrganizationItem ],
+		references: [ organizationItems.id ],
+	}),
+	steps: many(workflowProcessSteps),
+	mutations: many(workflowProcessMutations),
+}))
 
 export const workflowStepStatuses = pgEnum('workflow_step_statuses', [
 	'pending',
@@ -85,6 +127,17 @@ export const workflowProcessSteps = pgTable('workflow_process_steps', {
 	comment: varchar({ length: 1024 }),
 })
 
+export const workflowProcessStepsRelations = relations(workflowProcessSteps, ({ one }) => ({
+	process: one(workflowProcesses, {
+		fields: [ workflowProcessSteps.process ],
+		references: [ workflowProcesses.id ],
+	}),
+	step: one(workflowSteps, {
+		fields: [ workflowProcessSteps.step ],
+		references: [ workflowSteps.id ],
+	}),
+}))
+
 export const workflowProcessMutations = pgTable('workflow_process_mutations', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	process: uuid().notNull().references(() => workflowProcesses.id, { onDelete: 'cascade' }),
@@ -92,3 +145,14 @@ export const workflowProcessMutations = pgTable('workflow_process_mutations', {
 	dataId: uuid(),
 	data: jsonb(),
 })
+
+export const workflowProcessMutationsRelations = relations(workflowProcessMutations, ({ one }) => ({
+	process: one(workflowProcesses, {
+		fields: [ workflowProcessMutations.process ],
+		references: [ workflowProcesses.id ],
+	}),
+	mutation: one(workflowMutations, {
+		fields: [ workflowProcessMutations.mutation ],
+		references: [ workflowMutations.id ],
+	}),
+}))
