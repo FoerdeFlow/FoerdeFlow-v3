@@ -6,3 +6,5 @@ ToDos:
 - Haushaltspläne (beschlossene)
 - Anträge für HHP
 - I18n
+
+- Globale Nachrichten (Wartungsfenster)
