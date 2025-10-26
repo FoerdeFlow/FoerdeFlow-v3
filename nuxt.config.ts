@@ -21,7 +21,10 @@ export default defineNuxtConfig({
 	},
 	app: {
 		head: {
-			title: 'FördeFlow',
+			title: 'FördeFlow | StuPa HAW Kiel',
+			link: [
+				{ rel: 'icon', type: 'image/png', href: '/favicon.png' },
+			],
 			htmlAttrs: {
 				lang: 'de',
 			},
