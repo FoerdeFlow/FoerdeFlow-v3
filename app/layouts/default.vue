@@ -2,6 +2,8 @@
 const authStore = useAuthStore()
 const alertStore = useAlertStore()
 
+const { data: announcements } = await useFetch('/api/announcements')
+
 const displayName = computed(() => authStore.userInfo.person
 	? `${authStore.userInfo.person.callName ?? authStore.userInfo.person.firstName} ${authStore.userInfo.person.lastName}`
 	: 'Gast')
@@ -12,6 +14,18 @@ const displayName = computed(() => authStore.userInfo.person
 	.kern-container
 		.kern-kopfzeile__content
 			span.kern-kopfzeile__label Studierendenparlament der HAW Kiel
+template(v-if="announcements && announcements.length > 0")
+	.kern-container.mt-4(
+		aria-live="polite"
+	)
+		KernAlert(
+			v-for="(announcement, idx) of announcements"
+			:key="idx"
+			type="info"
+			:title="announcement.title"
+			:text="announcement.text"
+		)
+	hr.kern-divider(aria-hidden="true")
 header.kern-container.mt-4
 	template(v-if="authStore.loggedIn")
 		.flex.flex-col.justify-between.gap-2.mb-4(class="md:flex-row")

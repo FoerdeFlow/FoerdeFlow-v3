@@ -355,6 +355,26 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'announcements.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'announcements.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'announcements.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'announcements.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
 		id: 'roles.read',
 		scope: 'global',
 		assignable: false,

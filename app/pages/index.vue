@@ -74,6 +74,13 @@ const navigationItems: KernCardNavItems = [
 		// permission: 'workflowProcesses.read',
 	},
 	{
+		preline: 'Konfiguration',
+		title: 'Ankündigungen',
+		link: '/announcements',
+		linkLabel: 'Liste anzeigen',
+		permission: 'announcements.create',
+	},
+	{
 		preline: 'Berechtigungen',
 		title: 'Rollen',
 		link: '/roles',

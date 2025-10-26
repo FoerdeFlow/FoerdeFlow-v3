@@ -10,3 +10,5 @@ export * from '../schema/budget'
 export * from '../schema/expenseAuthorization'
 
 export * from '../schema/workflow'
+
+export * from '../schema/configuration'
