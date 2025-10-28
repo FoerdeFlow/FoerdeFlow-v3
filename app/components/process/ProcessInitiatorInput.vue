@@ -37,5 +37,15 @@ function onTypeChange() {
 	OrganizationItemSelect(
 		:id="`${id}-organizationItem`"
 		v-model="organizationItemModel"
+		:filtered-ids=`
+			authStore.userInfo.permissions
+				.filter(permission => permission.permission === 'workflowProcesses.create')
+				.some(permission => permission.organizationItem === false)
+				? undefined
+				: authStore.userInfo.permissions
+					.filter(permission => permission.permission === 'workflowProcesses.create')
+					.map(permission => permission.organizationItem)
+					.filter(item => typeof item === 'string')
+		`
 	)
 </template>
