@@ -54,7 +54,7 @@ KernTable.mt-8(
 	:create-permission="null"
 	:update-permission="null"
 	:delete-permission="null"
-	show-actions
+	:show-actions="data?.status !== 'completed'"
 	:data="data?.steps ?? []"
 )
 	template(#stage-header)

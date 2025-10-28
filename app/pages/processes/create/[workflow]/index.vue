@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import type { KernTaskListItems } from '~/types'
+import type { KernTaskListItems, OrganizationItem } from '~/types'
 import { ExpenseAuthorizationForm } from '#components'
 
 const route = useRoute('processes-create-workflow')
+const authStore = useAuthStore()
 
 const { data: workflow } = useFetch(`/api/workflows/${route.params.workflow}`)
 const { data: mutations } = useFetch('/api/workflowMutations', {
 	query: {
 		workflow: route.params.workflow,
 	},
+})
+
+const metaModel = ref({
+	initiatorType: 'person' as 'person' | 'organizationItem',
+	initiatorOrganizationItem: null as OrganizationItem,
 })
 
 const model = ref({
@@ -39,6 +45,23 @@ const valid = computed(() => forms.value
 )
 
 const items = computed<KernTaskListItems>(() => [
+	{
+		title: 'Daten zur*zum Anforderer*in',
+		tasks: [
+			{
+				id: 'meta-role',
+				label: 'Rolle auswählen',
+				status:
+					metaModel.value.initiatorType === 'person' ||
+					(
+						metaModel.value.initiatorType === 'organizationItem' &&
+						metaModel.value.initiatorOrganizationItem
+					)
+						? 'done'
+						: 'open',
+			},
+		],
+	},
 	...(forms.value?.map((form) => ({
 		title: form.title,
 		tasks: form.tasks,
@@ -62,6 +85,8 @@ const selectedItemTask = computed(() => flatItems.value[selectedItemIndex.value]
 
 async function create() {
 	const body = {
+		initiatorType: metaModel.value.initiatorType,
+		initiatorOrganizationItem: metaModel.value.initiatorOrganizationItem?.id ?? null,
 		workflow: route.params.workflow,
 		mutations: (mutations.value ?? []).map((mutation) => ({
 			mutation: mutation.id,
@@ -78,10 +103,11 @@ async function create() {
 			),
 		})),
 	}
-	await $fetch('/api/processes', {
+	const response = await $fetch('/api/processes', {
 		method: 'POST',
 		body,
 	})
+	await navigateTo(`/processes/view/${response.id}`)
 }
 </script>
 
@@ -102,6 +128,27 @@ header
 			h2.kern-heading-medium(
 				v-if="selectedItemTask"
 			) Schritt {{ selectedItemIndex + 1 }}: {{ selectedItemTask.label }}
+			template(v-if="selectedItem === 'meta-role'")
+				ProcessInitiatorInput(
+					v-model:type="metaModel.initiatorType"
+					v-model:organization-item="metaModel.initiatorOrganizationItem"
+				)
+			template(v-if="selectedItem === 'summary'")
+				KernSummary(
+					:number="1"
+					title="Angaben zur Anforderer*in"
+					:items=`[
+						{
+							key: 'Anforderer*in',
+							value: metaModel.initiatorType === 'person'
+								? (authStore.userInfo.person ? formatPerson(authStore.userInfo.person) : 'Gast')
+								: metaModel.initiatorOrganizationItem
+									? formatOrganizationItem(metaModel.initiatorOrganizationItem)
+									: 'Keine Angabe',
+						},
+					]`
+					@click.prevent="selectedItem = 'meta-role'"
+				)
 			template(
 				v-for="(form, idx) of mutationForms"
 				:key="idx"
@@ -111,6 +158,7 @@ header
 					ref="forms"
 					v-model="model.expenseAuthorization"
 					:selected-item="selectedItem"
+					:summary-offset="mutationForms.slice(0, idx).map(form => form.summaryItems).reduce((a, b) => a + b, 1)"
 				)
 			.kern-container(
 				v-if="selectedItemTask"

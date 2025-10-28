@@ -5,6 +5,9 @@ export function checkPermission(
 	scope: {
 		organizationItem?: string
 	} = {},
+	options: {
+		exactScopeMatch?: boolean
+	} = {},
 ) {
 	const event = useEvent()
 	const context = event.context as EventContext
@@ -19,7 +22,11 @@ export function checkPermission(
 
 	if(!context.user.permissions.some((item) =>
 		item.permission === permission &&
-		(item.organizationItem === null || item.organizationItem === scope.organizationItem),
+		(
+			item.organizationItem === false ||
+			(!options.exactScopeMatch && item.organizationItem === null) ||
+			item.organizationItem === scope.organizationItem
+		),
 	)) {
 		throw createError({
 			statusCode: 403,

@@ -70,7 +70,10 @@ export async function getPersonRoles(person: string) {
 	return occupants.map((occupant) => occupant.role)
 }
 
-export async function getRolePermissions(role: string) {
+export async function getRolePermissions(role: string): Promise<{
+	permission: string
+	organizationItem: string | null | false
+}[]> {
 	const database = useDatabase()
 
 	return await database.query.rolePermissions.findMany({

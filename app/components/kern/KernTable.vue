@@ -8,9 +8,9 @@ const props = defineProps<{
 		width?: string
 		class?: string
 	})[]
-	createPermission: string | null
-	updatePermission: string | null
-	deletePermission: string | null
+	createPermission: string | true | null
+	updatePermission: string | true | null
+	deletePermission: string | true | null
 	showActions?: boolean
 	showFooter?: boolean
 	data: T[]
@@ -36,15 +36,15 @@ const columns = computed(() =>
 
 const authStore = useAuthStore()
 
-const createAllowed = computed(() =>
-	Boolean(props.createPermission && authStore.hasPermission(props.createPermission, props.scope).value),
-)
-const updateAllowed = computed(() =>
-	Boolean(props.updatePermission && authStore.hasPermission(props.updatePermission, props.scope).value),
-)
-const deleteAllowed = computed(() =>
-	Boolean(props.deletePermission && authStore.hasPermission(props.deletePermission, props.scope).value),
-)
+function checkAllowed(permission: string | true | null) {
+	if(permission === null) return false
+	if(permission === true) return true
+	return authStore.hasPermission(permission, props.scope).value
+}
+
+const createAllowed = computed(() => checkAllowed(props.createPermission))
+const updateAllowed = computed(() => checkAllowed(props.updatePermission))
+const deleteAllowed = computed(() => checkAllowed(props.deletePermission))
 
 const showActions = computed(() => props.showActions || updateAllowed.value || deleteAllowed.value)
 </script>

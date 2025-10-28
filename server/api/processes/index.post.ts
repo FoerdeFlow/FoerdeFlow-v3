@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm'
-import { PgTable } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 import type { EventContext } from '~~/server/types'
@@ -9,15 +8,11 @@ const mutationTargetTables = {
 } as const
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('workflowProcesses.create')
-
 	const body = await readValidatedBody(event, async (data) => await z.strictObject({
 		...createInsertSchema(workflowProcesses).omit({
 			id: true,
 			status: true,
-			initiatorType: true,
 			initiatorPerson: true,
-			initiatorOrganizationItem: true,
 		}).shape,
 		mutations: z.array(z.strictObject({
 			mutation: z.uuid(),
@@ -26,14 +21,43 @@ export default defineEventHandler(async (event) => {
 		})),
 	}).parseAsync(data))
 
+	switch(body.initiatorType) {
+		case 'person':
+			if(body.initiatorOrganizationItem) {
+				throw createError({
+					statusCode: 400,
+					message: 'initiatorOrganizationItem darf nicht gesetzt sein',
+				})
+			}
+			await checkPermission('workflowProcesses.create')
+			break
+		case 'organizationItem':
+			if(!body.initiatorOrganizationItem) {
+				throw createError({
+					statusCode: 400,
+					message: 'initiatorOrganizationItem ist erforderlich',
+				})
+			}
+			await checkPermission(
+				'workflowProcesses.create',
+				{ organizationItem: body.initiatorOrganizationItem },
+				{ exactScopeMatch: true },
+			)
+			break
+	}
+
 	const database = useDatabase()
 
 	return await database.transaction(async (tx) => {
 		const [ result = null ] = await tx.insert(workflowProcesses)
 			.values({
 				...body,
-				initiatorType: 'person',
-				initiatorPerson: (event.context as EventContext).user?.person?.id,
+				...(body.initiatorType === 'person'
+					? {
+						initiatorPerson: (event.context as EventContext).user?.person?.id,
+					}
+					: {}
+				),
 			})
 			.returning({
 				id: workflowProcesses.id,

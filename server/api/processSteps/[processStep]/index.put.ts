@@ -1,6 +1,7 @@
 import { createUpdateSchema } from 'drizzle-zod'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import type { EventContext } from '~~/server/types'
 
 export default defineEventHandler(async (event) => {
 	const database = useDatabase()
@@ -22,7 +23,10 @@ export default defineEventHandler(async (event) => {
 			.update(workflowProcessSteps)
 			.set(body)
 			.where(eq(workflowProcessSteps.id, params.processStep))
-			.returning({ process: workflowProcessSteps.process })
+			.returning({
+				process: workflowProcessSteps.process,
+				step: workflowProcessSteps.step,
+			})
 
 		if(!result) {
 			throw createError({
@@ -38,6 +42,9 @@ export default defineEventHandler(async (event) => {
 			where: eq(workflowProcesses.id, result.process),
 			columns: {
 				status: true,
+				initiatorType: true,
+				initiatorPerson: true,
+				initiatorOrganizationItem: true,
 			},
 		})
 
@@ -51,7 +58,58 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
-		if(process.status !== 'pending') {
+		const step = await tx.query.workflowSteps.findFirst({
+			where: eq(workflowSteps.id, result.step),
+			columns: {
+				assignee: true,
+				assigneeOrganizationItem: true,
+			},
+		})
+
+		if(!step) {
+			throw createError({
+				statusCode: 404,
+				statusMessage: 'Workflow-Schritt nicht gefunden',
+				data: {
+					stepId: result.step,
+				},
+			})
+		}
+
+		switch(step.assignee) {
+			case 'initiator':
+				switch(process.initiatorType) {
+					case 'person':
+						if(
+							process.initiatorPerson !==
+							(event.context as EventContext).user?.person?.id
+						) {
+							throw createError({
+								statusCode: 403,
+								statusMessage: 'Forbidden',
+								data: 'User is not the initiator of the process',
+							})
+						}
+						break
+					case 'organizationItem':
+						await checkPermission(
+							'workflowProcesses.update',
+							{ organizationItem: process.initiatorOrganizationItem ?? '' },
+							{ exactScopeMatch: true },
+						)
+						break
+				}
+				break
+			case 'organizationItem':
+				await checkPermission(
+					'workflowProcesses.update',
+					{ organizationItem: step.assigneeOrganizationItem ?? '' },
+					{ exactScopeMatch: true },
+				)
+				break
+		}
+
+		if(process.status === 'completed') {
 			throw createError({
 				statusCode: 400,
 				statusMessage: 'Prozess kann nicht mehr bearbeitet werden',

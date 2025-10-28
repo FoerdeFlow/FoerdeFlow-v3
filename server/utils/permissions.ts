@@ -350,8 +350,8 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
-		id: 'permissions.read',
-		scope: 'global',
+		id: 'workflowProcesses.update',
+		scope: 'organizationItem',
 		assignable: true,
 	},
 	{
@@ -371,6 +371,11 @@ export const availablePermissions = [
 	},
 	{
 		id: 'announcements.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'permissions.read',
 		scope: 'global',
 		assignable: true,
 	},

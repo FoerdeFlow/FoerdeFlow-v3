@@ -85,6 +85,7 @@ export const rolePermissions = pgTable('role_permissions', {
 }, (table) => [
 	unique().on(
 		table.role,
+		table.organizationItem,
 		table.permission,
 	),
 ])

@@ -23,9 +23,16 @@ const { data: permissions } = useFetch('/api/permissions', {
 
 const scope = ref<OrganizationItem>(null)
 
-const relations = computed(() => permissions.value
-	.filter(({ id }) => id.endsWith('.read'))
-	.map(({ id }) => id.split('.')[0] ?? ''))
+const relations = computed(() => [ ...new Set(
+	permissions.value
+		.filter(({ id }) =>
+			id.endsWith('.read') ||
+			id.endsWith('.create') ||
+			id.endsWith('.update') ||
+			id.endsWith('.delete'),
+		)
+		.map(({ id }) => id.split('.')[0] ?? ''),
+) ])
 
 const actions = [
 	'read',

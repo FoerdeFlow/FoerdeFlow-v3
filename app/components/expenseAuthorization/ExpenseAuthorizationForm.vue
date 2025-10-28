@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import type { BudgetPlanItem, ExpenseAuthorizationItemInput, KernTaskListItems } from '~/types'
 
+defineOptions({
+	summaryItems: 3,
+})
+
 const props = defineProps<{
 	selectedItem: string | null
 	readonly?: boolean
+	summaryOffset?: number
 }>()
 
 const emit = defineEmits<{
@@ -71,7 +76,7 @@ template(v-if="props.selectedItem === 'expense-authorization-amount-and-items'")
 	ExpenseAuthorizationItemsInput(v-model="model.items")
 template(v-if="props.selectedItem === 'summary'")
 	KernSummary(
-		:number="1"
+		:number="(props.summaryOffset ?? 0) + 1"
 		title="Angaben zum Haushaltstitel"
 		:items=`[
 			{
@@ -91,7 +96,7 @@ template(v-if="props.selectedItem === 'summary'")
 		@click.prevent="emit('select', 'expense-authorization-plan-item')"
 	)
 	KernSummary(
-		:number="2"
+		:number="(props.summaryOffset ?? 0) + 2"
 		title="Beschreibung der Ausgabeermächtigung"
 		:items=`[
 			{
@@ -107,7 +112,7 @@ template(v-if="props.selectedItem === 'summary'")
 		@click.prevent="emit('select', 'expense-authorization-plan-item')"
 	)
 	KernSummary(
-		:number="3"
+		:number="(props.summaryOffset ?? 0) + 3"
 		title="Betrag und Kostenaufstellung"
 		:items=`[
 			{

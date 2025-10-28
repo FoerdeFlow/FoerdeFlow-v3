@@ -2,7 +2,11 @@
 const authStore = useAuthStore()
 const alertStore = useAlertStore()
 
-const { data: announcements } = await useFetch('/api/announcements')
+const { data: announcements } = await useFetch('/api/announcements', {
+	query: {
+		filter: 'active',
+	},
+})
 
 const displayName = computed(() => authStore.userInfo.person
 	? `${authStore.userInfo.person.callName ?? authStore.userInfo.person.firstName} ${authStore.userInfo.person.lastName}`

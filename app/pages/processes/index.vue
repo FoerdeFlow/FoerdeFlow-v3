@@ -39,7 +39,7 @@ KernTable(
 	template(#status-header)
 		| Status
 	template(#status-body="{ item }")
-		| {{ formatProcessStatus(item.status) }}
+		ProcessStatusBadge(:status="item.status")
 	template(#assignee-header)
 		| Zuständig
 	template(#assignee-body="{ item }")

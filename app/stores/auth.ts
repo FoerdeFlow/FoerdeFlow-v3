@@ -20,7 +20,11 @@ export const useAuthStore = defineStore('auth', () => {
 		return computed(() =>
 			userInfo.value.permissions.some((item) =>
 				item.permission === permission &&
-				(item.organizationItem === null || item.organizationItem === scope.organizationItem),
+				(
+					item.organizationItem === false ||
+					item.organizationItem === null ||
+					item.organizationItem === scope.organizationItem
+				),
 			),
 		)
 	}

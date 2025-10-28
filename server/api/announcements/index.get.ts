@@ -1,5 +1,13 @@
-export default defineEventHandler(async (_event) => {
-	await checkPermission('announcements.read')
+import { z } from 'zod'
+
+export default defineEventHandler(async (event) => {
+	const query = await getValidatedQuery(event, async (data) => await z.strictObject({
+		filter: z.enum([ 'active' ]).optional(),
+	}).parseAsync(data))
+
+	if(query.filter !== 'active') {
+		await checkPermission('announcements.read')
+	}
 
 	const database = useDatabase()
 

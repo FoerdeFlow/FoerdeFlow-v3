@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
 	const permissions = roles.some((role) => role.isAdmin)
 		? availablePermissions.map((permission) => ({
 			permission: permission.id,
-			organizationItem: null,
+			organizationItem: false,
 		}))
 		: (await Promise.all(
 			roles.map(async (role) => await getRolePermissions(role.id)),
