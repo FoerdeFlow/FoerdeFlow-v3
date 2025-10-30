@@ -7,6 +7,15 @@ const { data } = useFetch(() => `/api/workflows/${route.params.workflow}`)
 
 const subPages: KernCardNavItems = [
 	{
+		title: 'Zugelassene Initiatoren',
+		link: {
+			name: 'workflows-workflow-allowedInitiators',
+			params: { workflow: route.params.workflow },
+		},
+		linkLabel: 'Zugelassene Initiatoren anzeigen',
+		permission: 'workflowAllowedInitiators.read',
+	},
+	{
 		title: 'Workflow-Schritte',
 		link: {
 			name: 'workflows-workflow-steps',

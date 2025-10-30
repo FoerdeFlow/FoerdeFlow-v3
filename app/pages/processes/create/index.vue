@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import type { KernCardNavItems } from '~/types'
 
-const { data } = useFetch('/api/workflows')
+const { data } = useFetch('/api/workflows', {
+	query: {
+		filter: 'mine',
+	},
+})
 
 const navigationItems = computed(() =>
 	(data.value?.map((workflow) => ({

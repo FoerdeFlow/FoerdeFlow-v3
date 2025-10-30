@@ -132,6 +132,7 @@ header
 				ProcessInitiatorInput(
 					v-model:type="metaModel.initiatorType"
 					v-model:organization-item="metaModel.initiatorOrganizationItem"
+					:allowed-initiators="workflow?.allowedInitiators"
 				)
 			template(v-if="selectedItem === 'summary'")
 				KernSummary(

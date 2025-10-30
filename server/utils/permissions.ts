@@ -305,6 +305,26 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'workflowAllowedInitiators.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowAllowedInitiators.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowAllowedInitiators.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowAllowedInitiators.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
 		id: 'workflowSteps.read',
 		scope: 'global',
 		assignable: true,

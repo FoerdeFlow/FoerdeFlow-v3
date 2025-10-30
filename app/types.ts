@@ -11,6 +11,7 @@ import type {
 	OrganizationItemSelect,
 	OrganizationTypeSelect,
 	PersonSelect,
+	RoleSelect,
 	RoomSelect,
 	WorkflowStepTypeSelect,
 
@@ -29,6 +30,7 @@ export type MembershipType = InstanceType<typeof MembershipTypeSelect>['$props']
 export type OrganizationItem = InstanceType<typeof OrganizationItemSelect>['$props']['modelValue']
 export type OrganizationType = InstanceType<typeof OrganizationTypeSelect>['$props']['modelValue']
 export type Person = InstanceType<typeof PersonSelect>['$props']['modelValue']
+export type Role = InstanceType<typeof RoleSelect>['$props']['modelValue']
 export type Room = InstanceType<typeof RoomSelect>['$props']['modelValue']
 export type WorkflowStepType = InstanceType<typeof WorkflowStepTypeSelect>['$props']['modelValue']
 

@@ -21,6 +21,27 @@ export default defineEventHandler(async (event) => {
 		})),
 	}).parseAsync(data))
 
+	const database = useDatabase()
+
+	const allowedInitiators = await database.query.workflowAllowedInitiators.findMany({
+		where: eq(workflowAllowedInitiators.workflow, body.workflow),
+		columns: {
+			person: true,
+			role: true,
+			organizationItem: true,
+			organizationType: true,
+		},
+	})
+	const context = event.context as EventContext
+	const organizationTypeResult = body.initiatorOrganizationItem
+		? await database.query.organizationItems.findFirst({
+			where: eq(organizationItems.id, body.initiatorOrganizationItem),
+			columns: {
+				organizationType: true,
+			},
+		})
+		: null
+
 	switch(body.initiatorType) {
 		case 'person':
 			if(body.initiatorOrganizationItem) {
@@ -30,6 +51,15 @@ export default defineEventHandler(async (event) => {
 				})
 			}
 			await checkPermission('workflowProcesses.create')
+			if(!allowedInitiators.some((item) =>
+				item.person === context.user?.person?.id ||
+				context.user?.roles.some((role) => item.role === role.id),
+			)) {
+				throw createError({
+					statusCode: 403,
+					message: 'Fehlende Berechtigung zur Initiierung dieses Workflows',
+				})
+			}
 			break
 		case 'organizationItem':
 			if(!body.initiatorOrganizationItem) {
@@ -43,10 +73,17 @@ export default defineEventHandler(async (event) => {
 				{ organizationItem: body.initiatorOrganizationItem },
 				{ exactScopeMatch: true },
 			)
+			if(!allowedInitiators.some((item) =>
+				item.organizationItem === body.initiatorOrganizationItem ||
+				item.organizationType === organizationTypeResult?.organizationType,
+			)) {
+				throw createError({
+					statusCode: 403,
+					message: 'Fehlende Berechtigung zur Initiierung dieses Workflows',
+				})
+			}
 			break
 	}
-
-	const database = useDatabase()
 
 	return await database.transaction(async (tx) => {
 		const [ result = null ] = await tx.insert(workflowProcesses)

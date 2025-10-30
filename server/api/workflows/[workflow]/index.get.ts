@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('workflows.read')
+	// await checkPermission('workflows.read')
 
 	const database = useDatabase()
 
@@ -12,6 +12,27 @@ export default defineEventHandler(async (event) => {
 
 	const workflow = await database.query.workflows.findFirst({
 		where: eq(workflows.id, params.workflow),
+		with: {
+			allowedInitiators: {
+				with: {
+					person: true,
+					role: true,
+					organizationType: {
+						with: {
+							items: true,
+						},
+					},
+					organizationItem: true,
+				},
+				columns: {
+					workflow: false,
+					person: false,
+					role: false,
+					organizationType: false,
+					organizationItem: false,
+				},
+			},
+		},
 	})
 
 	if(!workflow) {

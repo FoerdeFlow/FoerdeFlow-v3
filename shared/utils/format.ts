@@ -229,3 +229,13 @@ export function formatBudgetPlanItem(
 	if(!budgetPlanItem) return ''
 	return `${budgetPlanItem.title} (${budgetPlanItem.ord ?? '–'})`
 }
+
+export function formatRole(
+	role: {
+		name: string,
+		code: string,
+	} | null,
+): string {
+	if(!role) return ''
+	return `${role.name} (${role.code})`
+}

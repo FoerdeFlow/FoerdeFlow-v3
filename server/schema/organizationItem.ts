@@ -15,6 +15,10 @@ export const organizationTypes = pgTable('organization_types', {
 	name: varchar({ length: 256 }).notNull().unique(),
 })
 
+export const organizationTypesRelations = relations(organizationTypes, ({ many }) => ({
+	items: many(organizationItems),
+}))
+
 export const organizationItems = pgTable('organization_items', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	organizationType: uuid().notNull().references(() => organizationTypes.id),

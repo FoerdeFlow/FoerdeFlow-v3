@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm'
 import {
 	integer,
 	jsonb,
@@ -7,9 +8,9 @@ import {
 	varchar,
 } from 'drizzle-orm/pg-core'
 
-import { relations } from 'drizzle-orm'
 import { persons } from './person'
-import { organizationItems } from './organizationItem'
+import { roles } from './accessControl'
+import { organizationTypes, organizationItems } from './organizationItem'
 
 export const workflows = pgTable('workflows', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
@@ -19,8 +20,41 @@ export const workflows = pgTable('workflows', {
 })
 
 export const workflowsRelations = relations(workflows, ({ many }) => ({
+	allowedInitiators: many(workflowAllowedInitiators),
 	steps: many(workflowSteps),
 	mutations: many(workflowMutations),
+}))
+
+export const workflowAllowedInitiators = pgTable('workflow_allowed_initiators', {
+	id: uuid().notNull().primaryKey().defaultRandom(),
+	workflow: uuid().notNull().references(() => workflows.id, { onDelete: 'cascade' }),
+	person: uuid().references(() => persons.id, { onDelete: 'cascade' }),
+	role: uuid().references(() => roles.id, { onDelete: 'cascade' }),
+	organizationType: uuid().references(() => organizationTypes.id, { onDelete: 'cascade' }),
+	organizationItem: uuid().references(() => organizationItems.id, { onDelete: 'cascade' }),
+})
+
+export const workflowAllowedInitiatorsRelations = relations(workflowAllowedInitiators, ({ one }) => ({
+	workflow: one(workflows, {
+		fields: [ workflowAllowedInitiators.workflow ],
+		references: [ workflows.id ],
+	}),
+	person: one(persons, {
+		fields: [ workflowAllowedInitiators.person ],
+		references: [ persons.id ],
+	}),
+	role: one(roles, {
+		fields: [ workflowAllowedInitiators.role ],
+		references: [ roles.id ],
+	}),
+	organizationType: one(organizationTypes, {
+		fields: [ workflowAllowedInitiators.organizationType ],
+		references: [ organizationTypes.id ],
+	}),
+	organizationItem: one(organizationItems, {
+		fields: [ workflowAllowedInitiators.organizationItem ],
+		references: [ organizationItems.id ],
+	}),
 }))
 
 export const workflowParticipants = pgEnum('workflow_participants', [
