@@ -17,6 +17,22 @@ export default defineEventHandler(async (event) => {
 		await createUpdateSchema(persons).omit({ id: true }).parseAsync(data))
 
 	await database.transaction(async (tx) => {
+		const person = await tx.query.persons.findFirst({
+			where: eq(persons.id, params.person),
+			columns: {
+				email: true,
+			},
+		})
+		if(!person) {
+			throw createError({
+				statusCode: 404,
+				statusMessage: 'Person nicht gefunden',
+				data: {
+					personId: params.person,
+				},
+			})
+		}
+
 		const result = await tx.update(persons).set(body).where(eq(persons.id, params.person))
 		if(result.rowCount === 0) {
 			throw createError({
@@ -32,7 +48,7 @@ export default defineEventHandler(async (event) => {
 		const [ [ { id } ] ] = await client.presenters.search_users({
 			permission_type: 'organization',
 			permission_id: 1,
-			search: [ { saml_id: body.email } ],
+			search: [ { saml_id: person.email } ],
 		})
 		await client.user.update({
 			id,
