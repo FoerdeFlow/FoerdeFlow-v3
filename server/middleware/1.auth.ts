@@ -22,6 +22,12 @@ export default defineEventHandler(async (event) => {
 			})),
 		} satisfies EventContext['user']
 		return
+	} else if(getHeader(event, 'x-foerdeflow-api-key')) {
+		throw createError({
+			statusCode: 401,
+			statusMessage: 'Unauthorized',
+			data: 'Invalid API key',
+		})
 	}
 
 	if(!session.data.userId) {
