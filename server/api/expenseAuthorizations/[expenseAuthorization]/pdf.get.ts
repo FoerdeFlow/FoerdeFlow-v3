@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
 	const result = await $fetch(`/api/expenseAuthorizations/${params.expenseAuthorization}`, {
 		headers: {
 			cookie: getHeader(event, 'cookie') ?? '',
+			'x-foerdeflow-api-key': getHeader(event, 'x-foerdeflow-api-key') ?? '',
 		},
 	})
 

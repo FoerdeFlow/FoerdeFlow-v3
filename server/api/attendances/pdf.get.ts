@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
 	const result = await $fetch('/api/attendances', {
 		headers: {
 			cookie: getHeader(event, 'cookie') ?? '',
+			'x-foerdeflow-api-key': getHeader(event, 'x-foerdeflow-api-key') ?? '',
 		},
 		params: {
 			session: query.session,

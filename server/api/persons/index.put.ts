@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
 			method: 'POST',
 			headers: {
 				cookie: getHeader(event, 'cookie') ?? '',
+				'x-foerdeflow-api-key': getHeader(event, 'x-foerdeflow-api-key') ?? '',
 			},
 			body,
 		})
@@ -46,6 +47,7 @@ export default defineEventHandler(async (event) => {
 		method: 'PUT',
 		headers: {
 			cookie: getHeader(event, 'cookie') ?? '',
+			'x-foerdeflow-api-key': getHeader(event, 'x-foerdeflow-api-key') ?? '',
 		},
 		body,
 	})
