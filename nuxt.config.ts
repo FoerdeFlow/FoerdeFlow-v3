@@ -61,6 +61,7 @@ export default defineNuxtConfig({
 			name: 'foerdeflow',
 		},
 		externalURL: 'http://localhost:3000',
+		apiKey: '00000000000000000000000000000000',
 		sessionSecret: '00000000000000000000000000000000',
 		oidcProvider: {
 			clientId: 'dev',

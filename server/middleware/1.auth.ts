@@ -1,10 +1,28 @@
 import { eq } from 'drizzle-orm'
-import type { EventContextUser } from '../types'
+import type { EventContext } from '../types'
 
 export default defineEventHandler(async (event) => {
 	const runtimeConfig = useRuntimeConfig()
 	const database = useDatabase()
 	const session = await useSession(event, { password: runtimeConfig.sessionSecret })
+
+	if(getHeader(event, 'x-foerdeflow-api-key') === runtimeConfig.apiKey) {
+		event.context.user = {
+			roles: [
+				{
+					id: 'api-key',
+					code: 'API',
+					name: 'Administrative access via API key',
+					isAdmin: true,
+				},
+			],
+			permissions: availablePermissions.map((permission) => ({
+				permission: permission.id,
+				organizationItem: false,
+			})),
+		} satisfies EventContext['user']
+		return
+	}
 
 	if(!session.data.userId) {
 		const roles = await getAnonymousRoles()
@@ -15,7 +33,7 @@ export default defineEventHandler(async (event) => {
 		event.context.user = {
 			roles,
 			permissions,
-		} satisfies EventContextUser
+		} satisfies EventContext['user']
 		return
 	}
 
@@ -49,5 +67,5 @@ export default defineEventHandler(async (event) => {
 		memberships,
 		roles,
 		permissions,
-	} satisfies EventContextUser
+	} satisfies EventContext['user']
 })
