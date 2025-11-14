@@ -169,6 +169,20 @@
       "when": 1761693477869,
       "tag": "0023_complex_next_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1762901494329,
+      "tag": "0024_perpetual_lord_hawal",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1762989210112,
+      "tag": "0025_gray_jigsaw",
+      "breakpoints": true
     }
   ]
 }

@@ -239,3 +239,11 @@ export function formatRole(
 	if(!role) return ''
 	return `${role.name} (${role.code})`
 }
+
+export function formatDocumentNumber(period: number, number: number): string {
+	const periodCode = [
+		(period % 100).toString().padStart(2, '0'),
+		((period + 1) % 100).toString().padStart(2, '0'),
+	].join('')
+	return `${periodCode}-${number.toString().padStart(3, '0')}`
+}

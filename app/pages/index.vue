@@ -52,6 +52,13 @@ const navigationItems: KernCardNavItems = [
 		permission: 'rooms.read',
 	},
 	{
+		preline: 'Vorlagen',
+		title: 'Vorlagenarten',
+		link: '/documentTypes',
+		linkLabel: 'Liste anzeigen',
+		permission: 'documentTypes.read',
+	},
+	{
 		preline: 'Finanzen',
 		title: 'Haushalte',
 		link: '/budgets',

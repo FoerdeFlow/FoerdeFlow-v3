@@ -5,6 +5,7 @@ export * from '../schema/organizationItem'
 export * from '../schema/organizationItemGroup'
 export * from '../schema/person'
 export * from '../schema/session'
+export * from '../schema/document'
 
 export * from '../schema/budget'
 export * from '../schema/expenseAuthorization'

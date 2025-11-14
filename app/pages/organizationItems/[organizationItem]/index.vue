@@ -43,6 +43,16 @@ const subPages: KernCardNavItems = [
 		linkLabel: 'Sitzungen anzeigen',
 		permission: 'sessions.read',
 	},
+	{
+		title: 'Vorlagen',
+		description: 'Übersicht über die Vorlagen',
+		link: {
+			name: 'organizationItems-organizationItem-documents',
+			params: { organizationItem: route.params.organizationItem },
+		},
+		linkLabel: 'Vorlagen anzeigen',
+		permission: 'documents.read',
+	},
 ]
 </script>
 
