@@ -45,6 +45,10 @@ async function remove({ id }: { id: string }) {
 const scope = computed(() => ({
 	organizationItem: route.params.organizationItem,
 }))
+
+function openOpenslides(id: string) {
+	window.open(`/api/sessions/${id}/openslides`, '_blank')
+}
 </script>
 
 <template lang="pug">
@@ -90,6 +94,11 @@ KernTable(
 		)
 			span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
 			span.kern-label.kern-sr-only Aufrufen
+		button.kern-btn.kern-btn--tertiary(
+			@click="openOpenslides(item.id)"
+		)
+			span.kern-icon.kern-icon--open-in-new(aria-hidden="true")
+			span.kern-label.kern-sr-only In OpenSlides öffnen
 SessionEditor(
 	ref="dialog"
 	:organization-item="route.params.organizationItem"
