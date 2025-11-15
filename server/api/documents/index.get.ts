@@ -1,30 +1,27 @@
 import { stat } from 'node:fs/promises'
-import { inArray } from 'drizzle-orm'
-import type { EventContext } from '~~/server/types'
+import { z } from 'zod'
+import { and, asc, eq, isNotNull } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
-	const context = event.context as EventContext
+	const query = await getValidatedQuery(event, async (data) => await z.object({
+		organizationItem: z.uuid(),
+		published: z.enum([ 'yes', 'all' ]).default('yes').optional(),
+	}).parseAsync(data))
 
-	const allowedOrganizationItems = context.user?.permissions
-		.filter((item) => item.permission === 'documents.read')
-		.map((item) => item.organizationItem)
+	await checkPermission('documents.read', { organizationItem: query.organizationItem })
 
-	if(!allowedOrganizationItems || allowedOrganizationItems.length === 0) {
-		throw createError({
-			statusCode: 403,
-			statusMessage: 'Forbidden',
-			data: 'User does not have permission to read documents',
-		})
+	if(query.published === 'all') {
+		await checkPermission('documents.update', { organizationItem: query.organizationItem })
 	}
 
 	const database = useDatabase()
 
 	const result = await database.query.documents.findMany({
-		...(allowedOrganizationItems.some((item) => item === null || item === false)
-			? {}
-			: { where: inArray(documents.organizationItem, allowedOrganizationItems as string[]) }),
+		where: and(
+			eq(documents.organizationItem, query.organizationItem),
+			...(query.published === 'yes' ? [ isNotNull(documents.number) ] : []),
+		),
 		with: {
-			organizationItem: true,
 			type: true,
 			authorOrganizationItem: true,
 			authorPerson: true,
@@ -35,6 +32,10 @@ export default defineEventHandler(async (event) => {
 			authorOrganizationItem: false,
 			authorPerson: false,
 		},
+		orderBy: [
+			asc(documents.period),
+			asc(documents.number),
+		],
 	})
 
 	return await Promise.all(result.map(async (document) => ({

@@ -8,11 +8,10 @@ const number = ref<number | null>(null)
 
 const valid = computed(() =>
 	period.value !== null &&
-	number.value !== null &&
 	!Number.isNaN(period.value) &&
 	!Number.isNaN(number.value) &&
 	period.value > 1000 &&
-	number.value > 0,
+	(number.value === null || number.value > 0),
 )
 
 watch([ periodModel, numberModel ], ([ newPeriod, newNumber ]) => {
@@ -48,7 +47,7 @@ watchEffect(() => {
 			type="text"
 			inputmode="numeric"
 		)
-p.kern-text(v-if="valid && periodModel && numberModel")
+p.kern-text(v-if="valid && periodModel")
 	b Vorlagennummer:
 	|
 	| {{ formatDocumentNumber(periodModel, numberModel) }}

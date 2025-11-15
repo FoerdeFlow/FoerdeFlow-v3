@@ -14,7 +14,7 @@ export const documents = pgTable('documents', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	organizationItem: uuid().notNull().references(() => organizationItems.id),
 	period: integer().notNull(),
-	number: integer().notNull(),
+	number: integer(),
 	type: uuid().notNull().references(() => documentTypes.id),
 	authorOrganizationItem: uuid().references(() => organizationItems.id),
 	authorPerson: uuid().references(() => persons.id),

@@ -38,6 +38,10 @@ export default defineEventHandler(async (event) => {
 
 	await checkPermission('documents.read', { organizationItem: document.organizationItem.id })
 
+	if(document.number === null) {
+		await checkPermission('documents.update', { organizationItem: document.organizationItem.id })
+	}
+
 	return {
 		...document,
 		hasContent: await stat(`./data/${params.document}.pdf`).then((it) => it.isFile()).catch(() => false),

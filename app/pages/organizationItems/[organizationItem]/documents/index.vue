@@ -4,7 +4,15 @@ import type { DocumentEditor, DocumentContentEditor } from '#components'
 
 const authStore = useAuthStore()
 const route = useRoute('organizationItems-organizationItem-documents')
-const { data, refresh } = useFetch('/api/documents')
+const { data, refresh } = useFetch('/api/documents', {
+	query: {
+		organizationItem: route.params.organizationItem,
+		published: authStore
+			.hasPermission('documents.update', { organizationItem: route.params.organizationItem }).value
+			? 'all'
+			: 'yes',
+	},
+})
 
 const alertStore = useAlertStore()
 const confirmDialogStore = useConfirmDialogStore()

@@ -240,10 +240,11 @@ export function formatRole(
 	return `${role.name} (${role.code})`
 }
 
-export function formatDocumentNumber(period: number, number: number): string {
+export function formatDocumentNumber(period: number, number: number | null): string {
 	const periodCode = [
 		(period % 100).toString().padStart(2, '0'),
 		((period + 1) % 100).toString().padStart(2, '0'),
 	].join('')
-	return `${periodCode}-${number.toString().padStart(3, '0')}`
+	const numberCode = number?.toString().padStart(3, '0') ?? 'XXX'
+	return `${periodCode}-${numberCode}`
 }
