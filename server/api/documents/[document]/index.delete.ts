@@ -1,4 +1,4 @@
-import { unlink } from 'node:fs/promises'
+import { stat, unlink } from 'node:fs/promises'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
 	await checkPermission('documents.delete', { organizationItem: result.organizationItem })
 
-	await unlink(`./data/${params.document}.pdf`)
+	await unlink(`./data/${params.document}.pdf`).catch(() => { /* ignore */ })
 
 	await database
 		.delete(documents)
