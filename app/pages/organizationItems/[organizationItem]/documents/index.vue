@@ -18,6 +18,7 @@ const alertStore = useAlertStore()
 const confirmDialogStore = useConfirmDialogStore()
 const editor = useTemplateRef<typeof DocumentEditor>('editor')
 const contentEditor = useTemplateRef<typeof DocumentContentEditor>('contentEditor')
+const transferDialog = useTemplateRef<typeof DocumentTransferDialog>('transferDialog')
 
 function create() {
 	if(!editor.value) return
@@ -56,6 +57,11 @@ function downloadDocument(id: string) {
 function uploadDocument(id: string) {
 	if(!contentEditor.value) return
 	contentEditor.value.edit(id)
+}
+
+function transferToOpenslides(id: string) {
+	if(!transferDialog.value) return
+	transferDialog.value.transfer(id)
 }
 </script>
 
@@ -115,6 +121,12 @@ KernTable(
 		)
 			span.kern-icon.kern-icon--drive-folder-upload(aria-hidden="true")
 			span.kern-label.kern-sr-only Dokument bearbeiten
+		button.kern-btn.kern-btn--tertiary(
+			v-if="item.hasContent && authStore.hasPermission('documents.update', { organizationItem: route.params.organizationItem }).value"
+			@click="transferToOpenslides(item.id)"
+		)
+			span.kern-icon.kern-icon--content-copy(aria-hidden="true")
+			span.kern-label.kern-sr-only Zu OpenSlides übertragen
 DocumentEditor(
 	ref="editor"
 	:organization-item="route.params.organizationItem"
@@ -123,5 +135,9 @@ DocumentEditor(
 DocumentContentEditor(
 	ref="contentEditor"
 	@refresh="refresh"
+)
+DocumentTransferDialog(
+	ref="transferDialog"
+	:organization-item="route.params.organizationItem"
 )
 </template>

@@ -14,6 +14,7 @@ import type {
 	PersonSelect,
 	RoleSelect,
 	RoomSelect,
+	SessionSelect,
 	WorkflowStepTypeSelect,
 
 	KernCardNav,
@@ -34,6 +35,7 @@ export type OrganizationType = InstanceType<typeof OrganizationTypeSelect>['$pro
 export type Person = InstanceType<typeof PersonSelect>['$props']['modelValue']
 export type Role = InstanceType<typeof RoleSelect>['$props']['modelValue']
 export type Room = InstanceType<typeof RoomSelect>['$props']['modelValue']
+export type Session = InstanceType<typeof SessionSelect>['$props']['modelValue']
 export type WorkflowStepType = InstanceType<typeof WorkflowStepTypeSelect>['$props']['modelValue']
 
 export type ExpenseAuthorizationFormModel = InstanceType<typeof ExpenseAuthorizationForm>['$props']['modelValue']
