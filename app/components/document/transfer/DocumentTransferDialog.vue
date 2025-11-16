@@ -60,7 +60,7 @@ async function save() {
 <template lang="pug">
 KernDialog(
 	ref="dialog"
-	title="Dokument der Vorlage bearbeiten"
+	title="Vorlage in OpenSlides übertragen"
 	:modal="true"
 	@cancel="cancel"
 	@save="save"
