@@ -51,6 +51,10 @@ async function remove({ id }: { id: string }) {
 }
 
 const scope = computed(() => ({ organizationItem: budgetPlanData.value?.budget.organizationItem ?? '' }))
+
+function openAsPdf({ id }: { id: string }) {
+	window.open(`/api/expenseAuthorizations/${id}/pdf`, '_blank')
+}
 </script>
 
 <template lang="pug">
@@ -96,6 +100,11 @@ KernTable(
 		)
 			span.kern-icon.kern-icon--visibility(aria-hidden="true")
 			span.kern-label.kern-sr-only Anzeigen
+		button.kern-btn.kern-btn--tertiary(
+			@click="openAsPdf(item)"
+		)
+			span.kern-icon.kern-icon--open-in-new(aria-hidden="true")
+			span.kern-label.kern-sr-only Als PDF öffnen
 ExpenseAuthorizationEditor(
 	ref="editor"
 	:budget-plan="route.params.plan"
