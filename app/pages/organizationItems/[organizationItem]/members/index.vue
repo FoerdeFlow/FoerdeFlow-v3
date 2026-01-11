@@ -82,7 +82,11 @@ KernTable(
 		br
 		| Mitglied
 	template(#member-body="{ item }")
-		em {{ item.membershipType.name }} ({{ item.membershipType.code }})
+		em
+			| {{ item.membershipType.name }} ({{ item.membershipType.code }})
+			template(v-if="item.comment")
+				|
+				| – {{ item.comment }}
 		br
 		template(v-if="item.memberType === 'person'")
 			| {{ item.memberPerson.callName || item.memberPerson.firstName }} {{ item.memberPerson.lastName }}
