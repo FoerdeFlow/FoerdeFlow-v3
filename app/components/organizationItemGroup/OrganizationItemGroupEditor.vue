@@ -63,7 +63,6 @@ async function save() {
 	if(!dialog.value || !model.value) return
 	try {
 		const body = {
-			organizationItem: props.organizationItem,
 			groupName: model.value.groupName,
 			roleName: model.value.roleName,
 			isSessionParticipant: model.value.isSessionParticipant,
@@ -80,7 +79,10 @@ async function save() {
 		} else {
 			await $fetch('/api/organizationItemGroups', {
 				method: 'POST',
-				body,
+				body: {
+					organizationItem: props.organizationItem,
+					...body,
+				},
 			})
 		}
 		dialog.value.hide()
