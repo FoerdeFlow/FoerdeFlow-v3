@@ -12,6 +12,12 @@ export default defineEventHandler(async (event) => {
 
 	const person = await database.query.persons.findFirst({
 		where: eq(persons.id, params.person),
+		with: {
+			course: true,
+		},
+		columns: {
+			course: false,
+		},
 	})
 
 	if(!person) {

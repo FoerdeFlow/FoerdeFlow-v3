@@ -1,7 +1,8 @@
 import type { EventContext } from '../types'
+import type { Permission } from './permissions'
 
 export function checkPermission(
-	permission: string,
+	permission: Permission,
 	scope: {
 		organizationItem?: string
 	} = {},

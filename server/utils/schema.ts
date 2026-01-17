@@ -9,6 +9,8 @@ export * from '../schema/document'
 
 export * from '../schema/budget'
 export * from '../schema/expenseAuthorization'
+export * from '../schema/university'
+export * from '../schema/candidate'
 
 export * from '../schema/workflow'
 

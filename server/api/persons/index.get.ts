@@ -15,6 +15,12 @@ export default defineEventHandler(async (event) => {
 				where: (persons, { eq }) => eq(persons.email, query.email ?? ''),
 			}
 			: {}),
+		with: {
+			course: true,
+		},
+		columns: {
+			course: false,
+		},
 		orderBy: (persons, { asc }) => [
 			asc(persons.lastName),
 			asc(persons.firstName),

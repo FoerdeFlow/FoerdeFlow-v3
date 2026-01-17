@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 import { KernDialog } from '#components'
-import type { Gender } from '~/types'
+import type { Course, Gender } from '~/types'
 
 const dialog = useTemplateRef<typeof KernDialog>('dialog')
 
@@ -14,6 +14,9 @@ interface Model {
 	callName: string | null
 	gender: Gender
 	pronouns: string | null
+	matriculationNumber: number | null
+	postalAddress: string | null
+	course: Course
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -39,6 +42,9 @@ defineExpose({
 			callName: null,
 			gender: null,
 			pronouns: null,
+			matriculationNumber: null,
+			postalAddress: null,
+			course: null,
 		})
 	},
 	async edit(id: string) {
@@ -59,15 +65,19 @@ function cancel() {
 async function save() {
 	if(!dialog.value) return
 	try {
+		const body = {
+			...model.value,
+			course: model.value?.course?.id ?? null,
+		}
 		if(itemId.value) {
 			await $fetch(`/api/persons/${itemId.value}`, {
 				method: 'PUT',
-				body: model.value,
+				body,
 			})
 		} else {
 			await $fetch('/api/persons', {
 				method: 'POST',
-				body: model.value,
+				body,
 			})
 		}
 		dialog.value.hide()
@@ -101,6 +111,9 @@ KernDialog(
 					PersonLastNameInput(v-model="model.lastName")
 			.kern-row
 				.kern-col
+					PersonEmailInput(v-model="model.email")
+			.kern-row
+				.kern-col
 					PersonCallNameInput(v-model="model.callName")
 			.kern-row
 				.kern-col
@@ -109,5 +122,10 @@ KernDialog(
 					PersonPronounsInput(v-model="model.pronouns")
 			.kern-row
 				.kern-col
-					PersonEmailInput(v-model="model.email")
+					PersonMatriculationNumberInput(v-model="model.matriculationNumber")
+				.kern-col
+					PersonCourseInput(v-model="model.course")
+			.kern-row
+				.kern-col
+					PersonPostalAddressInput(v-model="model.postalAddress")
 </template>

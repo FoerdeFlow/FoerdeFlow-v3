@@ -38,6 +38,34 @@ const navigationItems: KernCardNavItems = [
 		permission: 'persons.read',
 	},
 	{
+		preline: 'Hochschule',
+		title: 'Fachbereiche',
+		link: '/departments',
+		linkLabel: 'Liste anzeigen',
+		permission: 'departments.read',
+	},
+	{
+		preline: 'Hochschule',
+		title: 'Fachschaften',
+		link: '/councils',
+		linkLabel: 'Liste anzeigen',
+		permission: 'councils.read',
+	},
+	{
+		preline: 'Hochschule',
+		title: 'Abschlüsse',
+		link: '/courseTypes',
+		linkLabel: 'Liste anzeigen',
+		permission: 'courseTypes.read',
+	},
+	{
+		preline: 'Hochschule',
+		title: 'Studiengänge',
+		link: '/courses',
+		linkLabel: 'Liste anzeigen',
+		permission: 'courses.read',
+	},
+	{
 		preline: 'Campus',
 		title: 'Gebäude',
 		link: '/building',
@@ -64,6 +92,13 @@ const navigationItems: KernCardNavItems = [
 		link: '/budgets',
 		linkLabel: 'Liste anzeigen',
 		permission: 'budgets.read',
+	},
+	{
+		preline: 'Wahlen',
+		title: 'Wahlen',
+		link: '/elections',
+		linkLabel: 'Liste anzeigen',
+		permission: 'elections.read',
 	},
 	{
 		preline: 'Prozesse',

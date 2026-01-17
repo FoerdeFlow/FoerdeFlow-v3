@@ -225,6 +225,166 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'departments.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'departments.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'departments.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'departments.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'councils.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'councils.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'councils.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'councils.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'courseTypes.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'courseTypes.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'courseTypes.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'courseTypes.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'courses.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'courses.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'courses.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'courses.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'elections.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'elections.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'elections.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'elections.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'electionCommittees.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'electionCommittees.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'electionCommittees.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'electionCommittees.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'electionProposals.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'electionProposals.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'electionProposals.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'electionProposals.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'candidates.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'candidates.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'candidates.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'candidates.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
 		id: 'documentTypes.read',
 		scope: 'global',
 		assignable: true,
@@ -494,8 +654,10 @@ export const availablePermissions = [
 		scope: 'global',
 		assignable: false,
 	},
-] satisfies {
+] as const satisfies {
 	id: string
 	scope: 'global' | 'organizationItem'
 	assignable: boolean
 }[]
+
+export type Permission = typeof availablePermissions[number]['id']

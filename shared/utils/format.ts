@@ -248,3 +248,52 @@ export function formatDocumentNumber(period: number, number: number | null): str
 	const numberCode = number?.toString().padStart(3, '0') ?? 'XXX'
 	return `${periodCode}-${numberCode}`
 }
+
+export function formatCouncil(
+	council: {
+		code: string,
+		name: string,
+	} | null,
+): string {
+	if(!council) return ''
+	return `${council.name} (${council.code})`
+}
+
+export function formatDepartment(
+	department: {
+		code: string,
+		name: string,
+	} | null,
+): string {
+	if(!department) return ''
+	return `${department.name} (${department.code})`
+}
+
+export function formatCourse(
+	course: {
+		code: string,
+		name: string,
+	} | null,
+): string {
+	if(!course) return ''
+	return `${course.name} (${course.code})`
+}
+
+export function formatCourseType(
+	courseType: {
+		code: string,
+		name: string,
+	} | null,
+): string {
+	if(!courseType) return ''
+	return `${courseType.name} (${courseType.code})`
+}
+
+export function formatElection(
+	election: {
+		title: string,
+	} | null,
+): string {
+	if(!election) return ''
+	return election.title
+}

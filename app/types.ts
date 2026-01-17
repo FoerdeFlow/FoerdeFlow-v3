@@ -4,6 +4,10 @@ import type {
 	BudgetPlanSelect,
 	BudgetPlanItemSelect,
 	BuildingSelect,
+	CouncilSelect,
+	CourseSelect,
+	CourseTypeSelect,
+	DepartmentSelect,
 	DocumentTypeSelect,
 	ExpenseAuthorizationForm,
 	GenderSelect,
@@ -26,6 +30,10 @@ export type Budget = InstanceType<typeof BudgetSelect>['$props']['modelValue']
 export type BudgetPlan = InstanceType<typeof BudgetPlanSelect>['$props']['modelValue']
 export type BudgetPlanItem = InstanceType<typeof BudgetPlanItemSelect>['$props']['modelValue']
 export type Building = InstanceType<typeof BuildingSelect>['$props']['modelValue']
+export type Council = InstanceType<typeof CouncilSelect>['$props']['modelValue']
+export type Course = InstanceType<typeof CourseSelect>['$props']['modelValue']
+export type CourseType = InstanceType<typeof CourseTypeSelect>['$props']['modelValue']
+export type Department = InstanceType<typeof DepartmentSelect>['$props']['modelValue']
 export type DocumentType = InstanceType<typeof DocumentTypeSelect>['$props']['modelValue']
 export type Gender = InstanceType<typeof GenderSelect>['$props']['modelValue']
 export type MembershipEndReason = InstanceType<typeof MembershipEndReasonSelect>['$props']['modelValue']
