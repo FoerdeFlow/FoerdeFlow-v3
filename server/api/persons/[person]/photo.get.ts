@@ -1,23 +1,19 @@
+import { readFile } from 'node:fs/promises'
 import { eq } from 'drizzle-orm'
-import { existsSync } from 'node:fs'
 import { z } from 'zod'
+import { existsSync } from 'node:fs'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('persons.read')
+	const params = await getValidatedRouterParams(event, async (data) => await z.object({
+		person: z.uuid(),
+	}).parseAsync(data))
 
 	const database = useDatabase()
 
-	const params = await getValidatedRouterParams(event, async (data) => await z.object({
-		person: idSchema,
-	}).parseAsync(data))
-
 	const person = await database.query.persons.findFirst({
 		where: eq(persons.id, params.person),
-		with: {
-			course: true,
-		},
 		columns: {
-			course: false,
+			id: true,
 		},
 	})
 
@@ -31,8 +27,16 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return {
-		...person,
-		hasPhoto: existsSync(`./data/${params.person}`),
+	// TODO: This is technically not the correct permission
+	// However, persons.read would be too broad
+	await checkPermission('organizationItems.read')
+
+	if (!existsSync(`./data/${params.person}`)) {
+		throw createError({
+			statusCode: 404,
+			statusMessage: 'Bild nicht gefunden',
+		})
 	}
+
+	await send(event, await readFile(`./data/${params.person}`))
 })

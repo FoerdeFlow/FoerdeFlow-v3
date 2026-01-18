@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import z from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -28,5 +29,8 @@ export default defineEventHandler(async (event) => {
 		],
 	})
 
-	return persons
+	return persons.map((person) => ({
+		...person,
+		hasPhoto: existsSync(`./data/${person.id}`),
+	}))
 })

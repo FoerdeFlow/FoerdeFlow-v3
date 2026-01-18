@@ -1,23 +1,18 @@
+import { unlink } from 'node:fs/promises'
 import { eq } from 'drizzle-orm'
-import { existsSync } from 'node:fs'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('persons.read')
-
-	const database = useDatabase()
-
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		person: idSchema,
 	}).parseAsync(data))
 
+	const database = useDatabase()
+
 	const person = await database.query.persons.findFirst({
 		where: eq(persons.id, params.person),
-		with: {
-			course: true,
-		},
 		columns: {
-			course: false,
+			id: true,
 		},
 	})
 
@@ -31,8 +26,14 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return {
-		...person,
-		hasPhoto: existsSync(`./data/${params.person}`),
+	await checkPermission('persons.update')
+
+	try {
+		await unlink(`./data/${params.person}`)
+	} catch (_error) {
+		throw createError({
+			statusCode: 404,
+			statusMessage: 'Bild nicht gefunden',
+		})
 	}
 })

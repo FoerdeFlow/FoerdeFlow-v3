@@ -1,23 +1,27 @@
+import { writeFile } from 'node:fs/promises'
 import { eq } from 'drizzle-orm'
-import { existsSync } from 'node:fs'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('persons.read')
-
-	const database = useDatabase()
-
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({
 		person: idSchema,
 	}).parseAsync(data))
 
+	const body = await readRawBody(event, false)
+	if (!body || body.length === 0) {
+		throw createError({
+			statusCode: 400,
+			statusMessage: 'Bad Request',
+			data: 'Image body is empty',
+		})
+	}
+
+	const database = useDatabase()
+
 	const person = await database.query.persons.findFirst({
 		where: eq(persons.id, params.person),
-		with: {
-			course: true,
-		},
 		columns: {
-			course: false,
+			id: true,
 		},
 	})
 
@@ -31,8 +35,7 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return {
-		...person,
-		hasPhoto: existsSync(`./data/${params.person}`),
-	}
+	await checkPermission('persons.update')
+
+	await writeFile(`./data/${params.person}`, body)
 })
