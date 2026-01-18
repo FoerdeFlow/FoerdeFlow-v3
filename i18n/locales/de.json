@@ -23,6 +23,16 @@
 			"sessions": "Sitzungen",
 			"minutes": "Protokolle",
 			"attendances": "Sitzungsteilnahmen",
+			"departments": "Fachbereiche",
+			"councils": "Fachschaften",
+			"courseTypes": "Abschlüsse",
+			"courses": "Studiengänge",
+			"elections": "Wahlen",
+			"electionCommittees": "Wahlgremien",
+			"electionProposals": "Wahlvorschläge",
+			"candidates": "Kandidaturen",
+			"documentTypes": "Vorlagearten",
+			"documents": "Vorlagen",
 			"budgets": "Haushalte",
 			"budgetPlans": "Haushaltspläne",
 			"expenseAuthorizations": "Ausgabeermächtigungen",
@@ -30,7 +40,8 @@
 			"roles": "Rollen",
 			"rolePermissions": "Rollenberechtigungen",
 			"roleOccupants": "Rolleninhaber",
-			"permissions": "Berechtigungen"
+			"permissions": "Berechtigungen",
+			"announcements": "Ankündigungen"
 		}
 	},
 	"budget": {
