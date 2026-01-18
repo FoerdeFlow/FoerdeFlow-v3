@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+import { existsSync } from 'node:fs'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -46,5 +47,11 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return candidate
+	return {
+		...candidate,
+		candidate: {
+			...candidate.candidate,
+			hasPhoto: existsSync(`./data/${candidate.candidate.id}`),
+		},
+	}
 })
