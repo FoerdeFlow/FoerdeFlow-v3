@@ -17,7 +17,7 @@ const displayName = computed(() => authStore.userInfo.person
 .kern-kopfzeile
 	.kern-container
 		.kern-kopfzeile__content
-			span.kern-kopfzeile__label Studierendenparlament der HAW Kiel
+			span.kern-kopfzeile__label Offizielle Website – Studierendenparlament der HAW Kiel
 template(v-if="announcements && announcements.length > 0")
 	.kern-container.mt-4(
 		aria-live="polite"
