@@ -76,6 +76,7 @@ export async function jobNotifyCandidate(
 	await sendMail({
 		to: 'root@localhost',
 		replyTo: data.electionCommittee?.election.email,
+		bcc: data.electionCommittee?.election.email,
 		subject: 'Deine Kandidatur - Unterschrift benötigt',
 		text: `Liebe*r ${formatPerson(data.candidate ?? null)},\n\n` +
 			`anbei findest du deine Kandidatur als PDF-Dokument.\n\n` +

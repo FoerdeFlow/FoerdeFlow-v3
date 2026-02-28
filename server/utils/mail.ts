@@ -1,7 +1,9 @@
 import nodemailer from 'nodemailer'
 
 export async function sendMail(message: {
-	to: string
+	to: string | string[]
+	cc?: string | string[]
+	bcc?: string | string[]
 	subject: string
 	text: string
 	replyTo?: string
@@ -27,6 +29,8 @@ export async function sendMail(message: {
 		from: runtimeConfig.mail.from,
 		replyTo: message.replyTo,
 		to: message.to,
+		cc: message.cc,
+		bcc: message.bcc,
 		subject: message.subject,
 		text: message.text + '\n\n-- \nDiese E-Mail wurde automatisch generiert.',
 		attachments: message.attachments || [],
