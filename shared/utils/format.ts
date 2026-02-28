@@ -15,10 +15,10 @@ const dateFormatter = {
 }
 
 export function formatDate(date: string | Date | null, style: 'verbose' | 'compact' | 'iso' = 'verbose'): string {
-	if(!date) return ''
+	if (!date) return ''
 	try {
 		return dateFormatter[style].format(new Date(date))
-	} catch(_) {
+	} catch (_) {
 		return ''
 	}
 }
@@ -35,10 +35,10 @@ const datetimeFormatter = {
 }
 
 export function formatDatetime(date: string | Date | null, style: 'verbose' | 'compact' = 'verbose'): string {
-	if(!date) return ''
+	if (!date) return ''
 	try {
 		return datetimeFormatter[style].format(new Date(date))
-	} catch(_) {
+	} catch (_) {
 		return ''
 	}
 }
@@ -48,10 +48,10 @@ const timeFormatter = new Intl.DateTimeFormat('de-DE', {
 })
 
 export function formatTime(date: string | Date | null): string {
-	if(!date) return ''
+	if (!date) return ''
 	try {
 		return timeFormatter.format(new Date(date))
-	} catch(_) {
+	} catch (_) {
 		return ''
 	}
 }
@@ -64,10 +64,10 @@ const currencyFormatter = new Intl.NumberFormat('de-DE', {
 export function formatCurrency(
 	value: number | null,
 ): string {
-	if(!value) return ''
+	if (!value) return ''
 	try {
 		return currencyFormatter.format(value)
-	} catch(_) {
+	} catch (_) {
 		return ''
 	}
 }
@@ -78,14 +78,14 @@ export function formatBuilding(
 		name: string
 	} | null,
 ): string {
-	if(!building) return ''
+	if (!building) return ''
 	return `${building.code} (${building.name})`
 }
 
 export function formatRoom(
 	room: { building: { code: string }, code: string, level: number, name: string } | null,
 ): string {
-	if(!room) return ''
+	if (!room) return ''
 	const level = room.level < 0 ? 'K' : room.level
 	return `${room.building.code}-${level}.${room.code} (${room.name})`
 }
@@ -111,9 +111,9 @@ export function formatPerson(
 	} | null,
 	style: 'short' | 'long' = 'short',
 ): string {
-	if(!person) return ''
+	if (!person) return ''
 	let result = `${person.callName ?? person.firstName} ${person.lastName}`
-	if(style === 'long' && person.pronouns) {
+	if (style === 'long' && person.pronouns) {
 		result += ` (${person.pronouns})`
 	}
 	return result
@@ -125,7 +125,7 @@ export function formatOrganizationType(
 		code: string,
 	} | null,
 ): string {
-	if(!item) return ''
+	if (!item) return ''
 	return `${item.name} (${item.code})`
 }
 export function formatOrganizationItem(
@@ -134,7 +134,7 @@ export function formatOrganizationItem(
 		code: string,
 	} | null,
 ): string {
-	if(!item) return ''
+	if (!item) return ''
 	return `${item.name} (${item.code})`
 }
 
@@ -144,7 +144,7 @@ export function formatMembershipType(
 		code: string,
 	} | null,
 ): string {
-	if(!membershipType) return ''
+	if (!membershipType) return ''
 	return `${membershipType.name} (${membershipType.code})`
 }
 
@@ -154,7 +154,7 @@ export function formatMembershipEndReason(
 		code: string,
 	} | null,
 ): string {
-	if(!endReason) return ''
+	if (!endReason) return ''
 	return `${endReason.name} (${endReason.code})`
 }
 
@@ -164,7 +164,7 @@ export function formatWorkflow(
 		code: string,
 	} | null,
 ): string {
-	if(!workflow) return ''
+	if (!workflow) return ''
 	return `${workflow.name} (${workflow.code})`
 }
 
@@ -206,7 +206,7 @@ export function formatBudget(
 		code: string,
 	} | null,
 ): string {
-	if(!budget) return ''
+	if (!budget) return ''
 	return `${budget.name} (${budget.code})`
 }
 
@@ -216,7 +216,7 @@ export function formatBudgetPlan(
 		endDate: string | Date,
 	} | null,
 ): string {
-	if(!budgetPlan) return ''
+	if (!budgetPlan) return ''
 	return `${formatDate(budgetPlan.startDate, 'compact')} - ${formatDate(budgetPlan.endDate, 'compact')}`
 }
 
@@ -226,7 +226,7 @@ export function formatBudgetPlanItem(
 		title: string,
 	} | null,
 ): string {
-	if(!budgetPlanItem) return ''
+	if (!budgetPlanItem) return ''
 	return `${budgetPlanItem.title} (${budgetPlanItem.ord ?? '–'})`
 }
 
@@ -236,7 +236,7 @@ export function formatRole(
 		code: string,
 	} | null,
 ): string {
-	if(!role) return ''
+	if (!role) return ''
 	return `${role.name} (${role.code})`
 }
 
@@ -255,7 +255,7 @@ export function formatCouncil(
 		name: string,
 	} | null,
 ): string {
-	if(!council) return ''
+	if (!council) return ''
 	return `${council.name} (${council.code})`
 }
 
@@ -265,7 +265,7 @@ export function formatDepartment(
 		name: string,
 	} | null,
 ): string {
-	if(!department) return ''
+	if (!department) return ''
 	return `${department.name} (${department.code})`
 }
 
@@ -275,7 +275,7 @@ export function formatCourse(
 		name: string,
 	} | null,
 ): string {
-	if(!course) return ''
+	if (!course) return ''
 	return `${course.name} (${course.code})`
 }
 
@@ -285,7 +285,7 @@ export function formatCourseType(
 		name: string,
 	} | null,
 ): string {
-	if(!courseType) return ''
+	if (!courseType) return ''
 	return `${courseType.name} (${courseType.code})`
 }
 
@@ -294,6 +294,26 @@ export function formatElection(
 		title: string,
 	} | null,
 ): string {
-	if(!election) return ''
+	if (!election) return ''
 	return election.title
+}
+
+export function formatReferencedPerson(
+	reference: string | null,
+	mutations?: {
+		mutation: {
+			table: string,
+		},
+		data: Record<string, unknown>,
+	}[]
+) {
+	if (!reference || !mutations) return ''
+	const [table, ...steps] = reference.split('.')
+
+	let data = mutations.find(m => m.mutation.table === table)?.data
+	while (typeof data === 'object' && data !== null && steps.length > 0) {
+		const step = steps.shift()!
+		data = data[step] as Record<string, unknown> | undefined
+	}
+	return formatPerson(data as any)
 }

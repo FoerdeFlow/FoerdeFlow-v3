@@ -5,6 +5,7 @@ const props = defineProps<{
 	items: {
 		key: string
 		value: string
+		valueImg?: string
 	}[]
 	readonly?: boolean
 }>()
@@ -30,7 +31,10 @@ const id = useId()
 				:key="idx"
 			)
 				dt.kern-description-list-item__key {{ item.key }}
-				dd.kern-description-list-item__value {{ item.value }}
+				dd.kern-description-list-item__value
+					template(v-if="item.valueImg")
+						img(:src="item.valueImg" :alt="item.key" class="max-h-32")
+					template(v-else) {{ item.value }}
 		.kern-summary__actions(v-if="!props.readonly")
 			a.kern-link(
 				:aria-describedby="id"

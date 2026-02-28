@@ -2,13 +2,16 @@
 import type { Course, Election, ElectionCommittee, KernTaskListItems, Person } from '~/types'
 
 defineOptions({
-	summaryItems: 4,
+	summaryItems: 5,
 })
 
 const props = defineProps<{
 	selectedItem: string | null
 	readonly?: boolean
 	summaryOffset?: number
+	processId?: string
+	mutationId?: string
+	attachments?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -24,6 +27,7 @@ interface Model {
 	matriculationNumber: number | null
 	course: Course
 	postalAddress: string
+	photo: File | null
 }
 
 const model = defineModel<Model>({
@@ -55,6 +59,13 @@ defineExpose({
 				: 'blocked',
 		},
 		{
+			id: 'candidate-photo',
+			label: 'Lichtbild erfassen',
+			status: model.value.candidate
+					? model.value.photo ? 'done' : 'open'
+					: 'blocked',
+		},
+		{
 			id: 'candidate-application-letter',
 			label: 'Beschreibung erfassen',
 			status: model.value.candidate
@@ -62,6 +73,17 @@ defineExpose({
 				: 'blocked',
 		},
 	] satisfies KernTaskListItems[number]['tasks']),
+})
+
+const photoUrl = computed(() => {
+	if (props.processId && props.mutationId) {
+		return props.attachments?.includes('photo')
+			? `/api/processes/${props.processId}/attachments/${props.mutationId}_photo`
+			: null
+	}
+	return model.value.photo
+		? URL.createObjectURL(model.value.photo)
+		: null
 })
 </script>
 
@@ -118,6 +140,18 @@ template(v-if="props.selectedItem === 'candidate-person'")
 			PersonCallNameInput(v-model="model.callName")
 		.kern-col-12.kern-col-md-6
 			PersonPronounsInput(v-model="model.pronouns")
+template(v-if="props.selectedItem === 'candidate-photo'")
+	PersonPhotoInput(
+		v-model="model.photo"
+		:readonly="props.readonly"
+	)
+	.mt-8(v-if="model.photo && photoUrl")
+		p.kern-body
+			| Es wurde ein Foto hochgeladen: {{ model.photo.name }} ({{ (model.photo.size / 1024).toFixed(2) }} KB)
+		img(:src="photoUrl" alt="Vorschaubild" class="mt-4 max-w-xs border")
+		button.mt-4.kern-btn.kern-btn--secondary(@click="model.photo = null")
+			span.kern-icon.kern-icon--delete(aria-hidden="true")
+			span.kern-label Bild entfernen
 template(v-if="props.selectedItem === 'candidate-application-letter'")
 	CandidateApplicationLetterInput(
 		v-model="model.applicationLetter"
@@ -186,6 +220,19 @@ template(v-if="props.selectedItem === 'summary'")
 	)
 	KernSummary(
 		:number="(props.summaryOffset ?? 0) + 4"
+		title="Lichtbild der Kandidat*in"
+		:items=`[
+			{
+				key: 'Lichtbild',
+				valueImg: photoUrl || '',
+				value: model.photo ? 'vorhanden' : '–',
+			},
+		]`
+		:readonly="props.readonly"
+		@click.prevent="emit('select', 'candidate-photo')"
+	)
+	KernSummary(
+		:number="(props.summaryOffset ?? 0) + 5"
 		title="Bewerbungsschreiben der Kandidat*in"
 		:items=`[
 			{

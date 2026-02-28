@@ -1,15 +1,23 @@
 import type { ExpenseAuthorizationFormModel, WorkflowCustomCandidateFormModel } from '~/types'
 
 const encoders = {
-	candidates: (model: WorkflowCustomCandidateFormModel) => ({
-		...model,
-		electionCommittee: model.electionCommittee?.id ?? null,
-		candidate: model.candidate?.id ?? null,
-		course: model.course?.id ?? null,
-	}),
+	candidates: (model: WorkflowCustomCandidateFormModel) => {
+		const { photo, ...rest } = model
+		return {
+			data: JSON.stringify({
+				...rest,
+				electionCommittee: model.electionCommittee?.id ?? null,
+				candidate: model.candidate?.id ?? null,
+				course: model.course?.id ?? null,
+			}),
+			attachment_photo: model.photo instanceof File ? model.photo : undefined,
+		}
+	},
 	expenseAuthorizations: (model: ExpenseAuthorizationFormModel) => ({
-		...model,
-		budgetPlanItem: model.budgetPlanItem?.id ?? null,
+		data: JSON.stringify({
+			...model,
+			budgetPlanItem: model.budgetPlanItem?.id ?? null,
+		}),
 	}),
 } as const
 

@@ -14,5 +14,8 @@ export const processSchemas = {
 		}),
 		update: null,
 		delete: null,
+		attachments: [
+			'photo',
+		],
 	},
 } as const

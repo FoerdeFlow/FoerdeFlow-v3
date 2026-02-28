@@ -105,21 +105,31 @@ async function create() {
 		mutations: (mutations.value ?? []).map((mutation) => ({
 			mutation: mutation.id,
 			dataId: null,
-			data: encodeFormModel(
-				// @ts-expect-error | Table is not typed correctly
-				mutation.table,
-				model.value[
-					mutation.table.substring(
-						0,
-						mutation.table.length - 1,
-					) as keyof typeof model.value
-				],
-			),
 		})),
 	}
+
+	const formData = new FormData()
+	formData.append('data', JSON.stringify(body))
+
+	for(const mutation of mutations.value ?? []) {
+		const encodedModel = encodeFormModel(
+			// @ts-expect-error | Table is not typed correctly
+			mutation.table,
+			model.value[
+				mutation.table.substring(
+					0,
+					mutation.table.length - 1,
+				) as keyof typeof model.value
+			],
+		)
+		Object.entries(encodedModel).forEach(([key, value]) => {
+			formData.append(`mutation_${mutation.id}_${key}`, value)
+		})
+	}
+
 	const response = await $fetch('/api/processes', {
 		method: 'POST',
-		body,
+		body: formData,
 	})
 	await navigateTo(`/processes/view/${response.id}`)
 }

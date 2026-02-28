@@ -53,7 +53,10 @@ section.my-8(
 		v-if="mutation.mutation.table === 'candidates'"
 		readonly
 		selected-item="summary"
+		:process-id="route.params.process"
+		:mutation-id="mutation.mutation.id"
 		:model-value="mutation.data"
+		:attachments="mutation.attachments"
 	)
 KernTable.mt-8(
 	caption="Übersicht der Prozessschritte"
@@ -83,6 +86,8 @@ KernTable.mt-8(
 	template(#assignee-body="{ item }")
 		template(v-if="item.step.assignee === 'initiator'")
 			em Anforderer*in
+		template(v-if="item.step.assignee === 'referencedPerson'")
+			| {{ formatReferencedPerson(item.step.assigneeReferencedPerson, data?.mutations) }}
 		template(v-if="item.step.assignee === 'organizationItem'")
 			| {{ formatOrganizationItem(item.step.assigneeOrganizationItem) }}
 	template(#type-header)
