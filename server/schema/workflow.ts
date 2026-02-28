@@ -36,29 +36,30 @@ export const workflowAllowedInitiators = pgTable('workflow_allowed_initiators', 
 
 export const workflowAllowedInitiatorsRelations = relations(workflowAllowedInitiators, ({ one }) => ({
 	workflow: one(workflows, {
-		fields: [ workflowAllowedInitiators.workflow ],
-		references: [ workflows.id ],
+		fields: [workflowAllowedInitiators.workflow],
+		references: [workflows.id],
 	}),
 	person: one(persons, {
-		fields: [ workflowAllowedInitiators.person ],
-		references: [ persons.id ],
+		fields: [workflowAllowedInitiators.person],
+		references: [persons.id],
 	}),
 	role: one(roles, {
-		fields: [ workflowAllowedInitiators.role ],
-		references: [ roles.id ],
+		fields: [workflowAllowedInitiators.role],
+		references: [roles.id],
 	}),
 	organizationType: one(organizationTypes, {
-		fields: [ workflowAllowedInitiators.organizationType ],
-		references: [ organizationTypes.id ],
+		fields: [workflowAllowedInitiators.organizationType],
+		references: [organizationTypes.id],
 	}),
 	organizationItem: one(organizationItems, {
-		fields: [ workflowAllowedInitiators.organizationItem ],
-		references: [ organizationItems.id ],
+		fields: [workflowAllowedInitiators.organizationItem],
+		references: [organizationItems.id],
 	}),
 }))
 
 export const workflowParticipants = pgEnum('workflow_participants', [
 	'initiator',
+	'referencedPerson',
 	'organizationItem',
 ])
 
@@ -76,17 +77,18 @@ export const workflowSteps = pgTable('workflow_steps', {
 	name: varchar({ length: 256 }).notNull(),
 	type: workflowStepTypes().notNull(),
 	assignee: workflowParticipants().notNull(),
+	assigneeReferencedPerson: varchar({ length: 256 }),
 	assigneeOrganizationItem: uuid().references(() => organizationItems.id),
 })
 
 export const workflowStepsRelations = relations(workflowSteps, ({ one }) => ({
 	workflow: one(workflows, {
-		fields: [ workflowSteps.workflow ],
-		references: [ workflows.id ],
+		fields: [workflowSteps.workflow],
+		references: [workflows.id],
 	}),
 	assigneeOrganizationItem: one(organizationItems, {
-		fields: [ workflowSteps.assigneeOrganizationItem ],
-		references: [ organizationItems.id ],
+		fields: [workflowSteps.assigneeOrganizationItem],
+		references: [organizationItems.id],
 	}),
 }))
 
@@ -105,8 +107,8 @@ export const workflowMutations = pgTable('workflow_mutations', {
 
 export const workflowMutationsRelations = relations(workflowMutations, ({ one }) => ({
 	workflow: one(workflows, {
-		fields: [ workflowMutations.workflow ],
-		references: [ workflows.id ],
+		fields: [workflowMutations.workflow],
+		references: [workflows.id],
 	}),
 }))
 
@@ -132,16 +134,16 @@ export const workflowProcesses = pgTable('workflow_processes', {
 
 export const workflowProcessesRelations = relations(workflowProcesses, ({ one, many }) => ({
 	workflow: one(workflows, {
-		fields: [ workflowProcesses.workflow ],
-		references: [ workflows.id ],
+		fields: [workflowProcesses.workflow],
+		references: [workflows.id],
 	}),
 	initiatorPerson: one(persons, {
-		fields: [ workflowProcesses.initiatorPerson ],
-		references: [ persons.id ],
+		fields: [workflowProcesses.initiatorPerson],
+		references: [persons.id],
 	}),
 	initiatorOrganizationItem: one(organizationItems, {
-		fields: [ workflowProcesses.initiatorOrganizationItem ],
-		references: [ organizationItems.id ],
+		fields: [workflowProcesses.initiatorOrganizationItem],
+		references: [organizationItems.id],
 	}),
 	steps: many(workflowProcessSteps),
 	mutations: many(workflowProcessMutations),
@@ -163,12 +165,12 @@ export const workflowProcessSteps = pgTable('workflow_process_steps', {
 
 export const workflowProcessStepsRelations = relations(workflowProcessSteps, ({ one }) => ({
 	process: one(workflowProcesses, {
-		fields: [ workflowProcessSteps.process ],
-		references: [ workflowProcesses.id ],
+		fields: [workflowProcessSteps.process],
+		references: [workflowProcesses.id],
 	}),
 	step: one(workflowSteps, {
-		fields: [ workflowProcessSteps.step ],
-		references: [ workflowSteps.id ],
+		fields: [workflowProcessSteps.step],
+		references: [workflowSteps.id],
 	}),
 }))
 
@@ -182,11 +184,11 @@ export const workflowProcessMutations = pgTable('workflow_process_mutations', {
 
 export const workflowProcessMutationsRelations = relations(workflowProcessMutations, ({ one }) => ({
 	process: one(workflowProcesses, {
-		fields: [ workflowProcessMutations.process ],
-		references: [ workflowProcesses.id ],
+		fields: [workflowProcessMutations.process],
+		references: [workflowProcesses.id],
 	}),
 	mutation: one(workflowMutations, {
-		fields: [ workflowProcessMutations.mutation ],
-		references: [ workflowMutations.id ],
+		fields: [workflowProcessMutations.mutation],
+		references: [workflowMutations.id],
 	}),
 }))

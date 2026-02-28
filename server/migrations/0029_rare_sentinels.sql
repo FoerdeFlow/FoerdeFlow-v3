@@ -1,0 +1,2 @@
+ALTER TYPE "public"."workflow_participants" ADD VALUE 'referencedPerson' BEFORE 'organizationItem';--> statement-breakpoint
+ALTER TABLE "workflow_steps" ADD COLUMN "assignee_referenced_person" varchar(256);

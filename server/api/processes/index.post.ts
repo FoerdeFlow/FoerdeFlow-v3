@@ -42,18 +42,19 @@ export default defineEventHandler(async (event) => {
 		})
 		: null
 
-	switch(body.initiatorType) {
+	switch (body.initiatorType) {
 		case 'person':
-			if(body.initiatorOrganizationItem) {
+			if (body.initiatorOrganizationItem) {
 				throw createError({
 					statusCode: 400,
 					message: 'initiatorOrganizationItem darf nicht gesetzt sein',
 				})
 			}
 			await checkPermission('workflowProcesses.create')
-			if(!allowedInitiators.some((item) =>
+			if (!allowedInitiators.some((item) =>
 				item.person === context.user?.person?.id ||
-				context.user?.roles.some((role) => item.role === role.id),
+				context.user?.roles.some((role) => item.role === role.id) ||
+				Object.entries(item).every(([key, value]) => key === 'id' || value === null),
 			)) {
 				throw createError({
 					statusCode: 403,
@@ -62,7 +63,7 @@ export default defineEventHandler(async (event) => {
 			}
 			break
 		case 'organizationItem':
-			if(!body.initiatorOrganizationItem) {
+			if (!body.initiatorOrganizationItem) {
 				throw createError({
 					statusCode: 400,
 					message: 'initiatorOrganizationItem ist erforderlich',
@@ -73,7 +74,7 @@ export default defineEventHandler(async (event) => {
 				{ organizationItem: body.initiatorOrganizationItem },
 				{ exactScopeMatch: true },
 			)
-			if(!allowedInitiators.some((item) =>
+			if (!allowedInitiators.some((item) =>
 				item.organizationItem === body.initiatorOrganizationItem ||
 				item.organizationType === organizationTypeResult?.organizationType,
 			)) {
@@ -86,7 +87,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	return await database.transaction(async (tx) => {
-		const [ result = null ] = await tx.insert(workflowProcesses)
+		const [result = null] = await tx.insert(workflowProcesses)
 			.values({
 				...body,
 				...(body.initiatorType === 'person'
@@ -100,7 +101,7 @@ export default defineEventHandler(async (event) => {
 				id: workflowProcesses.id,
 				workflow: workflowProcesses.workflow,
 			})
-		if(!result) {
+		if (!result) {
 			throw createError({
 				statusCode: 400,
 				message: 'Prozess konnte nicht erstellt werden',
@@ -114,9 +115,9 @@ export default defineEventHandler(async (event) => {
 				mutations: true,
 			},
 		})
-		if(!workflow) throw createError({ statusCode: 500 })
+		if (!workflow) throw createError({ statusCode: 500 })
 
-		for(const step of workflow.steps) {
+		for (const step of workflow.steps) {
 			await tx.insert(workflowProcessSteps).values({
 				process: result.id,
 				step: step.id,
@@ -124,23 +125,25 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
-		for(const mutation of workflow.mutations) {
+		for (const mutation of workflow.mutations) {
 			const mutationInput = body.mutations.find((item) => item.mutation === mutation.id)
-			if(!mutationInput) {
+			if (!mutationInput) {
 				throw createError({
 					statusCode: 400,
 					message: `Fehlende Eingabedaten für Mutation ${mutation.id}`,
 				})
 			}
 
-			const targetTable = mutationTargetTables[mutation.table as keyof typeof mutationTargetTables]
-			let schema = null
-			switch(mutation.action) {
-				case 'create':
-					schema = createInsertSchema(targetTable).omit({ id: true })
-					break
+			let schema = processSchemas[mutation.table as keyof typeof processSchemas]?.[mutation.action as 'create' | 'update' | 'delete'] as any
+			if (!schema) {
+				const targetTable = mutationTargetTables[mutation.table as keyof typeof mutationTargetTables]
+				switch (mutation.action) {
+					case 'create':
+						schema = createInsertSchema(targetTable).omit({ id: true })
+						break
+				}
 			}
-			if(!schema) {
+			if (!schema) {
 				throw createError({
 					statusCode: 400,
 					message: `Unbekannte Aktion für Mutation ${mutation.id}`,
@@ -148,7 +151,7 @@ export default defineEventHandler(async (event) => {
 			}
 			try {
 				await schema.parseAsync(mutationInput.data)
-			} catch(error) {
+			} catch (error) {
 				throw createError({
 					statusCode: 400,
 					message: `Ungültige Eingabedaten für Mutation ${mutation.id}`,

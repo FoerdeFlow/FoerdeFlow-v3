@@ -16,7 +16,8 @@ interface Model {
 	code: string
 	name: string
 	type: WorkflowStepType
-	assignee: 'initiator' | 'organizationItem'
+	assignee: 'initiator' | 'referencedPerson' | 'organizationItem'
+	assigneeReferencedPerson: string | null
 	assigneeOrganizationItem: OrganizationItem
 }
 const itemModel = ref<Model | null>(null)
@@ -42,6 +43,7 @@ defineExpose({
 			name: '',
 			type: null,
 			assignee: 'initiator',
+			assigneeReferencedPerson: null,
 			assigneeOrganizationItem: null,
 		})
 	},
@@ -53,6 +55,7 @@ defineExpose({
 			name: item.name,
 			type: item.type,
 			assignee: item.assignee,
+			assigneeReferencedPerson: item.assigneeReferencedPerson,
 			assigneeOrganizationItem: item.assigneeOrganizationItem,
 		})
 	},
@@ -76,6 +79,9 @@ async function save() {
 			name: model.value.name,
 			type: model.value.type,
 			assignee: model.value.assignee,
+			assigneeReferencedPerson: model.value.assignee === 'referencedPerson'
+				? model.value.assigneeReferencedPerson
+				: null,
 			assigneeOrganizationItem: model.value.assignee === 'organizationItem'
 				? model.value.assigneeOrganizationItem?.id
 				: null,
@@ -123,6 +129,7 @@ KernDialog(
 		WorkflowStepTypeInput(v-model="model.type")
 		WorkflowStepAssigneeInput(
 			v-model:type="model.assignee"
+			v-model:referenced-person="model.assigneeReferencedPerson"
 			v-model:organization-item="model.assigneeOrganizationItem"
 		)
 </template>

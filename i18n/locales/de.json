@@ -142,6 +142,15 @@
 			}
 		}
 	},
+	"candidate": {
+		"create": {
+			"title": "Kandidatur erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung der Kandidatur ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
 	"expenseAuthorization": {
 		"title": "Ausgabeermächtigungen",
 		"mutationTitle": "Daten zur Ausgabeermächtigung",

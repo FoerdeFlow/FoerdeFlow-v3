@@ -1,5 +1,10 @@
 <script setup lang="ts">
 const id = useId()
+
+const props = defineProps<{
+	required?: boolean
+}>()
+
 const model = defineModel<number | null>({
 	required: true,
 	set: (value) => {
@@ -12,7 +17,7 @@ const model = defineModel<number | null>({
 .kern-form-input
 	label.kern-label(
 		:for="id"
-	) Matrikelnummer #[span.kern-label__optional - Optional]
+	) Matrikelnummer #[template(v-if="!props.required") #[span.kern-label__optional - Optional]]
 	input.kern-form-input__input(
 		:id="id"
 		v-model="model"

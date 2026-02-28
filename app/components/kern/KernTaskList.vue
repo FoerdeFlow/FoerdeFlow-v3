@@ -73,3 +73,13 @@ const items = computed(() => {
 						span.kern-badge.kern-badge--info(v-if="task.status === 'blocked'")
 							span.kern-label.kern-label--small Noch nicht zu bearbeiten
 </template>
+
+<style scoped>
+.kern-task-list {
+	@media (max-width: 100em) {
+		.kern-task-list__title {
+			flex-direction: column;
+		}
+	}
+}
+</style>

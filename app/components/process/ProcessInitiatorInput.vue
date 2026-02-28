@@ -28,7 +28,8 @@ function onTypeChange() {
 const personHasPermission = computed(() =>
 	props.allowedInitiators?.some((initiator) =>
 		initiator.person?.id === authStore.userInfo.person?.id ||
-		authStore.userInfo.roles.some((role) => initiator.role?.id === role.id),
+		authStore.userInfo.roles.some((role) => initiator.role?.id === role.id) ||
+		Object.entries(initiator).every(([ key, value ]) => key === 'id' || value === null),
 	) ?? true,
 )
 

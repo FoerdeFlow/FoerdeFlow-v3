@@ -9,6 +9,8 @@ import type {
 	CourseTypeSelect,
 	DepartmentSelect,
 	DocumentTypeSelect,
+	ElectionSelect,
+	ElectionCommitteeSelect,
 	ExpenseAuthorizationForm,
 	GenderSelect,
 	MembershipEndReasonSelect,
@@ -19,6 +21,7 @@ import type {
 	RoleSelect,
 	RoomSelect,
 	SessionSelect,
+	WorkflowCustomCandidateForm,
 	WorkflowStepTypeSelect,
 
 	KernCardNav,
@@ -35,6 +38,8 @@ export type Course = InstanceType<typeof CourseSelect>['$props']['modelValue']
 export type CourseType = InstanceType<typeof CourseTypeSelect>['$props']['modelValue']
 export type Department = InstanceType<typeof DepartmentSelect>['$props']['modelValue']
 export type DocumentType = InstanceType<typeof DocumentTypeSelect>['$props']['modelValue']
+export type Election = InstanceType<typeof ElectionSelect>['$props']['modelValue']
+export type ElectionCommittee = InstanceType<typeof ElectionCommitteeSelect>['$props']['modelValue']
 export type Gender = InstanceType<typeof GenderSelect>['$props']['modelValue']
 export type MembershipEndReason = InstanceType<typeof MembershipEndReasonSelect>['$props']['modelValue']
 export type MembershipType = InstanceType<typeof MembershipTypeSelect>['$props']['modelValue']
@@ -47,6 +52,8 @@ export type Session = InstanceType<typeof SessionSelect>['$props']['modelValue']
 export type WorkflowStepType = InstanceType<typeof WorkflowStepTypeSelect>['$props']['modelValue']
 
 export type ExpenseAuthorizationFormModel = InstanceType<typeof ExpenseAuthorizationForm>['$props']['modelValue']
+
+export type WorkflowCustomCandidateFormModel = InstanceType<typeof WorkflowCustomCandidateForm>['$props']['modelValue']
 
 export type KernCardNavItems = InstanceType<typeof KernCardNav>['$props']['items']
 export type KernTaskListItems = InstanceType<typeof KernTaskList>['$props']['items']

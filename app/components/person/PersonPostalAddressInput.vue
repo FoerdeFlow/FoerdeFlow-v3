@@ -1,5 +1,10 @@
 <script setup lang="ts">
 const id = useId()
+
+const props = defineProps<{
+	required?: boolean
+}>()
+
 const model = defineModel<string | null>({
 	required: true,
 	set: (value) => {
@@ -12,7 +17,7 @@ const model = defineModel<string | null>({
 .kern-form-input
 	label.kern-label(
 		:for="id"
-	) Anschrift #[span.kern-label__optional - Optional]
+	) Anschrift #[template(v-if="!props.required") #[span.kern-label__optional - Optional]]
 	input.kern-form-input__input(
 		:id="id"
 		v-model="model"

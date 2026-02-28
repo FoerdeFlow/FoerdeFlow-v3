@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Council, CourseType, Department } from '~/types';
+
 const props = defineProps<{
 	id: string
 }>()
@@ -9,6 +11,9 @@ const model = defineModel<{
 	id: string
 	code: string
 	name: string
+	type: CourseType
+	council: Council
+	department: Department
 } | null>({
 	required: true,
 })

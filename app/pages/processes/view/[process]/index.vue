@@ -15,7 +15,7 @@ function openEditor(id: string) {
 <template lang="pug">
 header
 	p.kern-preline Prozessübersicht
-	h1.kern-heading-large {{ data?.workflow.code }}: {{ data?.mutations[0]?.data['title'] }}
+	h1.kern-heading-large {{ data?.workflow.code }}: {{ data?.mutations[0]?.data['title'] || data?.workflow.name }}
 .mb-2(v-if="data?.workflow.description")
 	KernText(
 		size="small"
@@ -44,6 +44,13 @@ section.my-8(
 	header
 		h2.kern-heading-medium {{ $t(`${mutation.mutation.table.substring(0, mutation.mutation.table.length - 1)}.${mutation.mutation.action}.title`) }}
 	ExpenseAuthorizationForm(
+		v-if="mutation.mutation.table === 'expenseAuthorizations'"
+		readonly
+		selected-item="summary"
+		:model-value="mutation.data"
+	)
+	WorkflowCustomCandidateForm(
+		v-if="mutation.mutation.table === 'candidates'"
 		readonly
 		selected-item="summary"
 		:model-value="mutation.data"

@@ -65,7 +65,7 @@ KernTable(
 	@remove="remove"
 )
 	template(#initiator-header)
-		| Initiator
+		| Initiator*in
 	template(#initiator-body="{ item }")
 		template(v-if="item.person")
 			| {{ formatPerson(item.person) }}
@@ -75,6 +75,8 @@ KernTable(
 			| {{ formatOrganizationType(item.organizationType) }}
 		template(v-else-if="item.organizationItem")
 			| {{ formatOrganizationItem(item.organizationItem) }}
+		template(v-else)
+			| Jede*r
 WorkflowAllowedInitiatorEditor(
 	ref="editor"
 	:workflow="route.params.workflow"

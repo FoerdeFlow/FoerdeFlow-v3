@@ -1,16 +1,18 @@
 <script setup lang="ts">
+import type { DestructureArray } from '#shared/types'
+
 const props = defineProps<{
 	id: string
-	readonly?: boolean
+	election: string
 }>()
 
-const { data } = await useFetch('/api/councils')
+const { data } = useFetch('/api/electionCommittees', {
+	query: {
+		election: props.election,
+	},
+})
 
-const model = defineModel<{
-	id: string
-	code: string
-	name: string
-} | null>({
+const model = defineModel<DestructureArray<typeof data.value> | null>({
 	required: true,
 })
 
@@ -30,20 +32,15 @@ const selectModel = computed({
 .kern-form-input__select-wrapper
 	select.kern-form-input__select(
 		:id="props.id"
-		:disabled="props.readonly"
 		v-model="selectModel"
 	)
 		option(
 			disabled
 			value=""
-		)
-			template(v-if="props.readonly")
-				| - Wird automatisch eingetragen -
-			template(v-else)
-				| - Bitte wählen -
+		) - Bitte wählen -
 		option(
-			v-for="item of data ?? []"
+			v-for="item of data"
 			:key="item.id"
 			:value="item.id"
-		) {{ formatCouncil(item) }}
+		) {{ formatOrganizationItem(item.committee) }}
 </template>

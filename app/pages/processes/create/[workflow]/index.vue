@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { KernTaskListItems, OrganizationItem } from '~/types'
-import { ExpenseAuthorizationForm } from '#components'
+import type { ExpenseAuthorizationFormModel, KernTaskListItems, OrganizationItem, WorkflowCustomCandidateFormModel } from '~/types'
+import { ExpenseAuthorizationForm, WorkflowCustomCandidateForm } from '#components'
 
 const route = useRoute('processes-create-workflow')
 const authStore = useAuthStore()
@@ -18,25 +18,39 @@ const metaModel = ref({
 })
 
 const model = ref({
+	candidate: {
+		candidate: null,
+		applicationLetter: null,
+		callName: null,
+		pronouns: null,
+		matriculationNumber: null,
+		course: null,
+		postalAddress: '',
+	} satisfies WorkflowCustomCandidateFormModel,
 	expenseAuthorization: {
 		budgetPlanItem: null,
 		title: '',
 		description: null,
 		amount: 0,
 		items: [],
-	} satisfies InstanceType<typeof ExpenseAuthorizationForm>['$props']['modelValue'],
+	} satisfies ExpenseAuthorizationFormModel,
 })
 
 const mutationForms = computed(() =>
 	mutations.value
 		?.map((mutation) => ({
-			expenseAuthorizations: ExpenseAuthorizationForm,
-		}[mutation.table]) ?? null)
+			form: {
+				candidates: WorkflowCustomCandidateForm,
+				expenseAuthorizations: ExpenseAuthorizationForm,
+			}[mutation.table] ?? null,
+			key: mutation.table.substring(0, mutation.table.length - 1),
+		}))
 		.filter((form) => form !== null) ?? [],
 )
 
 const forms = useTemplateRef<InstanceType<
-	typeof ExpenseAuthorizationForm
+	| typeof WorkflowCustomCandidateForm
+	| typeof ExpenseAuthorizationForm
 >[]>('forms')
 
 const valid = computed(() => forms.value
@@ -155,9 +169,9 @@ header
 				:key="idx"
 			)
 				component(
-					:is="form"
+					:is="form.form"
 					ref="forms"
-					v-model="model.expenseAuthorization"
+					v-model="model[form.key]"
 					:selected-item="selectedItem"
 					:summary-offset="mutationForms.slice(0, idx).map(form => form.summaryItems).reduce((a, b) => a + b, 1)"
 				)
