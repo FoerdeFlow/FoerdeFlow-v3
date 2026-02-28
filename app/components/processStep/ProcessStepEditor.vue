@@ -18,7 +18,7 @@ const modified = computed(() => {
 })
 
 const step = ref<{
-	type: 'comment' | 'approval' | 'task'
+	type: 'comment' | 'approval' | 'task' | 'job'
 } | null>(null)
 
 function openDialog(id: string | null, data: Model) {

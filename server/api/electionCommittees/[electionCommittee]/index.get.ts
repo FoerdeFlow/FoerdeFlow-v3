@@ -16,12 +16,12 @@ export default defineEventHandler(async (event) => {
 			committee: true,
 		},
 		columns: {
-			election: false,
+			election: true,
 			committee: false,
 		},
 	})
 
-	if(!electionCommittee) {
+	if (!electionCommittee) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Wahlgremium nicht gefunden',

@@ -15,6 +15,10 @@ const { data } = useFetch(() => `/api/electionProposals/${route.params.proposal}
 	}),
 })
 
+function downloadAsPdf() {
+	open(`/api/electionProposals/${route.params.proposal}/pdf`)
+}
+
 const subPages: KernCardNavItems = [
 	{
 		title: 'Kandidaturen',
@@ -46,6 +50,12 @@ aside
 header
 	p.kern-preline Wahlvorschlag
 	h1.kern-heading-large {{ electionCommittee.committee?.name }}, eingereicht von {{ formatPerson(data.submitter) }}
+.mb-8
+	button.kern-btn.kern-btn--secondary(
+		@click="downloadAsPdf"
+	)
+		span.kern-icon.kern-icon--download(aria-hidden="true")
+		span.kern-label Als PDF exportieren
 KernCardNav(
 	:items="subPages"
 )

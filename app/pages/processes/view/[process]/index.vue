@@ -74,7 +74,7 @@ KernTable.mt-8(
 	template(#step-header)
 		| Schritt
 	template(#step-body="{ item }")
-		| {{ item.step.name }} ({{ item.step.code }})
+		| {{ item.step.name }}
 		template(v-if="item.comment")
 			br
 			KernText(
@@ -84,11 +84,13 @@ KernTable.mt-8(
 	template(#assignee-header)
 		| Zuständig
 	template(#assignee-body="{ item }")
-		template(v-if="item.step.assignee === 'initiator'")
+		template(v-if="item.step.type === 'job'")
+			| –
+		template(v-else-if="item.step.assignee === 'initiator'")
 			em Anforderer*in
-		template(v-if="item.step.assignee === 'referencedPerson'")
+		template(v-else-if="item.step.assignee === 'referencedPerson'")
 			| {{ formatReferencedPerson(item.step.assigneeReferencedPerson, data?.mutations) }}
-		template(v-if="item.step.assignee === 'organizationItem'")
+		template(v-else-if="item.step.assignee === 'organizationItem'")
 			| {{ formatOrganizationItem(item.step.assigneeOrganizationItem) }}
 	template(#type-header)
 		| Typ

@@ -18,9 +18,11 @@ export default defineEventHandler(async (event) => {
 					course: {
 						with: {
 							type: true,
+							council: true,
 						},
 						columns: {
 							type: false,
+							council: false,
 						},
 					},
 				},

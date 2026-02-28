@@ -19,9 +19,11 @@ export default defineEventHandler(async (event) => {
 					course: {
 						with: {
 							type: true,
+							council: true,
 						},
 						columns: {
 							type: false,
+							council: false,
 						},
 					},
 				},
@@ -37,7 +39,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if(!candidate) {
+	if (!candidate) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Kandidat*in nicht gefunden',

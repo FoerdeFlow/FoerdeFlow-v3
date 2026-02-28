@@ -9,6 +9,7 @@ const itemId = ref<string | null>(null)
 interface Model {
 	title: string
 	date: Date | null
+	email: string
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -30,6 +31,7 @@ defineExpose({
 		openDialog(null, {
 			title: '',
 			date: null,
+			email: '',
 		})
 	},
 	async edit(id: string) {
@@ -37,6 +39,7 @@ defineExpose({
 		openDialog(id, {
 			title: item.title,
 			date: item.date ? new Date(item.date) : null,
+			email: item.email,
 		})
 	},
 })
@@ -56,6 +59,7 @@ async function save() {
 		const body = {
 			title: model.value.title,
 			date: model.value.date ? model.value.date.toISOString() : null,
+			email: model.value.email,
 		}
 		if(itemId.value) {
 			await $fetch(`/api/elections/${itemId.value}`, {
@@ -93,4 +97,5 @@ KernDialog(
 	template(v-if="model")
 		ElectionTitleInput(v-model="model.title")
 		ElectionDateInput(v-model="model.date")
+		ElectionEmailInput(v-model="model.email")
 </template>

@@ -211,6 +211,20 @@
       "when": 1768872742060,
       "tag": "0029_rare_sentinels",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1772297653897,
+      "tag": "0030_large_shen",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1772318300514,
+      "tag": "0031_grey_domino",
+      "breakpoints": true
     }
   ]
 }

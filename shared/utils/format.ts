@@ -106,8 +106,8 @@ export function formatPerson(
 	person: {
 		firstName: string,
 		lastName: string,
-		callName: string | null,
-		pronouns: string | null,
+		callName?: string | null,
+		pronouns?: string | null,
 	} | null,
 	style: 'short' | 'long' = 'short',
 ): string {
@@ -168,11 +168,12 @@ export function formatWorkflow(
 	return `${workflow.name} (${workflow.code})`
 }
 
-export function formatWorkflowStepType(type: 'comment' | 'task' | 'approval'): string {
+export function formatWorkflowStepType(type: 'comment' | 'task' | 'approval' | 'job'): string {
 	return {
 		comment: 'Stellungnahme',
 		task: 'Aufgabe',
 		approval: 'Genehmigung',
+		job: 'Automatischer Schritt',
 	}[type]
 }
 

@@ -3,7 +3,7 @@ const id = useId()
 
 const model = defineModel<'pending' | 'completed' | 'failed' | null>()
 const props = defineProps<{
-	type: 'comment' | 'approval' | 'task'
+	type: 'comment' | 'approval' | 'task' | 'job'
 }>()
 
 const items = computed(() => ({
@@ -19,6 +19,10 @@ const items = computed(() => ({
 	task: [
 		{ value: 'pending', label: 'Ausstehend' },
 		{ value: 'completed', label: 'Erledigt' },
+	],
+	job: [
+		{ value: 'pending', label: 'Ausstehend' },
+		{ value: 'completed', label: 'Abgeschlossen' },
 	],
 }[props.type]))
 </script>

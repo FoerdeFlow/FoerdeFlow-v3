@@ -73,6 +73,7 @@ export async function encodeProcessData<
 	tx: ReturnType<typeof useDatabase>,
 	table: T,
 	model: Parameters<typeof encoders[T]>[1],
-) {
+): Promise<Awaited<ReturnType<typeof encoders[T]>>> {
+	// @ts-expect-error - We ensure the type safety through the function signature
 	return await encoders[table](tx, model)
 }

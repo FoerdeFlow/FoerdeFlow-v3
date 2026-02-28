@@ -67,6 +67,7 @@ export const workflowStepTypes = pgEnum('workflow_step_types', [
 	'comment',
 	'approval',
 	'task',
+	'job',
 ])
 
 export const workflowSteps = pgTable('workflow_steps', {

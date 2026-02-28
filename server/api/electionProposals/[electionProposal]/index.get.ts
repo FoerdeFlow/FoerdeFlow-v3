@@ -24,12 +24,12 @@ export default defineEventHandler(async (event) => {
 		},
 		columns: {
 			id: false,
-			electionCommittee: false,
+			electionCommittee: true,
 			submitter: false,
 		},
 	})
 
-	if(!electionProposal) {
+	if (!electionProposal) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Wahlvorschlag nicht gefunden',

@@ -1,0 +1,1 @@
+ALTER TYPE "public"."workflow_step_types" ADD VALUE 'job';

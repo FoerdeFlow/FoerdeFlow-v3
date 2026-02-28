@@ -7,6 +7,7 @@ const data = [
 	{ id: 'comment', name: 'Stellungnahme', code: 'S' },
 	{ id: 'approval', name: 'Genehmigung', code: 'G' },
 	{ id: 'task', name: 'Aufgabe', code: 'A' },
+	{ id: 'job', name: 'Automatischer Schritt', code: 'J' },
 ] as const
 
 const model = defineModel<typeof data[number]['id'] | null>({

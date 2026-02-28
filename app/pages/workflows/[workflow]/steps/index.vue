@@ -78,6 +78,8 @@ KernTable(
 			|
 		template(v-if="item.assignee === 'initiator'")
 			| Initiator*in
+		template(v-if="item.assignee === 'referencedPerson'")
+			| {{ item.assigneeReferencedPerson }}
 		template(v-if="item.assignee === 'organizationItem'")
 			| {{ formatOrganizationItem(item.assigneeOrganizationItem) }}
 WorkflowStepEditor(

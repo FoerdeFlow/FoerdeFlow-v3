@@ -74,8 +74,14 @@ export default defineNuxtConfig({
 			password: 'superadmin',
 		},
 		minutes: {
-			url: 'https://dfncloud.fh-kiel.de/s/8XpT4EqmAZwtoNQ/download' +
+			url: 'https://dfncloud.haw-kiel.de/s/8XpT4EqmAZwtoNQ/download' +
 				'?path=%2F__PERIOD__&files=P-__ITEM__-__QNUMBER__.pdf',
+		},
+		mail: {
+			host: 'localhost',
+			username: 'root',
+			password: '',
+			from: 'FördeFlow <root@localhost>',
 		},
 	},
 })

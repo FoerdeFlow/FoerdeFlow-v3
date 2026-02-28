@@ -1,9 +1,10 @@
 import { createUpdateSchema } from 'drizzle-zod'
-import { and, eq, exists } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import type { EventContext } from '~~/server/types'
 
 export default defineEventHandler(async (event) => {
+	const runtimeConfig = useRuntimeConfig()
 	const database = useDatabase()
 
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({
@@ -47,7 +48,6 @@ export default defineEventHandler(async (event) => {
 				initiatorOrganizationItem: true,
 			},
 		})
-
 		if (!process) {
 			throw createError({
 				statusCode: 404,
@@ -64,9 +64,10 @@ export default defineEventHandler(async (event) => {
 				assignee: true,
 				assigneeReferencedPerson: true,
 				assigneeOrganizationItem: true,
+				type: true,
+				code: true,
 			},
 		})
-
 		if (!step) {
 			throw createError({
 				statusCode: 404,
@@ -77,7 +78,15 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
-		switch (step.assignee) {
+		if (step.type === 'job') {
+			if (!(event.context as EventContext).user?.roles.some((role) => role.isAdmin)) {
+				throw createError({
+					statusCode: 403,
+					statusMessage: 'Forbidden',
+					data: 'User is not allowed to update job steps',
+				})
+			}
+		} else switch (step.assignee) {
 			case 'initiator':
 				switch (process.initiatorType) {
 					case 'person':
@@ -174,6 +183,10 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
+		if (step.type === 'job' && body.status === 'completed') {
+			await executeProcessJob(step.code, tx, result.process)
+		}
+
 		const steps = await tx.query.workflowProcessSteps.findMany({
 			where: eq(workflowProcessSteps.process, result.process),
 			columns: {
@@ -194,4 +207,31 @@ export default defineEventHandler(async (event) => {
 			await applyProcessMutations(tx, result.process)
 		}
 	})
+
+	const currentStep = await database.query.workflowProcessSteps.findFirst({
+		where: eq(workflowProcessSteps.id, params.processStep),
+		columns: {
+			process: true,
+		},
+	})
+	const steps = await database.query.workflowProcessSteps.findMany({
+		where: eq(workflowProcessSteps.process, currentStep?.process ?? ''),
+		with: {
+			step: true,
+		},
+		orderBy: (tbl, { asc }) => asc(tbl.step),
+	})
+	const nextStep = steps.filter((s) => s.status === 'pending')[0]
+	if (nextStep && nextStep.step.type === 'job') {
+		await $fetch(`/api/processSteps/${nextStep.id}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				'x-foerdeflow-api-key': runtimeConfig.apiKey,
+			},
+			body: JSON.stringify({
+				status: 'completed',
+			}),
+		})
+	}
 })
