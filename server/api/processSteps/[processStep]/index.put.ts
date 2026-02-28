@@ -1,5 +1,5 @@
 import { createUpdateSchema } from 'drizzle-zod'
-import { eq } from 'drizzle-orm'
+import { and, eq, exists } from 'drizzle-orm'
 import { z } from 'zod'
 import type { EventContext } from '~~/server/types'
 
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 	)
 
 	await database.transaction(async (tx) => {
-		const [ result = null ] = await tx
+		const [result = null] = await tx
 			.update(workflowProcessSteps)
 			.set(body)
 			.where(eq(workflowProcessSteps.id, params.processStep))
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 				step: workflowProcessSteps.step,
 			})
 
-		if(!result) {
+		if (!result) {
 			throw createError({
 				statusCode: 404,
 				statusMessage: 'Prozessschritt nicht gefunden',
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
 			},
 		})
 
-		if(!process) {
+		if (!process) {
 			throw createError({
 				statusCode: 404,
 				statusMessage: 'Prozess nicht gefunden',
@@ -62,11 +62,12 @@ export default defineEventHandler(async (event) => {
 			where: eq(workflowSteps.id, result.step),
 			columns: {
 				assignee: true,
+				assigneeReferencedPerson: true,
 				assigneeOrganizationItem: true,
 			},
 		})
 
-		if(!step) {
+		if (!step) {
 			throw createError({
 				statusCode: 404,
 				statusMessage: 'Workflow-Schritt nicht gefunden',
@@ -76,11 +77,11 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
-		switch(step.assignee) {
+		switch (step.assignee) {
 			case 'initiator':
-				switch(process.initiatorType) {
+				switch (process.initiatorType) {
 					case 'person':
-						if(
+						if (
 							process.initiatorPerson !==
 							(event.context as EventContext).user?.person?.id
 						) {
@@ -100,6 +101,59 @@ export default defineEventHandler(async (event) => {
 						break
 				}
 				break
+			case 'referencedPerson':
+				const [referencedPersonTable, ...referencedPersonSteps] = step.assigneeReferencedPerson?.split('.') || []
+				if (!referencedPersonTable || referencedPersonSteps.length <= 0) {
+					throw createError({
+						statusCode: 403,
+						statusMessage: 'Forbidden',
+						data: 'Invalid referenced person assignment',
+					})
+				}
+
+				const mutation = await tx.query.workflowProcessMutations.findFirst({
+					where: (tbl, { and, eq, exists }) => and(
+						eq(tbl.process, result.process),
+						exists(
+							tx.select()
+								.from(workflowMutations)
+								.where(and(
+									eq(workflowMutations.id, tbl.mutation),
+									eq(workflowMutations.table, referencedPersonTable),
+								)),
+						)
+					),
+					columns: {
+						data: true,
+					},
+				})
+				if (!mutation) {
+					throw createError({
+						statusCode: 403,
+						statusMessage: 'Forbidden',
+						data: 'Referenced person mutation not found',
+					})
+				}
+
+				let referencedPersonData: Record<string, unknown> | undefined = mutation.data as Record<string, unknown>
+				for (const step of referencedPersonSteps) {
+					if (typeof referencedPersonData === 'object' && referencedPersonData !== null) {
+						referencedPersonData = referencedPersonData[step] as Record<string, unknown> | undefined
+					} else {
+						referencedPersonData = undefined
+						break
+					}
+				}
+
+				const referencedPersonId = typeof referencedPersonData === 'string' ? referencedPersonData : undefined
+				if (referencedPersonId !== (event.context as EventContext).user?.person?.id) {
+					throw createError({
+						statusCode: 403,
+						statusMessage: 'Forbidden',
+						data: 'User is not the referenced person assigned to the step',
+					})
+				}
+				break
 			case 'organizationItem':
 				await checkPermission(
 					'workflowProcesses.update',
@@ -109,7 +163,7 @@ export default defineEventHandler(async (event) => {
 				break
 		}
 
-		if(process.status === 'completed') {
+		if (process.status === 'completed') {
 			throw createError({
 				statusCode: 400,
 				statusMessage: 'Prozess kann nicht mehr bearbeitet werden',
@@ -136,7 +190,7 @@ export default defineEventHandler(async (event) => {
 			.set({ status })
 			.where(eq(workflowProcesses.id, result.process))
 
-		if(status === 'completed') {
+		if (status === 'completed') {
 			await applyProcessMutations(tx, result.process)
 		}
 	})
