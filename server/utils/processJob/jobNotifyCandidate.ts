@@ -74,7 +74,7 @@ export async function jobNotifyCandidate(
 	const documentBlob = document.output('arraybuffer')
 
 	await sendMail({
-		to: 'root@localhost',
+		to: data.candidate?.email ?? '',
 		replyTo: data.electionCommittee?.election.email,
 		bcc: data.electionCommittee?.election.email,
 		subject: 'Deine Kandidatur - Unterschrift benötigt',
