@@ -64,7 +64,7 @@ KernTable.mt-8(
 	:create-permission="null"
 	:update-permission="null"
 	:delete-permission="null"
-	:show-actions="data?.status !== 'completed'"
+	:show-actions="data?.status !== 'completed' && data?.steps.some((step) => step.editable)"
 	:data="data?.steps ?? []"
 )
 	template(#stage-header)
@@ -102,6 +102,7 @@ KernTable.mt-8(
 		ProcessStepStatusBadge(:status="item.status")
 	template(#actions="{ item }")
 		button.kern-btn.kern-btn--tertiary(
+			v-if="item.editable"
 			type="button"
 			@click="openEditor(item.id)"
 		)

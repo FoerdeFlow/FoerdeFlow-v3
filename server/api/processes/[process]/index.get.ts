@@ -62,6 +62,11 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
+		processItem.steps = await Promise.all(processItem.steps.map(async (processStep) => ({
+			...processStep,
+			editable: await checkProcessStepPermission(tx, processStep.id).then(() => true).catch(() => false),
+		})))
+
 		return {
 			...processItem,
 			mutations: await Promise.all(processItem.mutations.map(async (mutation) => ({
