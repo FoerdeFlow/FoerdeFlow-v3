@@ -1,11 +1,14 @@
+import { copyFile } from 'node:fs/promises'
 import { eq, type InferInsertModel } from 'drizzle-orm'
 import z from 'zod'
 
 async function createCandidate(
 	tx: ReturnType<typeof useDatabase>,
-	_dataId: string | null,
+	dataId: string | null,
 	data: z.infer<typeof processSchemas.candidates.create>,
 	processMetadata: {
+		id: string
+		mutationId: string
 		initiatorPerson: string
 	},
 ) {
@@ -30,6 +33,11 @@ async function createCandidate(
 		candidate: data.candidate,
 		applicationLetter: data.applicationLetter,
 	})
+
+	await copyFile(
+		`./data/${processMetadata.id}_${processMetadata.mutationId}_photo`,
+		`./data/${data.candidate}`,
+	)
 }
 
 async function createExpenseAuthorization(
@@ -65,6 +73,7 @@ export async function applyProcessMutations(
 	const processMetadata = await tx.query.workflowProcesses.findFirst({
 		where: eq(workflowProcesses.id, processId),
 		columns: {
+			id: true,
 			initiatorType: true,
 			initiatorPerson: true,
 			initiatorOrganizationItem: true,
@@ -101,6 +110,9 @@ export async function applyProcessMutations(
 		}
 
 		// @ts-expect-error | Data is untyped in database
-		await handler(tx, mutation.dataId, mutation.data, processMetadata)
+		await handler(tx, mutation.dataId, mutation.data, {
+			...processMetadata,
+			mutationId: mutation.mutation.id,
+		})
 	}
 }
