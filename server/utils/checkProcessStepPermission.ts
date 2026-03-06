@@ -153,11 +153,22 @@ export async function checkProcessStepPermission(
 			}
 			break
 		case 'organizationItem':
-			await checkPermission(
-				'workflowProcesses.update',
-				{ organizationItem: step.assigneeOrganizationItem ?? '' },
-				{ exactScopeMatch: true },
-			)
+			try {
+				await checkPermission(
+					'workflowProcesses.update',
+					{ organizationItem: step.assigneeOrganizationItem ?? '' },
+					{ exactScopeMatch: true },
+				)
+			} catch (error) {
+				if (
+					requireEditable ||
+					!(event.context as EventContext).user?.memberships?.some((membership) =>
+						membership.organizationItem.id === step.assigneeOrganizationItem
+					)
+				) {
+					throw error
+				}
+			}
 			break
 	}
 

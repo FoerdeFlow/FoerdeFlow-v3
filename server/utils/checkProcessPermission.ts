@@ -25,7 +25,17 @@ export async function checkProcessPermission(processId: string) {
 				},
 			})
 		}
-		if (process.initiatorType === 'person' && process.initiatorPerson === (event.context as EventContext).user?.person?.id) {
+		if (
+			process.initiatorType === 'person' &&
+			process.initiatorPerson === (event.context as EventContext).user?.person?.id
+		) {
+			hasPermission = true
+			return
+		}
+		if (
+			process.initiatorType === 'organizationItem' &&
+			(event.context as EventContext).user?.memberships?.some((membership) => membership.organizationItem.id === process.initiatorOrganizationItem)
+		) {
 			hasPermission = true
 			return
 		}
