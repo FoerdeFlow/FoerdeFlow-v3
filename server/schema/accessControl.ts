@@ -29,17 +29,20 @@ export const roleOccupants = pgTable('role_occupants', {
 	organizationType: uuid().references(() => organizationTypes.id),
 	organizationItem: uuid().references(() => organizationItems.id),
 	membershipType: uuid().references(() => membershipTypes.id),
+	domain: varchar({ length: 256 }),
 }, (table) => [
 	check('occupant_type', sql`(
 		${table.person} IS NULL AND
 		${table.organizationItem} IS NULL AND
 		${table.organizationType} IS NULL AND
-		${table.membershipType} IS NULL
+		${table.membershipType} IS NULL AND
+		${table.domain} IS NULL
 	) OR (
 		${table.person} IS NOT NULL AND
 		${table.organizationItem} IS NULL AND
 		${table.organizationType} IS NULL AND
-		${table.membershipType} IS NULL
+		${table.membershipType} IS NULL AND
+		${table.domain} IS NULL
 	) OR (
 		${table.person} IS NULL AND
 		(
@@ -50,30 +53,37 @@ export const roleOccupants = pgTable('role_occupants', {
 				${table.organizationItem} IS NULL AND
 				${table.organizationType} IS NOT NULL
 			)
-		)
+		) AND
+		${table.domain} IS NULL
+	) OR (
+		${table.person} IS NULL AND
+		${table.organizationItem} IS NULL AND
+		${table.organizationType} IS NULL AND
+		${table.membershipType} IS NULL AND
+		${table.domain} IS NOT NULL
 	)`),
 ])
 
 export const roleOccupantsRelations = relations(roleOccupants, ({ one }) => ({
 	role: one(roles, {
-		fields: [ roleOccupants.role ],
-		references: [ roles.id ],
+		fields: [roleOccupants.role],
+		references: [roles.id],
 	}),
 	person: one(persons, {
-		fields: [ roleOccupants.person ],
-		references: [ persons.id ],
+		fields: [roleOccupants.person],
+		references: [persons.id],
 	}),
 	organizationType: one(organizationTypes, {
-		fields: [ roleOccupants.organizationType ],
-		references: [ organizationTypes.id ],
+		fields: [roleOccupants.organizationType],
+		references: [organizationTypes.id],
 	}),
 	organizationItem: one(organizationItems, {
-		fields: [ roleOccupants.organizationItem ],
-		references: [ organizationItems.id ],
+		fields: [roleOccupants.organizationItem],
+		references: [organizationItems.id],
 	}),
 	membershipType: one(membershipTypes, {
-		fields: [ roleOccupants.membershipType ],
-		references: [ membershipTypes.id ],
+		fields: [roleOccupants.membershipType],
+		references: [membershipTypes.id],
 	}),
 }))
 
@@ -92,11 +102,11 @@ export const rolePermissions = pgTable('role_permissions', {
 
 export const rolePermissionsRelations = relations(rolePermissions, ({ one }) => ({
 	role: one(roles, {
-		fields: [ rolePermissions.role ],
-		references: [ roles.id ],
+		fields: [rolePermissions.role],
+		references: [roles.id],
 	}),
 	organizationItem: one(organizationItems, {
-		fields: [ rolePermissions.organizationItem ],
-		references: [ organizationItems.id ],
+		fields: [rolePermissions.organizationItem],
+		references: [organizationItems.id],
 	}),
 }))

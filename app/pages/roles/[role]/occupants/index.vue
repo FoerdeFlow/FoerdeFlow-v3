@@ -80,6 +80,10 @@ KernTable(
 			template(v-if="item.membershipType")
 				br
 				em {{ formatMembershipType(item.membershipType) }}
+		template(v-else-if="item.domain")
+			| {{ item.domain }}
+			br
+			em Domäne
 		template(v-else)
 			| Jede*r Besucher*in
 			br

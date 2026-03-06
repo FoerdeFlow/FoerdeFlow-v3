@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
 		where: (roleOccupants, { eq }) => eq(roleOccupants.role, query.role),
 		columns: {
 			id: true,
+			domain: true,
 		},
 		with: {
 			membershipType: true,

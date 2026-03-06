@@ -9,6 +9,7 @@ export async function getAnonymousRoles() {
 			isNull(roleOccupants.membershipType),
 			isNull(roleOccupants.organizationType),
 			isNull(roleOccupants.organizationItem),
+			isNull(roleOccupants.domain),
 		),
 		columns: {},
 		with: {
@@ -22,6 +23,22 @@ export async function getAnonymousRoles() {
 export async function getPersonRoles(person: string) {
 	const database = useDatabase()
 
+	const personData = await database.query.persons.findFirst({
+		where: eq(persons.id, person),
+		columns: {
+			email: true,
+		},
+	})
+	if (!personData) {
+		throw createError({
+			statusCode: 404,
+			statusMessage: 'Person nicht gefunden',
+			data: {
+				person,
+			},
+		})
+	}
+
 	const effectiveMemberships = await getEffectiveMemberships({
 		type: 'person',
 		person,
@@ -32,6 +49,10 @@ export async function getPersonRoles(person: string) {
 			or(
 				isNull(roleOccupants.person),
 				eq(roleOccupants.person, person),
+			),
+			or(
+				isNull(roleOccupants.domain),
+				eq(roleOccupants.domain, personData.email.split('@')[1]),
 			),
 			or(
 				and(

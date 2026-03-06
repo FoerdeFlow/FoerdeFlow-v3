@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const id = useId()
 
-const model = defineModel<'person' | 'membership' | 'anonymous' | null>({
+const model = defineModel<'person' | 'membership' | 'domain' | 'anonymous' | null>({
 	required: true,
 })
 </script>
@@ -15,6 +15,7 @@ const model = defineModel<'person' | 'membership' | 'anonymous' | null>({
 			v-model="model"
 		)
 			option(value="anonymous") Gastzugriff
+			option(value="domain") Domäne
 			option(value="person") Person
 			option(value="membership") Mitgliedschaft
 </template>

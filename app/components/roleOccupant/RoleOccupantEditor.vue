@@ -16,6 +16,7 @@ interface Model {
 	organizationItem: OrganizationItem
 	organizationType: OrganizationType
 	membershipType: MembershipType
+	domain: string | null
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -24,13 +25,14 @@ const modified = computed(() => {
 	return JSON.stringify(itemModel.value) !== JSON.stringify(model.value)
 })
 
-const occupantType = ref<'person' | 'membership' | 'anonymous' | null>(null)
+const occupantType = ref<'person' | 'membership' | 'domain' | 'anonymous' | null>(null)
 function onChangeOccupantType() {
 	if(!model.value) return
 	model.value.person = null
 	model.value.organizationItem = null
 	model.value.organizationType = null
 	model.value.membershipType = null
+	model.value.domain = null
 }
 
 const isOrganizationItemGroup = ref(false)
@@ -55,10 +57,21 @@ defineExpose({
 			organizationItem: null,
 			organizationType: null,
 			membershipType: null,
+			domain: null,
 		})
 	},
 	async edit(id: string) {
 		const item = await $fetch(`/api/roleOccupants/${id}`)
+		if(item.person) {
+			occupantType.value = 'person'
+		} else if(item.organizationItem || item.organizationType) {
+			occupantType.value = 'membership'
+			isOrganizationItemGroup.value = Boolean(item.organizationType) && !item.organizationItem
+		} else if(item.domain) {
+			occupantType.value = 'domain'
+		} else {
+			occupantType.value = 'anonymous'
+		}
 		openDialog(id, item)
 	},
 })
@@ -81,6 +94,7 @@ async function save() {
 			organizationItem: model.value.organizationItem?.id ?? null,
 			organizationType: model.value.organizationType?.id ?? null,
 			membershipType: model.value.membershipType?.id ?? null,
+			domain: model.value.domain ?? null,
 		}
 		if(itemId.value) {
 			await $fetch(`/api/roleOccupants/${itemId.value}`, {
@@ -116,6 +130,8 @@ const valid = computed(() => {
 				return Boolean(model.value.organizationType) && Boolean(model.value.membershipType)
 			}
 			return Boolean(model.value.organizationItem) && Boolean(model.value.membershipType)
+		case 'domain':
+			return Boolean(model.value.domain)
 		case 'anonymous':
 			return true
 	}
@@ -153,4 +169,6 @@ KernDialog(
 				v-model="model.organizationType"
 			)
 			RoleOccupantMembershipTypeInput(v-model="model.membershipType")
+		template(v-if="occupantType === 'domain'")
+			RoleOccupantDomainInput(v-model="model.domain")
 </template>

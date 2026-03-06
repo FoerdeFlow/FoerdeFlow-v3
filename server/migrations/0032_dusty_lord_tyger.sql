@@ -1,0 +1,33 @@
+ALTER TABLE "role_occupants" DROP CONSTRAINT "occupant_type";--> statement-breakpoint
+ALTER TABLE "role_occupants" ADD COLUMN "domain" varchar(256);--> statement-breakpoint
+ALTER TABLE "role_occupants" ADD CONSTRAINT "occupant_type" CHECK ((
+		"role_occupants"."person" IS NULL AND
+		"role_occupants"."organization_item" IS NULL AND
+		"role_occupants"."organization_type" IS NULL AND
+		"role_occupants"."membership_type" IS NULL AND
+		"role_occupants"."domain" IS NULL
+	) OR (
+		"role_occupants"."person" IS NOT NULL AND
+		"role_occupants"."organization_item" IS NULL AND
+		"role_occupants"."organization_type" IS NULL AND
+		"role_occupants"."membership_type" IS NULL AND
+		"role_occupants"."domain" IS NULL
+	) OR (
+		"role_occupants"."person" IS NULL AND
+		(
+			(
+				"role_occupants"."organization_item" IS NOT NULL AND
+				"role_occupants"."organization_type" IS NULL
+			) OR (
+				"role_occupants"."organization_item" IS NULL AND
+				"role_occupants"."organization_type" IS NOT NULL
+			)
+		) AND
+		"role_occupants"."domain" IS NULL
+	) OR (
+		"role_occupants"."person" IS NULL AND
+		"role_occupants"."organization_item" IS NULL AND
+		"role_occupants"."organization_type" IS NULL AND
+		"role_occupants"."membership_type" IS NULL AND
+		"role_occupants"."domain" IS NOT NULL
+	));
