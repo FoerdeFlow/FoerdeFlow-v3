@@ -7,6 +7,8 @@ export default defineEventHandler(async (event) => {
 		process: z.uuid(),
 	}).parseAsync(data))
 
+	await checkProcessPermission(params.process)
+
 	const database = useDatabase()
 
 	return await database.transaction(async (tx) => {

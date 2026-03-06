@@ -48,5 +48,12 @@ export default defineEventHandler(async (_event) => {
 		},
 	})
 
-	return processes
+	return (await Promise.all(processes.map(async (process) => {
+		try {
+			await checkProcessPermission(process.id)
+			return process
+		} catch {
+			return null
+		}
+	}))).filter((process): process is NonNullable<typeof process> => process !== null)
 })

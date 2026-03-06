@@ -4,8 +4,12 @@ import { EventContext } from '../types'
 export async function checkProcessStepPermission(
 	tx: ReturnType<typeof useDatabase>,
 	workflowProcessStepId: string,
+	requireEditable: boolean = true,
 ) {
 	const event = useEvent()
+	if ((event.context as EventContext).user?.roles.some((role) => role.isAdmin)) {
+		return
+	}
 
 	const [result = null] = await tx
 		.select({
@@ -157,7 +161,7 @@ export async function checkProcessStepPermission(
 			break
 	}
 
-	if (process.status === 'completed') {
+	if (requireEditable && process.status === 'completed') {
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'Prozess kann nicht mehr bearbeitet werden',
