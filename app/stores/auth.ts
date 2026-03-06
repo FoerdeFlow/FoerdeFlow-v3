@@ -49,11 +49,20 @@ export const useAuthStore = defineStore('auth', () => {
 		form.submit()
 	}
 
+	function requireLogin() {
+		onMounted(() => {
+			if (!loggedIn.value) {
+				login()
+			}
+		})
+	}
+
 	return {
 		hasPermission,
+		loggedIn,
 		login,
 		logout,
-		loggedIn,
+		requireLogin,
 		userInfo: readonly(userInfo),
 	}
 })

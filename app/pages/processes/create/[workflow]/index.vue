@@ -4,6 +4,7 @@ import { ExpenseAuthorizationForm, WorkflowCustomCandidateForm } from '#componen
 
 const route = useRoute('processes-create-workflow')
 const authStore = useAuthStore()
+authStore.requireLogin()
 
 const { data: workflow } = useFetch(`/api/workflows/${route.params.workflow}`)
 const { data: mutations } = useFetch('/api/workflowMutations', {
@@ -141,7 +142,7 @@ header
 	h1.kern-heading-large {{ workflow?.name }} ({{ workflow?.code }})
 .mb-8(v-if="workflow?.description")
 	KernText(:text="workflow.description")
-.kern-container
+.kern-container(v-if="authStore.loggedIn")
 	.kern-row
 		.kern-col-12.kern-col-xl-4
 			KernTaskList(
