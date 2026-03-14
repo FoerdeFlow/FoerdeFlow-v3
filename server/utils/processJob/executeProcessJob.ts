@@ -1,9 +1,14 @@
 export async function executeProcessJob(
-	job: string,
+	jobLabel: string,
 	tx: ReturnType<typeof useDatabase>,
 	processId: string,
 ) {
+	const [job, ...args] = jobLabel.split('-')
 	switch (job) {
+		case 'createDocument':
+			const target = args[0]
+			await jobCreateDocument(tx, processId, target ?? '')
+			break
 		case 'notifyCandidate':
 			await jobNotifyCandidate(tx, processId)
 			break
