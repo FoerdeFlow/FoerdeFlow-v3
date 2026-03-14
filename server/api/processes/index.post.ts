@@ -152,15 +152,7 @@ export default defineEventHandler(async (event) => {
 				})
 			}
 
-			let schema = processSchemas[mutation.table as keyof typeof processSchemas]?.[mutation.action as 'create' | 'update' | 'delete'] as any
-			if (!schema) {
-				const targetTable = mutationTargetTables[mutation.table as keyof typeof mutationTargetTables]
-				switch (mutation.action) {
-					case 'create':
-						schema = createInsertSchema(targetTable).omit({ id: true })
-						break
-				}
-			}
+			const schema = processSchemas[mutation.table as keyof typeof processSchemas]?.[mutation.action as 'create' | 'update' | 'delete'] as any
 			if (!schema) {
 				throw createError({
 					statusCode: 400,
