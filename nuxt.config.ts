@@ -16,6 +16,10 @@ export default defineNuxtConfig({
 			tasks: true,
 		},
 	},
+	devServer: {
+		port: 3000,
+		https: true,
+	},
 	devtools: {
 		enabled: true,
 	},
@@ -60,13 +64,13 @@ export default defineNuxtConfig({
 			port: 5432,
 			name: 'foerdeflow',
 		},
-		externalURL: 'http://localhost:3000',
+		externalURL: 'https://localhost:3000',
 		apiKey: '00000000000000000000000000000000',
 		sessionSecret: '00000000000000000000000000000000',
 		oidcProvider: {
 			clientId: 'dev',
 			clientSecret: 'dev',
-			server: 'http://localhost:3000/api/auth/oidc/provider',
+			server: 'https://localhost:3000/api/auth/oidc/provider',
 		},
 		openslides: {
 			server: 'https://localhost:8000',

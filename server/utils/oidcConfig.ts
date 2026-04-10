@@ -10,11 +10,5 @@ export async function getOidcConfig() {
 			client_secret: oidcConfig.clientSecret,
 		},
 		client.ClientSecretPost(),
-		{
-			execute: [
-				// eslint-disable-next-line @typescript-eslint/no-deprecated
-				...(import.meta.dev ? [ client.allowInsecureRequests ] : []),
-			],
-		},
 	)
 }
