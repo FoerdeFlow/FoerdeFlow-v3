@@ -44,6 +44,11 @@
 			"announcements": "Ankündigungen"
 		}
 	},
+	"processes": {
+		"candidates": {
+			"candidate": "Kandidat*in"
+		}
+	},
 	"budget": {
 		"title": "Haushalte",
 		"table": {

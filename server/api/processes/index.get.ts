@@ -16,7 +16,9 @@ export default defineEventHandler(async (_event) => {
 							assigneeOrganizationItem: true,
 						},
 						columns: {
+							type: true,
 							assignee: true,
+							assigneeReferencedPerson: true,
 						},
 					},
 				},
@@ -52,7 +54,7 @@ export default defineEventHandler(async (_event) => {
 		try {
 			await checkProcessPermission(process.id)
 			return process
-		} catch {
+		} catch{
 			return null
 		}
 	}))).filter((process): process is NonNullable<typeof process> => process !== null)

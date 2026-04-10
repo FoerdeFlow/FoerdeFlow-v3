@@ -43,9 +43,13 @@ KernTable(
 	template(#assignee-header)
 		| Zuständig
 	template(#assignee-body="{ item }")
-		template(v-if="item.steps[0]?.step.assignee === 'initiator'")
-			em Antragsteller*in
-		template(v-if="item.steps[0]?.step.assignee === 'organizationItem'")
+		template(v-if="item.steps[0]?.step.type === 'job'")
+			| –
+		template(v-else-if="item.steps[0]?.step.assignee === 'initiator'")
+			em Anforderer*in
+		template(v-else-if="item.steps[0]?.step.assignee === 'referencedPerson'")
+			em {{ $t(`processes.${item.steps[0].step.assigneeReferencedPerson}`) }}
+		template(v-else-if="item.steps[0]?.step.assignee === 'organizationItem'")
 			| {{ formatOrganizationItem(item.steps[0].step.assigneeOrganizationItem) }}
 	template(#actions="{ item }")
 		NuxtLink.kern-btn.kern-btn--tertiary(
