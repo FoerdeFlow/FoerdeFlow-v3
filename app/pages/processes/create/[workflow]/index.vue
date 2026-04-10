@@ -123,7 +123,7 @@ async function create() {
 				) as keyof typeof model.value
 			],
 		)
-		Object.entries(encodedModel).forEach(([key, value]) => {
+		Object.entries(encodedModel).forEach(([ key, value ]) => {
 			formData.append(`mutation_${mutation.id}_${key}`, value)
 		})
 	}
@@ -144,7 +144,9 @@ header
 	KernText(:text="workflow.description")
 .kern-container(v-if="authStore.loggedIn")
 	.kern-row
-		.kern-col-12.kern-col-xl-4
+		.kern-col-12.kern-col-xl-4(
+			:class="{ 'hide-mobile': selectedItem !== null }"
+		)
 			KernTaskList(
 				:items="items"
 				@select="selectedItem = $event"
@@ -198,6 +200,13 @@ header
 						)
 							span.kern-icon.kern-icon--arrow-back
 							span.kern-label Zurück
+						button.kern-btn.kern-btn--secondary.hide-desktop(
+							v-else
+							type="button"
+							@click="selectedItem = null"
+						)
+							span.kern-icon.kern-icon--arrow-back
+							span.kern-label Zurück zur Übersicht
 					.kern-col.text-right
 						button.kern-btn.kern-btn--primary(
 							v-if="selectedItemIndex < flatItems.length - 1"
@@ -215,3 +224,19 @@ header
 							span.kern-label Erstellen
 							span.kern-icon.kern-icon--check
 </template>
+
+<style scoped>
+.hide-mobile {
+	display: none;
+
+	@media (min-width: 1200px) {
+		display: initial;
+	}
+}
+
+.hide-desktop {
+	@media (min-width: 1200px) {
+		display: none;
+	}
+}
+</style>
