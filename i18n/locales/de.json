@@ -1,4 +1,11 @@
 {
+	"environment": {
+		"production": "Produktivumgebung",
+		"stage": "Stagingumgebung",
+		"qa": "QA-Umgebung",
+		"test": "Testumgebung",
+		"development": "Entwicklungsumgebung"
+	},
 	"permissions": {
 		"adminAlert": {
 			"title": "Administratorrolle",

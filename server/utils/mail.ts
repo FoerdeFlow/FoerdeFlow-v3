@@ -16,6 +16,7 @@ export async function sendMail(message: {
 
 	const transporter = nodemailer.createTransport({
 		host: runtimeConfig.mail.host,
+		port: runtimeConfig.mail.port,
 		auth: {
 			user: runtimeConfig.mail.username,
 			pass: runtimeConfig.mail.password,

@@ -19,6 +19,12 @@ interface Model {
 	assignee: 'initiator' | 'referencedPerson' | 'organizationItem'
 	assigneeReferencedPerson: string | null
 	assigneeOrganizationItem: OrganizationItem
+	reminderEnabled: boolean
+	reminderInterval: number | null
+	reminderDelay: number | null
+	reminderReplyTo: string | null
+	reminderSubject: string
+	reminderMessage: string
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -45,6 +51,12 @@ defineExpose({
 			assignee: 'initiator',
 			assigneeReferencedPerson: null,
 			assigneeOrganizationItem: null,
+			reminderEnabled: false,
+			reminderInterval: null,
+			reminderDelay: null,
+			reminderReplyTo: null,
+			reminderSubject: '',
+			reminderMessage: '',
 		})
 	},
 	async edit(id: string) {
@@ -57,6 +69,12 @@ defineExpose({
 			assignee: item.assignee,
 			assigneeReferencedPerson: item.assigneeReferencedPerson,
 			assigneeOrganizationItem: item.assigneeOrganizationItem,
+			reminderEnabled: item.reminderEnabled,
+			reminderInterval: item.reminderInterval,
+			reminderDelay: item.reminderDelay,
+			reminderReplyTo: item.reminderReplyTo,
+			reminderSubject: item.reminderSubject,
+			reminderMessage: item.reminderMessage,
 		})
 	},
 })
@@ -85,6 +103,12 @@ async function save() {
 			assigneeOrganizationItem: model.value.assignee === 'organizationItem'
 				? model.value.assigneeOrganizationItem?.id
 				: null,
+			reminderEnabled: model.value.reminderEnabled,
+			reminderInterval: model.value.reminderInterval,
+			reminderDelay: model.value.reminderDelay,
+			reminderReplyTo: model.value.reminderReplyTo,
+			reminderSubject: model.value.reminderSubject,
+			reminderMessage: model.value.reminderMessage,
 		}
 		if(itemId.value) {
 			await $fetch(`/api/workflowSteps/${itemId.value}`, {
@@ -132,4 +156,11 @@ KernDialog(
 			v-model:referenced-person="model.assigneeReferencedPerson"
 			v-model:organization-item="model.assigneeOrganizationItem"
 		)
+		WorkflowStepReminderEnabledInput(v-model="model.reminderEnabled")
+		template(v-if="model.reminderEnabled")
+			WorkflowStepReminderIntervalInput(v-model="model.reminderInterval")
+			WorkflowStepReminderDelayInput(v-model="model.reminderDelay")
+			WorkflowStepReminderReplyToInput(v-model="model.reminderReplyTo")
+			WorkflowStepReminderSubjectInput(v-model="model.reminderSubject")
+			WorkflowStepReminderMessageInput(v-model="model.reminderMessage")
 </template>

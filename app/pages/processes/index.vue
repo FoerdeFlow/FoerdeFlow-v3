@@ -13,7 +13,7 @@ async function create() {
 h1.kern-heading-large Prozesse
 KernTable(
 	caption="Liste deiner aktiven Prozesse"
-	:columns="[ 'workflow', 'title', 'initiator', 'status', 'assignee' ]"
+	:columns="[ 'workflow', 'initiator', 'status', 'assignee' ]"
 	create-permission="workflowProcesses.create"
 	:update-permission="null"
 	:delete-permission="null"
@@ -23,19 +23,23 @@ KernTable(
 )
 	template(#workflow-header)
 		| Workflow
-	template(#workflow-body="{ item }")
-		| {{ item.workflow.code }}
-	template(#title-header)
+		br
 		| Titel
-	template(#title-body="{ item }")
+	template(#workflow-body="{ item }")
+		em {{ item.workflow.code }}
+		br
 		| {{ item.mutations[0]?.title }}
 	template(#initiator-header)
 		| Antragsteller*in
+		br
+		| Antragsdatum
 	template(#initiator-body="{ item }")
 		template(v-if="item.initiatorType === 'person'")
 			| {{ formatPerson(item.initiatorPerson) }}
 		template(v-if="item.initiatorType === 'organizationItem'")
 			| {{ formatOrganizationItem(item.initiatorOrganizationItem) }}
+		br
+		em {{ formatDatetime(item.createdAt, 'compact') }}
 	template(#status-header)
 		| Status
 	template(#status-body="{ item }")
@@ -43,14 +47,17 @@ KernTable(
 	template(#assignee-header)
 		| Zuständig
 	template(#assignee-body="{ item }")
-		template(v-if="item.steps[0]?.step.type === 'job'")
+		template(v-if="item.currentStep?.step.type === 'job'")
 			| –
-		template(v-else-if="item.steps[0]?.step.assignee === 'initiator'")
+		template(v-else-if="item.currentStep?.step.assignee === 'initiator'")
 			em Anforderer*in
-		template(v-else-if="item.steps[0]?.step.assignee === 'referencedPerson'")
-			em {{ $t(`processes.${item.steps[0].step.assigneeReferencedPerson}`) }}
-		template(v-else-if="item.steps[0]?.step.assignee === 'organizationItem'")
-			| {{ formatOrganizationItem(item.steps[0].step.assigneeOrganizationItem) }}
+		template(v-else-if="item.currentStep?.step.assignee === 'referencedPerson'")
+			em {{ $t(`processes.${item.currentStep.step.assigneeReferencedPerson}`) }}
+		template(v-else-if="item.currentStep?.step.assignee === 'organizationItem'")
+			| {{ formatOrganizationItem(item.currentStep.step.assigneeOrganizationItem) }}
+		template(v-if="item.previousStep")
+			br
+			em seit {{ formatDatetime(item.previousStep.modifiedAt ?? null, 'compact') }}
 	template(#actions="{ item }")
 		NuxtLink.kern-btn.kern-btn--tertiary(
 			:to="{ name: 'processes-view-process', params: { process: item.id } }"

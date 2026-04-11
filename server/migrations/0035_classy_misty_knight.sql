@@ -1,0 +1,1 @@
+ALTER TABLE "workflow_steps" ADD COLUMN "reminder_reply_to" varchar(256);

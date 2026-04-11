@@ -15,6 +15,9 @@ export default defineNuxtConfig({
 			asyncContext: true,
 			tasks: true,
 		},
+		scheduledTasks: {
+			'55 * * * *': 'mail:reminder',
+		},
 	},
 	devServer: {
 		port: 3000,

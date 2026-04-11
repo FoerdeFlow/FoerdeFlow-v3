@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
 			id: true,
 			process: true,
 			step: true,
+			modifiedAt: true,
 		}).parseAsync(data),
 	)
 
@@ -23,7 +24,10 @@ export default defineEventHandler(async (event) => {
 
 		const [ result = null ] = await tx
 			.update(workflowProcessSteps)
-			.set(body)
+			.set({
+				...body,
+				modifiedAt: new Date(),
+			})
 			.where(eq(workflowProcessSteps.id, params.processStep))
 			.returning({
 				process: workflowProcessSteps.process,

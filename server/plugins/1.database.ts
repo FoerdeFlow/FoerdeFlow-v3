@@ -22,6 +22,8 @@ export default defineNitroPlugin((nitroApp) => {
 		console.error('Migration failed:', e)
 	})
 
+	setDatabase(database)
+
 	nitroApp.hooks.hook('request', (event) => {
 		event.context.database = database
 	})

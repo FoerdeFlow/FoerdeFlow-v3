@@ -232,6 +232,27 @@
       "when": 1772817438376,
       "tag": "0032_dusty_lord_tyger",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1775901542303,
+      "tag": "0033_ordinary_hulk",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1775932529134,
+      "tag": "0034_conscious_zombie",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1775934089945,
+      "tag": "0035_classy_misty_knight",
+      "breakpoints": true
     }
   ]
 }

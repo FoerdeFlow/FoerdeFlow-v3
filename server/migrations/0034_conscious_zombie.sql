@@ -1,0 +1,1 @@
+ALTER TABLE "workflow_steps" ADD COLUMN "reminder_subject" varchar(512) DEFAULT 'Erinnerung: Du hast eine anstehende Aufgabe' NOT NULL;

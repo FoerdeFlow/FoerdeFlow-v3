@@ -1,9 +1,11 @@
 import { relations } from 'drizzle-orm'
 import {
+	boolean,
 	integer,
 	jsonb,
 	pgEnum,
 	pgTable,
+	timestamp,
 	uuid,
 	varchar,
 } from 'drizzle-orm/pg-core'
@@ -80,6 +82,12 @@ export const workflowSteps = pgTable('workflow_steps', {
 	assignee: workflowParticipants().notNull(),
 	assigneeReferencedPerson: varchar({ length: 256 }),
 	assigneeOrganizationItem: uuid().references(() => organizationItems.id),
+	reminderEnabled: boolean().notNull().default(false),
+	reminderInterval: integer().notNull().default(604800),
+	reminderDelay: integer().notNull().default(259200),
+	reminderReplyTo: varchar({ length: 256 }),
+	reminderSubject: varchar({ length: 512 }).notNull().default('Erinnerung: Du hast eine anstehende Aufgabe'),
+	reminderMessage: varchar({ length: 2048 }).notNull().default('Du hast eine anstehende Aufgabe.'),
 })
 
 export const workflowStepsRelations = relations(workflowSteps, ({ one }) => ({
@@ -131,6 +139,7 @@ export const workflowProcesses = pgTable('workflow_processes', {
 	initiatorType: workflowInitiator().notNull(),
 	initiatorPerson: uuid().references(() => persons.id),
 	initiatorOrganizationItem: uuid().references(() => organizationItems.id),
+	createdAt: timestamp().notNull().defaultNow(),
 })
 
 export const workflowProcessesRelations = relations(workflowProcesses, ({ one, many }) => ({
@@ -162,6 +171,8 @@ export const workflowProcessSteps = pgTable('workflow_process_steps', {
 	step: uuid().notNull().references(() => workflowSteps.id),
 	status: workflowStepStatuses().notNull().default('pending'),
 	comment: varchar({ length: 1024 }),
+	modifiedAt: timestamp().notNull().defaultNow(),
+	reminderSentAt: timestamp(),
 })
 
 export const workflowProcessStepsRelations = relations(workflowProcessSteps, ({ one }) => ({

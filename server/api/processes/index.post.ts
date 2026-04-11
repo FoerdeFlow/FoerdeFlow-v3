@@ -30,6 +30,7 @@ export default defineEventHandler(async (event) => {
 			id: true,
 			status: true,
 			initiatorPerson: true,
+			createdAt: true,
 		}).shape,
 		mutations: z.array(z.strictObject({
 			mutation: z.uuid(),
