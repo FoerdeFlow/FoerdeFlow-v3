@@ -33,10 +33,14 @@ const id = useId()
 				dt.kern-description-list-item__key {{ item.key }}
 				dd.kern-description-list-item__value
 					template(v-if="item.valueImg")
-						img(:src="item.valueImg" :alt="item.key" class="max-h-32")
+						img.max-h-32(
+							:src="item.valueImg"
+							:alt="item.key"
+						)
 					template(v-else) {{ item.value }}
 		.kern-summary__actions(v-if="!props.readonly")
 			a.kern-link(
+				href="#"
 				:aria-describedby="id"
 				@click.prevent="emit('edit')"
 			)

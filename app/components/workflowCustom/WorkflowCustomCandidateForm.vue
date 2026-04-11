@@ -62,8 +62,8 @@ defineExpose({
 			id: 'candidate-photo',
 			label: 'Lichtbild erfassen',
 			status: model.value.candidate
-					? model.value.photo ? 'done' : 'open'
-					: 'blocked',
+				? model.value.photo ? 'done' : 'open'
+				: 'blocked',
 		},
 		{
 			id: 'candidate-application-letter',
@@ -76,7 +76,7 @@ defineExpose({
 })
 
 const photoUrl = computed(() => {
-	if (props.processId && props.mutationId) {
+	if(props.processId && props.mutationId) {
 		return props.attachments?.includes('photo')
 			? `/api/processes/${props.processId}/attachments/${props.mutationId}_photo`
 			: null
@@ -101,8 +101,8 @@ template(v-if="props.selectedItem === 'candidate-election-committee'")
 			label.kern-label(for="election-committee") Gremium
 			ElectionCommitteeSelect(
 				id="election-committee"
-				:election="election.id"
 				v-model="model.electionCommittee"
+				:election="election.id"
 				:readonly="props.readonly"
 			)
 template(v-if="props.selectedItem === 'candidate-candidate'")
@@ -117,10 +117,14 @@ template(v-if="props.selectedItem === 'candidate-person'")
 				| Hier bitte die persönlichen Daten für {{ formatPerson(model.candidate) }} erfassen.
 	.kern-row
 		.kern-col-12
-			PersonMatriculationNumberInput(v-model="model.matriculationNumber" required)
+			PersonMatriculationNumberInput(
+v-model="model.matriculationNumber"
+required)
 	.kern-row
 		.kern-col-12.kern-col-md-6
-			PersonCourseInput(v-model="model.course" required)
+			PersonCourseInput(
+v-model="model.course"
+required)
 		.kern-col-12.kern-col-md-6
 			.kern-form-input
 				label.kern-label(for="fsv-of-course") Fachschaft
@@ -131,7 +135,9 @@ template(v-if="props.selectedItem === 'candidate-person'")
 				)
 	.kern-row
 		.kern-col-12
-			PersonPostalAddressInput(v-model="model.postalAddress" required)
+			PersonPostalAddressInput(
+v-model="model.postalAddress"
+required)
 	.kern-row
 		.kern-col-12
 			p.kern-body
@@ -148,7 +154,10 @@ template(v-if="props.selectedItem === 'candidate-photo'")
 	.mt-8(v-if="model.photo && photoUrl")
 		p.kern-body
 			| Es wurde ein Foto hochgeladen: {{ model.photo.name }} ({{ (model.photo.size / 1024).toFixed(2) }} KB)
-		img(:src="photoUrl" alt="Vorschaubild" class="mt-4 max-w-xs border")
+		img(
+:src="photoUrl"
+alt="Vorschaubild"
+class="mt-4 max-w-xs border")
 		button.mt-4.kern-btn.kern-btn--secondary(@click="model.photo = null")
 			span.kern-icon.kern-icon--delete(aria-hidden="true")
 			span.kern-label Bild entfernen
@@ -168,7 +177,7 @@ template(v-if="props.selectedItem === 'summary'")
 			},
 			{
 				key: 'Gremium',
-				value: formatOrganizationItem(model.electionCommittee?.committee ?? null),
+				value: formatOrganizationItem(model.electionCommittee?.committee ?? null) || '–',
 			},
 		]`
 		:readonly="props.readonly"
@@ -196,15 +205,15 @@ template(v-if="props.selectedItem === 'summary'")
 			},
 			{
 				key: 'Fachschaft',
-				value: formatCouncil(model.course?.council ?? null),
+				value: formatCouncil(model.course?.council ?? null) || '–',
 			},
 			{
 				key: 'Studiengang',
-				value: formatCourse(model.course),
+				value: formatCourse(model.course) || '–',
 			},
 			{
 				key: 'Adresse',
-				value: model.postalAddress,
+				value: model.postalAddress || '–',
 			},
 			{
 				key: 'Selbstgewählter Vorname',

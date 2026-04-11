@@ -87,7 +87,11 @@ const items = computed<KernTaskListItems>(() => [
 			{
 				id: 'summary',
 				label: 'Eingaben überprüfen',
-				status: 'open',
+				status: forms.value?.some((form) =>
+					form.tasks.some((task) => task.status === 'blocked'),
+				)
+					? 'blocked'
+					: 'open',
 			},
 		],
 	},
@@ -187,6 +191,7 @@ header
 					v-model="model[form.key]"
 					:selected-item="selectedItem"
 					:summary-offset="mutationForms.slice(0, idx).map(form => form.summaryItems).reduce((a, b) => a + b, 1)"
+					@select="selectedItem = $event"
 				)
 			.kern-container(
 				v-if="selectedItemTask"
