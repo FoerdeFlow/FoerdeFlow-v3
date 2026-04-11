@@ -1,7 +1,6 @@
 import { createUpdateSchema } from 'drizzle-zod'
-import { eq } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 import { z } from 'zod'
-import type { EventContext } from '~~/server/types'
 
 export default defineEventHandler(async (event) => {
 	const runtimeConfig = useRuntimeConfig()
@@ -22,7 +21,7 @@ export default defineEventHandler(async (event) => {
 	await database.transaction(async (tx) => {
 		await checkProcessStepPermission(tx, params.processStep)
 
-		const [result = null] = await tx
+		const [ result = null ] = await tx
 			.update(workflowProcessSteps)
 			.set(body)
 			.where(eq(workflowProcessSteps.id, params.processStep))
@@ -31,7 +30,7 @@ export default defineEventHandler(async (event) => {
 				step: workflowProcessSteps.step,
 			})
 
-		if (!result) {
+		if(!result) {
 			throw createError({
 				statusCode: 404,
 				statusMessage: 'Prozessschritt nicht gefunden',
@@ -51,7 +50,7 @@ export default defineEventHandler(async (event) => {
 				code: true,
 			},
 		})
-		if (!step) {
+		if(!step) {
 			throw createError({
 				statusCode: 404,
 				statusMessage: 'Workflow-Schritt nicht gefunden',
@@ -61,7 +60,7 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
-		if (step.type === 'job' && body.status === 'completed') {
+		if(step.type === 'job' && body.status === 'completed') {
 			await executeProcessJob(step.code, tx, result.process)
 		}
 
@@ -81,7 +80,7 @@ export default defineEventHandler(async (event) => {
 			.set({ status })
 			.where(eq(workflowProcesses.id, result.process))
 
-		if (status === 'completed') {
+		if(status === 'completed') {
 			await applyProcessMutations(tx, result.process)
 		}
 	})
@@ -92,15 +91,21 @@ export default defineEventHandler(async (event) => {
 			process: true,
 		},
 	})
-	const steps = await database.query.workflowProcessSteps.findMany({
-		where: eq(workflowProcessSteps.process, currentStep?.process ?? ''),
-		with: {
-			step: true,
-		},
-		orderBy: (tbl, { asc }) => asc(tbl.step),
-	})
-	const nextStep = steps.filter((s) => s.status === 'pending')[0]
-	if (nextStep && nextStep.step.type === 'job') {
+	const steps = await database
+		.select({
+			id: workflowProcessSteps.id,
+			status: workflowProcessSteps.status,
+			step: {
+				stage: workflowSteps.stage,
+				type: workflowSteps.type,
+			},
+		})
+		.from(workflowProcessSteps)
+		.innerJoin(workflowSteps, eq(workflowProcessSteps.step, workflowSteps.id))
+		.where(eq(workflowProcessSteps.process, currentStep?.process ?? ''))
+		.orderBy(asc(workflowSteps.stage))
+	const nextStep = steps.find((s) => s.status === 'pending')
+	if(nextStep?.step.type === 'job') {
 		await $fetch(`/api/processSteps/${nextStep.id}`, {
 			method: 'PUT',
 			headers: {
