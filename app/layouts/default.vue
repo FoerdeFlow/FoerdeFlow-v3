@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const runtimeConfig = useRuntimeConfig()
 const authStore = useAuthStore()
 const alertStore = useAlertStore()
 
@@ -14,6 +15,19 @@ const displayName = computed(() => authStore.userInfo.person
 </script>
 
 <template lang="pug">
+.kern-kopfzeile(
+	v-if="runtimeConfig.public.environment !== 'production'"
+	:class="`ff3-env-${runtimeConfig.public.environment}`"
+)
+	.kern-container
+		.kern-kopfzeile__content
+			span.kern-icon.kern-icon--warning.ff3-env-icon(aria-hidden="true")
+			span.kern-kopfzeile__label.ff3-env-label
+				| Sie befinden sich in der
+				|
+				b {{ $t(`environment.${runtimeConfig.public.environment}`) }}.
+				|
+				| Diese Umgebung dient nur zu Testzwecken und könnte jederzeit zurückgesetzt werden.
 .kern-kopfzeile
 	.kern-container
 		.kern-kopfzeile__content
@@ -73,3 +87,18 @@ main.kern-container
 		)
 		slot
 </template>
+
+<style scoped>
+.ff3-env-development { background-color: #e86a5b; }
+.ff3-env-stage { background-color: #009dc9; }
+.ff3-env-test { background-color: #d07e00; }
+.ff3-env-qa { background-color: #00a481; }
+
+.ff3-env-icon {
+	background-color: white;
+}
+
+.ff3-env-label {
+	color: white;
+}
+</style>

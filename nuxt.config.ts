@@ -57,6 +57,9 @@ export default defineNuxtConfig({
 		],
 	},
 	runtimeConfig: {
+		public: {
+			environment: 'development',
+		},
 		database: {
 			user: 'foerdeflow',
 			password: 'foerdeflow',
