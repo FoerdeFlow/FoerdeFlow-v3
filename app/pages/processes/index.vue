@@ -39,7 +39,7 @@ KernTable(
 		template(v-if="item.initiatorType === 'organizationItem'")
 			| {{ formatOrganizationItem(item.initiatorOrganizationItem) }}
 		br
-		em {{ formatDatetime(item.createdAt, 'compact') }}
+		span.kern-body.kern-body--small {{ formatDatetime(item.createdAt, 'compact') }}
 	template(#status-header)
 		| Status
 	template(#status-body="{ item }")
@@ -57,7 +57,7 @@ KernTable(
 			| {{ formatOrganizationItem(item.currentStep.step.assigneeOrganizationItem) }}
 		template(v-if="item.previousStep")
 			br
-			em seit {{ formatDatetime(item.previousStep.modifiedAt ?? null, 'compact') }}
+			span.kern-body.kern-body--small seit {{ formatDatetime(item.previousStep.modifiedAt ?? null, 'compact') }}
 	template(#actions="{ item }")
 		NuxtLink.kern-btn.kern-btn--tertiary(
 			:to="{ name: 'processes-view-process', params: { process: item.id } }"
