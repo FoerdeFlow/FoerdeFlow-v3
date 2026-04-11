@@ -86,6 +86,7 @@ export default defineNuxtConfig({
 		},
 		mail: {
 			host: 'localhost',
+			port: 1025,
 			username: 'root',
 			password: '',
 			from: 'FördeFlow <root@localhost>',
