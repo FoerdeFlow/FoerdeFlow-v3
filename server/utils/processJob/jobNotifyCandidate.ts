@@ -12,7 +12,7 @@ export async function jobNotifyCandidate(
 		},
 		columns: {},
 	})
-	if (!process) {
+	if(!process) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Prozess nicht gefunden',
@@ -39,7 +39,7 @@ export async function jobNotifyCandidate(
 			data: true,
 		},
 	})
-	if (!mutation) {
+	if(!mutation) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Candidate mutation not found for process',
@@ -54,7 +54,7 @@ export async function jobNotifyCandidate(
 	let photo = null
 	try {
 		photo = await readFile(`./data/${processId}_${mutation.mutation}_photo`)
-	} catch (error) {
+	} catch(error) {
 		// Ignore error if photo not found
 	}
 
@@ -79,10 +79,10 @@ export async function jobNotifyCandidate(
 		bcc: data.electionCommittee?.election.email,
 		subject: 'Deine Kandidatur - Unterschrift benötigt',
 		text: `Liebe*r ${formatPerson(data.candidate ?? null)},\n\n` +
-			`anbei findest du deine Kandidatur als PDF-Dokument.\n\n` +
-			`Aus rechtlichen Gründen benötigen wir deine Unterschrift auf dem Wahlvorschlag. ` +
-			`Bitte unterschreibe das Dokument und sende es an den Wahlausschuss, indem du auf diese E-Mail antwortest.\n\n` +
-			`Mit freundlichen Grüßen\nDer Wahlausschuss`,
+			'anbei findest du deine Kandidatur als PDF-Dokument.\n\n' +
+			'Aus rechtlichen Gründen benötigen wir deine Unterschrift auf dem Wahlvorschlag. ' +
+			'Bitte unterschreibe das Dokument und sende es an den Wahlausschuss, indem du auf diese E-Mail antwortest.\n\n' +
+			'Mit freundlichen Grüßen\nDer Wahlausschuss',
 		attachments: [
 			{
 				filename: 'Wahlvorschlag_zur_Unterschrift.pdf',

@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if (!electionCommittee) {
+	if(!electionCommittee) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Wahlgremium nicht gefunden',

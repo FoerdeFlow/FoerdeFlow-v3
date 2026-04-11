@@ -1,5 +1,5 @@
 import { eq, type InferSelectModel } from 'drizzle-orm'
-import z from 'zod'
+import type z from 'zod'
 
 const encoders = {
 	candidates: async (

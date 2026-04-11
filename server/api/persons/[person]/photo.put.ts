@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 	}).parseAsync(data))
 
 	const body = await readRawBody(event, false)
-	if (!body || body.length === 0) {
+	if(!body || body.length === 0) {
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'Bad Request',
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if (!person) {
+	if(!person) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Person nicht gefunden',

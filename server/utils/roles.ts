@@ -29,7 +29,7 @@ export async function getPersonRoles(person: string) {
 			email: true,
 		},
 	})
-	if (!personData) {
+	if(!personData) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Person nicht gefunden',

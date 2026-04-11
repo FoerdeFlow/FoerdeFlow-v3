@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if (!electionProposal) {
+	if(!electionProposal) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Wahlvorschlag nicht gefunden',

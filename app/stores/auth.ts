@@ -51,7 +51,7 @@ export const useAuthStore = defineStore('auth', () => {
 
 	function requireLogin() {
 		onMounted(() => {
-			if (!loggedIn.value) {
+			if(!loggedIn.value) {
 				login()
 			}
 		})

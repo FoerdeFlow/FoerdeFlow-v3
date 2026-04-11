@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
 
 	try {
 		return await readFile(`./data/${params.process}_${params.attachment}`)
-	} catch (error) {
+	} catch(error) {
 		throw createError({
 			statusCode: 404,
 			message: 'Anhang nicht gefunden',

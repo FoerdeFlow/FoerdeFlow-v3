@@ -21,7 +21,7 @@ export async function sendMail(message: {
 			pass: runtimeConfig.mail.password,
 		},
 		tls: {
-			rejectUnauthorized: import.meta.dev ? false : true,
+			rejectUnauthorized: !import.meta.dev,
 		},
 	})
 

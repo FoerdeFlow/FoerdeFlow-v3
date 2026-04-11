@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if (!roleOccupant) {
+	if(!roleOccupant) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Rolleninhaber nicht gefunden',

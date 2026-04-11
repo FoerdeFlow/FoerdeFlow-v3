@@ -3,8 +3,8 @@ export async function executeProcessJob(
 	tx: ReturnType<typeof useDatabase>,
 	processId: string,
 ) {
-	const [job, ...args] = jobLabel.split('-')
-	switch (job) {
+	const [ job, ...args ] = jobLabel.split('-')
+	switch(job) {
 		case 'createDocument':
 			const target = args[0]
 			await jobCreateDocument(tx, processId, target ?? '')

@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	const [candidate] = await $fetch(`/api/candidates?electionProposal=${params.electionProposal}`, {
+	const [ candidate ] = await $fetch(`/api/candidates?electionProposal=${params.electionProposal}`, {
 		headers: {
 			cookie: getHeader(event, 'cookie') ?? '',
 			'x-foerdeflow-api-key': getHeader(event, 'x-foerdeflow-api-key') ?? '',

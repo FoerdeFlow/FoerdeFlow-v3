@@ -30,8 +30,8 @@ const selectModel = computed({
 .kern-form-input__select-wrapper
 	select.kern-form-input__select(
 		:id="props.id"
-		:disabled="props.readonly"
 		v-model="selectModel"
+		:disabled="props.readonly"
 	)
 		option(
 			disabled

@@ -1,6 +1,6 @@
 import { copyFile } from 'node:fs/promises'
 import { eq, type InferInsertModel } from 'drizzle-orm'
-import z from 'zod'
+import type z from 'zod'
 
 async function createCandidate(
 	tx: ReturnType<typeof useDatabase>,
@@ -12,7 +12,7 @@ async function createCandidate(
 		initiatorPerson: string
 	},
 ) {
-	const [result] = await tx
+	const [ result ] = await tx
 		.insert(electionProposals)
 		.values({
 			electionCommittee: data.electionCommittee,
@@ -53,12 +53,12 @@ async function createExpenseAuthorization(
 		>[]
 	},
 ) {
-	const [result] = await tx
+	const [ result ] = await tx
 		.insert(expenseAuthorizations)
 		.values(data)
 		.returning({ id: expenseAuthorizations.id })
 
-	for (const item of data.items) {
+	for(const item of data.items) {
 		await tx.insert(expenseAuthorizationItems).values({
 			...item,
 			expenseAuthorization: result.id,
@@ -91,7 +91,7 @@ export async function applyProcessMutations(
 		},
 	})
 
-	for (const mutation of mutations) {
+	for(const mutation of mutations) {
 		const handler = {
 			candidates: {
 				create: createCandidate,
@@ -105,7 +105,7 @@ export async function applyProcessMutations(
 			},
 		}[mutation.mutation.table]?.[mutation.mutation.action]
 
-		if (!handler) {
+		if(!handler) {
 			continue
 		}
 

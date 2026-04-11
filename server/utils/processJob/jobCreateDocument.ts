@@ -13,7 +13,7 @@ export async function jobCreateDocument(
 		},
 		columns: {},
 	})
-	if (!process) {
+	if(!process) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Prozess nicht gefunden',
@@ -42,7 +42,7 @@ export async function jobCreateDocument(
 			data: true,
 		},
 	})
-	if (!mutation) {
+	if(!mutation) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Document-supported mutation not found for process',
@@ -53,7 +53,7 @@ export async function jobCreateDocument(
 	}
 
 	const data = await encodeProcessData(tx, 'expenseAuthorizations', mutation.data as any)
-	if (!data.budgetPlanItem) {
+	if(!data.budgetPlanItem) {
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'Haushaltstitel fehlt',
@@ -63,12 +63,12 @@ export async function jobCreateDocument(
 	const doc = await pdfEncodeExpenseAuthorization(data, { document: true })
 
 	const latestDocument = await tx.query.documents.findFirst({
-		orderBy: (tbl) => [desc(tbl.period)],
+		orderBy: (tbl) => [ desc(tbl.period) ],
 		columns: {
 			period: true,
 		},
 	})
-	if (!latestDocument) {
+	if(!latestDocument) {
 		throw createError({
 			statusCode: 500,
 			statusMessage: 'No documents found to determine period for new document',
@@ -81,7 +81,7 @@ export async function jobCreateDocument(
 			id: true,
 		},
 	})
-	if (!type) {
+	if(!type) {
 		throw createError({
 			statusCode: 500,
 			statusMessage: 'Document type "expenseAuthorization" not found',
@@ -94,7 +94,7 @@ export async function jobCreateDocument(
 			id: true,
 		},
 	})
-	if (!targetOrganizationItem) {
+	if(!targetOrganizationItem) {
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'Ungültige Ziel-OE',
@@ -104,7 +104,7 @@ export async function jobCreateDocument(
 		})
 	}
 
-	const [document = null] = await tx.insert(documents).values({
+	const [ document = null ] = await tx.insert(documents).values({
 		period: latestDocument.period,
 		title: data.title,
 		type: type.id,
@@ -113,7 +113,7 @@ export async function jobCreateDocument(
 	}).returning({
 		id: documents.id,
 	})
-	if (!document) {
+	if(!document) {
 		throw createError({
 			statusCode: 500,
 			statusMessage: 'Failed to create document',

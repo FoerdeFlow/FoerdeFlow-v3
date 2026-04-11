@@ -1,5 +1,5 @@
-import { eq } from 'drizzle-orm'
 import { existsSync } from 'node:fs'
+import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if (!person) {
+	if(!person) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Person nicht gefunden',

@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { EventContext } from '../types'
+import type { EventContext } from '../types'
 
 export async function checkProcessPermission(processId: string) {
 	const event = useEvent()
@@ -16,7 +16,7 @@ export async function checkProcessPermission(processId: string) {
 				initiatorOrganizationItem: true,
 			},
 		})
-		if (!process) {
+		if(!process) {
 			throw createError({
 				statusCode: 404,
 				statusMessage: 'Prozess nicht gefunden',
@@ -25,14 +25,14 @@ export async function checkProcessPermission(processId: string) {
 				},
 			})
 		}
-		if (
+		if(
 			process.initiatorType === 'person' &&
 			process.initiatorPerson === (event.context as EventContext).user?.person?.id
 		) {
 			hasPermission = true
 			return
 		}
-		if (
+		if(
 			process.initiatorType === 'organizationItem' &&
 			(event.context as EventContext).user?.memberships?.some((membership) => membership.organizationItem.id === process.initiatorOrganizationItem)
 		) {
@@ -47,17 +47,16 @@ export async function checkProcessPermission(processId: string) {
 			},
 		})
 
-		if ((await Promise.all(
+		if((await Promise.all(
 			steps.map(async (step) =>
-				await checkProcessStepPermission(tx, step.id, false).then(() => true).catch(() => false)
-			)
+				await checkProcessStepPermission(tx, step.id, false).then(() => true).catch(() => false),
+			),
 		)).some((hasPermission) => hasPermission)) {
 			hasPermission = true
-			return
 		}
 	})
 
-	if (!hasPermission) {
+	if(!hasPermission) {
 		throw createError({
 			statusCode: 403,
 			statusMessage: 'Keine Berechtigung für diesen Prozess',

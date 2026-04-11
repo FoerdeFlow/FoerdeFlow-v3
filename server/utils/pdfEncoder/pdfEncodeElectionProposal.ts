@@ -49,7 +49,7 @@ export async function pdfEncodeElectionProposal(entry: {
 	y += 12
 
 	const photoHeight = 70
-	if (entry.photo) {
+	if(entry.photo) {
 		const photoProps = doc.getImageProperties(entry.photo)
 		const photoWidth = photoProps.width / photoProps.height * photoHeight
 		doc.addImage(entry.photo, 'PNG', docWidth / 2 - photoWidth / 2, y, photoWidth, photoHeight)

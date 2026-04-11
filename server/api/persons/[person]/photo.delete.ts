@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if (!person) {
+	if(!person) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Person nicht gefunden',
@@ -30,7 +30,7 @@ export default defineEventHandler(async (event) => {
 
 	try {
 		await unlink(`./data/${params.person}`)
-	} catch (_error) {
+	} catch(_error) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Bild nicht gefunden',

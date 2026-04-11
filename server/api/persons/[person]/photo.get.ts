@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { existsSync } from 'node:fs'
 
 export default defineEventHandler(async (event) => {
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if (!person) {
+	if(!person) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Person nicht gefunden',
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
 	// However, persons.read would be too broad
 	await checkPermission('organizationItems.read')
 
-	if (!existsSync(`./data/${params.person}`)) {
+	if(!existsSync(`./data/${params.person}`)) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Bild nicht gefunden',

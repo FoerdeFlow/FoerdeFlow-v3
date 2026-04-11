@@ -25,12 +25,12 @@ export const electionCommittees = pgTable('election_committees', {
 
 export const electionCommitteesRelations = relations(electionCommittees, ({ one }) => ({
 	election: one(elections, {
-		fields: [electionCommittees.election],
-		references: [elections.id],
+		fields: [ electionCommittees.election ],
+		references: [ elections.id ],
 	}),
 	committee: one(organizationItems, {
-		fields: [electionCommittees.committee],
-		references: [organizationItems.id],
+		fields: [ electionCommittees.committee ],
+		references: [ organizationItems.id ],
 	}),
 }))
 
@@ -42,12 +42,12 @@ export const electionProposals = pgTable('election_proposals', {
 
 export const electionProposalsRelations = relations(electionProposals, ({ one }) => ({
 	electionCommittee: one(electionCommittees, {
-		fields: [electionProposals.electionCommittee],
-		references: [electionCommittees.id],
+		fields: [ electionProposals.electionCommittee ],
+		references: [ electionCommittees.id ],
 	}),
 	submitter: one(persons, {
-		fields: [electionProposals.submitter],
-		references: [persons.id],
+		fields: [ electionProposals.submitter ],
+		references: [ persons.id ],
 	}),
 }))
 
@@ -60,11 +60,11 @@ export const candidates = pgTable('candidates', {
 
 export const candidatesRelations = relations(candidates, ({ one }) => ({
 	electionProposal: one(electionProposals, {
-		fields: [candidates.electionProposal],
-		references: [electionProposals.id],
+		fields: [ candidates.electionProposal ],
+		references: [ electionProposals.id ],
 	}),
 	candidate: one(persons, {
-		fields: [candidates.candidate],
-		references: [persons.id],
+		fields: [ candidates.candidate ],
+		references: [ persons.id ],
 	}),
 }))

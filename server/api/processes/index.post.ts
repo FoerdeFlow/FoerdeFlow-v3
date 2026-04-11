@@ -1,6 +1,6 @@
+import { writeFile } from 'node:fs/promises'
 import { eq } from 'drizzle-orm'
 import { createInsertSchema } from 'drizzle-zod'
-import { writeFile } from 'node:fs/promises'
 import { z } from 'zod'
 import type { EventContext } from '~~/server/types'
 
@@ -10,15 +10,15 @@ const mutationTargetTables = {
 
 export default defineEventHandler(async (event) => {
 	const formData = await readMultipartFormData(event)
-	if (!formData) {
+	if(!formData) {
 		throw createError({
 			statusCode: 400,
 			message: 'Expected multipart form data',
 		})
 	}
 
-	const entries = Object.fromEntries(formData.map((entry) => [entry.name, entry.data]))
-	if (!entries.data) {
+	const entries = Object.fromEntries(formData.map((entry) => [ entry.name, entry.data ]))
+	if(!entries.data) {
 		throw createError({
 			statusCode: 400,
 			message: 'Missing data field in form data',
@@ -58,19 +58,19 @@ export default defineEventHandler(async (event) => {
 		})
 		: null
 
-	switch (body.initiatorType) {
+	switch(body.initiatorType) {
 		case 'person':
-			if (body.initiatorOrganizationItem) {
+			if(body.initiatorOrganizationItem) {
 				throw createError({
 					statusCode: 400,
 					message: 'initiatorOrganizationItem darf nicht gesetzt sein',
 				})
 			}
 			await checkPermission('workflowProcesses.create')
-			if (!allowedInitiators.some((item) =>
+			if(!allowedInitiators.some((item) =>
 				item.person === context.user?.person?.id ||
 				context.user?.roles.some((role) => item.role === role.id) ||
-				Object.entries(item).every(([key, value]) => key === 'id' || value === null),
+				Object.entries(item).every(([ key, value ]) => key === 'id' || value === null),
 			)) {
 				throw createError({
 					statusCode: 403,
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
 			}
 			break
 		case 'organizationItem':
-			if (!body.initiatorOrganizationItem) {
+			if(!body.initiatorOrganizationItem) {
 				throw createError({
 					statusCode: 400,
 					message: 'initiatorOrganizationItem ist erforderlich',
@@ -90,7 +90,7 @@ export default defineEventHandler(async (event) => {
 				{ organizationItem: body.initiatorOrganizationItem },
 				{ exactScopeMatch: true },
 			)
-			if (!allowedInitiators.some((item) =>
+			if(!allowedInitiators.some((item) =>
 				item.organizationItem === body.initiatorOrganizationItem ||
 				item.organizationType === organizationTypeResult?.organizationType,
 			)) {
@@ -105,7 +105,7 @@ export default defineEventHandler(async (event) => {
 	const attachmentFiles: Record<string, Buffer> = {}
 
 	const response = await database.transaction(async (tx) => {
-		const [result = null] = await tx.insert(workflowProcesses)
+		const [ result = null ] = await tx.insert(workflowProcesses)
 			.values({
 				...body,
 				...(body.initiatorType === 'person'
@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
 				id: workflowProcesses.id,
 				workflow: workflowProcesses.workflow,
 			})
-		if (!result) {
+		if(!result) {
 			throw createError({
 				statusCode: 400,
 				message: 'Prozess konnte nicht erstellt werden',
@@ -133,9 +133,9 @@ export default defineEventHandler(async (event) => {
 				mutations: true,
 			},
 		})
-		if (!workflow) throw createError({ statusCode: 500 })
+		if(!workflow) throw createError({ statusCode: 500 })
 
-		for (const step of workflow.steps) {
+		for(const step of workflow.steps) {
 			await tx.insert(workflowProcessSteps).values({
 				process: result.id,
 				step: step.id,
@@ -143,17 +143,17 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
-		for (const mutation of workflow.mutations) {
+		for(const mutation of workflow.mutations) {
 			const mutationInput = body.mutations.find((item) => item.mutation === mutation.id)
-			if (!mutationInput) {
+			if(!mutationInput) {
 				throw createError({
 					statusCode: 400,
 					message: `Fehlende Eingabedaten für Mutation ${mutation.id}`,
 				})
 			}
 
-			const schema = processSchemas[mutation.table as keyof typeof processSchemas]?.[mutation.action as 'create' | 'update' | 'delete'] as any
-			if (!schema) {
+			const schema = processSchemas[mutation.table as keyof typeof processSchemas]?.[mutation.action] as any
+			if(!schema) {
 				throw createError({
 					statusCode: 400,
 					message: `Unbekannte Aktion für Mutation ${mutation.id}`,
@@ -162,7 +162,7 @@ export default defineEventHandler(async (event) => {
 			let data = null
 			try {
 				data = await schema.parseAsync(JSON.parse(entries[`mutation_${mutation.id}_data`]))
-			} catch (error) {
+			} catch(error) {
 				throw createError({
 					statusCode: 400,
 					message: `Ungültige Eingabedaten für Mutation ${mutation.id}`,
@@ -171,7 +171,7 @@ export default defineEventHandler(async (event) => {
 			}
 
 			const attachments = processSchemas[mutation.table as keyof typeof processSchemas]?.attachments || [] as string[]
-			for (const attachment of attachments) {
+			for(const attachment of attachments) {
 				const attachmentData = entries[`mutation_${mutation.id}_attachment_${attachment}`]
 				attachmentFiles[`${mutation.id}_${attachment}`] = attachmentData
 			}
@@ -187,7 +187,7 @@ export default defineEventHandler(async (event) => {
 		return result
 	})
 
-	for (const [key, file] of Object.entries(attachmentFiles)) {
+	for(const [ key, file ] of Object.entries(attachmentFiles)) {
 		await writeFile(`./data/${response.id}_${key}`, file)
 	}
 	return response

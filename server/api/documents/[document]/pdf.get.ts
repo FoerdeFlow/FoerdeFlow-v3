@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if (!document) {
+	if(!document) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Dokument nicht gefunden',
@@ -73,10 +73,10 @@ export default defineEventHandler(async (event) => {
 	doc.setFont('OpenSans', 'normal')
 	doc.setFontSize(12)
 	doc.text('eingereicht von', 20, 120)
-	if (document.authorPerson) {
+	if(document.authorPerson) {
 		doc.setFontSize(16)
 		doc.text(formatPerson(document.authorPerson), 20, 130)
-	} else if (document.authorOrganizationItem) {
+	} else if(document.authorOrganizationItem) {
 		doc.setFontSize(16)
 		doc.text(formatOrganizationItem(document.authorOrganizationItem), 20, 130)
 	}
@@ -91,8 +91,8 @@ export default defineEventHandler(async (event) => {
 	const rawPages = await pdfDoc.copyPages(rawPdfDoc, rawPdfDoc.getPageIndices())
 	rawPages.forEach((page) => pdfDoc.addPage(page))
 
-	const [_prefixPage, ...pages] = pdfDoc.getPages()
-	for (const page of pages) {
+	const [ _prefixPage, ...pages ] = pdfDoc.getPages()
+	for(const page of pages) {
 		const { width, height } = page.getSize()
 		page.drawText(`${document.organizationItem.code}-Drs.`, {
 			x: 20,

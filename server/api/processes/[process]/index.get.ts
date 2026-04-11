@@ -1,5 +1,5 @@
-import { eq } from 'drizzle-orm'
 import { access } from 'node:fs/promises'
+import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
 			},
 		})
 
-		if (!processItem) {
+		if(!processItem) {
 			throw createError({
 				statusCode: 404,
 				message: 'Prozess nicht gefunden',
@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
 				attachments: (await Promise.all((processSchemas[mutation.mutation.table as keyof typeof processSchemas]?.attachments ?? []).map(async (attachment) => ({
 					name: attachment,
 					present: await access(`./data/${params.process}_${mutation.mutation.id}_photo`).then(() => true).catch(() => false),
-				})))).filter(attachment => attachment.present).map(attachment => attachment.name) as string[],
+				})))).filter((attachment) => attachment.present).map((attachment) => attachment.name) as string[],
 			}))),
 		}
 	})

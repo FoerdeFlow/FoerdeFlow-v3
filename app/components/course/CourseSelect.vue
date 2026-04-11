@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Council, CourseType, Department } from '~/types';
+import type { Council, CourseType, Department } from '~/types'
 
 const props = defineProps<{
 	id: string
