@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import type { ProcessStepEditor } from '#components'
+import type { ProcessStepEditor, ProcessStepConnectionEditor } from '#components'
 
 const route = useRoute('processes-view-process')
 const editor = useTemplateRef<typeof ProcessStepEditor>('editor')
+const connectionEditor = useTemplateRef<typeof ProcessStepConnectionEditor>('connectionEditor')
 
 const { data, refresh } = useFetch(`/api/processes/${route.params.process}`)
 
 function openEditor(id: string) {
 	if(!editor.value) return
 	editor.value.open(id)
+}
+
+function openConnectionEditor(id: string, organizationItem: string) {
+	if(!connectionEditor.value) return
+	connectionEditor.value.open(id, organizationItem)
 }
 </script>
 
@@ -112,8 +118,23 @@ KernTable.mt-8(
 			template(v-else)
 				span.kern-icon.kern-icon--edit(aria-hidden="true")
 				span.kern-label.kern-sr-only Schritt erneut bearbeiten
+		button.kern-btn.kern-btn--tertiary(
+			v-if=`
+				item.editable &&
+				item.status === 'pending' &&
+				item.step.assignee === 'organizationItem' &&
+				[ 'comment', 'approval' ].includes(item.step.type)
+			`
+			type="button"
+			@click="openConnectionEditor(item.id, item.step.assigneeOrganizationItem?.id ?? '')"
+		)
+			span.kern-icon.kern-icon--content-copy(aria-hidden="true")
+			span.kern-label.kern-sr-only Zu OpenSlides übertragen
 ProcessStepEditor(
 	ref="editor"
 	@refresh="refresh"
+)
+ProcessStepConnectionEditor(
+	ref="connectionEditor"
 )
 </template>
