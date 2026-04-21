@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import z from 'zod'
 import type { DestructureArray } from '#shared/types'
 
@@ -27,11 +28,21 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	return memberships as (DestructureArray<typeof memberships> & (
+	return memberships.map((membership) => ({
+		...membership,
+		memberPerson: membership.memberPerson
+			? {
+				...membership.memberPerson,
+				hasPhoto: existsSync(`./data/${membership.memberPerson.id}`),
+			}
+			: null,
+	})) as (DestructureArray<typeof memberships> & (
 		{
 			memberType: 'person'
 			memberPerson: Exclude<
-				(DestructureArray<typeof memberships>)['memberPerson'],
+				(DestructureArray<typeof memberships>)['memberPerson'] | {
+					hasPhoto: boolean
+				},
 				null
 			>
 			memberOrganizationItem: null
