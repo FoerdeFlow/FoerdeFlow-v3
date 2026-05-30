@@ -66,7 +66,11 @@ export async function getSessionMembers(
 		groupName: group.groupName,
 		roleName: group.roleName,
 		members: (await Promise.all(group.members.map(async (member) =>
-			(await getEffectiveMembers([ member.organizationItem ], [ member.membershipType ]))
+			(await getEffectiveMembers(
+				[ member.organizationItem ],
+				[ member.membershipType ],
+				session.plannedDate,
+			))
 				.map((person) => attendances
 					.find((attendance) => attendance.person.id === person.id) ??
 					{

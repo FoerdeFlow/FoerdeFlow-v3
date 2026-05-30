@@ -1,7 +1,11 @@
 import { and, eq, gt, inArray, isNull, lt, or } from 'drizzle-orm'
 import type { DestructureArray } from '#shared/types'
 
-export async function getEffectiveMembers(organizationItems: string[], membershipTypes: string[] | null) {
+export async function getEffectiveMembers(
+	organizationItems: string[],
+	membershipTypes: string[] | null,
+	effectiveDate: Date = new Date(),
+) {
 	const database = useDatabase()
 
 	const members = await database.query.memberships.findMany({
@@ -10,11 +14,11 @@ export async function getEffectiveMembers(organizationItems: string[], membershi
 			...(membershipTypes ? [ inArray(memberships.membershipType, membershipTypes) ] : []),
 			or(
 				isNull(memberships.startDate),
-				lt(memberships.startDate, new Date()),
+				lt(memberships.startDate, effectiveDate),
 			),
 			or(
 				isNull(memberships.endDate),
-				gt(memberships.endDate, new Date()),
+				gt(memberships.endDate, effectiveDate),
 			),
 		),
 		columns: {
