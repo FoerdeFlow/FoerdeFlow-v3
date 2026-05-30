@@ -91,6 +91,10 @@ export default defineEventHandler(async (event) => {
 
 	const listedParticipants = new Set<string>()
 	for(const participantGroup of participantGroups) {
+		if(!participantGroup.participants.some((participant) => !listedParticipants.has(participant.name))) {
+			continue
+		}
+
 		if(pos.y + 12 > docHeight - 42) {
 			pos.y = docHeight
 		}
