@@ -89,6 +89,7 @@ export default defineEventHandler(async (event) => {
 	doc.text(sessionTitle, 20, pos.y)
 	pos.y += 20
 
+	const listedParticipants = new Set<string>()
 	for(const participantGroup of participantGroups) {
 		if(pos.y + 12 > docHeight - 42) {
 			pos.y = docHeight
@@ -99,6 +100,11 @@ export default defineEventHandler(async (event) => {
 		pos.y += 8
 
 		for(const participant of participantGroup.participants) {
+			if(listedParticipants.has(participant.name)) {
+				continue
+			}
+			listedParticipants.add(participant.name)
+
 			doc.setFont('OpenSans', 'normal')
 			doc.setFontSize(12)
 			doc.text(participant.name, 20, pos.y, { maxWidth: 75 })
