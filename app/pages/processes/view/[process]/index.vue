@@ -49,6 +49,12 @@ section.my-8(
 )
 	header
 		h2.kern-heading-medium {{ $t(`${mutation.mutation.table.substring(0, mutation.mutation.table.length - 1)}.${mutation.mutation.action}.title`) }}
+	BudgetPlanForm(
+		v-if="mutation.mutation.table === 'budgetPlans'"
+		readonly
+		selected-item="summary"
+		:model-value="mutation.data"
+	)
 	ExpenseAuthorizationForm(
 		v-if="mutation.mutation.table === 'expenseAuthorizations'"
 		readonly

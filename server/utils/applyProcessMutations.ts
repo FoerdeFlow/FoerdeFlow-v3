@@ -40,6 +40,32 @@ async function createCandidate(
 	)
 }
 
+async function createBudgetPlan(
+	tx: ReturnType<typeof useDatabase>,
+	_dataId: string | null,
+	data: Omit<
+		InferInsertModel<typeof budgetPlans>,
+		'id'
+	> & {
+		items: Omit<
+			InferInsertModel<typeof budgetPlanItems>,
+			'id' | 'budgetPlan'
+		>[]
+	},
+) {
+	const [ result ] = await tx
+		.insert(budgetPlans)
+		.values(data)
+		.returning({ id: budgetPlans.id })
+
+	for(const item of data.items) {
+		await tx.insert(budgetPlanItems).values({
+			...item,
+			plan: result.id,
+		})
+	}
+}
+
 async function createExpenseAuthorization(
 	tx: ReturnType<typeof useDatabase>,
 	_dataId: string | null,
@@ -95,6 +121,11 @@ export async function applyProcessMutations(
 		const handler = {
 			candidates: {
 				create: createCandidate,
+				update: () => { /**/ },
+				delete: () => { /**/ },
+			},
+			budgetPlans: {
+				create: createBudgetPlan,
 				update: () => { /**/ },
 				delete: () => { /**/ },
 			},

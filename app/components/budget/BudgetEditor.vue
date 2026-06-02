@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 import { KernDialog } from '#components'
-import type { OrganizationItem } from '~/types'
+import type { BudgetPeriodType, OrganizationItem } from '~/types'
 
 const { t } = useI18n()
 
@@ -13,6 +13,7 @@ interface Model {
 	organizationItem: OrganizationItem
 	code: string
 	name: string
+	periodType: BudgetPeriodType
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -35,6 +36,7 @@ defineExpose({
 			organizationItem: null,
 			code: '',
 			name: '',
+			periodType: 'calendarYear',
 		})
 	},
 	async edit(id: string) {
@@ -59,6 +61,7 @@ async function save() {
 			organizationItem: model.value.organizationItem?.id ?? null,
 			code: model.value.code,
 			name: model.value.name,
+			periodType: model.value.periodType,
 		}
 		if(itemId.value) {
 			await $fetch(`/api/budgets/${itemId.value}`, {
@@ -100,4 +103,5 @@ KernDialog(
 		BudgetOrganizationItemInput(v-model="model.organizationItem")
 		BudgetCodeInput(v-model="model.code")
 		BudgetNameInput(v-model="model.name")
+		BudgetPeriodTypeInput(v-model="model.periodType")
 </template>

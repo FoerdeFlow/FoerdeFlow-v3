@@ -41,6 +41,19 @@ const encoders = {
 			},
 		}) ?? null,
 	}),
+	budgetPlans: async (
+		tx: ReturnType<typeof useDatabase>,
+		model: z.infer<typeof processSchemas.budgetPlans.create>,
+	) => ({
+		...model,
+		budget: await tx.query.budgets.findFirst({
+			where: eq(budgets.id, model.budget),
+			columns: {
+				code: true,
+				name: true,
+			},
+		}) ?? null,
+	}),
 	expenseAuthorizations: async (
 		tx: ReturnType<typeof useDatabase>,
 		model: InferSelectModel<typeof expenseAuthorizations> & {

@@ -1,0 +1,2 @@
+CREATE TYPE "public"."budget_period_types" AS ENUM('calendarYear', 'semester');--> statement-breakpoint
+ALTER TABLE "budgets" ADD COLUMN "period_type" "budget_period_types" DEFAULT 'calendarYear' NOT NULL;

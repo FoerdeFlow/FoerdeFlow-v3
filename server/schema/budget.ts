@@ -4,6 +4,7 @@ import {
 	date,
 	integer,
 	numeric,
+	pgEnum,
 	pgTable,
 	unique,
 	uuid,
@@ -12,11 +13,17 @@ import {
 
 import { organizationItems } from './organizationItem'
 
+export const budgetPeriodTypes = pgEnum('budget_period_types', [
+	'calendarYear',
+	'semester',
+])
+
 export const budgets = pgTable('budgets', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	organizationItem: uuid().notNull().references(() => organizationItems.id),
 	code: varchar({ length: 16 }).notNull(),
 	name: varchar({ length: 256 }).notNull(),
+	periodType: budgetPeriodTypes().notNull().default('calendarYear'),
 })
 
 export const budgetsRelations = relations(budgets, ({ one, many }) => ({

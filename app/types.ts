@@ -1,6 +1,7 @@
 import type {
 	AttendanceStatusSelect,
 	BudgetSelect,
+	BudgetPeriodTypeSelect,
 	BudgetPlanSelect,
 	BudgetPlanItemSelect,
 	BuildingSelect,
@@ -30,6 +31,7 @@ import type {
 
 export type AttendanceStatus = InstanceType<typeof AttendanceStatusSelect>['$props']['modelValue']
 export type Budget = InstanceType<typeof BudgetSelect>['$props']['modelValue']
+export type BudgetPeriodType = InstanceType<typeof BudgetPeriodTypeSelect>['$props']['modelValue']
 export type BudgetPlan = InstanceType<typeof BudgetPlanSelect>['$props']['modelValue']
 export type BudgetPlanItem = InstanceType<typeof BudgetPlanItemSelect>['$props']['modelValue']
 export type Building = InstanceType<typeof BuildingSelect>['$props']['modelValue']
@@ -51,6 +53,7 @@ export type Room = InstanceType<typeof RoomSelect>['$props']['modelValue']
 export type Session = InstanceType<typeof SessionSelect>['$props']['modelValue']
 export type WorkflowStepType = InstanceType<typeof WorkflowStepTypeSelect>['$props']['modelValue']
 
+export type BudgetPlanFormModel = InstanceType<typeof BudgetPlanForm>['$props']['modelValue']
 export type ExpenseAuthorizationFormModel = InstanceType<typeof ExpenseAuthorizationForm>['$props']['modelValue']
 
 export type WorkflowCustomCandidateFormModel = InstanceType<typeof WorkflowCustomCandidateForm>['$props']['modelValue']
@@ -71,6 +74,7 @@ export interface Scope {
 
 export interface BudgetPlanItemInput {
 	id: string | symbol | null
+	ord: number | null
 	title: string
 	description: string
 	revenues: number | null

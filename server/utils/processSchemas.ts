@@ -1,6 +1,22 @@
 import z from 'zod'
 
 export const processSchemas = {
+	budgetPlans: {
+		create: z.strictObject({
+			budget: z.uuid(),
+			startDate: z.coerce.date(),
+			endDate: z.coerce.date(),
+			items: z.array(z.strictObject({
+				ord: z.number().int().positive(),
+				title: z.string().min(1),
+				revenues: z.number().multipleOf(0.01).nonnegative().optional(),
+				expenses: z.number().multipleOf(0.01).nonnegative().optional(),
+				description: z.string().min(1).nullable(),
+			})).min(1),
+		}),
+		update: null,
+		delete: null,
+	},
 	expenseAuthorizations: {
 		create: z.strictObject({
 			title: z.string().min(1),

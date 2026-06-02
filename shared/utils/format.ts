@@ -213,8 +213,8 @@ export function formatBudget(
 
 export function formatBudgetPlan(
 	budgetPlan: {
-		startDate: string | Date,
-		endDate: string | Date,
+		startDate: string | Date | null,
+		endDate: string | Date | null,
 	} | null,
 ): string {
 	if(!budgetPlan) return ''
