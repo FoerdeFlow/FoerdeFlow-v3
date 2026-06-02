@@ -7,7 +7,9 @@
 		"dev": "NODE_TLS_REJECT_UNAUTHORIZED=0 nuxt dev",
 		"generate": "nuxt generate",
 		"preview": "nuxt preview",
-		"postinstall": "nuxt prepare"
+		"postinstall": "nuxt prepare",
+		"prepare": "husky",
+		"lint": "eslint ."
 	},
 	"dependencies": {
 		"@eslint/js": "^9.34.0",
@@ -48,6 +50,7 @@
 	"devDependencies": {
 		"@types/nodemailer": "^8.0.0",
 		"@types/oidc-provider": "^9.1.2",
+		"husky": "^9.1.7",
 		"oidc-provider": "^9.4.1"
 	}
 }
