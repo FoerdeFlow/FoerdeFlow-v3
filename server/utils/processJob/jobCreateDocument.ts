@@ -1,5 +1,6 @@
 import { writeFile } from 'node:fs/promises'
 import { desc, eq } from 'drizzle-orm'
+import type jsPDF from 'jspdf'
 
 export async function jobCreateDocument(
 	tx: ReturnType<typeof useDatabase>,
@@ -8,10 +9,11 @@ export async function jobCreateDocument(
 ) {
 	const process = await tx.query.workflowProcesses.findFirst({
 		where: eq(workflowProcesses.id, processId),
-		with: {
+		columns: {
+			initiatorType: true,
 			initiatorPerson: true,
+			initiatorOrganizationItem: true,
 		},
-		columns: {},
 	})
 	if(!process) {
 		throw createError({
@@ -23,6 +25,10 @@ export async function jobCreateDocument(
 		})
 	}
 
+	const allowedMutationTables = [
+		'budgetPlans',
+		'expenseAuthorizations',
+	] as const
 	const mutation = await tx.query.workflowProcessMutations.findFirst({
 		where: (tbl, { and, eq, inArray, exists }) => and(
 			eq(tbl.process, processId),
@@ -31,14 +37,20 @@ export async function jobCreateDocument(
 					.from(workflowMutations)
 					.where(and(
 						eq(workflowMutations.id, tbl.mutation),
-						inArray(workflowMutations.table, [
-							'expenseAuthorizations',
-						]),
+						inArray(workflowMutations.table, allowedMutationTables),
 					)),
 			),
 		),
+		with: {
+			mutation: {
+				columns: {
+					id: true,
+					table: true,
+				},
+			},
+		},
 		columns: {
-			mutation: true,
+			mutation: false,
 			data: true,
 		},
 	})
@@ -52,15 +64,37 @@ export async function jobCreateDocument(
 		})
 	}
 
-	const data = await encodeProcessData(tx, 'expenseAuthorizations', mutation.data as any)
-	if(!data.budgetPlanItem) {
-		throw createError({
-			statusCode: 400,
-			statusMessage: 'Haushaltstitel fehlt',
-		})
+	const data = await encodeProcessData(
+		tx,
+		mutation.mutation.table as typeof allowedMutationTables[number],
+		mutation.data as any,
+	)
+
+	let doc: jsPDF
+	switch(mutation.mutation.table) {
+		case 'budgetPlans':
+			// @ts-expect-error - We ensure the type safety above
+			doc = await pdfEncodeBudgetPlan(data, { document: true })
+			break
+		case 'expenseAuthorizations':
+			if(!data.budgetPlanItem) {
+				throw createError({
+					statusCode: 400,
+					statusMessage: 'Haushaltstitel fehlt',
+				})
+			}
+			// @ts-expect-error - We ensure the type safety above
+			doc = await pdfEncodeExpenseAuthorization(data, { document: true })
+			break
+		default:
+			throw createError({
+				statusCode: 400,
+				statusMessage: 'Unsupported mutation type for document creation',
+				data: {
+					mutationTable: mutation.mutation.table,
+				},
+			})
 	}
-	// @ts-expect-error - We ensure the type safety above
-	const doc = await pdfEncodeExpenseAuthorization(data, { document: true })
 
 	const latestDocument = await tx.query.documents.findFirst({
 		orderBy: (tbl) => [ desc(tbl.period) ],
@@ -76,7 +110,7 @@ export async function jobCreateDocument(
 	}
 
 	const type = await tx.query.documentTypes.findFirst({
-		where: eq(documentTypes.code, 'expenseAuthorization'),
+		where: eq(documentTypes.code, mutation.mutation.table.substring(0, mutation.mutation.table.length - 1)),
 		columns: {
 			id: true,
 		},
@@ -84,7 +118,10 @@ export async function jobCreateDocument(
 	if(!type) {
 		throw createError({
 			statusCode: 500,
-			statusMessage: 'Document type "expenseAuthorization" not found',
+			statusMessage: 'Document type not found',
+			data: {
+				mutationTable: mutation.mutation,
+			},
 		})
 	}
 
@@ -104,12 +141,22 @@ export async function jobCreateDocument(
 		})
 	}
 
+	let title = 'Unbenannte Drucksache'
+	if('title' in data && typeof data.title === 'string' && data.title.trim() !== '') {
+		title = data.title.trim()
+	} else if('startDate' in data && 'endDate' in data) {
+		title = `Haushaltsplan ${formatDate(data.startDate, 'compact')} - ${formatDate(data.endDate, 'compact')}`
+	}
+
 	const [ document = null ] = await tx.insert(documents).values({
 		period: latestDocument.period,
-		title: data.title,
+		title,
 		type: type.id,
 		organizationItem: targetOrganizationItem.id,
-		authorOrganizationItem: data.budgetPlanItem.plan.budget.organizationItem,
+		...(process.initiatorType === 'person'
+			? { authorPerson: process.initiatorPerson }
+			: { authorOrganizationItem: process.initiatorOrganizationItem }
+		),
 	}).returning({
 		id: documents.id,
 	})
