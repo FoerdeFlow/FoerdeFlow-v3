@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { DestructureArray } from '#shared/types'
+type Person = DestructureArray<NonNullable<typeof data.value>['items']>
 
 const { id, readonly = false } = defineProps<{
 	id: string
@@ -8,28 +9,21 @@ const { id, readonly = false } = defineProps<{
 
 const localId = useId()
 
-const { data } = useFetch('/api/persons')
+const filter = ref('')
 
-const model = defineModel<DestructureArray<typeof data.value> | null>({
+const { data } = useFetch('/api/persons', {
+	query: {
+		query: filter,
+		limit: 5,
+	},
+})
+
+const model = defineModel<Person | null>({
 	required: true,
 })
 
-const filter = ref('')
-const filteredList = computed(() =>
-	filter.value.length > 0
-		? (data.value?.filter((person) =>
-			[
-				person.callName,
-				person.firstName,
-				person.lastName,
-				person.email,
-			].some((field) => field?.toUpperCase().includes(filter.value.toUpperCase())),
-		).slice(0, 10) ?? [])
-		: [],
-)
-
 const editButton = useTemplateRef<HTMLButtonElement>('edit-button')
-async function selectPerson(person: DestructureArray<typeof data.value>) {
+async function selectPerson(person: Person) {
 	filter.value = ''
 	model.value = person
 	await nextTick()
@@ -70,12 +64,13 @@ table.kern-table(v-else)
 			th.kern-table__header(scope="col") Name
 			th.kern-table__header(scope="col") Auswahl
 	tbody.kern-table__body
-		tr.kern-table__row(v-if="filter.length < 1")
-			td.kern-table__cell(colspan="2") Bitte mindestens ein Zeichen eingeben, um die Suche zu starten.
-		tr.kern-table__row(v-else-if="filteredList?.length === 0")
+		tr.kern-table__row(v-if="filter.length < 3")
+			td.kern-table__cell(colspan="2") Bitte mindestens drei Zeichen eingeben, um die Suche zu starten.
+		tr.kern-table__row(v-else-if="data?.items.length === 0")
 			td.kern-table__cell(colspan="2") Keine Einträge gefunden.
 		tr.kern-table__row(
-			v-for="person of filteredList"
+			v-else
+			v-for="person of data?.items"
 			:key="person.id"
 		)
 			td.kern-table__cell {{ formatPerson(person) }}

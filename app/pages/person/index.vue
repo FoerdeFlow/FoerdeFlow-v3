@@ -6,7 +6,13 @@ const alertStore = useAlertStore()
 const confirmDialogStore = useConfirmDialogStore()
 const authStore = useAuthStore()
 
-const { data, refresh } = useFetch('/api/persons')
+const offset = ref(0)
+const { data, refresh } = useFetch('/api/persons', {
+	query: {
+		page: computed(() => offset.value / 10),
+		limit: 10,
+	},
+})
 
 const editor = useTemplateRef<typeof PersonEditor>('editor')
 const photoEditor = useTemplateRef<typeof PersonPhotoEditor>('photo-editor')
@@ -49,13 +55,18 @@ async function remove({ id }: { id: string }) {
 
 <template lang="pug">
 h1.kern-heading-large Personen
+KernPagination(
+	v-model="offset"
+	:count="data?.count ?? 1"
+	:page-size="10"
+)
 KernTable(
 	caption="Liste der Personen"
 	:columns="[ 'photo', 'name', 'email' ]"
 	create-permission="persons.create"
 	update-permission="persons.update"
 	delete-permission="persons.delete"
-	:data="data ?? []"
+	:data="data?.items ?? []"
 	:show-actions="authStore.hasPermission('persons.update').value"
 	@create="create"
 	@edit="edit"

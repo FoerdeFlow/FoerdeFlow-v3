@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('persons.read')
+	await checkPermission('personDetails.read')
 
 	const database = useDatabase()
 
