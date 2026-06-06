@@ -16,7 +16,19 @@ export default defineEventHandler(async (event) => {
 		with: {
 			membershipType: true,
 			endReason: true,
-			memberPerson: true,
+			memberPerson: {
+				with: {
+					course: true,
+				},
+				columns: {
+					id: true,
+					firstName: true,
+					lastName: true,
+					callName: true,
+					gender: true,
+					pronouns: true,
+				},
+			},
 			memberOrganizationItem: true,
 		},
 		columns: {

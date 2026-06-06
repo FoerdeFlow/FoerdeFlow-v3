@@ -26,7 +26,19 @@ export async function getEffectiveMembers(
 			memberOrganizationItem: true,
 		},
 		with: {
-			memberPerson: true,
+			memberPerson: {
+				with: {
+					course: true,
+				},
+				columns: {
+					id: true,
+					firstName: true,
+					lastName: true,
+					callName: true,
+					gender: true,
+					pronouns: true,
+				},
+			},
 		},
 	})
 
