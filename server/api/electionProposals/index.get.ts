@@ -17,7 +17,12 @@ export default defineEventHandler(async (event) => {
 					course: true,
 				},
 				columns: {
-					course: false,
+					id: true,
+					firstName: true,
+					lastName: true,
+					callName: true,
+					gender: true,
+					pronouns: true,
 				},
 			},
 		},
