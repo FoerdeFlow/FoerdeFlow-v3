@@ -26,9 +26,9 @@ export default defineEventHandler(async (event) => {
 
 	await checkPermission('documents.delete', { organizationItem: result.organizationItem })
 
-	await unlink(`./data/${params.document}.pdf`).catch(() => { /* ignore */ })
-
 	await database
 		.delete(documents)
 		.where(eq(documents.id, params.document))
+
+	await unlink(`./data/${params.document}.pdf`).catch(() => { /* ignore */ })
 })

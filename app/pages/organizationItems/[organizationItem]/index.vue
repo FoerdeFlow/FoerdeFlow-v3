@@ -53,6 +53,16 @@ const subPages: KernCardNavItems = [
 		linkLabel: 'Vorlagen anzeigen',
 		permission: 'documents.read',
 	},
+	{
+		title: 'Texte',
+		description: 'Übersicht über die Texte',
+		link: {
+			name: 'organizationItems-organizationItem-texts',
+			params: { organizationItem: route.params.organizationItem },
+		},
+		linkLabel: 'Texte anzeigen',
+		permission: 'texts.read',
+	},
 ]
 </script>
 

@@ -7,6 +7,7 @@ export * from '../schema/person'
 export * from '../schema/session'
 export * from '../schema/document'
 
+export * from '../schema/text'
 export * from '../schema/budget'
 export * from '../schema/expenseAuthorization'
 export * from '../schema/university'

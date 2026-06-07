@@ -3,6 +3,7 @@ const props = defineProps<{
 	id: string
 	labelNull?: string
 	filteredIds?: string[]
+	readonly?: boolean
 }>()
 
 const { data } = await useFetch('/api/organizationItems')
@@ -60,6 +61,7 @@ const selectModel = computed({
 	select.kern-form-input__select(
 		:id="props.id"
 		v-model="selectModel"
+		:disabled="props.readonly"
 	)
 		option(
 			value=""

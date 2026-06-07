@@ -145,6 +145,26 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'texts.read',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'texts.create',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'texts.update',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'texts.delete',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
 		id: 'buildings.read',
 		scope: 'global',
 		assignable: true,
