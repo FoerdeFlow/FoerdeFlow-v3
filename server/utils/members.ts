@@ -32,6 +32,7 @@ export async function getEffectiveMembers(
 				},
 				columns: {
 					id: true,
+					email: true,
 					firstName: true,
 					lastName: true,
 					callName: true,
