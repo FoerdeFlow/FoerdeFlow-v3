@@ -51,7 +51,7 @@ export async function getEffectiveMembers(
 				break
 			case 'organizationItem':
 				if (!entry.memberOrganizationItem) break
-				result.push(...await getEffectiveMembers([entry.memberOrganizationItem], null))
+				result.push(...await getEffectiveMembers([entry.memberOrganizationItem], null, effectiveDate))
 				break
 		}
 	}
