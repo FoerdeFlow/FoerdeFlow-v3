@@ -15,17 +15,17 @@ export function textCreatePdf(title: string, text: string) {
 		}
 		doc.text(message, 20, y, {
 			maxWidth: docWidth,
-			align: 'justify',
+			align: doc.getFontSize() > 12 ? 'left' : 'justify',
 			lineHeightFactor: 1.4 * 1.15,
 		})
-		y += height + 8
+		y += height
 	}
 
 	doc.setFont('OpenSans', 'bold')
 	doc.setFontSize(24)
 	printText(title)
 
-	text.split('\n').filter((line) => line.trim() !== '').forEach(line => {
+	text.split('\n').forEach(line => {
 		let fontSize = 12
 		let fontStyle: 'normal' | 'bold' | 'italic' | 'bolditalic' = 'normal'
 

@@ -68,17 +68,17 @@ export default defineEventHandler(async (event) => {
 
 	doc.setFont('OpenSans', 'bold')
 	doc.setFontSize(20)
-	doc.text(document.title, 20, 70, { maxWidth: docWidth - 40, align: 'justify' })
+	doc.text(document.title, 20, 70, { maxWidth: docWidth - 40 })
 
 	doc.setFont('OpenSans', 'normal')
 	doc.setFontSize(12)
 	doc.text('eingereicht von', 20, 120)
 	if(document.authorPerson) {
 		doc.setFontSize(16)
-		doc.text(formatPerson(document.authorPerson), 20, 130)
+		doc.text(formatPerson(document.authorPerson), 20, 130, { maxWidth: docWidth - 40 })
 	} else if(document.authorOrganizationItem) {
 		doc.setFontSize(16)
-		doc.text(formatOrganizationItem(document.authorOrganizationItem), 20, 130)
+		doc.text(formatOrganizationItem(document.authorOrganizationItem), 20, 130, { maxWidth: docWidth - 40 })
 	}
 
 	const prefixFile = doc.output('arraybuffer')
