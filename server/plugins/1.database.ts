@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { migrate } from 'drizzle-orm/node-postgres/migrator'
+
 import * as schema from '../utils/schema'
 
 export default defineNitroPlugin((nitroApp) => {

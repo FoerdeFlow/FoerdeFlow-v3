@@ -3,12 +3,12 @@ import {
 	sql,
 } from 'drizzle-orm'
 import {
-	pgTable,
+	check,
 	pgEnum,
+	pgTable,
 	timestamp,
 	uuid,
 	varchar,
-	check,
 } from 'drizzle-orm/pg-core'
 
 import { organizationItems } from './organizationItem'

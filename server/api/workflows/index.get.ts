@@ -1,5 +1,6 @@
-import { z } from 'zod'
 import type { EventContext } from '~~/server/types'
+
+import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
 	const query = await getValidatedQuery(event, async (data) => await z.strictObject({

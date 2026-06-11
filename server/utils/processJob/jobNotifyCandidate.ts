@@ -1,5 +1,5 @@
-import { readFile } from 'node:fs/promises'
 import { eq } from 'drizzle-orm'
+import { readFile } from 'node:fs/promises'
 
 export async function jobNotifyCandidate(
 	tx: ReturnType<typeof useDatabase>,

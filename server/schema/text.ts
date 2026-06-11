@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm'
 import { pgTable, text, uuid } from 'drizzle-orm/pg-core'
+
 import { documents } from './document'
 
 export const texts = pgTable('texts', {
@@ -10,7 +11,7 @@ export const texts = pgTable('texts', {
 
 export const textsRelations = relations(texts, ({ one }) => ({
 	document: one(documents, {
-		fields: [texts.document],
-		references: [documents.id],
+		fields: [ texts.document ],
+		references: [ documents.id ],
 	}),
 }))

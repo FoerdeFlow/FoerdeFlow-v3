@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import type { WorkflowAllowedInitiatorEditor } from '#components'
 
 const route = useRoute('workflows-workflow-allowedInitiators')

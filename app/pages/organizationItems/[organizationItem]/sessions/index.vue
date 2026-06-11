@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import type { SessionEditor } from '#components'
 
 const route = useRoute('organizationItems-organizationItem-sessions')

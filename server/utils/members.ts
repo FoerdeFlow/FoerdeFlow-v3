@@ -1,4 +1,5 @@
 import { and, eq, gt, inArray, isNull, lte, or } from 'drizzle-orm'
+
 import type { DestructureArray } from '#shared/types'
 
 export async function getEffectiveMembers(
@@ -11,7 +12,7 @@ export async function getEffectiveMembers(
 	const members = await database.query.memberships.findMany({
 		where: and(
 			inArray(memberships.organizationItem, organizationItems),
-			...(membershipTypes ? [inArray(memberships.membershipType, membershipTypes)] : []),
+			...(membershipTypes ? [ inArray(memberships.membershipType, membershipTypes) ] : []),
 			or(
 				isNull(memberships.startDate),
 				lte(memberships.startDate, effectiveDate),
@@ -44,15 +45,15 @@ export async function getEffectiveMembers(
 	})
 
 	const result: NonNullable<DestructureArray<typeof members>['memberPerson']>[] = []
-	for (const entry of members) {
-		switch (entry.memberType) {
+	for(const entry of members) {
+		switch(entry.memberType) {
 			case 'person':
-				if (!entry.memberPerson) break
+				if(!entry.memberPerson) break
 				result.push(entry.memberPerson)
 				break
 			case 'organizationItem':
-				if (!entry.memberOrganizationItem) break
-				result.push(...await getEffectiveMembers([entry.memberOrganizationItem], null, effectiveDate))
+				if(!entry.memberOrganizationItem) break
+				result.push(...await getEffectiveMembers([ entry.memberOrganizationItem ], null, effectiveDate))
 				break
 		}
 	}

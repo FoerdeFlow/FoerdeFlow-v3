@@ -1,7 +1,7 @@
-import { createUpdateSchema } from 'drizzle-zod'
 import { eq } from 'drizzle-orm'
-import { z } from 'zod'
+import { createUpdateSchema } from 'drizzle-zod'
 import { mapGender } from 'openslides-client/utils/mapGender'
+import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
 	await checkPermission('persons.update')

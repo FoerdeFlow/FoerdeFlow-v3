@@ -1,5 +1,5 @@
-import { z } from 'zod'
 import { jsPDF } from 'jspdf'
+import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
 	const query = await getValidatedQuery(event, async (data) => await z.object({

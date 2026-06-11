@@ -15,7 +15,7 @@ const props = defineProps<{
 const type = computed(() =>
 	typeof props.meta === 'object' && 'type' in props.meta && props.meta.type
 		? props.meta.type
-		: 'planned'
+		: 'planned',
 )
 
 const emit = defineEmits<{

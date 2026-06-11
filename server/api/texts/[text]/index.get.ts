@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
 			message: 'Text not found',
 		})
 	}
-	
+
 	const { document, ...text } = data
 
 	await checkPermission('texts.read', { organizationItem: document.organizationItem })

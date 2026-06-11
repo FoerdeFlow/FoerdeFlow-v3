@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { BudgetPlanFormModel, ExpenseAuthorizationFormModel, KernTaskListItems, OrganizationItem, WorkflowCustomCandidateFormModel } from '~/types'
+
 import { BudgetPlanForm, ExpenseAuthorizationForm, WorkflowCustomCandidateForm } from '#components'
 
 const route = useRoute('processes-create-workflow')
@@ -14,7 +15,7 @@ const { data: mutations } = useFetch('/api/workflowMutations', {
 })
 
 const metaModel = ref({
-	initiatorType: 'person' as 'person' | 'organizationItem',
+	initiatorType: 'person',
 	initiatorOrganizationItem: null as OrganizationItem,
 })
 

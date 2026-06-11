@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
+import type { OrganizationItem, OrganizationType, Person, Role } from '~/types'
+
 import { KernDialog } from '#components'
-import type { Person, Role, OrganizationType, OrganizationItem } from '~/types'
 
 const props = defineProps<{
 	workflow: string

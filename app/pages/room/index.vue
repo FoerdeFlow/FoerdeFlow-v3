@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import type { RoomEditor } from '#components'
 
 const alertStore = useAlertStore()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProcessStepEditor, ProcessStepConnectionEditor } from '#components'
+import type { ProcessStepConnectionEditor, ProcessStepEditor } from '#components'
 
 const route = useRoute('processes-view-process')
 const editor = useTemplateRef<typeof ProcessStepEditor>('editor')

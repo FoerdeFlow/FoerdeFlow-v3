@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Person, Role, OrganizationType, OrganizationItem } from '~/types'
+import type { OrganizationItem, OrganizationType, Person, Role } from '~/types'
 
 const id = useId()
 const authStore = useAuthStore()

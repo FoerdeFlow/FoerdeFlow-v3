@@ -1,11 +1,12 @@
+import { relations } from 'drizzle-orm'
 import {
-	pgTable,
+	integer,
 	pgEnum,
+	pgTable,
 	uuid,
 	varchar,
-	integer,
 } from 'drizzle-orm/pg-core'
-import { relations } from 'drizzle-orm'
+
 import { courses } from './university'
 
 export const genders = pgEnum('genders', [

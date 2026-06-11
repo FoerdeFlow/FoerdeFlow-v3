@@ -2,13 +2,14 @@ import {
 	relations,
 } from 'drizzle-orm'
 import {
+	date,
 	pgTable,
 	uuid,
 	varchar,
-	date,
 } from 'drizzle-orm/pg-core'
-import { persons } from './person'
+
 import { organizationItems } from './organizationItem'
+import { persons } from './person'
 
 export const elections = pgTable('elections', {
 	id: uuid().notNull().primaryKey().defaultRandom(),

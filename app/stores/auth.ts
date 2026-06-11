@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+
 import type { UserInfo } from '#shared/types'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -6,7 +7,7 @@ export const useAuthStore = defineStore('auth', () => {
 		default: () => ({
 			roles: [],
 			permissions: [],
-		} as UserInfo),
+		}),
 	})
 
 	const loggedIn = computed(() => Boolean(userInfo.value.person))

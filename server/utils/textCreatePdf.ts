@@ -8,7 +8,7 @@ export function textCreatePdf(title: string, text: string) {
 	let y = 35
 	const printText = (message: string) => {
 		const lines = doc.splitTextToSize(message, docWidth)
-		const height = (1.4 * lines.length - 0.4 - 0.15/1.15) * doc.getLineHeight() / doc.internal.scaleFactor
+		const height = (1.4 * lines.length - 0.4 - 0.15 / 1.15) * doc.getLineHeight() / doc.internal.scaleFactor
 		if(y + height > docHeight) {
 			doc.addPage()
 			y = 35
@@ -25,7 +25,7 @@ export function textCreatePdf(title: string, text: string) {
 	doc.setFontSize(24)
 	printText(title)
 
-	text.split('\n').forEach(line => {
+	text.split('\n').forEach((line) => {
 		let fontSize = 12
 		let fontStyle: 'normal' | 'bold' | 'italic' | 'bolditalic' = 'normal'
 

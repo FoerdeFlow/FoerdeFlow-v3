@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import type { AnnouncementEditor } from '#components'
 
 const { data, refresh } = useFetch('/api/announcements')

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { FetchError } from 'ofetch'
+
 import type { KernTaskDialog } from '#components'
 import type { MembershipEndReason, MembershipType, OrganizationItem, Person } from '~/types'
 

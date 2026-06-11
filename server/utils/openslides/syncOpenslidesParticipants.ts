@@ -1,5 +1,6 @@
-import { eq } from 'drizzle-orm'
 import type { OpenslidesClient } from 'openslides-client'
+
+import { eq } from 'drizzle-orm'
 
 async function assignToMeeting(
 	client: OpenslidesClient,

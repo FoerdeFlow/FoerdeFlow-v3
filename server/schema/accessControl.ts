@@ -3,17 +3,17 @@ import {
 	sql,
 } from 'drizzle-orm'
 import {
-	pgTable,
 	boolean,
+	check,
+	pgTable,
+	unique,
 	uuid,
 	varchar,
-	unique,
-	check,
 } from 'drizzle-orm/pg-core'
 
-import { persons } from './person'
-import { organizationTypes, organizationItems } from './organizationItem'
 import { membershipTypes } from './membership'
+import { organizationItems, organizationTypes } from './organizationItem'
+import { persons } from './person'
 
 export const roles = pgTable('roles', {
 	id: uuid().notNull().primaryKey().defaultRandom(),

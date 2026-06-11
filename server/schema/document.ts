@@ -1,6 +1,6 @@
-import { pgTable, uuid, integer, varchar } from 'drizzle-orm/pg-core'
-
 import { relations } from 'drizzle-orm'
+import { integer, pgTable, uuid, varchar } from 'drizzle-orm/pg-core'
+
 import { organizationItems } from './organizationItem'
 import { persons } from './person'
 

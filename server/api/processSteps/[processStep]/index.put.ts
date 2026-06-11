@@ -1,5 +1,5 @@
-import { createUpdateSchema } from 'drizzle-zod'
 import { asc, eq } from 'drizzle-orm'
+import { createUpdateSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {

@@ -1,5 +1,5 @@
-import { createInsertSchema, createUpdateSchema } from 'drizzle-zod'
 import { eq } from 'drizzle-orm'
+import { createInsertSchema, createUpdateSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
 			budget: {
 				columns: {
 					organizationItem: true,
-				}
+				},
 			},
 		},
 		columns: {
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if (expenseAuthorization?.type === 'planned') {
+	if(expenseAuthorization?.type === 'planned') {
 		await checkPermission(
 			'expenseAuthorizations.update',
 			{ organizationItem: expenseAuthorization?.budgetPlanItem?.plan.budget.organizationItem },
@@ -68,7 +68,7 @@ export default defineEventHandler(async (event) => {
 			.set(body)
 			.where(eq(expenseAuthorizations.id, params.expenseAuthorization))
 
-		if (result.rowCount === 0) {
+		if(result.rowCount === 0) {
 			throw createError({
 				statusCode: 404,
 				statusMessage: 'Ausgabeermächtigung nicht gefunden',
@@ -85,8 +85,8 @@ export default defineEventHandler(async (event) => {
 			},
 		})
 
-		for (const { id: itemId, ...item } of body.items) {
-			if (itemId) {
+		for(const { id: itemId, ...item } of body.items) {
+			if(itemId) {
 				await tx
 					.update(expenseAuthorizationItems)
 					.set(item)
@@ -104,7 +104,7 @@ export default defineEventHandler(async (event) => {
 		const deletedItems = existingItems
 			.filter((existingItem) => !body.items.some((item) => item.id === existingItem.id))
 
-		for (const deletedItem of deletedItems) {
+		for(const deletedItem of deletedItems) {
 			await tx
 				.delete(expenseAuthorizationItems)
 				.where(eq(expenseAuthorizationItems.id, deletedItem.id))

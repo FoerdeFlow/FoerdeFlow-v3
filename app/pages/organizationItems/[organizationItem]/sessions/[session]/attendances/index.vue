@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
 import { FetchError } from 'ofetch'
+import { useRoute } from 'vue-router'
+
 import type { AttendanceEditor } from '#components'
 
 const route = useRoute('organizationItems-organizationItem-sessions-session-attendances')

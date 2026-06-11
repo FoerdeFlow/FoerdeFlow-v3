@@ -3,6 +3,7 @@
 import js from '@eslint/js'
 import neostandard from 'neostandard'
 import tseslint from 'typescript-eslint'
+import perfectionist from 'eslint-plugin-perfectionist'
 import tsdoc from 'eslint-plugin-tsdoc'
 import vue from 'eslint-plugin-vue'
 import vuePug from 'eslint-plugin-vue-pug'
@@ -33,6 +34,9 @@ export default withNuxt(
 
 	{
 		files: [ '**/*.js', '**/*.ts', '**/*.vue' ],
+		plugins: {
+			perfectionist,
+		},
 		rules: {
 			'no-console': [ 'error', { allow: [ 'warn', 'error' ] } ],
 			curly: 'error',
@@ -70,7 +74,8 @@ export default withNuxt(
 			'@stylistic/max-len': [ 'error', { code: 120, tabWidth: 8 } ],
 			'@stylistic/max-statements-per-line': [ 'error', { max: 1 } ],
 
-			'import-x/order': 'error',
+			'perfectionist/sort-imports': 'error',
+			'perfectionist/sort-named-imports': 'error',
 
 			'vue/html-quotes': 'off',
 		},

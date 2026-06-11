@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs'
 import z from 'zod'
+
 import type { DestructureArray } from '#shared/types'
 
 export default defineEventHandler(async (event) => {

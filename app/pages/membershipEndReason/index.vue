@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import type { MembershipEndReasonEditor } from '#components'
 
 const { data, refresh } = useFetch('/api/membershipEndReasons')

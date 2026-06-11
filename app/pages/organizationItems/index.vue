@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import type { OrganizationItemEditor } from '#components'
 import type { DestructureArray } from '#shared/types'
 

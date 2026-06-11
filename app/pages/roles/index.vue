@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import { RoleEditor } from '#components'
 
 const confirmDialogStore = useConfirmDialogStore()

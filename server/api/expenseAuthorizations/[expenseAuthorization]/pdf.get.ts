@@ -16,14 +16,14 @@ export default defineEventHandler(async (event) => {
 
 	const blob = doc.output('blob')
 	let filename = 'Einzelausgabe.pdf'
-	if (result.budgetPlanItem) {
+	if(result.budgetPlanItem) {
 		filename = [
 			'Einzelausgabe',
 			result.budgetPlanItem.plan.budget.code,
 			formatDate(result.budgetPlanItem.plan.startDate, 'iso'),
 			result.title.replace(/[^a-z0-9]/gi, '-'),
 		].join('_') + '.pdf'
-	} else if (result.budget) {
+	} else if(result.budget) {
 		filename = [
 			'Ruecklagenausschuettung',
 			result.budget.code,

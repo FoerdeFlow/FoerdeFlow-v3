@@ -69,8 +69,8 @@ table.kern-table(v-else)
 		tr.kern-table__row(v-else-if="data?.items.length === 0")
 			td.kern-table__cell(colspan="2") Keine Einträge gefunden.
 		tr.kern-table__row(
-			v-else
 			v-for="person of data?.items"
+			v-else
 			:key="person.id"
 		)
 			td.kern-table__cell {{ formatPerson(person) }}

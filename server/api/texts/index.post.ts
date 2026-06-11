@@ -1,7 +1,8 @@
-import { writeFile } from 'node:fs/promises'
+import type { EventContext } from '~~/server/types'
+
 import { createInsertSchema } from 'drizzle-zod'
+import { writeFile } from 'node:fs/promises'
 import z from 'zod'
-import { EventContext } from '~~/server/types'
 
 export default defineEventHandler(async (event) => {
 	const { authorType, ...body } = await readValidatedBody(event, async (data) => await z.object({
@@ -14,7 +15,7 @@ export default defineEventHandler(async (event) => {
 			period: true,
 			number: true,
 		}).shape,
-		authorType: z.enum(['person', 'organizationItem']),
+		authorType: z.enum([ 'person', 'organizationItem' ]),
 	}).parseAsync(data))
 
 	if(authorType === 'person') {
@@ -61,11 +62,13 @@ export default defineEventHandler(async (event) => {
 				organizationItem: body.organizationItem,
 				type: body.type,
 				title: body.title,
-				...(authorType === 'person' ? {
-					authorPerson: (event.context as EventContext).user?.person?.id,
-				} : {
-					authorOrganizationItem: body.authorOrganizationItem,
-				}),
+				...(authorType === 'person'
+					? {
+						authorPerson: (event.context as EventContext).user?.person?.id,
+					}
+					: {
+						authorOrganizationItem: body.authorOrganizationItem,
+					}),
 				period: latestDocument.period,
 			})
 			.returning({ id: documents.id })

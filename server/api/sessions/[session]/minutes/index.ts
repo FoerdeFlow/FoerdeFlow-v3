@@ -1,5 +1,5 @@
-import { z } from 'zod'
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
 	if(![ 'HEAD', 'GET' ].includes(event.method)) {

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
-import { KernDialog } from '#components'
+
 import type { AttendanceStatus, Person } from '~/types'
+
+import { KernDialog } from '#components'
 
 const props = defineProps<{
 	session: string

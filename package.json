@@ -9,7 +9,8 @@
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
 		"prepare": "husky",
-		"lint": "eslint ."
+		"lint": "eslint .",
+		"lint:fix": "eslint --fix ."
 	},
 	"dependencies": {
 		"@eslint/js": "^9.34.0",
@@ -50,6 +51,7 @@
 	"devDependencies": {
 		"@types/nodemailer": "^8.0.0",
 		"@types/oidc-provider": "^9.1.2",
+		"eslint-plugin-perfectionist": "^5.9.0",
 		"husky": "^9.1.7",
 		"oidc-provider": "^9.4.1"
 	}

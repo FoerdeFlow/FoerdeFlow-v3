@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import { PersonEditor, PersonPhotoEditor } from '#components'
 
 const alertStore = useAlertStore()

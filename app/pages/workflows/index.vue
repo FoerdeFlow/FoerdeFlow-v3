@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import type { WorkflowEditor } from '#components'
 
 const { data, refresh } = useFetch('/api/workflows')

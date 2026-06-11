@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import { CourseTypeEditor } from '#components'
 
 const confirmDialogStore = useConfirmDialogStore()

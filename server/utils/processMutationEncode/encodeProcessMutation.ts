@@ -1,5 +1,5 @@
+import type { ExpandedProcessMutations, ProcessMutation } from '~~/server/types/expandedProcessMutations'
 import type jsPDF from 'jspdf'
-import type { ProcessMutation, ExpandedProcessMutations } from '~~/server/types/expandedProcessMutations'
 
 type EncodingFormat = 'html' | 'pdf'
 

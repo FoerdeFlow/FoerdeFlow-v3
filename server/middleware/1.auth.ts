@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+
 import type { EventContext } from '../types'
 
 export default defineEventHandler(async (event) => {

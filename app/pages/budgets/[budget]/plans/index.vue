@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import { BudgetPlanEditor } from '#components'
 
 const authStore = useAuthStore()

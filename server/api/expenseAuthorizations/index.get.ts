@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 
 	let where
-	if (query.budgetPlan) {
+	if(query.budgetPlan) {
 		const budgetPlan = await database.query.budgetPlans.findFirst({
 			where: eq(budgetPlans.id, query.budgetPlan),
 			with: {
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
 
 		await checkPermission('expenseAuthorizations.read', { organizationItem: budgetPlan?.budget.organizationItem })
 
-		if (!budgetPlan) {
+		if(!budgetPlan) {
 			throw createError({
 				statusCode: 404,
 				statusMessage: 'Budget plan not found',
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
 				.from(budgetPlanItems)
 				.where(eq(budgetPlanItems.plan, query.budgetPlan)),
 		)
-	} else if (query.budget) {
+	} else if(query.budget) {
 		const budget = await database.query.budgets.findFirst({
 			where: eq(budgets.id, query.budget),
 			columns: {
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
 
 		await checkPermission('expenseAuthorizations.read', { organizationItem: budget?.organizationItem })
 
-		if (!budget) {
+		if(!budget) {
 			throw createError({
 				statusCode: 404,
 				statusMessage: 'Budget not found',

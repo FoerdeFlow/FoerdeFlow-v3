@@ -1,19 +1,21 @@
 import type {
 	AttendanceStatusSelect,
-	BudgetSelect,
 	BudgetPeriodTypeSelect,
-	BudgetPlanSelect,
 	BudgetPlanItemSelect,
+	BudgetPlanSelect,
+	BudgetSelect,
 	BuildingSelect,
 	CouncilSelect,
 	CourseSelect,
 	CourseTypeSelect,
 	DepartmentSelect,
 	DocumentTypeSelect,
-	ElectionSelect,
 	ElectionCommitteeSelect,
+	ElectionSelect,
 	ExpenseAuthorizationForm,
 	GenderSelect,
+	KernCardNav,
+	KernTaskList,
 	MembershipEndReasonSelect,
 	MembershipTypeSelect,
 	OrganizationItemSelect,
@@ -22,11 +24,9 @@ import type {
 	RoleSelect,
 	RoomSelect,
 	SessionSelect,
+
 	WorkflowCustomCandidateForm,
 	WorkflowStepTypeSelect,
-
-	KernCardNav,
-	KernTaskList,
 } from '#components'
 
 export type AttendanceStatus = InstanceType<typeof AttendanceStatusSelect>['$props']['modelValue']

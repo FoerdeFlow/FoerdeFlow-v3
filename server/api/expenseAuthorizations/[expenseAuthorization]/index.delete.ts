@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if (expenseAuthorization?.type === 'planned') {
+	if(expenseAuthorization?.type === 'planned') {
 		await checkPermission(
 			'expenseAuthorizations.delete',
 			{ organizationItem: expenseAuthorization?.budgetPlanItem?.plan.budget.organizationItem },
@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
 		.delete(expenseAuthorizations)
 		.where(eq(expenseAuthorizations.id, params.expenseAuthorization))
 
-	if (result.rowCount === 0) {
+	if(result.rowCount === 0) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Ausgabeermächtigung nicht gefunden',

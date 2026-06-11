@@ -1,6 +1,7 @@
-import { copyFile } from 'node:fs/promises'
-import { eq, type InferInsertModel } from 'drizzle-orm'
 import type z from 'zod'
+
+import { eq, type InferInsertModel } from 'drizzle-orm'
+import { copyFile } from 'node:fs/promises'
 
 async function createCandidate(
 	tx: ReturnType<typeof useDatabase>,
@@ -12,7 +13,7 @@ async function createCandidate(
 		initiatorPerson: string
 	},
 ) {
-	const [result] = await tx
+	const [ result ] = await tx
 		.insert(electionProposals)
 		.values({
 			electionCommittee: data.electionCommittee,
@@ -53,12 +54,12 @@ async function createBudgetPlan(
 		>[]
 	},
 ) {
-	const [result] = await tx
+	const [ result ] = await tx
 		.insert(budgetPlans)
 		.values(data)
 		.returning({ id: budgetPlans.id })
 
-	for (const item of data.items) {
+	for(const item of data.items) {
 		await tx.insert(budgetPlanItems).values({
 			...item,
 			plan: result.id,
@@ -90,12 +91,12 @@ async function createExpenseAuthorization(
 			? processMetadata.meta.type as 'planned' | 'reserve'
 			: data.type ?? 'planned'
 
-	const [result] = await tx
+	const [ result ] = await tx
 		.insert(expenseAuthorizations)
 		.values({ ...data, type })
 		.returning({ id: expenseAuthorizations.id })
 
-	for (const item of data.items) {
+	for(const item of data.items) {
 		await tx.insert(expenseAuthorizationItems).values({
 			...item,
 			expenseAuthorization: result.id,
@@ -128,7 +129,7 @@ export async function applyProcessMutations(
 		},
 	})
 
-	for (const mutation of mutations) {
+	for(const mutation of mutations) {
 		const handler = {
 			candidates: {
 				create: createCandidate,
@@ -147,7 +148,7 @@ export async function applyProcessMutations(
 			},
 		}[mutation.mutation.table]?.[mutation.mutation.action]
 
-		if (!handler) {
+		if(!handler) {
 			continue
 		}
 

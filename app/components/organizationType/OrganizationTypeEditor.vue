@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import { KernDialog } from '#components'
 
 const dialog = useTemplateRef<typeof KernDialog>('dialog')

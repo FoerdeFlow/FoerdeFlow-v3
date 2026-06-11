@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { FetchError } from 'ofetch'
+
 import type { RoleOccupantEditor } from '#components'
 
 const route = useRoute('roles-role-occupants')

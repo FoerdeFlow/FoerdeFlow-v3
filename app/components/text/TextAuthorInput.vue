@@ -25,7 +25,7 @@ const filteredIds = computed(() =>
 		? undefined
 		: authStore.userInfo.permissions
 			.filter((permission) => permission.permission === 'texts.update' && typeof permission.organizationItem === 'string')
-			.map((permission) => permission.organizationItem as string)
+			.map((permission) => permission.organizationItem as string),
 )
 </script>
 
@@ -36,8 +36,8 @@ const filteredIds = computed(() =>
 		select.kern-form-input__select(
 			:id="`${id}-type`"
 			v-model="typeModel"
-			@change="onTypeChange"
 			:disabled="props.readonly"
+			@change="onTypeChange"
 		)
 			option(value="person") Ich ({{ authStore.userInfo.person ? formatPerson(authStore.userInfo.person) : 'Gast' }})
 			option(value="organizationItem") Organisationseinheit

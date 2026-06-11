@@ -1,6 +1,6 @@
+import { eq } from 'drizzle-orm'
 import { readFile } from 'node:fs/promises'
 import { z } from 'zod'
-import { eq } from 'drizzle-orm'
 
 export default defineEventHandler(async (event) => {
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({

@@ -1,8 +1,9 @@
-import { writeFile } from 'node:fs/promises'
+import type { EventContext } from '~~/server/types'
+
 import { eq } from 'drizzle-orm'
 import { createInsertSchema } from 'drizzle-zod'
+import { writeFile } from 'node:fs/promises'
 import z from 'zod'
-import { EventContext } from '~~/server/types'
 
 export default defineEventHandler(async (event) => {
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({

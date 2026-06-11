@@ -16,8 +16,8 @@ const currentPage = computed({
 
 const pageCount = computed(() => Math.ceil(props.count / props.pageSize))
 
-watch([() => props.count, () => props.pageSize], () => {
-	if (currentPage.value > pageCount.value) {
+watch([ () => props.count, () => props.pageSize ], () => {
+	if(currentPage.value > pageCount.value) {
 		startIndex.value = 0
 	}
 })
@@ -28,11 +28,11 @@ const visibleOptions = computed<({ dots: string } | { page: number })[]>(() => {
 			page: idx + start,
 		}))
 
-	if (pageCount.value <= 7) {
+	if(pageCount.value <= 7) {
 		return generatePageInterval(1, pageCount.value)
 	}
 
-	if (currentPage.value < 5) {
+	if(currentPage.value < 5) {
 		return [
 			...generatePageInterval(1, 5),
 			{ dots: 'only' },
@@ -40,7 +40,7 @@ const visibleOptions = computed<({ dots: string } | { page: number })[]>(() => {
 		]
 	}
 
-	if (currentPage.value > pageCount.value - 4) {
+	if(currentPage.value > pageCount.value - 4) {
 		return [
 			...generatePageInterval(1, 1),
 			{ dots: 'only' },
@@ -69,7 +69,9 @@ nav(v-if="pageCount > 1")
 			)
 				span.kern-icon.kern-icon--arrow-back(aria-hidden="true")
 				span.kern-label.kern-sr-only Zurück
-		li(v-for="option of visibleOptions" :key="'dots' in option ? option.dots : option.page")
+		li(
+v-for="option of visibleOptions"
+:key="'dots' in option ? option.dots : option.page")
 			template(v-if="'dots' in option") …
 			button(
 				v-else-if="option.page"

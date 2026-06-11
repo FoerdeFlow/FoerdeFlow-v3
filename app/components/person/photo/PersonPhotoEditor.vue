@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import type { KernDialog } from '#components'
 
 const itemId = ref<string | null>(null)

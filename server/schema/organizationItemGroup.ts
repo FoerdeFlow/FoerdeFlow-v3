@@ -2,14 +2,14 @@ import {
 	relations,
 } from 'drizzle-orm'
 import {
+	boolean,
 	pgTable,
 	uuid,
 	varchar,
-	boolean,
 } from 'drizzle-orm/pg-core'
 
-import { organizationItems } from './organizationItem'
 import { membershipTypes } from './membership'
+import { organizationItems } from './organizationItem'
 
 export const organizationItemGroups = pgTable('organization_item_groups', {
 	id: uuid().notNull().primaryKey().defaultRandom(),

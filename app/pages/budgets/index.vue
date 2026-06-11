@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import { BudgetEditor } from '#components'
 
 const confirmDialogStore = useConfirmDialogStore()

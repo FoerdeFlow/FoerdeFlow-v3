@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
 import type { MembershipTypeEditor } from '#components'
 
 const { data, refresh } = useFetch('/api/membershipTypes')

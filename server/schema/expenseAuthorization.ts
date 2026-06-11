@@ -10,7 +10,7 @@ import {
 	varchar,
 } from 'drizzle-orm/pg-core'
 
-import { budgets, budgetPlanItems } from './budget'
+import { budgetPlanItems, budgets } from './budget'
 
 export const expenseAuthorizationTypes = pgEnum('expense_authorization_types', [
 	'planned',
@@ -42,12 +42,12 @@ export const expenseAuthorizations = pgTable('expense_authorizations', {
 
 export const expenseAuthorizationsRelations = relations(expenseAuthorizations, ({ one, many }) => ({
 	budget: one(budgets, {
-		fields: [expenseAuthorizations.budget],
-		references: [budgets.id],
+		fields: [ expenseAuthorizations.budget ],
+		references: [ budgets.id ],
 	}),
 	budgetPlanItem: one(budgetPlanItems, {
-		fields: [expenseAuthorizations.budgetPlanItem],
-		references: [budgetPlanItems.id],
+		fields: [ expenseAuthorizations.budgetPlanItem ],
+		references: [ budgetPlanItems.id ],
 	}),
 	items: many(expenseAuthorizationItems),
 }))
@@ -70,7 +70,7 @@ export const expenseAuthorizationItems = pgTable('expense_authorization_items', 
 
 export const expenseAuthorizationItemsRelations = relations(expenseAuthorizationItems, ({ one }) => ({
 	expenseAuthorization: one(expenseAuthorizations, {
-		fields: [expenseAuthorizationItems.expenseAuthorization],
-		references: [expenseAuthorizations.id],
+		fields: [ expenseAuthorizationItems.expenseAuthorization ],
+		references: [ expenseAuthorizations.id ],
 	}),
 }))

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
+
+import type { DocumentType, OrganizationItem } from '~/types'
+
 import { KernDialog } from '#components'
-import type { OrganizationItem, DocumentType } from '~/types'
 
 const props = defineProps<{
 	organizationItem: string
@@ -110,7 +112,7 @@ KernDialog(
 		TextTextInput(v-model="model.text")
 		TextAuthorInput(
 			v-model:type="model.authorType"
-			v-model:organizationItem="model.authorOrganizationItem"
+			v-model:organization-item="model.authorOrganizationItem"
 			:readonly="itemId !== null"
 		)
 </template>
