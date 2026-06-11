@@ -77,6 +77,9 @@ const encoders = {
 				plan: false,
 			},
 		}) ?? null,
+		budget: await tx.query.budgets.findFirst({
+			where: eq(budgets.id, model.budget),
+		}) ?? null,
 	}),
 } as const
 

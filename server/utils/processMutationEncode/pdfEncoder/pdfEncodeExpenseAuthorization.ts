@@ -12,7 +12,11 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 			startDate: string
 			endDate: string
 		}
-	}
+	} | null
+	budget: {
+		name: string
+		code: string
+	} | null
 	title: string
 	description: string | null
 	items: {
@@ -24,15 +28,23 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 }, options: {
 	document?: boolean
 } = {}) {
+	const budgetData = entry.budgetPlanItem?.plan.budget ?? entry.budget
+	if (!budgetData) {
+		throw createError({
+			status: 500,
+			message: 'Invalid expenseAuthorization object (neither budget nor budgetPlanItem)',
+		})
+	}
+
 	const budget = [
-		entry.budgetPlanItem.plan.budget.name,
-		`(${entry.budgetPlanItem.plan.budget.code})`,
+		budgetData.name,
+		`(${budgetData.code})`,
 	].join(' ')
 	const title = entry.title
-	const period = [
+	const period = entry.budgetPlanItem ? [
 		formatDate(entry.budgetPlanItem.plan.startDate, 'compact'),
 		formatDate(entry.budgetPlanItem.plan.endDate, 'compact'),
-	].join(' - ')
+	].join(' - ') : ''
 
 	// eslint-disable-next-line new-cap
 	const doc = new jsPDF()
@@ -45,8 +57,8 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 			return this._y
 		},
 		set y(value) {
-			if(value > docHeight - 30) {
-				if(!options.document) {
+			if (value > docHeight - 30) {
+				if (!options.document) {
 					doc.setFont('OpenSans', 'normal')
 					doc.setFontSize(14)
 					doc.text(this._number.toString(), docWidth / 2, docHeight - 10, { align: 'center' })
@@ -64,7 +76,7 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 			this._y = value
 		},
 		finalize() {
-			if(!options.document) {
+			if (!options.document) {
 				doc.setFont('OpenSans', 'normal')
 				doc.setFontSize(12)
 				doc.text(this._number.toString(), docWidth / 2, docHeight - 10, { align: 'center' })
@@ -98,27 +110,34 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 	doc.text(budget, 20, pos.y)
 	pos.y += 12
 
-	doc.setFont('OpenSans', 'bold')
-	doc.setFontSize(14)
-	doc.text('Haushaltstitel: ', 20, pos.y)
-	pos.y += 8
+	if (entry.budgetPlanItem) {
+		doc.setFont('OpenSans', 'bold')
+		doc.setFontSize(14)
+		doc.text('Haushaltstitel: ', 20, pos.y)
+		pos.y += 8
 
-	doc.setFont('OpenSans', 'normal')
-	doc.setFontSize(14)
-	doc.text(entry.budgetPlanItem.title, 20, pos.y)
-	pos.y += 12
+		doc.setFont('OpenSans', 'normal')
+		doc.setFontSize(14)
+		doc.text(entry.budgetPlanItem?.title ?? '', 20, pos.y)
+		pos.y += 12
 
-	doc.setFont('OpenSans', 'bold')
-	doc.setFontSize(14)
-	doc.text('Haushaltsperiode: ', 20, pos.y)
-	pos.y += 8
+		doc.setFont('OpenSans', 'bold')
+		doc.setFontSize(14)
+		doc.text('Haushaltsperiode: ', 20, pos.y)
+		pos.y += 8
 
-	doc.setFont('OpenSans', 'normal')
-	doc.setFontSize(14)
-	doc.text(period, 20, pos.y)
-	pos.y += 15
+		doc.setFont('OpenSans', 'normal')
+		doc.setFontSize(14)
+		doc.text(period, 20, pos.y)
+		pos.y += 15
+	} else {
+		doc.setFont('OpenSans', 'bold')
+		doc.setFontSize(14)
+		doc.text('Rücklagenausschüttung', 20, pos.y)
+		pos.y += 43
+	}
 
-	if(entry.description) {
+	if (entry.description) {
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(12)
 		const descriptionHeight =
@@ -138,10 +157,10 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 	pos.y += 11
 
 	let category: string | null = null
-	for(const item of entry.items) {
-		if(item.title.includes(' - ')) {
-			const [ itemCategory, itemTitle ] = item.title.split(' - ')
-			if(category !== itemCategory) {
+	for (const item of entry.items) {
+		if (item.title.includes(' - ')) {
+			const [itemCategory, itemTitle] = item.title.split(' - ')
+			if (category !== itemCategory) {
 				doc.setFont('OpenSans', 'bold')
 				doc.setFontSize(12)
 				doc.text(itemCategory, docWidth / 2, pos.y, { align: 'center' })
@@ -149,7 +168,7 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 				category = itemCategory
 			}
 			item.title = itemTitle
-		} else if(category !== null) {
+		} else if (category !== null) {
 			pos.y += 2
 			category = null
 		}
@@ -169,7 +188,7 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 
 		doc.rect(10, pos.y - 7, docWidth - 20, titleHeight + descriptionHeight + 5)
 
-		if(item.ord) {
+		if (item.ord) {
 			doc.setFont('OpenSans', 'normal')
 			doc.setFontSize(12)
 			doc.text(item.ord.toString(), 20, pos.y)
@@ -183,7 +202,7 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 			{ align: 'justify', maxWidth: docWidth - 115 },
 		)
 
-		if(item.description) {
+		if (item.description) {
 			doc.setFont('OpenSans', 'italic')
 			doc.setFontSize(10)
 			doc.text(

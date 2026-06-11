@@ -26,20 +26,34 @@ export default defineEventHandler(async (event) => {
 				},
 				columns: {},
 			},
+			budget: {
+				columns: {
+					organizationItem: true,
+				},
+			},
 		},
-		columns: {},
+		columns: {
+			type: true,
+		},
 	})
 
-	await checkPermission(
-		'expenseAuthorizations.delete',
-		{ organizationItem: expenseAuthorization?.budgetPlanItem.plan.budget.organizationItem },
-	)
+	if (expenseAuthorization?.type === 'planned') {
+		await checkPermission(
+			'expenseAuthorizations.delete',
+			{ organizationItem: expenseAuthorization?.budgetPlanItem?.plan.budget.organizationItem },
+		)
+	} else {
+		await checkPermission(
+			'expenseAuthorizations.delete',
+			{ organizationItem: expenseAuthorization?.budget?.organizationItem },
+		)
+	}
 
 	const result = await database
 		.delete(expenseAuthorizations)
 		.where(eq(expenseAuthorizations.id, params.expenseAuthorization))
 
-	if(result.rowCount === 0) {
+	if (result.rowCount === 0) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Ausgabeermächtigung nicht gefunden',

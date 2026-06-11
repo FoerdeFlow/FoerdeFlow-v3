@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { jsPDF } from 'jspdf'
 
 export default defineEventHandler(async (event) => {
 	const params = await getValidatedRouterParams(event, async (data) => await z.object({
@@ -16,12 +15,21 @@ export default defineEventHandler(async (event) => {
 	const doc = await pdfEncodeExpenseAuthorization(result)
 
 	const blob = doc.output('blob')
-	const filename = [
-		'Einzelausgabe',
-		result.budgetPlanItem.plan.budget.code,
-		formatDate(result.budgetPlanItem.plan.startDate, 'iso'),
-		result.title.replace(/[^a-z0-9]/gi, '-'),
-	].join('_') + '.pdf'
+	let filename = 'Einzelausgabe.pdf'
+	if (result.budgetPlanItem) {
+		filename = [
+			'Einzelausgabe',
+			result.budgetPlanItem.plan.budget.code,
+			formatDate(result.budgetPlanItem.plan.startDate, 'iso'),
+			result.title.replace(/[^a-z0-9]/gi, '-'),
+		].join('_') + '.pdf'
+	} else if (result.budget) {
+		filename = [
+			'Ruecklagenausschuettung',
+			result.budget.code,
+			result.title.replace(/[^a-z0-9]/gi, '-'),
+		].join('_') + '.pdf'
+	}
 	setResponseHeader(
 		event,
 		'Content-Disposition',

@@ -25,6 +25,7 @@ const encoders = {
 		data: JSON.stringify({
 			...model,
 			budgetPlanItem: model.budgetPlanItem?.id ?? null,
+			budget: model.budget?.id ?? null,
 		}),
 	}),
 } as const

@@ -33,11 +33,18 @@ export default defineEventHandler(async (event) => {
 					plan: false,
 				},
 			},
+			budget: {
+				columns: {
+					organizationItem: true,
+					code: true,
+					name: true,
+				},
+			},
 			items: {
 				columns: {
 					expenseAuthorization: false,
 				},
-				orderBy: (items, { asc }) => [ asc(items.ord) ],
+				orderBy: (items, { asc }) => [asc(items.ord)],
 			},
 		},
 		columns: {
@@ -46,12 +53,19 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	await checkPermission(
-		'expenseAuthorizations.read',
-		{ organizationItem: expenseAuthorization?.budgetPlanItem.plan.budget.organizationItem },
-	)
+	if (expenseAuthorization?.type === 'planned') {
+		await checkPermission(
+			'expenseAuthorizations.read',
+			{ organizationItem: expenseAuthorization?.budgetPlanItem?.plan.budget.organizationItem },
+		)
+	} else {
+		await checkPermission(
+			'expenseAuthorizations.read',
+			{ organizationItem: expenseAuthorization?.budget?.organizationItem },
+		)
+	}
 
-	if(!expenseAuthorization) {
+	if (!expenseAuthorization) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Ausgabeermächtigung nicht gefunden',

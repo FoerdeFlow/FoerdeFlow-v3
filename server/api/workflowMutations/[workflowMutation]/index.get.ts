@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	if(!mutation) {
+	if (!mutation) {
 		throw createError({
 			statusCode: 404,
 			statusMessage: 'Workflow-Mutation nicht gefunden',

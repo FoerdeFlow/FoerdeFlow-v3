@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 import { KernDialog } from '#components'
-import type { BudgetPlanItem, ExpenseAuthorizationItemInput } from '~/types'
+import type { Budget, BudgetPlanItem, ExpenseAuthorizationItemInput } from '~/types'
 
 const props = defineProps<{
-	budgetPlan: string
+	type: 'planned' | 'reserve'
+	budgetPlan?: string
+	budget?: string
 	readonly?: boolean
 }>()
 
@@ -15,7 +17,8 @@ const dialog = useTemplateRef<typeof KernDialog>('dialog')
 const itemId = ref<string | null>(null)
 
 interface Model {
-	budgetPlanItem: BudgetPlanItem
+	budgetPlanItem?: BudgetPlanItem
+	budget?: Budget
 	title: string
 	description: string | null
 	amount: number
@@ -45,6 +48,7 @@ defineExpose({
 	create() {
 		openDialog(null, {
 			budgetPlanItem: null,
+			budget: null,
 			title: '',
 			description: null,
 			amount: 0,
@@ -70,7 +74,9 @@ async function save() {
 	if(!dialog.value || !model.value) return
 	try {
 		const body = {
+			type: props.type,
 			budgetPlanItem: model.value.budgetPlanItem?.id ?? null,
+			budget: props.budget ?? null,
 			title: model.value.title,
 			description: model.value.description,
 			amount: model.value.amount,
@@ -117,6 +123,7 @@ KernDialog(
 )
 	template(v-if="model")
 		ExpenseAuthorizationBudgetPlanItemInput(
+			v-if="props.budgetPlan"
 			v-model="model.budgetPlanItem"
 			:budget-plan="props.budgetPlan"
 			:readonly="props.readonly"

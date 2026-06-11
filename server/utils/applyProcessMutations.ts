@@ -12,7 +12,7 @@ async function createCandidate(
 		initiatorPerson: string
 	},
 ) {
-	const [ result ] = await tx
+	const [result] = await tx
 		.insert(electionProposals)
 		.values({
 			electionCommittee: data.electionCommittee,
@@ -53,12 +53,12 @@ async function createBudgetPlan(
 		>[]
 	},
 ) {
-	const [ result ] = await tx
+	const [result] = await tx
 		.insert(budgetPlans)
 		.values(data)
 		.returning({ id: budgetPlans.id })
 
-	for(const item of data.items) {
+	for (const item of data.items) {
 		await tx.insert(budgetPlanItems).values({
 			...item,
 			plan: result.id,
@@ -78,13 +78,24 @@ async function createExpenseAuthorization(
 			'id' | 'expenseAuthorization'
 		>[]
 	},
+	processMetadata: {
+		meta: unknown
+	},
 ) {
-	const [ result ] = await tx
+	const type =
+		typeof processMetadata.meta === 'object' &&
+			processMetadata.meta &&
+			'type' in processMetadata.meta &&
+			processMetadata.meta.type
+			? processMetadata.meta.type as 'planned' | 'reserve'
+			: data.type ?? 'planned'
+
+	const [result] = await tx
 		.insert(expenseAuthorizations)
-		.values(data)
+		.values({ ...data, type })
 		.returning({ id: expenseAuthorizations.id })
 
-	for(const item of data.items) {
+	for (const item of data.items) {
 		await tx.insert(expenseAuthorizationItems).values({
 			...item,
 			expenseAuthorization: result.id,
@@ -117,7 +128,7 @@ export async function applyProcessMutations(
 		},
 	})
 
-	for(const mutation of mutations) {
+	for (const mutation of mutations) {
 		const handler = {
 			candidates: {
 				create: createCandidate,
@@ -136,7 +147,7 @@ export async function applyProcessMutations(
 			},
 		}[mutation.mutation.table]?.[mutation.mutation.action]
 
-		if(!handler) {
+		if (!handler) {
 			continue
 		}
 
@@ -144,6 +155,7 @@ export async function applyProcessMutations(
 		await handler(tx, mutation.dataId, mutation.data, {
 			...processMetadata,
 			mutationId: mutation.mutation.id,
+			meta: mutation.mutation.meta,
 		})
 	}
 }

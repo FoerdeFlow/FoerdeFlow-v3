@@ -267,6 +267,20 @@
       "when": 1780782775847,
       "tag": "0037_overrated_mephisto",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1780982965510,
+      "tag": "0038_watery_trauma",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1781020074274,
+      "tag": "0039_robust_ironclad",
+      "breakpoints": true
     }
   ]
 }

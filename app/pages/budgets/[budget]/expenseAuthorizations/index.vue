@@ -7,13 +7,13 @@ const confirmDialogStore = useConfirmDialogStore()
 const alertStore = useAlertStore()
 const { t } = useI18n()
 
-const route = useRoute('budgets-budget-plans-plan-expenseAuthorizations')
+const route = useRoute('budgets-budget-expenseAuthorizations')
 
-const { data: budgetPlanData } = useFetch(`/api/budgetPlans/${route.params.plan}`)
+const { data: budgetData } = useFetch(`/api/budgets/${route.params.budget}`)
 
 const { data, refresh } = useFetch('/api/expenseAuthorizations', {
 	query: {
-		budgetPlan: route.params.plan,
+		budget: route.params.budget,
 	},
 	default: () => [],
 })
@@ -50,7 +50,7 @@ async function remove({ id }: { id: string }) {
 	}
 }
 
-const scope = computed(() => ({ organizationItem: budgetPlanData.value?.budget.organizationItem ?? '' }))
+const scope = computed(() => ({ organizationItem: budgetData.value?.organizationItem ?? '' }))
 
 function openAsPdf({ id }: { id: string }) {
 	window.open(`/api/expenseAuthorizations/${id}/pdf`, '_blank')
@@ -61,19 +61,19 @@ function openAsPdf({ id }: { id: string }) {
 aside
 	NuxtLink.kern-link(
 		:to=`{
-			name: 'budgets-budget-plans-plan',
-			params: { budget: route.params.budget, plan: route.params.plan },
+			name: 'budgets-budget',
+			params: { budget: route.params.budget },
 		}`
 	)
 		span.kern-icon.kern-icon--arrow-back(aria-hidden="true")
-		| Zurück zum Haushaltsplan
+		| Zurück zum Haushalt
 h1.kern-heading-large {{ $t('expenseAuthorization.title') }}
 KernTable(
 	:caption="$t('expenseAuthorization.table.caption')"
 	create-permission="expenseAuthorizations.create"
 	update-permission="expenseAuthorizations.update"
 	delete-permission="expenseAuthorizations.delete"
-	:columns="[ 'budgetPlanItem', 'title', 'amount' ]"
+	:columns="[ 'title', 'amount' ]"
 	:data="data ?? []"
 	:scope="scope"
 	show-actions
@@ -81,10 +81,6 @@ KernTable(
 	@edit="edit"
 	@remove="remove"
 )
-	template(#budgetPlanItem-header)
-		| {{ $t('expenseAuthorization.field.budgetPlanItem') }}
-	template(#budgetPlanItem-body="{ item }")
-		| {{ item.budgetPlanItem.title }}
 	template(#title-header)
 		| {{ $t('expenseAuthorization.field.title') }}
 	template(#title-body="{ item }")
@@ -107,8 +103,8 @@ KernTable(
 			span.kern-label.kern-sr-only Als PDF öffnen
 ExpenseAuthorizationEditor(
 	ref="editor"
-	type="planned"
-	:budget-plan="route.params.plan"
+	type="reserve"
+	:budget="route.params.budget"
 	:readonly="!authStore.hasPermission('expenseAuthorizations.update', scope).value"
 	@refresh="refresh"
 )

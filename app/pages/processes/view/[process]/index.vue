@@ -57,6 +57,7 @@ section.my-8(
 	)
 	ExpenseAuthorizationForm(
 		v-if="mutation.mutation.table === 'expenseAuthorizations'"
+		:meta="mutation.mutation.meta"
 		readonly
 		selected-item="summary"
 		:model-value="mutation.data"

@@ -39,14 +39,28 @@ export default defineEventHandler(async (event) => {
 				},
 				columns: {},
 			},
+			budget: {
+				columns: {
+					organizationItem: true,
+				}
+			},
 		},
-		columns: {},
+		columns: {
+			type: true,
+		},
 	})
 
-	await checkPermission(
-		'expenseAuthorizations.update',
-		{ organizationItem: expenseAuthorization?.budgetPlanItem.plan.budget.organizationItem },
-	)
+	if (expenseAuthorization?.type === 'planned') {
+		await checkPermission(
+			'expenseAuthorizations.update',
+			{ organizationItem: expenseAuthorization?.budgetPlanItem?.plan.budget.organizationItem },
+		)
+	} else {
+		await checkPermission(
+			'expenseAuthorizations.update',
+			{ organizationItem: expenseAuthorization?.budget?.organizationItem },
+		)
+	}
 
 	await database.transaction(async (tx) => {
 		const result = await tx
@@ -54,7 +68,7 @@ export default defineEventHandler(async (event) => {
 			.set(body)
 			.where(eq(expenseAuthorizations.id, params.expenseAuthorization))
 
-		if(result.rowCount === 0) {
+		if (result.rowCount === 0) {
 			throw createError({
 				statusCode: 404,
 				statusMessage: 'Ausgabeermächtigung nicht gefunden',
@@ -71,8 +85,8 @@ export default defineEventHandler(async (event) => {
 			},
 		})
 
-		for(const { id: itemId, ...item } of body.items) {
-			if(itemId) {
+		for (const { id: itemId, ...item } of body.items) {
+			if (itemId) {
 				await tx
 					.update(expenseAuthorizationItems)
 					.set(item)
@@ -90,7 +104,7 @@ export default defineEventHandler(async (event) => {
 		const deletedItems = existingItems
 			.filter((existingItem) => !body.items.some((item) => item.id === existingItem.id))
 
-		for(const deletedItem of deletedItems) {
+		for (const deletedItem of deletedItems) {
 			await tx
 				.delete(expenseAuthorizationItems)
 				.where(eq(expenseAuthorizationItems.id, deletedItem.id))

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { BudgetPlanItem, ExpenseAuthorizationItemInput, KernTaskListItems } from '~/types'
+import type { Budget, BudgetPlanItem, ExpenseAuthorizationItemInput, KernTaskListItems } from '~/types'
 
 defineOptions({
 	summaryItems: 3,
@@ -9,7 +9,14 @@ const props = defineProps<{
 	selectedItem: string | null
 	readonly?: boolean
 	summaryOffset?: number
+	meta?: { type?: 'planned' | 'reserve' }
 }>()
+
+const type = computed(() =>
+	typeof props.meta === 'object' && 'type' in props.meta && props.meta.type
+		? props.meta.type
+		: 'planned'
+)
 
 const emit = defineEmits<{
 	select: [item: string]
@@ -17,6 +24,7 @@ const emit = defineEmits<{
 
 interface Model {
 	budgetPlanItem: BudgetPlanItem
+	budget: Budget
 	title: string
 	description: string | null
 	amount: number
@@ -36,8 +44,12 @@ defineExpose({
 	tasks: computed(() => [
 		{
 			id: 'expense-authorization-plan-item',
-			label: 'Haushaltstitel auswählen',
-			status: model.value.budgetPlanItem ? 'done' : 'open',
+			label: type.value === 'planned'
+				? 'Haushaltstitel auswählen'
+				: 'Haushalt auswählen',
+			status: type.value === 'planned'
+				? model.value.budgetPlanItem ? 'done' : 'open'
+				: model.value.budget ? 'done' : 'open',
 		},
 		{
 			id: 'expense-authorization-title',
@@ -55,10 +67,16 @@ defineExpose({
 
 <template lang="pug">
 template(v-if="props.selectedItem === 'expense-authorization-plan-item'")
-	ExpenseAuthorizationBudgetPlanItemInput(
-		v-model="model.budgetPlanItem"
-		:readonly="props.readonly"
-	)
+	template(v-if="type === 'planned'")
+		ExpenseAuthorizationBudgetPlanItemInput(
+			v-model="model.budgetPlanItem"
+			:readonly="props.readonly"
+		)
+	template(v-else)
+		ExpenseAuthorizationBudgetInput(
+			v-model="model.budget"
+			:readonly="props.readonly"
+		)
 template(v-if="props.selectedItem === 'expense-authorization-title'")
 	ExpenseAuthorizationTitleInput(
 		v-model="model.title"
@@ -75,26 +93,40 @@ template(v-if="props.selectedItem === 'expense-authorization-amount-and-items'")
 	)
 	ExpenseAuthorizationItemsInput(v-model="model.items")
 template(v-if="props.selectedItem === 'summary'")
-	KernSummary(
-		:number="(props.summaryOffset ?? 0) + 1"
-		title="Angaben zum Haushaltstitel"
-		:items=`[
-			{
-				key: 'Haushalt',
-				value: formatBudget(model.budgetPlanItem?.plan?.budget ?? null),
-			},
-			{
-				key: 'Haushaltsplan',
-				value: formatBudgetPlan(model.budgetPlanItem?.plan ?? null),
-			},
-			{
-				key: 'Haushaltstitel',
-				value: formatBudgetPlanItem(model.budgetPlanItem ?? null),
-			},
-		]`
-		:readonly="props.readonly"
-		@click.prevent="emit('select', 'expense-authorization-plan-item')"
-	)
+	template(v-if="type === 'planned'")
+		KernSummary(
+			:number="(props.summaryOffset ?? 0) + 1"
+			title="Angaben zum Haushaltstitel"
+			:items=`[
+				{
+					key: 'Haushalt',
+					value: formatBudget(model.budgetPlanItem?.plan?.budget ?? null),
+				},
+				{
+					key: 'Haushaltsplan',
+					value: formatBudgetPlan(model.budgetPlanItem?.plan ?? null),
+				},
+				{
+					key: 'Haushaltstitel',
+					value: formatBudgetPlanItem(model.budgetPlanItem ?? null),
+				},
+			]`
+			:readonly="props.readonly"
+			@click.prevent="emit('select', 'expense-authorization-plan-item')"
+		)
+	template(v-else)
+		KernSummary(
+			:number="(props.summaryOffset ?? 0) + 1"
+			title="Angaben zum Haushalt"
+			:items=`[
+				{
+					key: 'Haushalt',
+					value: formatBudget(model.budget ?? null),
+				},
+			]`
+			:readonly="props.readonly"
+			@click.prevent="emit('select', 'expense-authorization-plan-item')"
+		)
 	KernSummary(
 		:number="(props.summaryOffset ?? 0) + 2"
 		title="Beschreibung der Ausgabeermächtigung"

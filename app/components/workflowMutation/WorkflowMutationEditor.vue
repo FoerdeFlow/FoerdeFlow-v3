@@ -13,6 +13,7 @@ const itemId = ref<string | null>(null)
 interface Model {
 	table: string
 	action: string
+	meta: unknown
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -34,6 +35,7 @@ defineExpose({
 		openDialog(null, {
 			table: '',
 			action: '',
+			meta: null,
 		})
 	},
 	async edit(id: string) {
@@ -41,6 +43,7 @@ defineExpose({
 		openDialog(id, {
 			table: item.table,
 			action: item.action,
+			meta: item.meta,
 		})
 	},
 })
@@ -60,6 +63,7 @@ async function save() {
 		const body = {
 			table: model.value.table,
 			action: model.value.action,
+			meta: model.value.meta || null,
 		}
 		if(itemId.value) {
 			await $fetch(`/api/workflowMutations/${itemId.value}`, {
@@ -100,4 +104,5 @@ KernDialog(
 	template(v-if="model")
 		WorkflowMutationTableInput(v-model="model.table")
 		WorkflowMutationActionInput(v-model="model.action")
+		WorkflowMutationMetaInput(v-model="model.meta")
 </template>

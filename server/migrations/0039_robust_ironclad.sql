@@ -1,0 +1,1 @@
+ALTER TABLE "workflow_mutations" ADD COLUMN "meta" jsonb;

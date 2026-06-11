@@ -21,6 +21,15 @@ const subPages: KernCardNavItems = [
 		linkLabel: 'Haushaltspläne anzeigen',
 		permission: 'budgetPlans.read',
 	},
+	{
+		title: 'Rücklagenausschüttungen',
+		link: {
+			name: 'budgets-budget-expenseAuthorizations',
+			params: { budget: route.params.budget },
+		},
+		linkLabel: 'Rücklagenausschüttungen anzeigen',
+		permission: 'expenseAuthorizations.read',
+	},
 ]
 </script>
 

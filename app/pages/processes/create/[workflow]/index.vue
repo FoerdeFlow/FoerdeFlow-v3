@@ -52,6 +52,7 @@ const mutationForms = computed(() =>
 				expenseAuthorizations: ExpenseAuthorizationForm,
 			}[mutation.table] ?? null,
 			key: mutation.table.substring(0, mutation.table.length - 1),
+			meta: mutation.meta,
 		}))
 		.filter((form) => form !== null) ?? [],
 )
@@ -199,6 +200,7 @@ header
 					v-model="model[form.key]"
 					:selected-item="selectedItem"
 					:summary-offset="mutationForms.slice(0, idx).map(form => form.summaryItems).reduce((a, b) => a + b, 1)"
+					:meta="form.meta"
 					@select="selectedItem = $event"
 				)
 			.kern-container(
