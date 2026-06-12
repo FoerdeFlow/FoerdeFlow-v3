@@ -18,7 +18,11 @@ export function htmlEncodeExpenseAuthorization(entry: {
 			startDate: string
 			endDate: string
 		}
-	}
+	} | null
+	budget: {
+		name: string
+		code: string
+	} | null
 	title: string
 	description: string | null
 	items: {
@@ -28,10 +32,20 @@ export function htmlEncodeExpenseAuthorization(entry: {
 		ord: number | null
 	}[]
 }) {
+	const budgetData = entry.budgetPlanItem?.plan.budget ?? entry.budget
+	if(!budgetData) {
+		throw createError({
+			status: 500,
+			message: 'Invalid expenseAuthorization object (neither budget nor budgetPlanItem)',
+		})
+	}
+
 	const motionText = '<p>' +
 		`Die Ausgabe „${entry.title}“ ` +
-		`aus dem Haushalt ${formatBudget(entry.budgetPlanItem.plan.budget)} ` +
-		`in der Haushaltsperiode ${formatBudgetPlan(entry.budgetPlanItem.plan)} ` +
+		(entry.budgetPlanItem
+			? `aus dem Haushalt ${formatBudget(budgetData)} ` +
+				`in der Haushaltsperiode ${formatBudgetPlan(entry.budgetPlanItem.plan)} `
+			: `aus der Rücklage des Haushalts ${formatBudget(budgetData)} `) +
 		`mit Ausgaben in Höhe von ${formatCurrency(entry.items.reduce((sum, item) => sum + item.amount, 0))} ` +
 		'wird genehmigt.' +
 		'</p>'

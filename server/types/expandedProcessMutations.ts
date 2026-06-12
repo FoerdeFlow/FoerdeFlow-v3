@@ -10,7 +10,11 @@ interface ExpenseAuthorizationProcessMutation {
 			startDate: string
 			endDate: string
 		}
-	}
+	} | null
+	budget: {
+		name: string
+		code: string
+	} | null
 	title: string
 	description: string | null
 	items: {
