@@ -34,6 +34,41 @@ export const processSchemas = {
 		update: null,
 		delete: null,
 	},
+	longtermContracts: {
+		create: z.strictObject({
+			budget: z.uuid(),
+			title: z.string().min(1),
+			description: z.string().min(1).nullable(),
+			startDate: z.coerce.date(),
+			endDate: z.coerce.date().nullable(),
+			items: z.array(z.strictObject({
+				ord: z.number().int().positive().nullable(),
+				type: z.enum([ 'time', 'usage', 'fixed' ]),
+				title: z.string().min(1),
+				description: z.string().min(1).nullable(),
+				amount: z.number().multipleOf(0.01).positive(),
+				timeUnit: z.enum([ 'month', 'quarter', 'semester', 'year' ]).nullable(),
+				usageUnit: z.string().min(1).nullable(),
+				expectedUsage: z.number().multipleOf(0.01).positive().nullable(),
+			}).refine((item) => {
+				if(item.type === 'time') {
+					return item.timeUnit !== null &&
+						item.usageUnit === null &&
+						item.expectedUsage === null
+				}
+				if(item.type === 'usage') {
+					return item.timeUnit !== null &&
+						item.usageUnit !== null &&
+						item.expectedUsage !== null
+				}
+				return item.timeUnit === null &&
+					item.usageUnit === null &&
+					item.expectedUsage === null
+			})).min(1),
+		}).refine((o) => o.endDate === null || o.endDate > o.startDate),
+		update: null,
+		delete: null,
+	},
 	candidates: {
 		create: z.strictObject({
 			electionCommittee: z.uuid(),

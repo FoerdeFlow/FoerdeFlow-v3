@@ -1,7 +1,19 @@
 <script setup lang="ts">
-import type { BudgetPlanFormModel, ExpenseAuthorizationFormModel, KernTaskListItems, OrganizationItem, WorkflowCustomCandidateFormModel } from '~/types'
+import type {
+	BudgetPlanFormModel,
+	ExpenseAuthorizationFormModel,
+	KernTaskListItems,
+	LongtermContractFormModel,
+	OrganizationItem,
+	WorkflowCustomCandidateFormModel,
+} from '~/types'
 
-import { BudgetPlanForm, ExpenseAuthorizationForm, WorkflowCustomCandidateForm } from '#components'
+import {
+	BudgetPlanForm,
+	ExpenseAuthorizationForm,
+	LongtermContractForm,
+	WorkflowCustomCandidateForm,
+} from '#components'
 
 const route = useRoute('processes-create-workflow')
 const authStore = useAuthStore()
@@ -42,6 +54,14 @@ const model = ref({
 		amount: 0,
 		items: [],
 	} satisfies ExpenseAuthorizationFormModel,
+	longtermContract: {
+		budget: null,
+		title: '',
+		description: null,
+		startDate: null,
+		endDate: null,
+		items: [],
+	} satisfies LongtermContractFormModel,
 })
 
 const mutationForms = computed(() =>
@@ -51,6 +71,7 @@ const mutationForms = computed(() =>
 				candidates: WorkflowCustomCandidateForm,
 				budgetPlans: BudgetPlanForm,
 				expenseAuthorizations: ExpenseAuthorizationForm,
+				longtermContracts: LongtermContractForm,
 			}[mutation.table] ?? null,
 			key: mutation.table.substring(0, mutation.table.length - 1),
 			meta: mutation.meta,
@@ -62,6 +83,7 @@ const forms = useTemplateRef<InstanceType<
 	| typeof WorkflowCustomCandidateForm
 	| typeof BudgetPlanForm
 	| typeof ExpenseAuthorizationForm
+	| typeof LongtermContractForm
 >[]>('forms')
 
 const valid = computed(() => forms.value

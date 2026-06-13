@@ -510,6 +510,26 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'longtermContracts.read',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'longtermContracts.create',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'longtermContracts.update',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'longtermContracts.delete',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
 		id: 'workflows.read',
 		scope: 'global',
 		assignable: true,

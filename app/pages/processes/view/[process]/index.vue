@@ -62,6 +62,12 @@ section.my-8(
 		selected-item="summary"
 		:model-value="mutation.data"
 	)
+	LongtermContractForm(
+		v-if="mutation.mutation.table === 'longtermContracts'"
+		readonly
+		selected-item="summary"
+		:model-value="mutation.data"
+	)
 	WorkflowCustomCandidateForm(
 		v-if="mutation.mutation.table === 'candidates'"
 		readonly

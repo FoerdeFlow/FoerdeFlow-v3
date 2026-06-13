@@ -1,4 +1,9 @@
-import type { BudgetPlanFormModel, ExpenseAuthorizationFormModel, WorkflowCustomCandidateFormModel } from '~/types'
+import type {
+	BudgetPlanFormModel,
+	ExpenseAuthorizationFormModel,
+	LongtermContractFormModel,
+	WorkflowCustomCandidateFormModel,
+} from '~/types'
 
 const encoders = {
 	candidates: (model: WorkflowCustomCandidateFormModel) => {
@@ -25,6 +30,14 @@ const encoders = {
 		data: JSON.stringify({
 			...model,
 			budgetPlanItem: model.budgetPlanItem?.id ?? null,
+			budget: model.budget?.id ?? null,
+		}),
+	}),
+	longtermContracts: (model: LongtermContractFormModel) => ({
+		data: JSON.stringify({
+			...model,
+			startDate: serializeDate(model.startDate),
+			endDate: serializeDate(model.endDate),
 			budget: model.budget?.id ?? null,
 		}),
 	}),

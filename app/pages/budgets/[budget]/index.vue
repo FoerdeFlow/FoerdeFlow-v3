@@ -30,6 +30,15 @@ const subPages: KernCardNavItems = [
 		linkLabel: 'Rücklagenausschüttungen anzeigen',
 		permission: 'expenseAuthorizations.read',
 	},
+	{
+		title: 'Langzeitverträge',
+		link: {
+			name: 'budgets-budget-longtermContracts',
+			params: { budget: route.params.budget },
+		},
+		linkLabel: 'Langzeitverträge anzeigen',
+		permission: 'longtermContracts.read',
+	},
 ]
 </script>
 

@@ -250,5 +250,121 @@
 				"message": "Beim Löschen des Einnahme- oder Ausgabentitels ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
 			}
 		}
+	},
+	"longtermContract": {
+		"title": "Langzeitverträge",
+		"menu": {
+			"title": "Langzeitverträge",
+			"description": "Langzeitverträge sind Verträge, welche regelmäßige oder nutzungsabhängige Zahlungen über einen längeren Zeitraum begründen.",
+			"linkLabel": "Zu den Langzeitverträgen"
+		},
+		"table": {
+			"caption": "Liste der Langzeitverträge"
+		},
+		"field": {
+			"title": "Titel des Vertrags",
+			"startDate": "Vertragsbeginn",
+			"endDate": "Vertragsende"
+		},
+		"input": {
+			"title": {
+				"label": "Titel des Vertrags"
+			},
+			"description": {
+				"label": "Erläuterung"
+			},
+			"startDate": {
+				"label": "Vertragsbeginn"
+			},
+			"endDate": {
+				"label": "Vertragsende",
+				"hint": "Bei unbefristeten Verträgen bitte leer lassen."
+			}
+		},
+		"create": {
+			"title": "Langzeitvertrag erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung des Langzeitvertrags ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Langzeitvertrag bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung des Langzeitvertrags ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Langzeitvertrag löschen?",
+			"text": "Sind Sie sicher, dass Sie diesen Langzeitvertrag löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen des Langzeitvertrags ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
+	"longtermContractItem": {
+		"table": {
+			"caption": "Kostenaufstellung"
+		},
+		"field": {
+			"title": "Titel",
+			"amount": "Betrag"
+		},
+		"type": {
+			"time": "Zeitabhängig",
+			"usage": "Nutzungsabhängig",
+			"fixed": "Einmalig"
+		},
+		"timeUnit": {
+			"month": "Monat",
+			"quarter": "Quartal",
+			"semester": "Semester",
+			"year": "Jahr"
+		},
+		"amount": {
+			"time": "{amount} je {timeUnit}",
+			"usage": "{amount} je {usageUnit} (erwartet: {expectedUsage} je {timeUnit})",
+			"fixed": "{amount} einmalig"
+		},
+		"input": {
+			"ord": {
+				"label": "Lfd."
+			},
+			"title": {
+				"label": "Titel"
+			},
+			"description": {
+				"label": "Erläuterung"
+			},
+			"type": {
+				"label": "Art des Postens"
+			},
+			"amount": {
+				"label": "Betrag"
+			},
+			"timeUnit": {
+				"label": "Zeiteinheit",
+				"usageHint": "Bezugszeitraum der erwarteten Nutzung."
+			},
+			"usageUnit": {
+				"label": "Nutzungseinheit",
+				"hint": "Zum Beispiel Seite oder Kilometer."
+			},
+			"expectedUsage": {
+				"label": "Erwartete Nutzung"
+			}
+		},
+		"create": {
+			"title": "Posten erstellen"
+		},
+		"edit": {
+			"title": "Posten bearbeiten"
+		},
+		"remove": {
+			"title": "Posten löschen?",
+			"text": "Sind Sie sicher, dass Sie diesen Posten löschen möchten?"
+		}
 	}
 }

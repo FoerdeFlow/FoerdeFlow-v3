@@ -29,6 +29,7 @@ export async function jobCreateDocument(
 	const allowedMutationTables = [
 		'budgetPlans',
 		'expenseAuthorizations',
+		'longtermContracts',
 	] as const
 	const mutation = await tx.query.workflowProcessMutations.findFirst({
 		where: (tbl, { and, eq, inArray, exists }) => and(
@@ -86,6 +87,10 @@ export async function jobCreateDocument(
 			}
 			// @ts-expect-error - We ensure the type safety above
 			doc = await pdfEncodeExpenseAuthorization(data, { document: true })
+			break
+		case 'longtermContracts':
+			// @ts-expect-error - We ensure the type safety above
+			doc = await pdfEncodeLongtermContract(data, { document: true })
 			break
 		default:
 			throw createError({

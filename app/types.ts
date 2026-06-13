@@ -16,6 +16,7 @@ import type {
 	GenderSelect,
 	KernCardNav,
 	KernTaskList,
+	LongtermContractForm,
 	MembershipEndReasonSelect,
 	MembershipTypeSelect,
 	OrganizationItemSelect,
@@ -55,6 +56,7 @@ export type WorkflowStepType = InstanceType<typeof WorkflowStepTypeSelect>['$pro
 
 export type BudgetPlanFormModel = InstanceType<typeof BudgetPlanForm>['$props']['modelValue']
 export type ExpenseAuthorizationFormModel = InstanceType<typeof ExpenseAuthorizationForm>['$props']['modelValue']
+export type LongtermContractFormModel = InstanceType<typeof LongtermContractForm>['$props']['modelValue']
 
 export type WorkflowCustomCandidateFormModel = InstanceType<typeof WorkflowCustomCandidateForm>['$props']['modelValue']
 
@@ -87,4 +89,19 @@ export interface ExpenseAuthorizationItemInput {
 	title: string
 	description: string | null
 	amount: number
+}
+
+export type LongtermContractItemType = 'time' | 'usage' | 'fixed'
+export type LongtermContractTimeUnit = 'month' | 'quarter' | 'semester' | 'year'
+
+export interface LongtermContractItemInput {
+	id: string | symbol | null
+	ord: number | null
+	type: LongtermContractItemType
+	title: string
+	description: string | null
+	amount: number
+	timeUnit: LongtermContractTimeUnit | null
+	usageUnit: string | null
+	expectedUsage: number | null
 }

@@ -104,6 +104,39 @@ async function createExpenseAuthorization(
 	}
 }
 
+async function createLongtermContract(
+	tx: ReturnType<typeof useDatabase>,
+	_dataId: string | null,
+	data: Omit<
+		InferInsertModel<typeof longtermContracts>,
+		'id'
+	> & {
+		items: Omit<
+			InferInsertModel<typeof longtermContractItems>,
+			'id' | 'longtermContract'
+		>[]
+	},
+) {
+	const [ result ] = await tx
+		.insert(longtermContracts)
+		.values(data)
+		.returning({ id: longtermContracts.id })
+
+	if(!result) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Langzeitvertrag konnte nicht erstellt werden',
+		})
+	}
+
+	for(const item of data.items) {
+		await tx.insert(longtermContractItems).values({
+			...item,
+			longtermContract: result.id,
+		})
+	}
+}
+
 export async function applyProcessMutations(
 	tx: ReturnType<typeof useDatabase>,
 	processId: string,
@@ -143,6 +176,11 @@ export async function applyProcessMutations(
 			},
 			expenseAuthorizations: {
 				create: createExpenseAuthorization,
+				update: () => { /**/ },
+				delete: () => { /**/ },
+			},
+			longtermContracts: {
+				create: createLongtermContract,
 				update: () => { /**/ },
 				delete: () => { /**/ },
 			},
