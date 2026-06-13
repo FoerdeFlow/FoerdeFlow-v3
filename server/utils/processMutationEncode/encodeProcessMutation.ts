@@ -13,7 +13,11 @@ const encoders = {
 		html: htmlEncodeExpenseAuthorization,
 		pdf: pdfEncodeExpenseAuthorization,
 	},
-} as const satisfies Record<ProcessMutation, MutationEncoders<ExpandedProcessMutations[ProcessMutation]>>
+	longtermContract: {
+		html: htmlEncodeLongtermContract,
+		pdf: pdfEncodeLongtermContract,
+	},
+} as const satisfies { [M in ProcessMutation]: MutationEncoders<ExpandedProcessMutations[M]> }
 
 export async function encodeProcessMutation<M extends ProcessMutation, F extends EncodingFormat>(
 	mutation: M,
@@ -21,8 +25,5 @@ export async function encodeProcessMutation<M extends ProcessMutation, F extends
 	entry: Parameters<(typeof encoders)[M][F]>[0],
 ) {
 	const encoder = encoders[mutation][format]
-	if(!encoder) {
-		throw new Error(`No encoder found for mutation: ${mutation}, format: ${format}`)
-	}
 	return await encoder(entry) as ReturnType<(typeof encoders)[M][F]>
 }
