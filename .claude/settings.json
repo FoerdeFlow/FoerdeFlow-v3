@@ -5,7 +5,9 @@
       "Bash(npm run *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(npx eslint *)"
+      "Bash(git stash *)",
+      "Bash(npx eslint *)",
+      "Bash(npx nuxt typecheck *)"
     ]
   }
 }
