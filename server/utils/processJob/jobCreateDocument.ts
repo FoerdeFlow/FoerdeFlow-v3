@@ -79,12 +79,6 @@ export async function jobCreateDocument(
 			doc = await pdfEncodeBudgetPlan(data, { document: true })
 			break
 		case 'expenseAuthorizations':
-			if(!data.budgetPlanItem) {
-				throw createError({
-					statusCode: 400,
-					statusMessage: 'Haushaltstitel fehlt',
-				})
-			}
 			// @ts-expect-error - We ensure the type safety above
 			doc = await pdfEncodeExpenseAuthorization(data, { document: true })
 			break
