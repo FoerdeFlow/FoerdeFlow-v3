@@ -1,9 +1,13 @@
+const timeZone = 'Europe/Berlin'
+
 const dateFormatter = {
 	verbose: new Intl.DateTimeFormat('de-DE', {
 		dateStyle: 'full',
+		timeZone,
 	}),
 	compact: new Intl.DateTimeFormat('de-DE', {
 		dateStyle: 'medium',
+		timeZone,
 	}),
 	iso: {
 		format: (date: Date) => [
@@ -27,10 +31,12 @@ const datetimeFormatter = {
 	verbose: new Intl.DateTimeFormat('de-DE', {
 		dateStyle: 'full',
 		timeStyle: 'short',
+		timeZone,
 	}),
 	compact: new Intl.DateTimeFormat('de-DE', {
 		dateStyle: 'medium',
 		timeStyle: 'short',
+		timeZone,
 	}),
 }
 
@@ -45,6 +51,7 @@ export function formatDatetime(date: string | Date | null, style: 'verbose' | 'c
 
 const timeFormatter = new Intl.DateTimeFormat('de-DE', {
 	timeStyle: 'short',
+	timeZone,
 })
 
 export function formatTime(date: string | Date | null): string {
