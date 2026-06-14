@@ -1,2 +1,9 @@
 #!/bin/sh
-# TODO
+if ! git diff --quiet; then
+	echo "✗ Working tree not clean: unstaged changes present."
+	echo "  Please commit or stash them before continuing."
+	exit 1
+fi
+
+npm run lint
+npm run typecheck
