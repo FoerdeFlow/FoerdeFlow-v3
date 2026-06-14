@@ -45,11 +45,21 @@ export default defineEventHandler(async (event) => {
 		}
 
 		await client.connect()
-		const [ [ { id } ] ] = await client.presenters.search_users({
+		const searchResults = await client.presenters.search_users({
 			permission_type: 'organization',
 			permission_id: 1,
 			search: [ { saml_id: person.email } ],
 		})
+		const id = searchResults[0]?.[0]?.id
+		if(!id) {
+			throw createError({
+				statusCode: 404,
+				statusMessage: 'Person in OpenSlides nicht gefunden',
+				data: {
+					personId: params.person,
+				},
+			})
+		}
 		await client.user.update({
 			id,
 			saml_id: body.email,

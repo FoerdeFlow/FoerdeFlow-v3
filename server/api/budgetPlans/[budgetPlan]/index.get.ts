@@ -20,7 +20,6 @@ export default defineEventHandler(async (event) => {
 			},
 		},
 		columns: {
-			id: false,
 			budget: false,
 		},
 	})

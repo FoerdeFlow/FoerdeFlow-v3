@@ -1,6 +1,7 @@
 import type {
 	AttendanceStatusSelect,
 	BudgetPeriodTypeSelect,
+	BudgetPlanForm,
 	BudgetPlanItemSelect,
 	BudgetPlanSelect,
 	BudgetSelect,
@@ -78,7 +79,7 @@ export interface BudgetPlanItemInput {
 	id: string | symbol | null
 	ord: number | null
 	title: string
-	description: string
+	description: string | null
 	revenues: number | null
 	expenses: number | null
 }

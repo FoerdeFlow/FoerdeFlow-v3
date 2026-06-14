@@ -24,10 +24,22 @@ export default defineEventHandler(async (event) => {
 					ilike(persons.firstName, `%${query.query}%`),
 					ilike(persons.callName, `%${query.query}%`),
 					ilike(persons.lastName, `%${query.query}%`),
-					ilike(sql`${persons.firstName} || ' ' || ${persons.lastName}`, `%${query.query}%`),
-					ilike(sql`${persons.callName} || ' ' || ${persons.lastName}`, `%${query.query}%`),
-					ilike(sql`${persons.lastName} || ', ' || ${persons.firstName}`, `%${query.query}%`),
-					ilike(sql`${persons.lastName} || ', ' || ${persons.callName}`, `%${query.query}%`),
+					ilike(
+						sql`${persons.firstName} || ' ' || ${persons.lastName}`,
+						`%${query.query}%`,
+					),
+					ilike(
+						sql`${persons.callName} || ' ' || ${persons.lastName}`,
+						`%${query.query}%`,
+					),
+					ilike(
+						sql`${persons.lastName} || ', ' || ${persons.firstName}`,
+						`%${query.query}%`,
+					),
+					ilike(
+						sql`${persons.lastName} || ', ' || ${persons.callName}`,
+						`%${query.query}%`,
+					),
 					ilike(persons.email, `%${query.query}%`),
 				) ]
 				: []),

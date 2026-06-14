@@ -40,6 +40,11 @@ const actions = [
 	'update',
 	'delete',
 ]
+
+const findPermissionId = (relation: string, action: string) =>
+	data.value?.find((item) =>
+		item.permission === `${relation}.${action}` && item.organizationItem === (scope.value?.id ?? null),
+	)?.id
 </script>
 
 <template lang="pug">
@@ -98,7 +103,7 @@ table.kern-table
 				:key="action"
 			)
 				RolePermissionBadge(
-					:id="data?.find(item => item.permission === `${relation}.${action}` && item.organizationItem === (scope?.id ?? null))?.id"
+					:id="findPermissionId(relation, action)"
 					:role="route.params.role"
 					:permission="permissions.find(item => item.id === `${relation}.${action}`) ?? null"
 					:scope="scope ? 'organizationItem' : 'global'"

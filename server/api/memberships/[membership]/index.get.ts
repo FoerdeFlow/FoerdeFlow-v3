@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+import { existsSync } from 'node:fs'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -19,6 +20,7 @@ export default defineEventHandler(async (event) => {
 				},
 				columns: {
 					id: true,
+					email: true,
 					firstName: true,
 					lastName: true,
 					callName: true,
@@ -49,15 +51,25 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return membership as typeof membership & (
+	const result = {
+		...membership,
+		memberPerson: membership.memberPerson
+			? {
+				...membership.memberPerson,
+				hasPhoto: existsSync(`./data/${membership.memberPerson.id}`),
+			}
+			: null,
+	}
+
+	return result as typeof result & (
 		{
 			memberType: 'person'
-			memberPerson: Exclude<typeof membership.memberPerson, null>
+			memberPerson: Exclude<typeof result.memberPerson, null>
 			memberOrganizationItem: null
 		} | {
 			memberType: 'organization_item'
 			memberPerson: null
-			memberOrganizationItem: Exclude<typeof membership.memberOrganizationItem, null>
+			memberOrganizationItem: Exclude<typeof result.memberOrganizationItem, null>
 		}
 	)
 })

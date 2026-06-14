@@ -12,12 +12,26 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	const [ candidate ] = await $fetch(`/api/candidates?electionProposal=${params.electionProposal}`, {
+	const [ candidate ] = await $fetch('/api/candidates', {
 		headers: {
 			cookie: getHeader(event, 'cookie') ?? '',
 			'x-foerdeflow-api-key': getHeader(event, 'x-foerdeflow-api-key') ?? '',
 		},
+		query: {
+			electionProposal: params.electionProposal,
+			includePersonDetails: true,
+		},
 	})
+
+	if(!candidate) {
+		throw createError({
+			statusCode: 404,
+			statusMessage: 'Kandidat nicht gefunden',
+			data: {
+				electionProposalId: params.electionProposal,
+			},
+		})
+	}
 
 	const photoResponse = await $fetch(`/api/persons/${candidate.candidate.id}/photo`, {
 		headers: {
@@ -49,12 +63,12 @@ export default defineEventHandler(async (event) => {
 		committee: formatOrganizationItem(electionCommittee.committee),
 		photo,
 		candidate: formatPerson(candidate.candidate),
-		postalAddress: candidate.candidate.postalAddress || '',
+		postalAddress: candidate.candidate.postalAddress ?? '',
 		email: candidate.candidate.email,
-		matriculationNumber: candidate.candidate.matriculationNumber?.toString() || '',
-		council: formatCouncil(candidate.candidate.course?.council || null),
+		matriculationNumber: candidate.candidate.matriculationNumber?.toString() ?? '',
+		council: formatCouncil(candidate.candidate.course?.council ?? null),
 		course: formatCourse(candidate.candidate.course),
-		applicationLetter: candidate.applicationLetter || '',
+		applicationLetter: candidate.applicationLetter ?? '',
 	})
 
 	const blob = doc.output('blob')

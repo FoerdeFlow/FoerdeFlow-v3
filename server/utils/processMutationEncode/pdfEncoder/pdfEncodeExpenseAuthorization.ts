@@ -63,7 +63,12 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 				if(!options.document) {
 					doc.setFont('OpenSans', 'normal')
 					doc.setFontSize(14)
-					doc.text(this._number.toString(), docWidth / 2, docHeight - 10, { align: 'center' })
+					doc.text(
+						this._number.toString(),
+						docWidth / 2,
+						docHeight - 10,
+						{ align: 'center' },
+					)
 				}
 				doc.addPage()
 				this._number++
@@ -72,7 +77,12 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 				doc.setFont('OpenSans', 'italic')
 				doc.setFontSize(14)
 				doc.text('Ausgabeermächtigung', 20, options.document ? 25 : 15, { align: 'left' })
-				doc.text(`${title} | ${period}`, docWidth - 20, options.document ? 25 : 15, { align: 'right' })
+				doc.text(
+					`${title} | ${period}`,
+					docWidth - 20,
+					options.document ? 25 : 15,
+					{ align: 'right' },
+				)
 				return
 			}
 			this._y = value
@@ -120,7 +130,7 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(14)
-		doc.text(entry.budgetPlanItem?.title ?? '', 20, pos.y)
+		doc.text(entry.budgetPlanItem.title, 20, pos.y)
 		pos.y += 12
 
 		doc.setFont('OpenSans', 'bold')
@@ -161,7 +171,7 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 	let category: string | null = null
 	for(const item of entry.items) {
 		if(item.title.includes(' - ')) {
-			const [ itemCategory, itemTitle ] = item.title.split(' - ')
+			const [ itemCategory = '', itemTitle = '' ] = item.title.split(' - ')
 			if(category !== itemCategory) {
 				doc.setFont('OpenSans', 'bold')
 				doc.setFontSize(12)

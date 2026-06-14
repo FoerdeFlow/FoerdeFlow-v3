@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+import { existsSync } from 'node:fs'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -15,7 +16,20 @@ export default defineEventHandler(async (event) => {
 		with: {
 			allowedInitiators: {
 				with: {
-					person: true,
+					person: {
+						with: {
+							course: true,
+						},
+						columns: {
+							id: true,
+							email: true,
+							firstName: true,
+							lastName: true,
+							callName: true,
+							gender: true,
+							pronouns: true,
+						},
+					},
 					role: true,
 					organizationType: {
 						with: {
@@ -45,5 +59,16 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return workflow
+	return {
+		...workflow,
+		allowedInitiators: workflow.allowedInitiators.map((initiator) => ({
+			...initiator,
+			person: initiator.person
+				? {
+					...initiator.person,
+					hasPhoto: existsSync(`./data/${initiator.person.id}`),
+				}
+				: null,
+		})),
+	}
 })

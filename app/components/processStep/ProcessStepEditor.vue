@@ -27,13 +27,13 @@ function openDialog(id: string | null, data: Model) {
 	itemId.value = id
 	itemModel.value = structuredClone(data)
 	model.value = structuredClone(data)
-	step.value = data.step
 	dialog.value.show()
 }
 
 defineExpose({
 	async open(id: string) {
-		const item = await $fetch(`/api/processSteps/${id}`)
+		const { step: stepData, ...item } = await $fetch(`/api/processSteps/${id}`)
+		step.value = stepData
 		openDialog(id, item)
 	},
 })

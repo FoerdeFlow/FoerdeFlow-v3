@@ -12,8 +12,8 @@ const items = computed(() => {
 	const { items, ...plan } = data.value
 	return items.map((item) => ({
 		plan: {
-			id: props.budgetPlan,
 			...plan,
+			id: props.budgetPlan,
 		},
 		...item,
 	}))

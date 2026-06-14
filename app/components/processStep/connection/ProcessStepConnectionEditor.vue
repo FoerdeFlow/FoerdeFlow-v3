@@ -30,9 +30,9 @@ function openDialog(id: string | null, data: Model) {
 
 defineExpose({
 	async open(id: string, organizationItem: string) {
-		const item = await $fetch(`/api/processSteps/${id}`)
+		await $fetch(`/api/processSteps/${id}`)
 		organizationItemId.value = organizationItem
-		openDialog(id, item)
+		openDialog(id, { session: null })
 	},
 })
 

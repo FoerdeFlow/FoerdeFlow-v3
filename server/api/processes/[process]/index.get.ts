@@ -64,22 +64,35 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
-		processItem.steps = await Promise.all(processItem.steps.map(async (processStep) => ({
+		const steps = await Promise.all(processItem.steps.map(async (processStep) => ({
 			...processStep,
-			editable: await checkProcessStepPermission(tx, processStep.id).then(() => true).catch(() => false),
+			editable: await checkProcessStepPermission(tx, processStep.id)
+				.then(() => true)
+				.catch(() => false),
 		})))
 
 		return {
 			...processItem,
-			mutations: await Promise.all(processItem.mutations.map(async (mutation) => ({
-				...mutation,
-				// @ts-expect-error | Table is not typed properly
-				data: await encodeProcessData(tx, mutation.mutation.table, mutation.data),
-				attachments: (await Promise.all((processSchemas[mutation.mutation.table as keyof typeof processSchemas]?.attachments ?? []).map(async (attachment) => ({
+			steps,
+			mutations: await Promise.all(processItem.mutations.map(async (mutation) => {
+				const schema = processSchemas[mutation.mutation.table as keyof typeof processSchemas]
+				const attachmentNames = 'attachments' in schema ? schema.attachments : []
+				const attachments = (await Promise.all(attachmentNames.map(async (attachment) => ({
 					name: attachment,
-					present: await access(`./data/${params.process}_${mutation.mutation.id}_photo`).then(() => true).catch(() => false),
-				})))).filter((attachment) => attachment.present).map((attachment) => attachment.name) as string[],
-			}))),
+					present: await access(
+						`./data/${params.process}_${mutation.mutation.id}_photo`,
+					).then(() => true).catch(() => false),
+				}))))
+					.filter((attachment) => attachment.present)
+					.map((attachment) => attachment.name)
+
+				return {
+					...mutation,
+					// @ts-expect-error | Table is not typed properly
+					data: await encodeProcessData(tx, mutation.mutation.table, mutation.data),
+					attachments,
+				}
+			})),
 		}
 	})
 })

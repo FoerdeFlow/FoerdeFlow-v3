@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+import { existsSync } from 'node:fs'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -11,7 +12,20 @@ export default defineEventHandler(async (event) => {
 	const attendance = await database.query.sessionAttendances.findFirst({
 		where: eq(sessionAttendances.id, params.attendance),
 		with: {
-			person: true,
+			person: {
+				with: {
+					course: true,
+				},
+				columns: {
+					id: true,
+					email: true,
+					firstName: true,
+					lastName: true,
+					callName: true,
+					gender: true,
+					pronouns: true,
+				},
+			},
 			session: true,
 		},
 		columns: {
@@ -33,5 +47,11 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return attendance
+	return {
+		...attendance,
+		person: {
+			...attendance.person,
+			hasPhoto: existsSync(`./data/${attendance.person.id}`),
+		},
+	}
 })

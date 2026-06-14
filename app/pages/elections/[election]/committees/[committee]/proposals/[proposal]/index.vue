@@ -11,7 +11,7 @@ const { data: electionCommittee } = useFetch(() => `/api/electionCommittees/${ro
 
 const { data } = useFetch(() => `/api/electionProposals/${route.params.proposal}`, {
 	default: () => ({
-		proposal: null,
+		submitter: null,
 	}),
 })
 

@@ -1,4 +1,4 @@
-import { eq, sql } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 
 export default defineEventHandler(async (_event) => {
 	const database = useDatabase()

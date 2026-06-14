@@ -23,7 +23,10 @@ export default defineEventHandler(async (event) => {
 			columns: {},
 		})
 
-		await checkPermission('expenseAuthorizations.read', { organizationItem: budgetPlan?.budget.organizationItem })
+		await checkPermission(
+			'expenseAuthorizations.read',
+			{ organizationItem: budgetPlan?.budget.organizationItem },
+		)
 
 		if(!budgetPlan) {
 			throw createError({

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 
-import type { DocumentContentEditor, DocumentEditor } from '#components'
+import type { DocumentContentEditor, DocumentEditor, DocumentTransferDialog } from '#components'
 
 const authStore = useAuthStore()
 const route = useRoute('organizationItems-organizationItem-documents')

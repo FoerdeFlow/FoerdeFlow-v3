@@ -101,8 +101,9 @@ export async function checkProcessStepPermission(
 						break
 				}
 				break
-			case 'referencedPerson':
-				const [ referencedPersonTable, ...referencedPersonSteps ] = step.assigneeReferencedPerson?.split('.') || []
+			case 'referencedPerson': {
+				const [ referencedPersonTable, ...referencedPersonSteps ] =
+					step.assigneeReferencedPerson?.split('.') ?? []
 				if(!referencedPersonTable || referencedPersonSteps.length <= 0) {
 					throw createError({
 						statusCode: 403,
@@ -114,14 +115,12 @@ export async function checkProcessStepPermission(
 				const mutation = await tx.query.workflowProcessMutations.findFirst({
 					where: (tbl, { and, eq, exists }) => and(
 						eq(tbl.process, result.process),
-						exists(
-							tx.select()
-								.from(workflowMutations)
-								.where(and(
-									eq(workflowMutations.id, tbl.mutation),
-									eq(workflowMutations.table, referencedPersonTable),
-								)),
-						),
+						exists(tx.select()
+							.from(workflowMutations)
+							.where(and(
+								eq(workflowMutations.id, tbl.mutation),
+								eq(workflowMutations.table, referencedPersonTable),
+							))),
 					),
 					columns: {
 						data: true,
@@ -135,17 +134,20 @@ export async function checkProcessStepPermission(
 					})
 				}
 
-				let referencedPersonData: Record<string, unknown> | undefined = mutation.data as Record<string, unknown>
-				for(const step of referencedPersonSteps) {
+				let referencedPersonData: unknown = mutation.data
+				for(const referencedPersonStep of referencedPersonSteps) {
 					if(typeof referencedPersonData === 'object' && referencedPersonData !== null) {
-						referencedPersonData = referencedPersonData[step] as Record<string, unknown> | undefined
+						const record = referencedPersonData as Record<string, unknown>
+						referencedPersonData = record[referencedPersonStep]
 					} else {
 						referencedPersonData = undefined
 						break
 					}
 				}
 
-				const referencedPersonId = typeof referencedPersonData === 'string' ? referencedPersonData : undefined
+				const referencedPersonId = typeof referencedPersonData === 'string'
+					? referencedPersonData
+					: undefined
 				if(referencedPersonId !== (event.context as EventContext).user?.person?.id) {
 					throw createError({
 						statusCode: 403,
@@ -154,6 +156,7 @@ export async function checkProcessStepPermission(
 					})
 				}
 				break
+			}
 			case 'organizationItem':
 				try {
 					await checkPermission(

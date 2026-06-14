@@ -24,7 +24,10 @@ const filteredIds = computed(() =>
 	authStore.userInfo.roles.some((role) => role.isAdmin)
 		? undefined
 		: authStore.userInfo.permissions
-			.filter((permission) => permission.permission === 'texts.update' && typeof permission.organizationItem === 'string')
+			.filter((permission) =>
+				permission.permission === 'texts.update' &&
+				typeof permission.organizationItem === 'string',
+			)
 			.map((permission) => permission.organizationItem as string),
 )
 </script>

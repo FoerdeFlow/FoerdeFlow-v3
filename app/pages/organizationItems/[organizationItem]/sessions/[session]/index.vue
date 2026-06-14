@@ -19,7 +19,9 @@ const { status: minutesStatus } =
 const subPages = computed<KernCardNavItems>(() => [
 	{
 		title: 'Anwesenheitsliste',
-		description: 'Die Anwesenheitsliste gibt an, welche Mitglieder anwesend waren und welche entschuldigt oder unentschuldigt gefehlt haben. Sie bietet außerdem eine Liste der anwesenden Gäste.',
+		description: 'Die Anwesenheitsliste gibt an, welche Mitglieder anwesend waren und welche ' +
+			'entschuldigt oder unentschuldigt gefehlt haben. ' +
+			'Sie bietet außerdem eine Liste der anwesenden Gäste.',
 		link: {
 			name: 'organizationItems-organizationItem-sessions-session-attendances',
 			params: { organizationItem: route.params.organizationItem, session: route.params.session },
@@ -30,7 +32,8 @@ const subPages = computed<KernCardNavItems>(() => [
 	...(minutesStatus.value === 'success'
 		? [ {
 			title: 'Protokoll',
-			description: 'Das Protokoll bietet eine Zusammenfassung der Sitzung, einschließlich der besprochenen Themen und der getroffenen Entscheidungen.',
+			description: 'Das Protokoll bietet eine Zusammenfassung der Sitzung, einschließlich der ' +
+				'besprochenen Themen und der getroffenen Entscheidungen.',
 			link: `/api/sessions/${route.params.session}/minutes`,
 			linkTarget: '_blank' as const,
 			linkLabel: 'Protokoll herunterladen (PDF)',

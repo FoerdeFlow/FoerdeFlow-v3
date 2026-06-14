@@ -64,11 +64,12 @@ export async function syncOpenslidesParticipants(client: OpenslidesClient, sessi
 	}
 
 	const openslidesMeetingId = await getOpenslidesMeetingId(client, session.organizationItem, sessionId)
-	const [ { user_ids: openslidesMeetingUserIds } ] = await client.get({
+	const [ openslidesMeeting ] = await client.get({
 		collection: 'meeting',
 		ids: [ openslidesMeetingId ],
 		fields: [ 'user_ids' ],
 	})
+	const openslidesMeetingUserIds = openslidesMeeting?.user_ids ?? []
 	const assignedUsers = await client.get({
 		collection: 'user',
 		ids: openslidesMeetingUserIds,

@@ -85,7 +85,7 @@ KernTable(
 	template(#budgetPlanItem-header)
 		| {{ $t('expenseAuthorization.field.budgetPlanItem') }}
 	template(#budgetPlanItem-body="{ item }")
-		| {{ item.budgetPlanItem.title }}
+		| {{ item.budgetPlanItem?.title }}
 	template(#title-header)
 		| {{ $t('expenseAuthorization.field.title') }}
 	template(#title-body="{ item }")
@@ -109,7 +109,7 @@ KernTable(
 ExpenseAuthorizationEditor(
 	ref="editor"
 	type="planned"
-	:budget-plan="route.params.plan"
+	:budget-plan="budgetPlanData"
 	:readonly="!authStore.hasPermission('expenseAuthorizations.update', scope).value"
 	@refresh="refresh"
 )

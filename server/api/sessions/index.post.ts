@@ -6,11 +6,11 @@ export default defineEventHandler(async (event) => {
 	const sessionSchema = createInsertSchema(sessions).omit({ id: true })
 	const body = await readValidatedBody(event, async (body) =>
 		await sessionSchema.parseAsync(
-			await z.object({
+			await z.looseObject({
 				plannedDate: z.coerce.date(),
 				startDate: z.coerce.date().optional(),
 				endDate: z.coerce.date().optional(),
-			}).passthrough().parseAsync(body),
+			}).parseAsync(body),
 		),
 	)
 
@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
 
 	const result = await database.transaction(async (tx) => {
 		const [ result ] = await tx.insert(sessions).values(body).returning({ id: sessions.id })
+		if(!result) throw new Error('Session could not be created')
 		const committee = await tx.query.organizationItems.findFirst({
 			where: eq(organizationItems.id, body.organizationItem),
 		})

@@ -4,7 +4,7 @@ export default defineTask({
 	meta: {
 		name: 'openslides:sync',
 	},
-	async run({ payload, context }) {
+	run({ payload: _payload, context: _context }) {
 		// const database = useDatabase()
 		// const client = useOpenslides()
 

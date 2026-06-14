@@ -9,9 +9,11 @@ const { data: announcements } = await useFetch('/api/announcements', {
 	},
 })
 
-const displayName = computed(() => authStore.userInfo.person
-	? `${authStore.userInfo.person.callName ?? authStore.userInfo.person.firstName} ${authStore.userInfo.person.lastName}`
-	: 'Gast')
+const displayName = computed(() => {
+	const person = authStore.userInfo.person
+	if(!person) return 'Gast'
+	return `${person.callName ?? person.firstName} ${person.lastName}`
+})
 </script>
 
 <template lang="pug">

@@ -14,7 +14,18 @@ export default defineEventHandler(async (event) => {
 	const person = await database.query.persons.findFirst({
 		where: eq(persons.id, params.person),
 		with: {
-			course: true,
+			course: {
+				with: {
+					type: true,
+					council: true,
+					department: true,
+				},
+				columns: {
+					type: false,
+					council: false,
+					department: false,
+				},
+			},
 		},
 		columns: {
 			course: false,

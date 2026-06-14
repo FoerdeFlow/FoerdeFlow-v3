@@ -6,7 +6,12 @@ export default defineEventHandler(async (event) => {
 
 	const query = await getValidatedQuery(event, async (data) => await z.object({
 		electionProposal: z.uuid(),
+		includePersonDetails: z.boolean().default(false),
 	}).parseAsync(data))
+
+	if(query.includePersonDetails) {
+		await checkPermission('personDetails.read')
+	}
 
 	const database = useDatabase()
 
@@ -28,11 +33,18 @@ export default defineEventHandler(async (event) => {
 				},
 				columns: {
 					id: true,
+					email: true,
 					firstName: true,
 					lastName: true,
 					callName: true,
 					gender: true,
 					pronouns: true,
+					...(query.includePersonDetails
+						? {
+							matriculationNumber: true,
+							postalAddress: true,
+						}
+						: {}),
 				},
 			},
 		},
@@ -45,6 +57,8 @@ export default defineEventHandler(async (event) => {
 	return candidates.map((candidate) => ({
 		...candidate,
 		candidate: {
+			matriculationNumber: null as number | null,
+			postalAddress: null as string | null,
 			...candidate.candidate,
 			hasPhoto: existsSync(`./data/${candidate.candidate.id}`),
 		},

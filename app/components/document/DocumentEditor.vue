@@ -2,7 +2,7 @@
 import { FetchError } from 'ofetch'
 
 import type { KernDialog } from '#components'
-import type { DocumentType, OrganizationItem, Person, Room } from '~/types'
+import type { DocumentType, OrganizationItem, Person } from '~/types'
 
 const props = defineProps<{
 	organizationItem: string

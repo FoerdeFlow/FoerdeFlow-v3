@@ -58,7 +58,7 @@ async function remove({ id }: { id: string | null }) {
 }
 
 function downloadAsPdf() {
-	open(`/api/attendances/pdf?session=${route.params.session}`)
+	open(`/api/attendancesPdf?session=${route.params.session}`)
 }
 
 const scope = computed(() => ({
@@ -69,7 +69,13 @@ const scope = computed(() => ({
 <template lang="pug">
 aside
 	NuxtLink.kern-link(
-		:to="{ name: 'organizationItems-organizationItem-sessions-session', params: { organizationItem: route.params.organizationItem, session: route.params.session } }"
+		:to=`{
+			name: 'organizationItems-organizationItem-sessions-session',
+			params: {
+				organizationItem: route.params.organizationItem,
+				session: route.params.session,
+			},
+		}`
 	)
 		span.kern-icon.kern-icon--arrow-back(aria-hidden="true")
 		| Zurück zur Sitzung

@@ -1,7 +1,7 @@
-import { jsPDF } from 'jspdf'
+import { jsPDF as JsPDF } from 'jspdf'
 
 export function textCreatePdf(title: string, text: string) {
-	const doc = new jsPDF()
+	const doc = new JsPDF()
 	const docWidth = doc.internal.pageSize.getWidth() - 40
 	const docHeight = doc.internal.pageSize.getHeight() - 20
 

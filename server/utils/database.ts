@@ -12,9 +12,9 @@ export function useDatabase() {
 	try {
 		const event = useEvent()
 		return event.context.database as NodePgDatabase<typeof schema>
-	} catch(_) {
+	} catch(error) {
 		if(!databaseInstance) {
-			throw new Error('Database instance is not set.')
+			throw new Error('Database instance is not set.', { cause: error })
 		}
 		return databaseInstance
 	}

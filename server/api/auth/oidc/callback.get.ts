@@ -19,11 +19,12 @@ async function createOrGetPerson(email: string, data: { firstName?: string, last
 			(data.firstName && person.firstName !== data.firstName) ||
 			(data.lastName && person.lastName !== data.lastName)
 		) {
-			;[ { id: personId } ] = await database
+			const [ updated ] = await database
 				.update(persons)
 				.set(data)
 				.where(eq(persons.id, person.id))
 				.returning({ id: persons.id })
+			personId = updated?.id
 		}
 	} else {
 		personId = await database.transaction(async (tx) => {
@@ -35,6 +36,10 @@ async function createOrGetPerson(email: string, data: { firstName?: string, last
 					lastName: data.lastName ?? '',
 				})
 				.returning({ id: persons.id })
+
+			if(!result) {
+				throw new Error('Person could not be created')
+			}
 
 			await client.connect()
 			await client.user.create({

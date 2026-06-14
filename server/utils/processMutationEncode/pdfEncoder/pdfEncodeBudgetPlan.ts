@@ -36,7 +36,12 @@ export async function pdfEncodeBudgetPlan(entry: {
 				if(!options.document) {
 					doc.setFont('OpenSans', 'normal')
 					doc.setFontSize(14)
-					doc.text(this._number.toString(), docWidth / 2, docHeight - 10, { align: 'center' })
+					doc.text(
+						this._number.toString(),
+						docWidth / 2,
+						docHeight - 10,
+						{ align: 'center' },
+					)
 				}
 				doc.addPage()
 				this._number++
@@ -45,7 +50,12 @@ export async function pdfEncodeBudgetPlan(entry: {
 				doc.setFont('OpenSans', 'italic')
 				doc.setFontSize(14)
 				doc.text('Haushaltsplan', 20, options.document ? 25 : 15, { align: 'left' })
-				doc.text(`${budget} | ${period}`, docWidth - 20, options.document ? 25 : 15, { align: 'right' })
+				doc.text(
+					`${budget} | ${period}`,
+					docWidth - 20,
+					options.document ? 25 : 15,
+					{ align: 'right' },
+				)
 				return
 			}
 			this._y = value
@@ -102,7 +112,7 @@ export async function pdfEncodeBudgetPlan(entry: {
 	let category: string | null = null
 	for(const item of entry.items) {
 		if(item.title.includes(' - ')) {
-			const [ itemCategory, itemTitle ] = item.title.split(' - ')
+			const [ itemCategory = '', itemTitle = '' ] = item.title.split(' - ')
 			if(category !== itemCategory) {
 				doc.setFont('OpenSans', 'bold')
 				doc.setFontSize(12)

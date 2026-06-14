@@ -16,19 +16,11 @@ export default defineEventHandler(async (event) => {
 		with: {
 			candidate: {
 				with: {
-					course: {
-						with: {
-							type: true,
-							council: true,
-						},
-						columns: {
-							type: false,
-							council: false,
-						},
-					},
+					course: true,
 				},
 				columns: {
 					id: true,
+					email: true,
 					firstName: true,
 					lastName: true,
 					callName: true,

@@ -8,7 +8,10 @@ const props = defineProps<{
 	allowedInitiators?: {
 		person: Person
 		role: Role
-		organizationType: (NonNullable<OrganizationType> & { items: NonNullable<OrganizationItem>[] }) | null
+		organizationType:
+			// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+			| (NonNullable<OrganizationType> & { items: NonNullable<OrganizationItem>[] })
+			| null
 		organizationItem: OrganizationItem
 	}[]
 }>()

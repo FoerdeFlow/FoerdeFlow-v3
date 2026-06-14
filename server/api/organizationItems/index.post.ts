@@ -15,6 +15,13 @@ export default defineEventHandler(async (event) => {
 			.values(body)
 			.returning({ id: organizationItems.id })
 
+		if(!result) {
+			throw createError({
+				statusCode: 500,
+				statusMessage: 'Organisationseinheit konnte nicht erstellt werden',
+			})
+		}
+
 		await client.connect()
 		let parentId
 		if(body.parent) {

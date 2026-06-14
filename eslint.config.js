@@ -1,12 +1,12 @@
 // @ts-check
 
 import js from '@eslint/js'
-import neostandard from 'neostandard'
-import tseslint from 'typescript-eslint'
 import perfectionist from 'eslint-plugin-perfectionist'
 import tsdoc from 'eslint-plugin-tsdoc'
 import vue from 'eslint-plugin-vue'
 import vuePug from 'eslint-plugin-vue-pug'
+import neostandard from 'neostandard'
+import tseslint from 'typescript-eslint'
 
 import withNuxt from './.nuxt/eslint.config.mjs'
 
@@ -14,7 +14,9 @@ export default withNuxt(
 	{
 		languageOptions: {
 			parserOptions: {
-				projectService: true,
+				projectService: {
+					allowDefaultProject: [ 'eslint.config.js', 'drizzle.config.ts' ],
+				},
 				ecmaVersion: 2021,
 				sourceType: 'module',
 			},

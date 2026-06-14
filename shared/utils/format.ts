@@ -318,10 +318,12 @@ export function formatReferencedPerson(
 	if(!reference || !mutations) return ''
 	const [ table, ...steps ] = reference.split('.')
 
-	let data = mutations.find((m) => m.mutation.table === table)?.data
+	let data: Record<string, unknown> | null | undefined =
+		mutations.find((m) => m.mutation.table === table)?.data
 	while(typeof data === 'object' && data !== null && steps.length > 0) {
-		const step = steps.shift()!
-		data = data[step] as Record<string, unknown> | undefined
+		const step = steps.shift()
+		if(step === undefined) break
+		data = data[step] as Record<string, unknown> | null | undefined
 	}
-	return formatPerson(data as any)
+	return formatPerson((data ?? null) as Parameters<typeof formatPerson>[0])
 }

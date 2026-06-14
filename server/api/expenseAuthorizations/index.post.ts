@@ -13,25 +13,36 @@ export default defineEventHandler(async (event) => {
 
 	const database = useDatabase()
 
-	const budgetPlanItem = await database.query.budgetPlanItems.findFirst({
-		where: eq(budgetPlanItems.id, body.budgetPlanItem),
-		with: {
-			plan: {
-				with: {
-					budget: {
-						columns: {
-							organizationItem: true,
+	const budgetPlanItem = body.budgetPlanItem
+		? await database.query.budgetPlanItems.findFirst({
+			where: eq(budgetPlanItems.id, body.budgetPlanItem),
+			with: {
+				plan: {
+					with: {
+						budget: {
+							columns: {
+								organizationItem: true,
+							},
 						},
 					},
 				},
 			},
-		},
-		columns: {},
-	})
+			columns: {},
+		})
+		: undefined
+
+	const budget = body.budget
+		? await database.query.budgets.findFirst({
+			where: eq(budgets.id, body.budget),
+			columns: {
+				organizationItem: true,
+			},
+		})
+		: undefined
 
 	await checkPermission(
 		'expenseAuthorizations.create',
-		{ organizationItem: budgetPlanItem?.plan.budget.organizationItem },
+		{ organizationItem: budgetPlanItem?.plan.budget.organizationItem ?? budget?.organizationItem },
 	)
 
 	return await database.transaction(async (tx) => {
@@ -39,6 +50,13 @@ export default defineEventHandler(async (event) => {
 			.insert(expenseAuthorizations)
 			.values(body)
 			.returning({ id: expenseAuthorizations.id })
+
+		if(!result) {
+			throw createError({
+				statusCode: 500,
+				statusMessage: 'Auslagengenehmigung konnte nicht erstellt werden',
+			})
+		}
 
 		for(const item of body.items) {
 			await tx

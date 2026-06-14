@@ -27,12 +27,14 @@ const { data: mutations } = useFetch('/api/workflowMutations', {
 })
 
 const metaModel = ref({
-	initiatorType: 'person',
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+	initiatorType: 'person' as 'organizationItem' | 'person' | null,
 	initiatorOrganizationItem: null as OrganizationItem,
 })
 
 const model = ref({
 	candidate: {
+		electionCommittee: null,
 		candidate: null,
 		applicationLetter: null,
 		callName: null,
@@ -40,6 +42,7 @@ const model = ref({
 		matriculationNumber: null,
 		course: null,
 		postalAddress: '',
+		photo: null,
 	} satisfies WorkflowCustomCandidateFormModel,
 	budgetPlan: {
 		budget: null,
@@ -49,6 +52,7 @@ const model = ref({
 	} satisfies BudgetPlanFormModel,
 	expenseAuthorization: {
 		budgetPlanItem: null,
+		budget: null,
 		title: '',
 		description: null,
 		amount: 0,
@@ -73,17 +77,22 @@ const mutationForms = computed(() =>
 				expenseAuthorizations: ExpenseAuthorizationForm,
 				longtermContracts: LongtermContractForm,
 			}[mutation.table] ?? null,
-			key: mutation.table.substring(0, mutation.table.length - 1),
+			key: mutation.table.substring(
+				0,
+				mutation.table.length - 1,
+			) as keyof typeof model.value,
 			meta: mutation.meta,
 		}))
-		.filter((form) => form !== null) ?? [],
+		.filter(({ form }) => form !== null) ?? [],
 )
 
 const forms = useTemplateRef<InstanceType<
+	/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 	| typeof WorkflowCustomCandidateForm
 	| typeof BudgetPlanForm
 	| typeof ExpenseAuthorizationForm
 	| typeof LongtermContractForm
+	/* eslint-enable @typescript-eslint/no-redundant-type-constituents */
 >[]>('forms')
 
 const valid = computed(() => forms.value
@@ -218,11 +227,15 @@ header
 				:key="idx"
 			)
 				component(
-					:is="form.form"
+					:is="form.form as any"
 					ref="forms"
 					v-model="model[form.key]"
 					:selected-item="selectedItem"
-					:summary-offset="mutationForms.slice(0, idx).map(form => form.summaryItems).reduce((a, b) => a + b, 1)"
+					:summary-offset=`
+						mutationForms.slice(0, idx)
+							.map(({ form }) => (form as any).summaryItems)
+							.reduce((a, b) => a + b, 1)
+					`
 					:meta="form.meta"
 					@select="selectedItem = $event"
 				)

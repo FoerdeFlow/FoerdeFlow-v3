@@ -20,10 +20,19 @@ export default defineEventHandler(async (event) => {
 	return await database.transaction(async (tx) => {
 		const { members, ...group } = body
 
-		const [ { id: groupId } ] = await tx
+		const [ result ] = await tx
 			.insert(organizationItemGroups)
 			.values(group)
 			.returning({ id: organizationItemGroups.id })
+
+		if(!result) {
+			throw createError({
+				statusCode: 500,
+				statusMessage: 'Gruppe konnte nicht erstellt werden',
+			})
+		}
+
+		const groupId = result.id
 
 		for(const member of members) {
 			await tx

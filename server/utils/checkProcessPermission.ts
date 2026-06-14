@@ -5,9 +5,8 @@ import type { EventContext } from '../types'
 export async function checkProcessPermission(processId: string) {
 	const event = useEvent()
 	const database = useDatabase()
-	let hasPermission = false
 
-	await database.transaction(async (tx) => {
+	const hasPermission = await database.transaction(async (tx) => {
 		const process = await tx.query.workflowProcesses.findFirst({
 			where: eq(workflowProcesses.id, processId),
 			columns: {
@@ -30,15 +29,15 @@ export async function checkProcessPermission(processId: string) {
 			process.initiatorType === 'person' &&
 			process.initiatorPerson === (event.context as EventContext).user?.person?.id
 		) {
-			hasPermission = true
-			return
+			return true
 		}
 		if(
 			process.initiatorType === 'organizationItem' &&
-			(event.context as EventContext).user?.memberships?.some((membership) => membership.organizationItem.id === process.initiatorOrganizationItem)
+			(event.context as EventContext).user?.memberships?.some((membership) =>
+				membership.organizationItem.id === process.initiatorOrganizationItem,
+			)
 		) {
-			hasPermission = true
-			return
+			return true
 		}
 
 		const steps = await tx.query.workflowProcessSteps.findMany({
@@ -48,13 +47,13 @@ export async function checkProcessPermission(processId: string) {
 			},
 		})
 
-		if((await Promise.all(
+		return (await Promise.all(
 			steps.map(async (step) =>
-				await checkProcessStepPermission(tx, step.id, false).then(() => true).catch(() => false),
+				await checkProcessStepPermission(tx, step.id, false)
+					.then(() => true)
+					.catch(() => false),
 			),
-		)).some((hasPermission) => hasPermission)) {
-			hasPermission = true
-		}
+		)).some((permission) => permission)
 	})
 
 	if(!hasPermission) {

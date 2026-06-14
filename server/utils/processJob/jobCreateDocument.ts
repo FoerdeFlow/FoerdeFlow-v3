@@ -66,10 +66,11 @@ export async function jobCreateDocument(
 		})
 	}
 
+	const table = mutation.mutation.table as typeof allowedMutationTables[number]
 	const data = await encodeProcessData(
 		tx,
-		mutation.mutation.table as typeof allowedMutationTables[number],
-		mutation.data as any,
+		table,
+		mutation.data as Parameters<typeof encodeProcessData<typeof table>>[2],
 	)
 
 	let doc: jsPDF
@@ -145,7 +146,8 @@ export async function jobCreateDocument(
 	if('title' in data && typeof data.title === 'string' && data.title.trim() !== '') {
 		title = data.title.trim()
 	} else if('startDate' in data && 'endDate' in data) {
-		title = `Haushaltsplan ${formatDate(data.startDate, 'compact')} - ${formatDate(data.endDate, 'compact')}`
+		title = `Haushaltsplan ${formatDate(data.startDate, 'compact')} ` +
+			`- ${formatDate(data.endDate, 'compact')}`
 	}
 
 	const [ document = null ] = await tx.insert(documents).values({

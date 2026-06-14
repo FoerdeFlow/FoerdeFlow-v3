@@ -34,6 +34,6 @@ export async function sendMail(message: {
 		bcc: message.bcc,
 		subject: message.subject,
 		text: message.text + '\n\n-- \nDiese E-Mail wurde automatisch generiert.',
-		attachments: message.attachments || [],
+		attachments: message.attachments ?? [],
 	})
 }

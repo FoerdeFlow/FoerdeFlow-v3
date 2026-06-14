@@ -173,6 +173,7 @@ template(v-if="props.selectedItem === 'summary'")
 		:items=`[
 			{
 				key: 'Wahl',
+				// @ts-expect-error | The type should be more precise here
 				value: election?.title ?? model.electionCommittee?.election?.title ?? '–',
 			},
 			{

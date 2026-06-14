@@ -5,7 +5,7 @@ import { copyFile } from 'node:fs/promises'
 
 async function createCandidate(
 	tx: ReturnType<typeof useDatabase>,
-	dataId: string | null,
+	_dataId: string | null,
 	data: z.infer<typeof processSchemas.candidates.create>,
 	processMetadata: {
 		id: string
@@ -20,6 +20,13 @@ async function createCandidate(
 			submitter: processMetadata.initiatorPerson,
 		})
 		.returning({ id: electionProposals.id })
+
+	if(!result) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Wahlvorschlag konnte nicht erstellt werden',
+		})
+	}
 
 	await tx.update(persons).set({
 		matriculationNumber: data.matriculationNumber,
@@ -59,6 +66,13 @@ async function createBudgetPlan(
 		.values(data)
 		.returning({ id: budgetPlans.id })
 
+	if(!result) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Haushaltsplan konnte nicht erstellt werden',
+		})
+	}
+
 	for(const item of data.items) {
 		await tx.insert(budgetPlanItems).values({
 			...item,
@@ -95,6 +109,13 @@ async function createExpenseAuthorization(
 		.insert(expenseAuthorizations)
 		.values({ ...data, type })
 		.returning({ id: expenseAuthorizations.id })
+
+	if(!result) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Auslagengenehmigung konnte nicht erstellt werden',
+		})
+	}
 
 	for(const item of data.items) {
 		await tx.insert(expenseAuthorizationItems).values({

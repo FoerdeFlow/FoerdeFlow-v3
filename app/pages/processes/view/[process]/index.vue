@@ -1,11 +1,22 @@
 <script setup lang="ts">
 import type { ProcessStepConnectionEditor, ProcessStepEditor } from '#components'
+import type {
+	BudgetPlanFormModel,
+	ExpenseAuthorizationFormModel,
+	LongtermContractFormModel,
+	WorkflowCustomCandidateFormModel,
+} from '~/types'
 
 const route = useRoute('processes-view-process')
 const editor = useTemplateRef<typeof ProcessStepEditor>('editor')
 const connectionEditor = useTemplateRef<typeof ProcessStepConnectionEditor>('connectionEditor')
 
 const { data, refresh } = useFetch(`/api/processes/${route.params.process}`)
+
+const processTitle = computed(() => {
+	const first = data.value?.mutations[0]?.data
+	return (first && 'title' in first ? first.title : null) ?? data.value?.workflow.name
+})
 
 function openEditor(id: string) {
 	if(!editor.value) return
@@ -21,7 +32,7 @@ function openConnectionEditor(id: string, organizationItem: string) {
 <template lang="pug">
 header
 	p.kern-preline Prozessübersicht
-	h1.kern-heading-large {{ data?.workflow.code }}: {{ data?.mutations[0]?.data['title'] || data?.workflow.name }}
+	h1.kern-heading-large {{ data?.workflow.code }}: {{ processTitle }}
 .mb-2(v-if="data?.workflow.description")
 	KernText(
 		size="small"
@@ -53,20 +64,20 @@ section.my-8(
 		v-if="mutation.mutation.table === 'budgetPlans'"
 		readonly
 		selected-item="summary"
-		:model-value="mutation.data"
+		:model-value="(mutation.data as unknown as BudgetPlanFormModel)"
 	)
 	ExpenseAuthorizationForm(
 		v-if="mutation.mutation.table === 'expenseAuthorizations'"
 		:meta="mutation.mutation.meta"
 		readonly
 		selected-item="summary"
-		:model-value="mutation.data"
+		:model-value="(mutation.data as ExpenseAuthorizationFormModel)"
 	)
 	LongtermContractForm(
 		v-if="mutation.mutation.table === 'longtermContracts'"
 		readonly
 		selected-item="summary"
-		:model-value="mutation.data"
+		:model-value="(mutation.data as unknown as LongtermContractFormModel)"
 	)
 	WorkflowCustomCandidateForm(
 		v-if="mutation.mutation.table === 'candidates'"
@@ -74,7 +85,7 @@ section.my-8(
 		selected-item="summary"
 		:process-id="route.params.process"
 		:mutation-id="mutation.mutation.id"
-		:model-value="mutation.data"
+		:model-value="(mutation.data as WorkflowCustomCandidateFormModel)"
 		:attachments="mutation.attachments"
 	)
 KernTable.mt-8(

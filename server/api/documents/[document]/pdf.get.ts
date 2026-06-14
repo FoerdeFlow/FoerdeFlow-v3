@@ -47,7 +47,6 @@ export default defineEventHandler(async (event) => {
 	// eslint-disable-next-line new-cap
 	const doc = new jsPDF()
 	const docWidth = doc.internal.pageSize.getWidth()
-	const docHeight = doc.internal.pageSize.getHeight()
 	const logo = await useStorage('assets:server').getItemRaw('img/logo.png')
 	const logoProps = doc.getImageProperties(logo)
 	const logoHeight = 30

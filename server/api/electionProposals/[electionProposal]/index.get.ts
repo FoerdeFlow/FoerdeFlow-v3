@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+import { existsSync } from 'node:fs'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -19,6 +20,7 @@ export default defineEventHandler(async (event) => {
 				},
 				columns: {
 					id: true,
+					email: true,
 					firstName: true,
 					lastName: true,
 					callName: true,
@@ -44,5 +46,11 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return electionProposal
+	return {
+		...electionProposal,
+		submitter: {
+			...electionProposal.submitter,
+			hasPhoto: existsSync(`./data/${electionProposal.submitter.id}`),
+		},
+	}
 })

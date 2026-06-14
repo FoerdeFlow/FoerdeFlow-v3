@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+import { existsSync } from 'node:fs'
 import { stat } from 'node:fs/promises'
 import { z } from 'zod'
 
@@ -15,7 +16,20 @@ export default defineEventHandler(async (event) => {
 			organizationItem: true,
 			type: true,
 			authorOrganizationItem: true,
-			authorPerson: true,
+			authorPerson: {
+				with: {
+					course: true,
+				},
+				columns: {
+					id: true,
+					email: true,
+					firstName: true,
+					lastName: true,
+					callName: true,
+					gender: true,
+					pronouns: true,
+				},
+			},
 		},
 		columns: {
 			id: false,
@@ -44,6 +58,12 @@ export default defineEventHandler(async (event) => {
 
 	return {
 		...document,
+		authorPerson: document.authorPerson
+			? {
+				...document.authorPerson,
+				hasPhoto: existsSync(`./data/${document.authorPerson.id}`),
+			}
+			: null,
 		hasContent: await stat(`./data/${params.document}.pdf`).then((it) => it.isFile()).catch(() => false),
 	}
 })

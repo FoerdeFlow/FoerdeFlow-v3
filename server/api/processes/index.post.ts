@@ -5,10 +5,6 @@ import { createInsertSchema } from 'drizzle-zod'
 import { writeFile } from 'node:fs/promises'
 import { z } from 'zod'
 
-const mutationTargetTables = {
-	expenseAuthorizations,
-} as const
-
 export default defineEventHandler(async (event) => {
 	const formData = await readMultipartFormData(event)
 	if(!formData) {
@@ -71,7 +67,7 @@ export default defineEventHandler(async (event) => {
 			await checkPermission('workflowProcesses.create')
 			if(!allowedInitiators.some((item) =>
 				item.person === context.user?.person?.id ||
-				context.user?.roles.some((role) => item.role === role.id) ||
+				(context.user?.roles ?? []).some((role) => item.role === role.id) ||
 				Object.entries(item).every(([ key, value ]) => key === 'id' || value === null),
 			)) {
 				throw createError({
@@ -154,14 +150,15 @@ export default defineEventHandler(async (event) => {
 				})
 			}
 
-			const schema = processSchemas[mutation.table as keyof typeof processSchemas]?.[mutation.action] as any
+			const schemaGroup = processSchemas[mutation.table as keyof typeof processSchemas]
+			const schema = schemaGroup[mutation.action]
 			if(!schema) {
 				throw createError({
 					statusCode: 400,
 					message: `Unbekannte Aktion für Mutation ${mutation.id}`,
 				})
 			}
-			let data = null
+			let data: unknown
 			try {
 				data = await schema.parseAsync(JSON.parse(entries[`mutation_${mutation.id}_data`]))
 			} catch(error) {
@@ -172,7 +169,7 @@ export default defineEventHandler(async (event) => {
 				})
 			}
 
-			const attachments = processSchemas[mutation.table as keyof typeof processSchemas]?.attachments || [] as string[]
+			const attachments = 'attachments' in schemaGroup ? schemaGroup.attachments : []
 			for(const attachment of attachments) {
 				const attachmentData = entries[`mutation_${mutation.id}_attachment_${attachment}`]
 				attachmentFiles[`${mutation.id}_${attachment}`] = attachmentData

@@ -75,25 +75,29 @@ const encoders = {
 		},
 	) => ({
 		...model,
-		budgetPlanItem: await tx.query.budgetPlanItems.findFirst({
-			where: eq(budgetPlanItems.id, model.budgetPlanItem),
-			with: {
-				plan: {
-					with: {
-						budget: true,
-					},
-					columns: {
-						budget: false,
+		budgetPlanItem: model.budgetPlanItem
+			? await tx.query.budgetPlanItems.findFirst({
+				where: eq(budgetPlanItems.id, model.budgetPlanItem),
+				with: {
+					plan: {
+						with: {
+							budget: true,
+						},
+						columns: {
+							budget: false,
+						},
 					},
 				},
-			},
-			columns: {
-				plan: false,
-			},
-		}) ?? null,
-		budget: await tx.query.budgets.findFirst({
-			where: eq(budgets.id, model.budget),
-		}) ?? null,
+				columns: {
+					plan: false,
+				},
+			}) ?? null
+			: null,
+		budget: model.budget
+			? await tx.query.budgets.findFirst({
+				where: eq(budgets.id, model.budget),
+			}) ?? null
+			: null,
 	}),
 } as const
 

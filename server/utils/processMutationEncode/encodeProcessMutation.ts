@@ -24,6 +24,8 @@ export async function encodeProcessMutation<M extends ProcessMutation, F extends
 	format: F,
 	entry: Parameters<(typeof encoders)[M][F]>[0],
 ) {
-	const encoder = encoders[mutation][format]
-	return await encoder(entry) as ReturnType<(typeof encoders)[M][F]>
+	const encoder = encoders[mutation][format] as (
+		entry: Parameters<(typeof encoders)[M][F]>[0],
+	) => ReturnType<(typeof encoders)[M][F]>
+	return await encoder(entry)
 }

@@ -17,13 +17,16 @@ export default defineEventHandler(async (event) => {
 						with: {
 							budget: {
 								columns: {
+									id: true,
 									organizationItem: true,
 									code: true,
 									name: true,
+									periodType: true,
 								},
 							},
 						},
 						columns: {
+							id: true,
 							startDate: true,
 							endDate: true,
 						},
@@ -34,10 +37,11 @@ export default defineEventHandler(async (event) => {
 				},
 			},
 			budget: {
-				columns: {
+				with: {
 					organizationItem: true,
-					code: true,
-					name: true,
+				},
+				columns: {
+					organizationItem: false,
 				},
 			},
 			items: {
@@ -56,12 +60,12 @@ export default defineEventHandler(async (event) => {
 	if(expenseAuthorization?.type === 'planned') {
 		await checkPermission(
 			'expenseAuthorizations.read',
-			{ organizationItem: expenseAuthorization?.budgetPlanItem?.plan.budget.organizationItem },
+			{ organizationItem: expenseAuthorization.budgetPlanItem?.plan.budget.organizationItem },
 		)
 	} else {
 		await checkPermission(
 			'expenseAuthorizations.read',
-			{ organizationItem: expenseAuthorization?.budget?.organizationItem },
+			{ organizationItem: expenseAuthorization?.budget?.organizationItem.id },
 		)
 	}
 

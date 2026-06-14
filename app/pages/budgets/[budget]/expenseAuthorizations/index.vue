@@ -51,7 +51,7 @@ async function remove({ id }: { id: string }) {
 	}
 }
 
-const scope = computed(() => ({ organizationItem: budgetData.value?.organizationItem ?? '' }))
+const scope = computed(() => ({ organizationItem: budgetData.value?.organizationItem.id ?? '' }))
 
 function openAsPdf({ id }: { id: string }) {
 	window.open(`/api/expenseAuthorizations/${id}/pdf`, '_blank')
@@ -105,7 +105,7 @@ KernTable(
 ExpenseAuthorizationEditor(
 	ref="editor"
 	type="reserve"
-	:budget="route.params.budget"
+	:budget="budgetData"
 	:readonly="!authStore.hasPermission('expenseAuthorizations.update', scope).value"
 	@refresh="refresh"
 )

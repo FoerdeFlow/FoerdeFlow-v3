@@ -41,6 +41,13 @@ export default defineEventHandler(async (event) => {
 			.values(body)
 			.returning({ id: budgetPlans.id })
 
+		if(!result) {
+			throw createError({
+				statusCode: 500,
+				statusMessage: 'Haushaltsplan konnte nicht erstellt werden',
+			})
+		}
+
 		for(const item of body.items) {
 			await tx
 				.insert(budgetPlanItems)

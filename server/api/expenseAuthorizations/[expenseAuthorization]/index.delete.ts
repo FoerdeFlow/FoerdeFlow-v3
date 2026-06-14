@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
 	if(expenseAuthorization?.type === 'planned') {
 		await checkPermission(
 			'expenseAuthorizations.delete',
-			{ organizationItem: expenseAuthorization?.budgetPlanItem?.plan.budget.organizationItem },
+			{ organizationItem: expenseAuthorization.budgetPlanItem?.plan.budget.organizationItem },
 		)
 	} else {
 		await checkPermission(

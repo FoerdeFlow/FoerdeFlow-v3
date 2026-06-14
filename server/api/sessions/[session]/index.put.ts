@@ -76,7 +76,7 @@ export default defineEventHandler(async (event) => {
 			external_id: params.session,
 			context_id: committeeId,
 		})
-		client.meeting.update({
+		await client.meeting.update({
 			id: meetingId,
 			name: `${session.organizationItem.code}-Sitzung ` +
 				formatSessionNumber(result.period, result.number),

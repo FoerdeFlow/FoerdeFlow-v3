@@ -52,7 +52,7 @@ export async function getPersonRoles(person: string) {
 			),
 			or(
 				isNull(roleOccupants.domain),
-				eq(roleOccupants.domain, personData.email.split('@')[1]),
+				eq(roleOccupants.domain, personData.email.split('@')[1] ?? ''),
 			),
 			or(
 				and(

@@ -64,7 +64,7 @@ async function save() {
 		const body = {
 			table: model.value.table,
 			action: model.value.action,
-			meta: model.value.meta || null,
+			meta: model.value.meta ?? null,
 		}
 		if(itemId.value) {
 			await $fetch(`/api/workflowMutations/${itemId.value}`, {

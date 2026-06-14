@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	const url = runtimeConfig.minutes.url
-		.replaceAll('__PERIOD__', formatSessionNumber(data.period, data.number).split('-')[0])
+		.replaceAll('__PERIOD__', formatSessionNumber(data.period, data.number).split('-')[0] ?? '')
 		.replaceAll('__ITEM__', data.organizationItem.code)
 		.replaceAll('__QNUMBER__', formatSessionNumber(data.period, data.number))
 

@@ -49,24 +49,28 @@ export async function jobNotifyCandidate(
 		})
 	}
 
-	const data = await encodeProcessData(tx, 'candidates', mutation.data as any)
+	const data = await encodeProcessData(
+		tx,
+		'candidates',
+		mutation.data as Parameters<typeof encodeProcessData<'candidates'>>[2],
+	)
 
 	let photo = null
 	try {
 		photo = await readFile(`./data/${processId}_${mutation.mutation}_photo`)
-	} catch(error) {
+	} catch(_error) {
 		// Ignore error if photo not found
 	}
 
 	const document = await pdfEncodeElectionProposal({
 		election: data.electionCommittee?.election.title ?? '',
 		submitter: formatPerson(process.initiatorPerson),
-		committee: formatOrganizationItem(data.electionCommittee?.committee || null),
+		committee: formatOrganizationItem(data.electionCommittee?.committee ?? null),
 		photo,
 		candidate: formatPerson(data.candidate ?? null),
 		postalAddress: data.postalAddress,
 		email: data.candidate?.email ?? '',
-		matriculationNumber: data.matriculationNumber?.toString() ?? '',
+		matriculationNumber: data.matriculationNumber.toString(),
 		council: formatCouncil(data.course?.council ?? null),
 		course: formatCourse(data.course ?? null),
 		applicationLetter: data.applicationLetter ?? '',
@@ -81,7 +85,8 @@ export async function jobNotifyCandidate(
 		text: `Liebe*r ${formatPerson(data.candidate ?? null)},\n\n` +
 			'anbei findest du deine Kandidatur als PDF-Dokument.\n\n' +
 			'Aus rechtlichen Gründen benötigen wir deine Unterschrift auf dem Wahlvorschlag. ' +
-			'Bitte unterschreibe das Dokument und sende es an den Wahlausschuss, indem du auf diese E-Mail antwortest.\n\n' +
+			'Bitte unterschreibe das Dokument und sende es an den Wahlausschuss, ' +
+			'indem du auf diese E-Mail antwortest.\n\n' +
 			'Mit freundlichen Grüßen\nDer Wahlausschuss',
 		attachments: [
 			{

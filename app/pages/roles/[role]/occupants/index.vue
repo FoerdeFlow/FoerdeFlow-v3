@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FetchError } from 'ofetch'
+import { FetchError } from 'ofetch'
 
 import type { RoleOccupantEditor } from '#components'
 

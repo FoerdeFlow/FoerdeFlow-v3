@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 
-import type { Budget, BudgetPlanItem, ExpenseAuthorizationItemInput } from '~/types'
+import type { Budget, BudgetPlan, BudgetPlanItem, ExpenseAuthorizationItemInput } from '~/types'
 
 import { KernDialog } from '#components'
 
 const props = defineProps<{
 	type: 'planned' | 'reserve'
-	budgetPlan?: string
-	budget?: string
+	budgetPlan?: BudgetPlan
+	budget?: Budget
 	readonly?: boolean
 }>()
 
@@ -19,8 +19,8 @@ const dialog = useTemplateRef<typeof KernDialog>('dialog')
 const itemId = ref<string | null>(null)
 
 interface Model {
-	budgetPlanItem?: BudgetPlanItem
-	budget?: Budget
+	budgetPlanItem: BudgetPlanItem
+	budget: Budget
 	title: string
 	description: string | null
 	amount: number
