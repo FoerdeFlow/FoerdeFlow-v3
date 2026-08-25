@@ -21,6 +21,10 @@ export function checkPermission(
 		})
 	}
 
+	if(context.user.roles.some((role) => role.isAdmin)) {
+		return Promise.resolve()
+	}
+
 	if(!context.user.permissions.some((item) =>
 		item.permission === permission &&
 		(
