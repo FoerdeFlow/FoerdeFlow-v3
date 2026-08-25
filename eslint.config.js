@@ -27,7 +27,7 @@ export default withNuxt(
 	},
 
 	js.configs.recommended,
-	...neostandard(),
+	...neostandard({ files: [ '**/*.ts', '**/*.tsx', '**/*.vue' ] }),
 	...tseslint.configs.strictTypeChecked,
 	...tseslint.configs.stylisticTypeChecked,
 	...vue.configs['flat/recommended'],
@@ -64,12 +64,26 @@ export default withNuxt(
 				},
 			],
 			'@stylistic/no-tabs': 'off',
+			'@stylistic/operator-linebreak': [
+				'error',
+				'after',
+				{
+					overrides: {
+						'?': 'before',
+						':': 'before',
+						'|>': 'before',
+						'|': 'before',
+						'&': 'before',
+					},
+				},
+			],
 			'@stylistic/space-before-function-paren': [
 				'error',
 				{
 					anonymous: 'never',
 					named: 'never',
 					asyncArrow: 'always',
+					catch: 'never',
 				},
 			],
 
