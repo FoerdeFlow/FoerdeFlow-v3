@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 import type {
 	BudgetPlanFormModel,
 	ExpenseAuthorizationFormModel,
 	KernTaskListItems,
 	LongtermContractFormModel,
 	OrganizationItem,
+	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
 } from '~/types'
 
@@ -12,6 +15,7 @@ import {
 	BudgetPlanForm,
 	ExpenseAuthorizationForm,
 	LongtermContractForm,
+	RepresentationAllowanceForm,
 	WorkflowCustomCandidateForm,
 } from '#components'
 
@@ -66,25 +70,50 @@ const model = ref({
 		endDate: null,
 		items: [],
 	} satisfies LongtermContractFormModel,
+	representationAllowance: {
+		title: '',
+		description: null,
+		periodUnit: 'month',
+		startDate: null,
+		endDate: null,
+		recipients: [],
+	} satisfies RepresentationAllowanceFormModel,
 })
 
-const mutationForms = computed(() =>
-	mutations.value
-		?.map((mutation) => ({
-			form: {
-				candidates: WorkflowCustomCandidateForm,
-				budgetPlans: BudgetPlanForm,
-				expenseAuthorizations: ExpenseAuthorizationForm,
-				longtermContracts: LongtermContractForm,
-			}[mutation.table] ?? null,
+const formsByTable: Record<string, Component> = {
+	candidates: WorkflowCustomCandidateForm,
+	budgetPlans: BudgetPlanForm,
+	expenseAuthorizations: ExpenseAuthorizationForm,
+	longtermContracts: LongtermContractForm,
+	representationAllowances: RepresentationAllowanceForm,
+}
+
+function summaryItemsOf(form: Component) {
+	return 'summaryItems' in form && typeof form.summaryItems === 'number'
+		? form.summaryItems
+		: 0
+}
+
+const mutationForms = computed(() => {
+	let summaryOffset = 1
+	return (mutations.value ?? []).flatMap((mutation) => {
+		const form = formsByTable[mutation.table]
+		if(!form) return []
+
+		const offset = summaryOffset
+		summaryOffset += summaryItemsOf(form)
+
+		return [ {
+			form,
 			key: mutation.table.substring(
 				0,
 				mutation.table.length - 1,
 			) as keyof typeof model.value,
 			meta: mutation.meta,
-		}))
-		.filter(({ form }) => form !== null) ?? [],
-)
+			summaryOffset: offset,
+		} ]
+	})
+})
 
 const forms = useTemplateRef<InstanceType<
 	/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
@@ -92,6 +121,7 @@ const forms = useTemplateRef<InstanceType<
 	| typeof BudgetPlanForm
 	| typeof ExpenseAuthorizationForm
 	| typeof LongtermContractForm
+	| typeof RepresentationAllowanceForm
 	/* eslint-enable @typescript-eslint/no-redundant-type-constituents */
 >[]>('forms')
 
@@ -227,15 +257,11 @@ header
 				:key="idx"
 			)
 				component(
-					:is="form.form as any"
+					:is="form.form"
 					ref="forms"
 					v-model="model[form.key]"
 					:selected-item="selectedItem"
-					:summary-offset=`
-						mutationForms.slice(0, idx)
-							.map(({ form }) => (form as any).summaryItems)
-							.reduce((a, b) => a + b, 1)
-					`
+					:summary-offset="form.summaryOffset"
 					:meta="form.meta"
 					@select="selectedItem = $event"
 				)

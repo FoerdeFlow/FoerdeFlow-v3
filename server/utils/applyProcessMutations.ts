@@ -1,6 +1,6 @@
 import type z from 'zod'
 
-import { eq, type InferInsertModel } from 'drizzle-orm'
+import { and, eq, gt, inArray, type InferInsertModel, isNull, or } from 'drizzle-orm'
 import { copyFile } from 'node:fs/promises'
 
 async function createCandidate(
@@ -158,6 +158,96 @@ async function createLongtermContract(
 	}
 }
 
+function previousDay(date: string) {
+	const value = new Date(date)
+	if(Number.isNaN(value.getTime())) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Ungültiges Startdatum der Aufwandsentschädigung',
+			data: { startDate: date },
+		})
+	}
+
+	value.setUTCDate(value.getUTCDate() - 1)
+	return value.toISOString().slice(0, 10)
+}
+
+async function createRepresentationAllowance(
+	tx: ReturnType<typeof useDatabase>,
+	_dataId: string | null,
+	data: Omit<
+		InferInsertModel<typeof representationAllowances>,
+		'id'
+	> & {
+		recipients: Omit<
+			InferInsertModel<typeof representationAllowanceRecipients>,
+			'id' | 'representationAllowance'
+		>[]
+	},
+) {
+	if(data.periodUnit !== 'once') {
+		const endDate = previousDay(data.startDate)
+
+		const running = await tx.query.representationAllowances.findMany({
+			where: and(
+				eq(representationAllowances.organizationItem, data.organizationItem),
+				eq(representationAllowances.periodUnit, 'month'),
+				or(
+					isNull(representationAllowances.endDate),
+					gt(representationAllowances.endDate, endDate),
+				),
+			),
+			columns: {
+				id: true,
+				startDate: true,
+			},
+		})
+
+		const conflicting = running.find((item) => item.startDate >= endDate)
+		if(conflicting) {
+			throw createError({
+				statusCode: 409,
+				statusMessage: 'Die bestehende Aufwandsentschädigung kann nicht zum Tag vor ' +
+					'Inkrafttreten der neuen beendet werden, weil sie nicht früher beginnt',
+				data: {
+					representationAllowanceId: conflicting.id,
+					existingStartDate: conflicting.startDate,
+					newEndDate: endDate,
+				},
+			})
+		}
+
+		if(running.length > 0) {
+			await tx
+				.update(representationAllowances)
+				.set({ endDate })
+				.where(inArray(
+					representationAllowances.id,
+					running.map((item) => item.id),
+				))
+		}
+	}
+
+	const [ result ] = await tx
+		.insert(representationAllowances)
+		.values(data)
+		.returning({ id: representationAllowances.id })
+
+	if(!result) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Aufwandsentschädigung konnte nicht erstellt werden',
+		})
+	}
+
+	for(const recipient of data.recipients) {
+		await tx.insert(representationAllowanceRecipients).values({
+			...recipient,
+			representationAllowance: result.id,
+		})
+	}
+}
+
 export async function applyProcessMutations(
 	tx: ReturnType<typeof useDatabase>,
 	processId: string,
@@ -202,6 +292,11 @@ export async function applyProcessMutations(
 			},
 			longtermContracts: {
 				create: createLongtermContract,
+				update: () => { /**/ },
+				delete: () => { /**/ },
+			},
+			representationAllowances: {
+				create: createRepresentationAllowance,
 				update: () => { /**/ },
 				delete: () => { /**/ },
 			},

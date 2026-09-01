@@ -11,6 +11,7 @@ export default defineNuxtConfig({
 		typedPages: true,
 	},
 	nitro: {
+		errorHandler: '~~/server/errorHandler',
 		experimental: {
 			asyncContext: true,
 			tasks: true,

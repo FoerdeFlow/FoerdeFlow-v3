@@ -169,6 +169,20 @@ export default defineEventHandler(async (event) => {
 				})
 			}
 
+			if(mutation.table in processValidators) {
+				const validate = processValidators[mutation.table as keyof typeof processValidators]
+				data = validate(
+					tx,
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					data as any,
+					{
+						initiatorType: body.initiatorType,
+						initiatorOrganizationItem: body.initiatorOrganizationItem ?? null,
+						meta: mutation.meta,
+					},
+				)
+			}
+
 			const attachments = 'attachments' in schemaGroup ? schemaGroup.attachments : []
 			for(const attachment of attachments) {
 				const attachmentData = entries[`mutation_${mutation.id}_attachment_${attachment}`]

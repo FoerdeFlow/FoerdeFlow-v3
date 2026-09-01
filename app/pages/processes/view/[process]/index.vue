@@ -4,6 +4,7 @@ import type {
 	BudgetPlanFormModel,
 	ExpenseAuthorizationFormModel,
 	LongtermContractFormModel,
+	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
 } from '~/types'
 
@@ -27,6 +28,12 @@ function openConnectionEditor(id: string, organizationItem: string) {
 	if(!connectionEditor.value) return
 	connectionEditor.value.open(id, organizationItem)
 }
+
+const asBudgetPlan = (data: unknown) => data as BudgetPlanFormModel
+const asExpenseAuthorization = (data: unknown) => data as ExpenseAuthorizationFormModel
+const asLongtermContract = (data: unknown) => data as LongtermContractFormModel
+const asRepresentationAllowance = (data: unknown) => data as RepresentationAllowanceFormModel
+const asCandidate = (data: unknown) => data as WorkflowCustomCandidateFormModel
 </script>
 
 <template lang="pug">
@@ -64,20 +71,26 @@ section.my-8(
 		v-if="mutation.mutation.table === 'budgetPlans'"
 		readonly
 		selected-item="summary"
-		:model-value="(mutation.data as unknown as BudgetPlanFormModel)"
+		:model-value="asBudgetPlan(mutation.data)"
 	)
 	ExpenseAuthorizationForm(
 		v-if="mutation.mutation.table === 'expenseAuthorizations'"
 		:meta="mutation.mutation.meta"
 		readonly
 		selected-item="summary"
-		:model-value="(mutation.data as ExpenseAuthorizationFormModel)"
+		:model-value="asExpenseAuthorization(mutation.data)"
 	)
 	LongtermContractForm(
 		v-if="mutation.mutation.table === 'longtermContracts'"
 		readonly
 		selected-item="summary"
-		:model-value="(mutation.data as unknown as LongtermContractFormModel)"
+		:model-value="asLongtermContract(mutation.data)"
+	)
+	RepresentationAllowanceForm(
+		v-if="mutation.mutation.table === 'representationAllowances'"
+		readonly
+		selected-item="summary"
+		:model-value="asRepresentationAllowance(mutation.data)"
 	)
 	WorkflowCustomCandidateForm(
 		v-if="mutation.mutation.table === 'candidates'"
@@ -85,7 +98,7 @@ section.my-8(
 		selected-item="summary"
 		:process-id="route.params.process"
 		:mutation-id="mutation.mutation.id"
-		:model-value="(mutation.data as WorkflowCustomCandidateFormModel)"
+		:model-value="asCandidate(mutation.data)"
 		:attachments="mutation.attachments"
 	)
 KernTable.mt-8(

@@ -47,9 +47,33 @@ interface LongtermContractProcessMutation {
 	}[]
 }
 
+interface RepresentationAllowanceProcessMutation {
+	id?: string
+	organizationItem: {
+		name: string
+		code: string
+	} | null
+	title: string
+	description: string | null
+	periodUnit: 'month' | 'once'
+	startDate: string
+	endDate: string | null
+	recipients: {
+		ord: number | null
+		amount: number
+		person: {
+			firstName: string
+			lastName: string
+			callName: string | null
+			pronouns: string | null
+		} | null
+	}[]
+}
+
 export interface ExpandedProcessMutations {
 	expenseAuthorization: ExpenseAuthorizationProcessMutation
 	longtermContract: LongtermContractProcessMutation
+	representationAllowance: RepresentationAllowanceProcessMutation
 }
 
 export type ProcessMutation = keyof ExpandedProcessMutations

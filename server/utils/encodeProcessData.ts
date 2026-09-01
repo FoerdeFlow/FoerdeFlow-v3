@@ -68,6 +68,34 @@ const encoders = {
 			},
 		}) ?? null,
 	}),
+	representationAllowances: async (
+		tx: ReturnType<typeof useDatabase>,
+		model: z.infer<typeof processSchemas.representationAllowances.create> & {
+			organizationItem: string
+		},
+	) => ({
+		...model,
+		organizationItem: await tx.query.organizationItems.findFirst({
+			where: eq(organizationItems.id, model.organizationItem),
+			columns: {
+				code: true,
+				name: true,
+			},
+		}) ?? null,
+		recipients: await Promise.all(model.recipients.map(async (recipient) => ({
+			...recipient,
+			person: await tx.query.persons.findFirst({
+				where: eq(persons.id, recipient.person),
+				columns: {
+					id: true,
+					firstName: true,
+					lastName: true,
+					callName: true,
+					pronouns: true,
+				},
+			}) ?? null,
+		}))),
+	}),
 	expenseAuthorizations: async (
 		tx: ReturnType<typeof useDatabase>,
 		model: InferSelectModel<typeof expenseAuthorizations> & {

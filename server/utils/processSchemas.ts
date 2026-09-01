@@ -69,6 +69,25 @@ export const processSchemas = {
 		update: null,
 		delete: null,
 	},
+	representationAllowances: {
+		create: z.strictObject({
+			title: z.string().min(1),
+			description: z.string().min(1).nullable(),
+			periodUnit: z.enum([ 'month', 'once' ]),
+			startDate: z.coerce.date(),
+			endDate: z.coerce.date().nullable(),
+			recipients: z.array(z.strictObject({
+				ord: z.number().int().nonnegative().nullable(),
+				person: z.uuid(),
+				amount: z.number().multipleOf(0.01).positive(),
+			})).min(1),
+		})
+			.refine((o) => o.periodUnit !== 'once' || o.endDate === null)
+			.refine((o) => o.endDate === null || o.endDate > o.startDate)
+			.refine((o) => new Set(o.recipients.map((r) => r.person)).size === o.recipients.length),
+		update: null,
+		delete: null,
+	},
 	candidates: {
 		create: z.strictObject({
 			electionCommittee: z.uuid(),

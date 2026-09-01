@@ -2,7 +2,8 @@
 const props = defineProps<{
 	type: 'danger' | 'info' | 'warning' | 'success'
 	title: string
-	text: string
+	text?: string
+	items?: string[]
 	dismissible?: boolean
 }>()
 
@@ -30,5 +31,10 @@ const emit = defineEmits<{
 			span.kern-icon.kern-icon--close(aria-hidden="true")
 			span.kern-sr-only Schließen
 	.kern-alert__body
-		p.kern-body {{ props.text }}
+		p.kern-body(v-if="props.text") {{ props.text }}
+		ul.kern-list.kern-list--bullet(v-if="props.items?.length")
+			li(
+				v-for="(item, idx) of props.items"
+				:key="idx"
+			) {{ item }}
 </template>

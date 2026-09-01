@@ -63,6 +63,16 @@ const subPages: KernCardNavItems = [
 		linkLabel: 'Texte anzeigen',
 		permission: 'texts.read',
 	},
+	{
+		title: 'Aufwandsentschädigungen',
+		description: 'Übersicht über die Aufwandsentschädigungen',
+		link: {
+			name: 'organizationItems-organizationItem-representationAllowances',
+			params: { organizationItem: route.params.organizationItem },
+		},
+		linkLabel: 'Aufwandsentschädigungen anzeigen',
+		permission: 'representationAllowances.read',
+	},
 ]
 </script>
 

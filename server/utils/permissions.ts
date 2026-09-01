@@ -530,6 +530,26 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'representationAllowances.read',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'representationAllowances.create',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'representationAllowances.update',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'representationAllowances.delete',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
 		id: 'workflows.read',
 		scope: 'global',
 		assignable: true,

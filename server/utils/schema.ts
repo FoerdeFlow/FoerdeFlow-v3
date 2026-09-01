@@ -11,6 +11,7 @@ export * from '../schema/text'
 export * from '../schema/budget'
 export * from '../schema/expenseAuthorization'
 export * from '../schema/longtermContract'
+export * from '../schema/representationAllowance'
 export * from '../schema/university'
 export * from '../schema/candidate'
 

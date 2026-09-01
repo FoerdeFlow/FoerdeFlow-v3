@@ -2,6 +2,7 @@ import type {
 	BudgetPlanFormModel,
 	ExpenseAuthorizationFormModel,
 	LongtermContractFormModel,
+	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
 } from '~/types'
 
@@ -39,6 +40,20 @@ const encoders = {
 			startDate: serializeDate(model.startDate),
 			endDate: serializeDate(model.endDate),
 			budget: model.budget?.id ?? null,
+		}),
+	}),
+	representationAllowances: (model: RepresentationAllowanceFormModel) => ({
+		data: JSON.stringify({
+			title: model.title,
+			description: model.description,
+			periodUnit: model.periodUnit,
+			startDate: serializeDate(model.startDate),
+			endDate: model.periodUnit === 'once' ? null : serializeDate(model.endDate),
+			recipients: model.recipients.map((recipient) => ({
+				ord: recipient.ord,
+				person: recipient.person?.id ?? null,
+				amount: recipient.amount,
+			})),
 		}),
 	}),
 } as const

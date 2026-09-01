@@ -43,6 +43,7 @@
 			"budgets": "Haushalte",
 			"budgetPlans": "Haushaltspläne",
 			"expenseAuthorizations": "Ausgabeermächtigungen",
+			"representationAllowances": "Aufwandsentschädigungen",
 			"workflows": "Workflows",
 			"roles": "Rollen",
 			"rolePermissions": "Rollenberechtigungen",
@@ -365,6 +366,108 @@
 		"remove": {
 			"title": "Posten löschen?",
 			"text": "Sind Sie sicher, dass Sie diesen Posten löschen möchten?"
+		}
+	},
+	"representationAllowance": {
+		"title": "Aufwandsentschädigungen",
+		"menu": {
+			"description": "Aufwandsentschädigungen entschädigen Personen für den Aufwand, der ihnen durch die Übernahme eines Amtes in der verfassten Studierendenschaft entsteht. Sie werden laufend monatlich oder als Einmalzahlung gewährt und können sich auf mehrere Personen verteilen."
+		},
+		"table": {
+			"caption": "Liste der Aufwandsentschädigungen"
+		},
+		"periodUnit": {
+			"month": "monatlich",
+			"once": "einmalig"
+		},
+		"field": {
+			"title": "Bezeichnung",
+			"recipients": "Empfänger*innen",
+			"amount": "Gesamtbetrag",
+			"period": "Zeitraum"
+		},
+		"input": {
+			"title": {
+				"label": "Bezeichnung der Aufwandsentschädigung"
+			},
+			"description": {
+				"label": "Erläuterung"
+			},
+			"periodUnit": {
+				"label": "Art der Zahlung",
+				"hint": "Eine monatliche Aufwandsentschädigung läuft über einen Zeitraum, eine Einmalzahlung wird zu einem Termin gezahlt."
+			},
+			"startDate": {
+				"label": "Beginn",
+				"labelOnce": "Datum der Zahlung"
+			},
+			"endDate": {
+				"label": "Ende",
+				"hint": "Bei unbefristeten Aufwandsentschädigungen bitte leer lassen."
+			}
+		},
+		"create": {
+			"title": "Aufwandsentschädigung erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung der Aufwandsentschädigung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Aufwandsentschädigung bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung der Aufwandsentschädigung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Aufwandsentschädigung löschen?",
+			"text": "Sind Sie sicher, dass Sie diese Aufwandsentschädigung löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen der Aufwandsentschädigung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"summary": {
+			"perMonth": "{amount} je Monat"
+		},
+		"limit": {
+			"title": "Geltende Höchstbeträge",
+			"exceededTitle": "Höchstbetrag überschritten",
+			"monthlyPerPerson": "Höchstbetrag je Person und Monat",
+			"monthlyTotal": "Höchstbetrag je Monat für die Organisationseinheit",
+			"singlePerPerson": "Höchstbetrag je Person",
+			"singleTotal": "Höchstbetrag für die Organisationseinheit",
+			"perPersonExceeded": "Der Höchstbetrag von {amount} je Person wird überschritten: {names}.",
+			"totalExceeded": "Die Summe von {total} überschreitet den Höchstbetrag von {amount} für die Organisationseinheit."
+		}
+	},
+	"representationAllowanceRecipient": {
+		"table": {
+			"caption": "Empfänger*innen"
+		},
+		"field": {
+			"person": "Person",
+			"amount": "Betrag",
+			"total": "Summe"
+		},
+		"input": {
+			"ord": {
+				"label": "Lfd."
+			},
+			"person": {
+				"label": "Person"
+			},
+			"amount": {
+				"label": "Betrag je Monat",
+				"labelOnce": "Einmaliger Betrag"
+			}
+		},
+		"create": {
+			"title": "Empfänger*in hinzufügen"
+		},
+		"edit": {
+			"title": "Empfänger*in bearbeiten"
 		}
 	}
 }

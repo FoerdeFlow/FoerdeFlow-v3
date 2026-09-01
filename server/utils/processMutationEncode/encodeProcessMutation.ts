@@ -17,6 +17,10 @@ const encoders = {
 		html: htmlEncodeLongtermContract,
 		pdf: pdfEncodeLongtermContract,
 	},
+	representationAllowance: {
+		html: htmlEncodeRepresentationAllowance,
+		pdf: pdfEncodeRepresentationAllowance,
+	},
 } as const satisfies { [M in ProcessMutation]: MutationEncoders<ExpandedProcessMutations[M]> }
 
 export async function encodeProcessMutation<M extends ProcessMutation, F extends EncodingFormat>(

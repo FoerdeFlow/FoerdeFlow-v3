@@ -23,6 +23,7 @@ import type {
 	OrganizationItemSelect,
 	OrganizationTypeSelect,
 	PersonSelect,
+	RepresentationAllowanceForm,
 	RoleSelect,
 	RoomSelect,
 	SessionSelect,
@@ -58,6 +59,7 @@ export type WorkflowStepType = InstanceType<typeof WorkflowStepTypeSelect>['$pro
 export type BudgetPlanFormModel = InstanceType<typeof BudgetPlanForm>['$props']['modelValue']
 export type ExpenseAuthorizationFormModel = InstanceType<typeof ExpenseAuthorizationForm>['$props']['modelValue']
 export type LongtermContractFormModel = InstanceType<typeof LongtermContractForm>['$props']['modelValue']
+export type RepresentationAllowanceFormModel = InstanceType<typeof RepresentationAllowanceForm>['$props']['modelValue']
 
 export type WorkflowCustomCandidateFormModel = InstanceType<typeof WorkflowCustomCandidateForm>['$props']['modelValue']
 
@@ -105,4 +107,14 @@ export interface LongtermContractItemInput {
 	timeUnit: LongtermContractTimeUnit | null
 	usageUnit: string | null
 	expectedUsage: number | null
+}
+
+export type RepresentationAllowancePeriodUnit = 'month' | 'once'
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type RepresentationAllowanceRecipientInput = {
+	id: string | symbol | null
+	ord: number | null
+	person: Person
+	amount: number
 }

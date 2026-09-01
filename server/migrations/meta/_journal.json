@@ -288,6 +288,13 @@
       "when": 1781299278497,
       "tag": "0040_dizzy_micromax",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1787658086111,
+      "tag": "0041_tired_shatterstar",
+      "breakpoints": true
     }
   ]
 }
