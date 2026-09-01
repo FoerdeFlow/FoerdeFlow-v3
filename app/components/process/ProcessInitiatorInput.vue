@@ -1,22 +1,14 @@
 <script setup lang="ts">
-import type { OrganizationItem, OrganizationType, Person, Role } from '~/types'
+import type { OrganizationItem } from '~/types'
 
 const id = useId()
 const authStore = useAuthStore()
 
 const props = defineProps<{
-	allowedInitiators?: {
-		person: Person
-		role: Role
-		organizationType:
-			// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-			| (NonNullable<OrganizationType> & { items: NonNullable<OrganizationItem>[] })
-			| null
-		organizationItem: OrganizationItem
-	}[]
+	allowedInitiators?: ProcessAllowedInitiator[]
 }>()
 
-const typeModel = defineModel<'person' | 'organizationItem' | null>('type', {
+const typeModel = defineModel<ProcessInitiatorType | null>('type', {
 	required: true,
 })
 
@@ -28,40 +20,11 @@ function onTypeChange() {
 	organizationItemModel.value = null
 }
 
-const personHasPermission = computed(() =>
-	props.allowedInitiators?.some((initiator) =>
-		initiator.person?.id === authStore.userInfo.person?.id ||
-		authStore.userInfo.roles.some((role) => initiator.role?.id === role.id) ||
-		Object.entries(initiator).every(([ key, value ]) => key === 'id' || value === null),
-	) ?? true,
-)
-
-const idFilters = computed<(string[] | undefined)[]>(() => [
-	props.allowedInitiators?.flatMap((initiator) => {
-		if(initiator.organizationItem) {
-			return [ initiator.organizationItem.id ]
-		}
-		if(initiator.organizationType) {
-			return initiator.organizationType.items.map((item) => item.id)
-		}
-		return []
-	}),
-	authStore.userInfo.permissions
-		.filter((permission) => permission.permission === 'workflowProcesses.create')
-		.some((permission) => permission.organizationItem === false)
-		? undefined
-		: authStore.userInfo.permissions
-			.filter((permission) => permission.permission === 'workflowProcesses.create')
-			.map((permission) => permission.organizationItem)
-			.filter((item) => typeof item === 'string'),
-].filter((arr) => arr))
-
-const filteredIds = computed<string[] | undefined>(() => {
-	if(idFilters.value.length === 0) return undefined
-	return idFilters.value[0]?.filter((id) =>
-		idFilters.value.every((filter) => filter === undefined || filter.includes(id)),
-	)
-})
+const {
+	personHasPermission,
+	organizationItemHasPermission,
+	filteredIds,
+} = useProcessInitiatorTypes(() => props.allowedInitiators)
 </script>
 
 <template lang="pug">
@@ -82,9 +45,12 @@ const filteredIds = computed<string[] | undefined>(() => {
 				value="person"
 			) Ich ({{ authStore.userInfo.person ? formatPerson(authStore.userInfo.person) : 'Gast' }})
 			option(
-				v-if="!filteredIds || filteredIds.length > 0"
+				v-if="organizationItemHasPermission"
 				value="organizationItem"
 			) Organisationseinheit
+	div.kern-hint(
+		v-if="!personHasPermission && !organizationItemHasPermission"
+	) Sie sind nicht berechtigt, diesen Prozess zu starten.
 .kern-form-input(v-if="typeModel === 'organizationItem'")
 	label.kern-label(:for="`${id}-organizationItem`") Organisationseinheit
 	OrganizationItemSelect(

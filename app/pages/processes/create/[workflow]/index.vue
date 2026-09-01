@@ -31,10 +31,16 @@ const { data: mutations } = useFetch('/api/workflowMutations', {
 })
 
 const metaModel = ref({
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-	initiatorType: 'person' as 'organizationItem' | 'person' | null,
+	initiatorType: null as ProcessInitiatorType | null,
 	initiatorOrganizationItem: null as OrganizationItem,
 })
+
+const { availableTypes } = useProcessInitiatorTypes(() => workflow.value?.allowedInitiators)
+watch(availableTypes, (types) => {
+	if(metaModel.value.initiatorType && types.includes(metaModel.value.initiatorType)) return
+	metaModel.value.initiatorType = types[0] ?? null
+	metaModel.value.initiatorOrganizationItem = null
+}, { immediate: true })
 
 const model = ref({
 	candidate: {
@@ -125,9 +131,17 @@ const forms = useTemplateRef<InstanceType<
 	/* eslint-enable @typescript-eslint/no-redundant-type-constituents */
 >[]>('forms')
 
-const valid = computed(() => forms.value
+const metaTaskDone = computed(() =>
+	metaModel.value.initiatorType === 'person' ||
+	(
+		metaModel.value.initiatorType === 'organizationItem' &&
+		!!metaModel.value.initiatorOrganizationItem
+	),
+)
+
+const valid = computed(() => metaTaskDone.value && (forms.value
 	?.every((form) => form.tasks
-		.every((task) => task.status === 'done')) ?? false,
+		.every((task) => task.status === 'done')) ?? false),
 )
 
 const items = computed<KernTaskListItems>(() => [
@@ -137,14 +151,7 @@ const items = computed<KernTaskListItems>(() => [
 			{
 				id: 'meta-role',
 				label: 'Rolle auswählen',
-				status:
-					metaModel.value.initiatorType === 'person' ||
-					(
-						metaModel.value.initiatorType === 'organizationItem' &&
-						metaModel.value.initiatorOrganizationItem
-					)
-						? 'done'
-						: 'open',
+				status: metaTaskDone.value ? 'done' : 'open',
 			},
 		],
 	},
