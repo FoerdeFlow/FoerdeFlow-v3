@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { Course, Election, ElectionCommittee, KernTaskListItems, Person } from '~/types'
-
-type Tasks = KernTaskListItems[number]['tasks']
+import type { Election, WorkflowCustomCandidateFormModel } from '~/types'
 
 defineOptions({
 	summaryItems: 5,
@@ -23,19 +21,7 @@ const emit = defineEmits<{
 	select: [item: string]
 }>()
 
-interface Model {
-	electionCommittee: ElectionCommittee
-	candidate: Person
-	applicationLetter: string | null
-	callName: string | null
-	pronouns: string | null
-	matriculationNumber: number | null
-	course: Course
-	postalAddress: string
-	photo: File | null
-}
-
-const model = defineModel<Model>({
+const model = defineModel<WorkflowCustomCandidateFormModel>({
 	required: true,
 })
 
@@ -44,63 +30,6 @@ watch(() => model.value.electionCommittee, (committee) => {
 	if(!committee || election.value) return
 	election.value = (committee as unknown as { election?: Election }).election ?? null
 }, { immediate: true })
-
-const candidateSet = computed(() => !!model.value.candidate || presets.fixed('candidate'))
-const personDataSet = computed(() =>
-	(!!model.value.matriculationNumber || presets.fixed('matriculationNumber')) &&
-	(!!model.value.course || presets.fixed('course')) &&
-	(!!model.value.postalAddress || presets.fixed('postalAddress')))
-
-defineExpose({
-	title: 'Daten zur Kandidatur',
-	tasks: computed<Tasks>(() => [
-		...presets.visible('electionCommittee')
-			? [ {
-				id: 'candidate-election-committee',
-				label: 'Wahl und Gremium auswählen',
-				status: model.value.electionCommittee || presets.fixed('electionCommittee')
-					? 'done'
-					: 'open',
-			} ] satisfies Tasks
-			: [],
-		...presets.visible('candidate')
-			? [ {
-				id: 'candidate-candidate',
-				label: 'Kandidat*in auswählen',
-				status: candidateSet.value ? 'done' : 'open',
-			} ] satisfies Tasks
-			: [],
-		...presets.visible('matriculationNumber', 'course', 'postalAddress', 'callName', 'pronouns')
-			? [ {
-				id: 'candidate-person',
-				label: 'Persönliche Daten erfassen',
-				status: candidateSet.value
-					? personDataSet.value
-						? 'done'
-						: 'open'
-					: 'blocked',
-			} ] satisfies Tasks
-			: [],
-		{
-			id: 'candidate-photo',
-			label: 'Lichtbild erfassen',
-			status: candidateSet.value
-				? model.value.photo ? 'done' : 'open'
-				: 'blocked',
-		},
-		...presets.visible('applicationLetter')
-			? [ {
-				id: 'candidate-application-letter',
-				label: 'Beschreibung erfassen',
-				status: candidateSet.value
-					? model.value.applicationLetter || presets.fixed('applicationLetter')
-						? 'done'
-						: 'open'
-					: 'blocked',
-			} ] satisfies Tasks
-			: [],
-	]),
-})
 
 const photoUrl = computed(() => {
 	if(props.processId && props.mutationId) {

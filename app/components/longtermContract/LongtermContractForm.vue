@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { Budget, KernTaskListItems, LongtermContractItemInput } from '~/types'
-
-type Tasks = KernTaskListItems[number]['tasks']
+import type { LongtermContractFormModel, LongtermContractItemInput } from '~/types'
 
 defineOptions({
 	summaryItems: 3,
@@ -20,54 +18,11 @@ const emit = defineEmits<{
 	select: [item: string]
 }>()
 
-interface Model {
-	budget: Budget
-	title: string
-	description: string | null
-	startDate: Date | null
-	endDate: Date | null
-	items: LongtermContractItemInput[]
-}
-
-const model = defineModel<Model>({
+const model = defineModel<LongtermContractFormModel>({
 	required: true,
 })
 
 const { t } = useI18n()
-
-const titleSet = computed(() => !!model.value.title || presets.fixed('title'))
-const startDateSet = computed(() => !!model.value.startDate || presets.fixed('startDate'))
-
-defineExpose({
-	title: 'Details zum Langzeitvertrag',
-	tasks: computed<Tasks>(() => [
-		...presets.visible('budget')
-			? [ {
-				id: 'longterm-contract-budget',
-				label: 'Haushalt auswählen',
-				status: model.value.budget || presets.fixed('budget') ? 'done' : 'open',
-			} ] satisfies Tasks
-			: [],
-		...presets.visible('title', 'description', 'startDate', 'endDate')
-			? [ {
-				id: 'longterm-contract-title',
-				label: 'Langzeitvertrag beschreiben',
-				status: titleSet.value && startDateSet.value
-					? 'done'
-					: titleSet.value || startDateSet.value || model.value.description
-						? 'partial'
-						: 'open',
-			} ] satisfies Tasks
-			: [],
-		...presets.visible('items')
-			? [ {
-				id: 'longterm-contract-items',
-				label: 'Kostenaufstellung hinzufügen',
-				status: model.value.items.length > 0 || presets.fixed('items') ? 'done' : 'open',
-			} ] satisfies Tasks
-			: [],
-	]),
-})
 
 function formatItemAmount(item: Omit<LongtermContractItemInput, 'id'>) {
 	const timeUnit = item.timeUnit ? t(`longtermContractItem.timeUnit.${item.timeUnit}`) : ''

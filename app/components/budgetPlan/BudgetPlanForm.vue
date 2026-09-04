@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { Budget, BudgetPlanItemInput, KernTaskListItems } from '~/types'
-
-type Tasks = KernTaskListItems[number]['tasks']
+import type { BudgetPlanFormModel, BudgetPlanItemInput } from '~/types'
 
 defineOptions({
 	summaryItems: 3,
@@ -20,46 +18,8 @@ const emit = defineEmits<{
 	select: [item: string]
 }>()
 
-interface Model {
-	budget: Budget
-	startDate: Date | null
-	endDate: Date | null
-	items: BudgetPlanItemInput[]
-}
-
-const model = defineModel<Model>({
+const model = defineModel<BudgetPlanFormModel>({
 	required: true,
-})
-
-const itemsComplete = computed(() => model.value.items.length > 0 &&
-	model.value.items.every((item) => item.title) &&
-	model.value.items.reduce(
-		(sum, item) => sum + (item.revenues ?? 0) - (item.expenses ?? 0),
-		0,
-	) === 0)
-
-defineExpose({
-	title: 'Details zum Haushaltsplan',
-	tasks: computed<Tasks>(() => [
-		...presets.visible('budget', 'startDate', 'endDate')
-			? [ {
-				id: 'budget-plan-meta',
-				label: 'Haushalt auswählen',
-				status: model.value.budget || presets.fixed('budget') ? 'done' : 'open',
-			} ] satisfies Tasks
-			: [],
-		...presets.visible('items')
-			? [ {
-				id: 'budget-plan-items',
-				label: 'Haushaltstitel hinzufügen',
-				status: presets.fixed('items') || itemsComplete.value
-					? 'done'
-					: model.value.items.length > 0
-						? 'partial'
-						: 'open',
-			} ] satisfies Tasks
-			: [],
-	]),
 })
 
 function getBudgetItemSummaryDescription(item: BudgetPlanItemInput): string {

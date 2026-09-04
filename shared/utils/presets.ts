@@ -73,6 +73,17 @@ export function presetFixed(presets: Presets, field: string): boolean {
 }
 
 /**
+ * Checks whether at least one of the fields is shown to the initiator.
+ *
+ * @param presets - The parsed presets
+ * @param fields - The fields the step of the initiator consists of
+ * @returns Whether the step has to be shown
+ */
+export function presetVisible(presets: Presets, ...fields: string[]): boolean {
+	return fields.some((field) => presetMode(presets, field) !== 'hidden')
+}
+
+/**
  * Tokens that are resolved to a date when a preset is applied, so that a
  * workflow can prefill dates that move with the calendar.
  */

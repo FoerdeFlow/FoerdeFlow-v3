@@ -24,23 +24,36 @@ const authStore = useAuthStore()
 authStore.requireLogin()
 
 const { data: workflow } = useFetch(`/api/workflows/${route.params.workflow}`)
-const { data: mutations } = useFetch('/api/workflowMutations', {
+// Awaited so that the presets are already applied in the server-rendered HTML.
+const { data: mutations } = await useFetch('/api/workflowMutations', {
 	query: {
 		workflow: route.params.workflow,
 	},
 })
 
-const metaModel = ref({
-	initiatorType: null as ProcessInitiatorType | null,
-	initiatorOrganizationItem: null as OrganizationItem,
+const { availableTypes } = useProcessInitiatorTypes(() => workflow.value?.allowedInitiators)
+
+const selectedInitiatorType = ref<ProcessInitiatorType | null>(null)
+const selectedInitiatorOrganizationItem = ref<OrganizationItem>(null)
+
+const initiatorType = computed<ProcessInitiatorType | null>({
+	get: () =>
+		selectedInitiatorType.value && availableTypes.value.includes(selectedInitiatorType.value)
+			? selectedInitiatorType.value
+			: availableTypes.value[0] ?? null,
+	set: (type) => {
+		selectedInitiatorType.value = type
+	},
 })
 
-const { availableTypes } = useProcessInitiatorTypes(() => workflow.value?.allowedInitiators)
-watch(availableTypes, (types) => {
-	if(metaModel.value.initiatorType && types.includes(metaModel.value.initiatorType)) return
-	metaModel.value.initiatorType = types[0] ?? null
-	metaModel.value.initiatorOrganizationItem = null
-}, { immediate: true })
+const initiatorOrganizationItem = computed<OrganizationItem>({
+	get: () => initiatorType.value === 'organizationItem'
+		? selectedInitiatorOrganizationItem.value
+		: null,
+	set: (item) => {
+		selectedInitiatorOrganizationItem.value = item
+	},
+})
 
 const model = ref({
 	candidate: {
@@ -90,13 +103,25 @@ function modelKey(table: string) {
 	return table.substring(0, table.length - 1) as keyof typeof model.value
 }
 
+/** The model of the form of a mutation, if this page has a form for its table. */
+function modelOf(table: string): object | undefined {
+	return model.value[modelKey(table)]
+}
+
 watch(mutations, (items) => {
 	for(const mutation of items ?? []) {
-		const target = model.value[modelKey(mutation.table)]
+		const target = modelOf(mutation.table)
 		if(!target) continue
 		applyProcessPresetValues(target, mutation.resolvedPresets)
 	}
 }, { immediate: true })
+
+/**
+ * Whether the initiator has to be asked at all. If they may only act for
+ * themselves, there is nothing to choose and the step is left out.
+ */
+const metaTaskVisible = computed(() =>
+	availableTypes.value.length !== 1 || availableTypes.value[0] !== 'person')
 
 const formsByTable: Record<string, Component> = {
 	candidates: WorkflowCustomCandidateForm,
@@ -113,7 +138,7 @@ function summaryItemsOf(form: Component) {
 }
 
 const mutationForms = computed(() => {
-	let summaryOffset = 1
+	let summaryOffset = metaTaskVisible.value ? 1 : 0
 	return (mutations.value ?? []).flatMap((mutation) => {
 		const form = formsByTable[mutation.table]
 		if(!form) return []
@@ -131,53 +156,50 @@ const mutationForms = computed(() => {
 	})
 })
 
-const forms = useTemplateRef<InstanceType<
-	/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-	| typeof WorkflowCustomCandidateForm
-	| typeof BudgetPlanForm
-	| typeof ExpenseAuthorizationForm
-	| typeof LongtermContractForm
-	| typeof RepresentationAllowanceForm
-	/* eslint-enable @typescript-eslint/no-redundant-type-constituents */
->[]>('forms')
-
 const metaTaskDone = computed(() =>
-	metaModel.value.initiatorType === 'person' ||
+	initiatorType.value === 'person' ||
 	(
-		metaModel.value.initiatorType === 'organizationItem' &&
-		!!metaModel.value.initiatorOrganizationItem
+		initiatorType.value === 'organizationItem' &&
+		!!initiatorOrganizationItem.value
 	),
 )
 
-const valid = computed(() => metaTaskDone.value && (forms.value
-	?.every((form) => form.tasks
-		.every((task) => task.status === 'done')) ?? false),
+const mutationTasks = computed(() => (mutations.value ?? []).flatMap((mutation) => {
+	const tasks = processFormTasks(
+		mutation.table,
+		modelOf(mutation.table),
+		mutation.resolvedPresets,
+		mutation.meta,
+	)
+	return tasks ? [ tasks ] : []
+}))
+
+const valid = computed(() => metaTaskDone.value && mutationTasks.value
+	.every((form) => form.tasks
+		.every((task) => task.status === 'done')),
 )
 
 const items = computed<KernTaskListItems>(() => [
-	{
-		title: 'Daten zur*zum Anforderer*in',
-		tasks: [
-			{
-				id: 'meta-role',
-				label: 'Rolle auswählen',
-				status: metaTaskDone.value ? 'done' : 'open',
-			},
-		],
-	},
-	...(forms.value
-		?.filter((form) => form.tasks.length > 0)
-		.map((form) => ({
-			title: form.title,
-			tasks: form.tasks,
-		})) ?? []),
+	...metaTaskVisible.value
+		? [ {
+			title: 'Daten zur*zum Anforderer*in',
+			tasks: [
+				{
+					id: 'meta-role',
+					label: 'Rolle auswählen',
+					status: metaTaskDone.value ? 'done' : 'open',
+				},
+			],
+		} ] satisfies KernTaskListItems
+		: [],
+	...mutationTasks.value.filter((form) => form.tasks.length > 0),
 	{
 		title: 'Zusammenfassung',
 		tasks: [
 			{
 				id: 'summary',
 				label: 'Eingaben überprüfen',
-				status: forms.value?.some((form) =>
+				status: mutationTasks.value.some((form) =>
 					form.tasks.some((task) => task.status === 'blocked'),
 				)
 					? 'blocked'
@@ -187,15 +209,24 @@ const items = computed<KernTaskListItems>(() => [
 	},
 ])
 
-const selectedItem = ref<string | null>(null)
 const flatItems = computed(() => items.value.flatMap((item) => item.tasks))
+
+/** The step the initiator opened, `null` as long as they opened none. */
+const openedItem = ref<string | null>(null)
+
+/**
+ * The step that is shown. The first one is open right away, on mobile it is
+ * covered by the task list until the initiator opens a step.
+ */
+const selectedItem = computed(() => openedItem.value ?? flatItems.value[0]?.id ?? null)
+
 const selectedItemIndex = computed(() => flatItems.value.findIndex((task) => task.id === selectedItem.value))
 const selectedItemTask = computed(() => flatItems.value[selectedItemIndex.value] ?? null)
 
 async function create() {
 	const body = {
-		initiatorType: metaModel.value.initiatorType,
-		initiatorOrganizationItem: metaModel.value.initiatorOrganizationItem?.id ?? null,
+		initiatorType: initiatorType.value,
+		initiatorOrganizationItem: initiatorOrganizationItem.value?.id ?? null,
 		workflow: route.params.workflow,
 		mutations: (mutations.value ?? []).map((mutation) => ({
 			mutation: mutation.id,
@@ -234,33 +265,35 @@ header
 .kern-container(v-if="authStore.loggedIn")
 	.kern-row
 		.kern-col-12.kern-col-xl-4(
-			:class="{ 'hide-mobile': selectedItem !== null }"
+			:class="{ 'hide-mobile': openedItem !== null }"
 		)
 			KernTaskList(
 				:items="items"
-				@select="selectedItem = $event"
+				@select="openedItem = $event"
 			)
-		.kern-col-12.kern-col-xl-8
+		.kern-col-12.kern-col-xl-8(
+			:class="{ 'hide-mobile': openedItem === null }"
+		)
 			h2.kern-heading-medium(
 				v-if="selectedItemTask"
 			) Schritt {{ selectedItemIndex + 1 }}: {{ selectedItemTask.label }}
 			template(v-if="selectedItem === 'meta-role'")
 				ProcessInitiatorInput(
-					v-model:type="metaModel.initiatorType"
-					v-model:organization-item="metaModel.initiatorOrganizationItem"
+					v-model:type="initiatorType"
+					v-model:organization-item="initiatorOrganizationItem"
 					:allowed-initiators="workflow?.allowedInitiators"
 				)
-			template(v-if="selectedItem === 'summary'")
+			template(v-if="selectedItem === 'summary' && metaTaskVisible")
 				KernSummary(
 					:number="1"
 					title="Angaben zur Anforderer*in"
 					:items=`[
 						{
 							key: 'Anforderer*in',
-							value: metaModel.initiatorType === 'person'
+							value: initiatorType === 'person'
 								? (authStore.userInfo.person ? formatPerson(authStore.userInfo.person) : 'Gast')
-								: metaModel.initiatorOrganizationItem
-									? formatOrganizationItem(metaModel.initiatorOrganizationItem)
+								: initiatorOrganizationItem
+									? formatOrganizationItem(initiatorOrganizationItem)
 									: 'Keine Angabe',
 						},
 					]`
@@ -272,13 +305,12 @@ header
 			)
 				component(
 					:is="form.form"
-					ref="forms"
 					v-model="model[form.key]"
 					:selected-item="selectedItem"
 					:summary-offset="form.summaryOffset"
 					:meta="form.meta"
 					:presets="form.presets"
-					@select="selectedItem = $event"
+					@select="openedItem = $event"
 				)
 			.kern-container(
 				v-if="selectedItemTask"
@@ -288,14 +320,14 @@ header
 						button.kern-btn.kern-btn--secondary(
 							v-if="selectedItemIndex > 0"
 							type="button"
-							@click="selectedItem = flatItems[selectedItemIndex - 1]?.id ?? null"
+							@click="openedItem = flatItems[selectedItemIndex - 1]?.id ?? null"
 						)
 							span.kern-icon.kern-icon--arrow-back
 							span.kern-label Zurück
 						button.kern-btn.kern-btn--secondary.hide-desktop(
 							v-else
 							type="button"
-							@click="selectedItem = null"
+							@click="openedItem = null"
 						)
 							span.kern-icon.kern-icon--arrow-back
 							span.kern-label Zurück zur Übersicht
@@ -303,7 +335,7 @@ header
 						button.kern-btn.kern-btn--primary(
 							v-if="selectedItemIndex < flatItems.length - 1"
 							type="button"
-							@click="selectedItem = flatItems[selectedItemIndex + 1]?.id ?? null"
+							@click="openedItem = flatItems[selectedItemIndex + 1]?.id ?? null"
 						)
 							span.kern-label Weiter
 							span.kern-icon.kern-icon--arrow-forward

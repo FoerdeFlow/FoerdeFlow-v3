@@ -25,10 +25,14 @@ const {
 	organizationItemHasPermission,
 	filteredIds,
 } = useProcessInitiatorTypes(() => props.allowedInitiators)
+
+/** Whether the initiator has no choice but to act for an organization item. */
+const onlyOrganizationItem = computed(() =>
+	organizationItemHasPermission.value && !personHasPermission.value)
 </script>
 
 <template lang="pug">
-.kern-form-input
+.kern-form-input(v-if="!onlyOrganizationItem")
 	label.kern-label(:for="`${id}-type`") Anforderer*in
 	div.kern-hint(
 		:id="`${id}-type-hint`"

@@ -24,7 +24,7 @@ export function useProcessPresets(
 		fixed: (field: string) => presetFixed(parsed.value, field),
 
 		/** Whether at least one of the fields is shown to the initiator. */
-		visible: (...fields: string[]) => fields.some((field) => mode(field) !== 'hidden'),
+		visible: (...fields: string[]) => presetVisible(parsed.value, ...fields),
 
 		/** Whether the fields may not be edited by the initiator. */
 		readonly: (...fields: string[]) => readonly() === true ||

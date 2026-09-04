@@ -1,7 +1,6 @@
 import type {
 	AttendanceStatusSelect,
 	BudgetPeriodTypeSelect,
-	BudgetPlanForm,
 	BudgetPlanItemSelect,
 	BudgetPlanSelect,
 	BudgetSelect,
@@ -13,22 +12,17 @@ import type {
 	DocumentTypeSelect,
 	ElectionCommitteeSelect,
 	ElectionSelect,
-	ExpenseAuthorizationForm,
 	GenderSelect,
 	KernCardNav,
 	KernTaskList,
-	LongtermContractForm,
 	MembershipEndReasonSelect,
 	MembershipTypeSelect,
 	OrganizationItemSelect,
 	OrganizationTypeSelect,
 	PersonSelect,
-	RepresentationAllowanceForm,
 	RoleSelect,
 	RoomSelect,
 	SessionSelect,
-
-	WorkflowCustomCandidateForm,
 	WorkflowStepTypeSelect,
 } from '#components'
 
@@ -56,12 +50,51 @@ export type Room = InstanceType<typeof RoomSelect>['$props']['modelValue']
 export type Session = InstanceType<typeof SessionSelect>['$props']['modelValue']
 export type WorkflowStepType = InstanceType<typeof WorkflowStepTypeSelect>['$props']['modelValue']
 
-export type BudgetPlanFormModel = InstanceType<typeof BudgetPlanForm>['$props']['modelValue']
-export type ExpenseAuthorizationFormModel = InstanceType<typeof ExpenseAuthorizationForm>['$props']['modelValue']
-export type LongtermContractFormModel = InstanceType<typeof LongtermContractForm>['$props']['modelValue']
-export type RepresentationAllowanceFormModel = InstanceType<typeof RepresentationAllowanceForm>['$props']['modelValue']
+export interface BudgetPlanFormModel {
+	budget: Budget
+	startDate: Date | null
+	endDate: Date | null
+	items: BudgetPlanItemInput[]
+}
 
-export type WorkflowCustomCandidateFormModel = InstanceType<typeof WorkflowCustomCandidateForm>['$props']['modelValue']
+export interface ExpenseAuthorizationFormModel {
+	budgetPlanItem: BudgetPlanItem
+	budget: Budget
+	title: string
+	description: string | null
+	amount: number
+	items: ExpenseAuthorizationItemInput[]
+}
+
+export interface LongtermContractFormModel {
+	budget: Budget
+	title: string
+	description: string | null
+	startDate: Date | null
+	endDate: Date | null
+	items: LongtermContractItemInput[]
+}
+
+export interface RepresentationAllowanceFormModel {
+	title: string
+	description: string | null
+	periodUnit: RepresentationAllowancePeriodUnit
+	startDate: Date | null
+	endDate: Date | null
+	recipients: RepresentationAllowanceRecipientInput[]
+}
+
+export interface WorkflowCustomCandidateFormModel {
+	electionCommittee: ElectionCommittee
+	candidate: Person
+	applicationLetter: string | null
+	callName: string | null
+	pronouns: string | null
+	matriculationNumber: number | null
+	course: Course
+	postalAddress: string
+	photo: File | null
+}
 
 export type KernCardNavItems = InstanceType<typeof KernCardNav>['$props']['items']
 export type KernTaskListItems = InstanceType<typeof KernTaskList>['$props']['items']

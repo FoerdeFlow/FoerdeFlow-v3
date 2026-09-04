@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { Budget, BudgetPlanItem, ExpenseAuthorizationItemInput, KernTaskListItems } from '~/types'
-
-type Tasks = KernTaskListItems[number]['tasks']
+import type { ExpenseAuthorizationFormModel } from '~/types'
 
 defineOptions({
 	summaryItems: 3,
@@ -17,68 +15,19 @@ const props = defineProps<{
 
 const presets = useProcessPresets(() => props.presets, () => props.readonly)
 
-const type = computed(() =>
-	typeof props.meta === 'object' && 'type' in props.meta && props.meta.type
-		? props.meta.type
-		: 'planned',
-)
+const type = computed(() => expenseAuthorizationType(props.meta))
 
 const emit = defineEmits<{
 	select: [item: string]
 }>()
 
-interface Model {
-	budgetPlanItem: BudgetPlanItem
-	budget: Budget
-	title: string
-	description: string | null
-	amount: number
-	items: ExpenseAuthorizationItemInput[]
-}
-
-const model = defineModel<Model>({
+const model = defineModel<ExpenseAuthorizationFormModel>({
 	required: true,
 })
 
 watch(() => model.value.items, (items) => {
 	model.value.amount = items.reduce((sum, item) => sum + item.amount, 0)
 }, { deep: true })
-
-const budgetField = computed(() => type.value === 'planned' ? 'budgetPlanItem' : 'budget')
-const budgetFieldSet = computed(() => presets.fixed(budgetField.value) || (type.value === 'planned'
-	? !!model.value.budgetPlanItem
-	: !!model.value.budget))
-
-defineExpose({
-	title: 'Details zur Ausgabeermächtigung',
-	tasks: computed<Tasks>(() => [
-		...presets.visible(budgetField.value)
-			? [ {
-				id: 'expense-authorization-plan-item',
-				label: type.value === 'planned'
-					? 'Haushaltstitel auswählen'
-					: 'Haushalt auswählen',
-				status: budgetFieldSet.value ? 'done' : 'open',
-			} ] satisfies Tasks
-			: [],
-		...presets.visible('title', 'description')
-			? [ {
-				id: 'expense-authorization-title',
-				label: 'Ausgabeermächtigung beschreiben',
-				status: model.value.title || presets.fixed('title')
-					? 'done'
-					: model.value.description ? 'partial' : 'open',
-			} ] satisfies Tasks
-			: [],
-		...presets.visible('items')
-			? [ {
-				id: 'expense-authorization-amount-and-items',
-				label: 'Kostenaufstellung hinzufügen',
-				status: model.value.amount !== 0 || presets.fixed('items') ? 'done' : 'open',
-			} ] satisfies Tasks
-			: [],
-	]),
-})
 </script>
 
 <template lang="pug">

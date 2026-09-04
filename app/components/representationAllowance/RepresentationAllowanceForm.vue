@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import type {
-	KernTaskListItems,
-	RepresentationAllowancePeriodUnit,
+	RepresentationAllowanceFormModel,
 	RepresentationAllowanceRecipientInput,
 } from '~/types'
-
-type Tasks = KernTaskListItems[number]['tasks']
 
 defineOptions({
 	summaryItems: 2,
@@ -25,47 +22,19 @@ const emit = defineEmits<{
 	select: [item: string]
 }>()
 
-interface Model {
-	title: string
-	description: string | null
-	periodUnit: RepresentationAllowancePeriodUnit
-	startDate: Date | null
-	endDate: Date | null
-	recipients: RepresentationAllowanceRecipientInput[]
-}
-
-const model = defineModel<Model>({
+const model = defineModel<RepresentationAllowanceFormModel>({
 	required: true,
 })
 
 const { t } = useI18n()
 
-const total = computed(() => model.value.recipients
-	.reduce((sum, recipient) => sum + (recipient.amount || 0), 0))
+const limitState = computed(() => representationAllowanceLimits(model.value, props.meta))
 
-const limits = computed(() => model.value.periodUnit === 'once'
-	? {
-		perPerson: metaAmount(props.meta, 'maximumSingleAmountPerPerson'),
-		total: metaAmount(props.meta, 'maximumSingleAmountTotal'),
-	}
-	: {
-		perPerson: metaAmount(props.meta, 'maximumMonthlyAmountPerPerson'),
-		total: metaAmount(props.meta, 'maximumMonthlyAmountTotal'),
-	})
-
-const recipientsAboveLimit = computed(() => {
-	const perPerson = limits.value.perPerson
-	if(perPerson === null) return []
-	return model.value.recipients.filter((recipient) => recipient.amount > perPerson)
-})
-
-const totalAboveLimit = computed(() => {
-	const limit = limits.value.total
-	return limit !== null && total.value > limit
-})
-
-const violated = computed(() =>
-	recipientsAboveLimit.value.length > 0 || totalAboveLimit.value)
+const total = computed(() => limitState.value.total)
+const limits = computed(() => limitState.value.limits)
+const recipientsAboveLimit = computed(() => limitState.value.recipientsAboveLimit)
+const totalAboveLimit = computed(() => limitState.value.totalAboveLimit)
+const violated = computed(() => limitState.value.violated)
 
 const periodLabel = computed(() => {
 	if(model.value.periodUnit === 'once') {
@@ -78,41 +47,6 @@ const periodLabel = computed(() => {
 			endDate: model.value.endDate,
 		})
 		: `ab ${formatDate(model.value.startDate, 'compact')} (unbefristet)`
-})
-
-const titleSet = computed(() => !!model.value.title || presets.fixed('title'))
-const startDateSet = computed(() => !!model.value.startDate || presets.fixed('startDate'))
-
-defineExpose({
-	title: 'Details zur Aufwandsentschädigung',
-	tasks: computed<Tasks>(() => [
-		...presets.visible('title', 'description', 'periodUnit', 'startDate', 'endDate')
-			? [ {
-				id: 'representation-allowance-title',
-				label: 'Aufwandsentschädigung beschreiben',
-				status: titleSet.value && startDateSet.value
-					? 'done'
-					: titleSet.value || startDateSet.value || model.value.description
-						? 'partial'
-						: 'open',
-			} ] satisfies Tasks
-			: [],
-		...presets.visible('recipients')
-			? [ {
-				id: 'representation-allowance-recipients',
-				label: 'Empfänger*innen hinzufügen',
-				status: recipientsAboveLimit.value.length > 0 || totalAboveLimit.value
-					? 'partial'
-					: presets.fixed('recipients') ||
-						(model.value.recipients.length > 0 && model.value.recipients
-							.every((recipient) => recipient.person && recipient.amount > 0))
-						? 'done'
-						: model.value.recipients.length > 0
-							? 'partial'
-							: 'open',
-			} ] satisfies Tasks
-			: [],
-	]),
 })
 
 function recipientSummary(recipient: RepresentationAllowanceRecipientInput) {
