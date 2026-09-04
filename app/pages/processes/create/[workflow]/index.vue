@@ -179,6 +179,12 @@ const valid = computed(() => metaTaskDone.value && mutationTasks.value
 		.every((task) => task.status === 'done')),
 )
 
+/**
+ * Whether the initiator still has to pick their role. Every following step
+ * depends on it, so none of them may be worked on before.
+ */
+const followUpsBlocked = computed(() => metaTaskVisible.value && !metaTaskDone.value)
+
 const items = computed<KernTaskListItems>(() => [
 	...metaTaskVisible.value
 		? [ {
@@ -192,14 +198,21 @@ const items = computed<KernTaskListItems>(() => [
 			],
 		} ] satisfies KernTaskListItems
 		: [],
-	...mutationTasks.value.filter((form) => form.tasks.length > 0),
+	...mutationTasks.value
+		.filter((form) => form.tasks.length > 0)
+		.map((form) => ({
+			title: form.title,
+			tasks: followUpsBlocked.value
+				? form.tasks.map((task) => ({ ...task, status: 'blocked' as const }))
+				: form.tasks,
+		})),
 	{
 		title: 'Zusammenfassung',
 		tasks: [
 			{
 				id: 'summary',
 				label: 'Eingaben überprüfen',
-				status: mutationTasks.value.some((form) =>
+				status: followUpsBlocked.value || mutationTasks.value.some((form) =>
 					form.tasks.some((task) => task.status === 'blocked'),
 				)
 					? 'blocked'
