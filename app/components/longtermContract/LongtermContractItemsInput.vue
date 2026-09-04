@@ -22,6 +22,10 @@ const { t } = useI18n()
 
 const editor = useTemplateRef<typeof LongtermContractItemEditor>('editor')
 
+const props = defineProps<{
+	readonly?: boolean
+}>()
+
 const model = defineModel<IdModel[]>({
 	required: true,
 })
@@ -78,9 +82,9 @@ function formatItemAmount(item: Model) {
 <template lang="pug">
 KernTable.w-full(
 	:caption="$t('longtermContractItem.table.caption')"
-	:create-permission="true"
-	:update-permission="true"
-	:delete-permission="true"
+	:create-permission="props.readonly ? null : true"
+	:update-permission="props.readonly ? null : true"
+	:delete-permission="props.readonly ? null : true"
 	:columns=`[
 		{
 			name: 'title',

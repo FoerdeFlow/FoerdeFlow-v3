@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Budget, BudgetPlanItem, ExpenseAuthorizationItemInput, KernTaskListItems } from '~/types'
 
+type Tasks = KernTaskListItems[number]['tasks']
+
 defineOptions({
 	summaryItems: 3,
 })
@@ -10,7 +12,10 @@ const props = defineProps<{
 	readonly?: boolean
 	summaryOffset?: number
 	meta?: { type?: 'planned' | 'reserve' }
+	presets?: unknown
 }>()
+
+const presets = useProcessPresets(() => props.presets, () => props.readonly)
 
 const type = computed(() =>
 	typeof props.meta === 'object' && 'type' in props.meta && props.meta.type
@@ -39,29 +44,40 @@ watch(() => model.value.items, (items) => {
 	model.value.amount = items.reduce((sum, item) => sum + item.amount, 0)
 }, { deep: true })
 
+const budgetField = computed(() => type.value === 'planned' ? 'budgetPlanItem' : 'budget')
+const budgetFieldSet = computed(() => presets.fixed(budgetField.value) || (type.value === 'planned'
+	? !!model.value.budgetPlanItem
+	: !!model.value.budget))
+
 defineExpose({
 	title: 'Details zur Ausgabeermächtigung',
-	tasks: computed(() => [
-		{
-			id: 'expense-authorization-plan-item',
-			label: type.value === 'planned'
-				? 'Haushaltstitel auswählen'
-				: 'Haushalt auswählen',
-			status: type.value === 'planned'
-				? model.value.budgetPlanItem ? 'done' : 'open'
-				: model.value.budget ? 'done' : 'open',
-		},
-		{
-			id: 'expense-authorization-title',
-			label: 'Ausgabeermächtigung beschreiben',
-			status: model.value.title ? 'done' : model.value.description ? 'partial' : 'open',
-		},
-		{
-			id: 'expense-authorization-amount-and-items',
-			label: 'Kostenaufstellung hinzufügen',
-			status: model.value.amount !== 0 ? 'done' : 'open',
-		},
-	] satisfies KernTaskListItems[number]['tasks']),
+	tasks: computed<Tasks>(() => [
+		...presets.visible(budgetField.value)
+			? [ {
+				id: 'expense-authorization-plan-item',
+				label: type.value === 'planned'
+					? 'Haushaltstitel auswählen'
+					: 'Haushalt auswählen',
+				status: budgetFieldSet.value ? 'done' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presets.visible('title', 'description')
+			? [ {
+				id: 'expense-authorization-title',
+				label: 'Ausgabeermächtigung beschreiben',
+				status: model.value.title || presets.fixed('title')
+					? 'done'
+					: model.value.description ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presets.visible('items')
+			? [ {
+				id: 'expense-authorization-amount-and-items',
+				label: 'Kostenaufstellung hinzufügen',
+				status: model.value.amount !== 0 || presets.fixed('items') ? 'done' : 'open',
+			} ] satisfies Tasks
+			: [],
+	]),
 })
 </script>
 
@@ -69,29 +85,36 @@ defineExpose({
 template(v-if="props.selectedItem === 'expense-authorization-plan-item'")
 	template(v-if="type === 'planned'")
 		ExpenseAuthorizationBudgetPlanItemInput(
+			v-if="presets.visible('budgetPlanItem')"
 			v-model="model.budgetPlanItem"
-			:readonly="props.readonly"
+			:readonly="presets.readonly('budgetPlanItem')"
 		)
 	template(v-else)
 		ExpenseAuthorizationBudgetInput(
+			v-if="presets.visible('budget')"
 			v-model="model.budget"
-			:readonly="props.readonly"
+			:readonly="presets.readonly('budget')"
 		)
 template(v-if="props.selectedItem === 'expense-authorization-title'")
 	ExpenseAuthorizationTitleInput(
+		v-if="presets.visible('title')"
 		v-model="model.title"
-		:readonly="props.readonly"
+		:readonly="presets.readonly('title')"
 	)
 	ExpenseAuthorizationDescriptionInput(
+		v-if="presets.visible('description')"
 		v-model="model.description"
-		:readonly="props.readonly"
+		:readonly="presets.readonly('description')"
 	)
 template(v-if="props.selectedItem === 'expense-authorization-amount-and-items'")
 	ExpenseAuthorizationAmountInput(
 		v-model="model.amount"
 		:readonly="true"
 	)
-	ExpenseAuthorizationItemsInput(v-model="model.items")
+	ExpenseAuthorizationItemsInput(
+		v-model="model.items"
+		:readonly="presets.readonly('items')"
+	)
 template(v-if="props.selectedItem === 'summary'")
 	template(v-if="type === 'planned'")
 		KernSummary(

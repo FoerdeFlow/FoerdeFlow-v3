@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Course, Election, ElectionCommittee, KernTaskListItems, Person } from '~/types'
 
+type Tasks = KernTaskListItems[number]['tasks']
+
 defineOptions({
 	summaryItems: 5,
 })
@@ -12,7 +14,10 @@ const props = defineProps<{
 	processId?: string
 	mutationId?: string
 	attachments?: string[]
+	presets?: unknown
 }>()
+
+const presets = useProcessPresets(() => props.presets, () => props.readonly)
 
 const emit = defineEmits<{
 	select: [item: string]
@@ -35,44 +40,66 @@ const model = defineModel<Model>({
 })
 
 const election = ref<Election>(null)
+watch(() => model.value.electionCommittee, (committee) => {
+	if(!committee || election.value) return
+	election.value = (committee as unknown as { election?: Election }).election ?? null
+}, { immediate: true })
+
+const candidateSet = computed(() => !!model.value.candidate || presets.fixed('candidate'))
+const personDataSet = computed(() =>
+	(!!model.value.matriculationNumber || presets.fixed('matriculationNumber')) &&
+	(!!model.value.course || presets.fixed('course')) &&
+	(!!model.value.postalAddress || presets.fixed('postalAddress')))
 
 defineExpose({
 	title: 'Daten zur Kandidatur',
-	tasks: computed(() => [
-		{
-			id: 'candidate-election-committee',
-			label: 'Wahl und Gremium auswählen',
-			status: model.value.electionCommittee ? 'done' : 'open',
-		},
-		{
-			id: 'candidate-candidate',
-			label: 'Kandidat*in auswählen',
-			status: model.value.candidate ? 'done' : 'open',
-		},
-		{
-			id: 'candidate-person',
-			label: 'Persönliche Daten erfassen',
-			status: model.value.candidate
-				? model.value.matriculationNumber && model.value.course && model.value.postalAddress
+	tasks: computed<Tasks>(() => [
+		...presets.visible('electionCommittee')
+			? [ {
+				id: 'candidate-election-committee',
+				label: 'Wahl und Gremium auswählen',
+				status: model.value.electionCommittee || presets.fixed('electionCommittee')
 					? 'done'
-					: 'open'
-				: 'blocked',
-		},
+					: 'open',
+			} ] satisfies Tasks
+			: [],
+		...presets.visible('candidate')
+			? [ {
+				id: 'candidate-candidate',
+				label: 'Kandidat*in auswählen',
+				status: candidateSet.value ? 'done' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presets.visible('matriculationNumber', 'course', 'postalAddress', 'callName', 'pronouns')
+			? [ {
+				id: 'candidate-person',
+				label: 'Persönliche Daten erfassen',
+				status: candidateSet.value
+					? personDataSet.value
+						? 'done'
+						: 'open'
+					: 'blocked',
+			} ] satisfies Tasks
+			: [],
 		{
 			id: 'candidate-photo',
 			label: 'Lichtbild erfassen',
-			status: model.value.candidate
+			status: candidateSet.value
 				? model.value.photo ? 'done' : 'open'
 				: 'blocked',
 		},
-		{
-			id: 'candidate-application-letter',
-			label: 'Beschreibung erfassen',
-			status: model.value.candidate
-				? model.value.applicationLetter ? 'done' : 'open'
-				: 'blocked',
-		},
-	] satisfies KernTaskListItems[number]['tasks']),
+		...presets.visible('applicationLetter')
+			? [ {
+				id: 'candidate-application-letter',
+				label: 'Beschreibung erfassen',
+				status: candidateSet.value
+					? model.value.applicationLetter || presets.fixed('applicationLetter')
+						? 'done'
+						: 'open'
+					: 'blocked',
+			} ] satisfies Tasks
+			: [],
+	]),
 })
 
 const photoUrl = computed(() => {
@@ -95,7 +122,7 @@ template(v-if="props.selectedItem === 'candidate-election-committee'")
 			ElectionSelect(
 				id="election"
 				v-model="election"
-				:readonly="props.readonly"
+				:readonly="presets.readonly('electionCommittee')"
 			)
 		.kern-form-input(v-if="election")
 			label.kern-label(for="election-committee") Gremium
@@ -103,28 +130,30 @@ template(v-if="props.selectedItem === 'candidate-election-committee'")
 				id="election-committee"
 				v-model="model.electionCommittee"
 				:election="election.id"
-				:readonly="props.readonly"
+				:readonly="presets.readonly('electionCommittee')"
 			)
 template(v-if="props.selectedItem === 'candidate-candidate'")
 	CandidateCandidateInput(
 		v-model="model.candidate"
-		:readonly="props.readonly"
+		:readonly="presets.readonly('candidate')"
 	)
 template(v-if="props.selectedItem === 'candidate-person'")
 	.kern-row
 		.kern-col-12(v-if="model.candidate")
 			p.kern-body
 				| Hier bitte die persönlichen Daten für {{ formatPerson(model.candidate) }} erfassen.
-	.kern-row
+	.kern-row(v-if="presets.visible('matriculationNumber')")
 		.kern-col-12
 			PersonMatriculationNumberInput(
 v-model="model.matriculationNumber"
-required)
-	.kern-row
+required
+:readonly="presets.readonly('matriculationNumber')")
+	.kern-row(v-if="presets.visible('course')")
 		.kern-col-12.kern-col-md-6
 			PersonCourseInput(
 v-model="model.course"
-required)
+required
+:readonly="presets.readonly('course')")
 		.kern-col-12.kern-col-md-6
 			.kern-form-input
 				label.kern-label(for="fsv-of-course") Fachschaft
@@ -133,19 +162,24 @@ required)
 					:model-value="model.course?.council ?? null"
 					readonly
 				)
-	.kern-row
+	.kern-row(v-if="presets.visible('postalAddress')")
 		.kern-col-12
 			PersonPostalAddressInput(
 v-model="model.postalAddress"
-required)
-	.kern-row
+required
+:readonly="presets.readonly('postalAddress')")
+	.kern-row(v-if="presets.visible('callName', 'pronouns')")
 		.kern-col-12
 			p.kern-body
 				| Solltest du einen anderen Vornamen nutzen, als im System der HAW eingetragen ist, kannst du diesen hier angeben.
-		.kern-col-12.kern-col-md-6
-			PersonCallNameInput(v-model="model.callName")
-		.kern-col-12.kern-col-md-6
-			PersonPronounsInput(v-model="model.pronouns")
+		.kern-col-12.kern-col-md-6(v-if="presets.visible('callName')")
+			PersonCallNameInput(
+v-model="model.callName"
+:readonly="presets.readonly('callName')")
+		.kern-col-12.kern-col-md-6(v-if="presets.visible('pronouns')")
+			PersonPronounsInput(
+v-model="model.pronouns"
+:readonly="presets.readonly('pronouns')")
 template(v-if="props.selectedItem === 'candidate-photo'")
 	PersonPhotoInput(
 		v-model="model.photo"
@@ -164,7 +198,7 @@ class="mt-4 max-w-xs border")
 template(v-if="props.selectedItem === 'candidate-application-letter'")
 	CandidateApplicationLetterInput(
 		v-model="model.applicationLetter"
-		:readonly="props.readonly"
+		:readonly="presets.readonly('applicationLetter')"
 	)
 template(v-if="props.selectedItem === 'summary'")
 	KernSummary(

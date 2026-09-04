@@ -86,6 +86,18 @@ const model = ref({
 	} satisfies RepresentationAllowanceFormModel,
 })
 
+function modelKey(table: string) {
+	return table.substring(0, table.length - 1) as keyof typeof model.value
+}
+
+watch(mutations, (items) => {
+	for(const mutation of items ?? []) {
+		const target = model.value[modelKey(mutation.table)]
+		if(!target) continue
+		applyProcessPresetValues(target, mutation.resolvedPresets)
+	}
+}, { immediate: true })
+
 const formsByTable: Record<string, Component> = {
 	candidates: WorkflowCustomCandidateForm,
 	budgetPlans: BudgetPlanForm,
@@ -111,11 +123,9 @@ const mutationForms = computed(() => {
 
 		return [ {
 			form,
-			key: mutation.table.substring(
-				0,
-				mutation.table.length - 1,
-			) as keyof typeof model.value,
+			key: modelKey(mutation.table),
 			meta: mutation.meta,
+			presets: mutation.resolvedPresets,
 			summaryOffset: offset,
 		} ]
 	})
@@ -155,10 +165,12 @@ const items = computed<KernTaskListItems>(() => [
 			},
 		],
 	},
-	...(forms.value?.map((form) => ({
-		title: form.title,
-		tasks: form.tasks,
-	})) ?? []),
+	...(forms.value
+		?.filter((form) => form.tasks.length > 0)
+		.map((form) => ({
+			title: form.title,
+			tasks: form.tasks,
+		})) ?? []),
 	{
 		title: 'Zusammenfassung',
 		tasks: [
@@ -198,12 +210,7 @@ async function create() {
 		const encodedModel = encodeFormModel(
 			// @ts-expect-error | Table is not typed correctly
 			mutation.table,
-			model.value[
-				mutation.table.substring(
-					0,
-					mutation.table.length - 1,
-				) as keyof typeof model.value
-			],
+			model.value[modelKey(mutation.table)],
 		)
 		Object.entries(encodedModel).forEach(([ key, value ]) => {
 			formData.append(`mutation_${mutation.id}_${key}`, value)
@@ -270,6 +277,7 @@ header
 					:selected-item="selectedItem"
 					:summary-offset="form.summaryOffset"
 					:meta="form.meta"
+					:presets="form.presets"
 					@select="selectedItem = $event"
 				)
 			.kern-container(

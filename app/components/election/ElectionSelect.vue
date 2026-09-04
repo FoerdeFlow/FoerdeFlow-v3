@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
 	id: string
+	readonly?: boolean
 }>()
 
 const { data } = await useFetch('/api/elections')
@@ -29,6 +30,7 @@ const selectModel = computed({
 	select.kern-form-input__select(
 		:id="props.id"
 		v-model="selectModel"
+		:disabled="props.readonly"
 	)
 		option(
 			disabled

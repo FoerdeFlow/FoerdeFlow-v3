@@ -10,6 +10,7 @@ interface Model {
 
 const props = defineProps<{
 	periodUnit: RepresentationAllowancePeriodUnit
+	readonly?: boolean
 }>()
 
 const editor = useTemplateRef<typeof RepresentationAllowanceRecipientEditor>('editor')
@@ -50,9 +51,9 @@ function save(id: string | symbol | null, item: Model) {
 <template lang="pug">
 KernTable.w-full(
 	:caption="$t('representationAllowanceRecipient.table.caption')"
-	:create-permission="true"
-	:update-permission="true"
-	:delete-permission="true"
+	:create-permission="props.readonly ? null : true"
+	:update-permission="props.readonly ? null : true"
+	:delete-permission="props.readonly ? null : true"
 	:columns=`[
 		{
 			name: 'person',

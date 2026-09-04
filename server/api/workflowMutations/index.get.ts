@@ -34,5 +34,12 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	return mutations
+	return await Promise.all(mutations.map(async (mutation) => ({
+		...mutation,
+		resolvedPresets: await resolveProcessPresets(
+			database,
+			mutation.table,
+			mutation.presets,
+		),
+	})))
 })

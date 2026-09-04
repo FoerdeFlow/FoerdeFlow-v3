@@ -4,6 +4,7 @@ import type { DestructureArray } from '#shared/types'
 const props = defineProps<{
 	id: string
 	budget: string
+	readonly?: boolean
 }>()
 
 const { data } = useFetch('/api/budgetPlans', {
@@ -33,6 +34,7 @@ const selectModel = computed({
 	select.kern-form-input__select(
 		:id="props.id"
 		v-model="selectModel"
+		:disabled="props.readonly"
 	)
 		option(
 			value=""

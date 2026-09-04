@@ -160,7 +160,10 @@ export default defineEventHandler(async (event) => {
 			}
 			let data: unknown
 			try {
-				data = await schema.parseAsync(JSON.parse(entries[`mutation_${mutation.id}_data`]))
+				data = await schema.parseAsync(applyProcessPresets(
+					JSON.parse(entries[`mutation_${mutation.id}_data`]),
+					mutation.presets,
+				))
 			} catch(error) {
 				throw createError({
 					statusCode: 400,

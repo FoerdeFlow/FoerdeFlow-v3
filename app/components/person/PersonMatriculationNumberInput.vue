@@ -3,6 +3,7 @@ const id = useId()
 
 const props = defineProps<{
 	required?: boolean
+	readonly?: boolean
 }>()
 
 const model = defineModel<number | null>({
@@ -21,6 +22,7 @@ const model = defineModel<number | null>({
 	input.kern-form-input__input(
 		:id="id"
 		v-model="model"
+		:readonly="props.readonly"
 		type="text"
 		inputmode="numeric"
 		minlength="6"

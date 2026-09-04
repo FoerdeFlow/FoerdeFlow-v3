@@ -15,6 +15,10 @@ type IdModel = Model & {
 
 const editor = useTemplateRef<typeof ExpenseAuthorizationItemEditor>('editor')
 
+const props = defineProps<{
+	readonly?: boolean
+}>()
+
 const model = defineModel<IdModel[]>({
 	required: true,
 })
@@ -49,9 +53,9 @@ function save(id: string | null, item: Model) {
 <template lang="pug">
 KernTable(
 	:caption="$t('expenseAuthorizationItem.table.caption')"
-	:create-permission="true"
-	:update-permission="true"
-	:delete-permission="true"
+	:create-permission="props.readonly ? null : true"
+	:update-permission="props.readonly ? null : true"
+	:delete-permission="props.readonly ? null : true"
 	:columns=`[
 		{
 			name: 'title',

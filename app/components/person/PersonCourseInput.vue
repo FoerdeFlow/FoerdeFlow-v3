@@ -5,6 +5,7 @@ const id = useId()
 
 const props = defineProps<{
 	required?: boolean
+	readonly?: boolean
 }>()
 
 const model = defineModel<Course>({
@@ -18,5 +19,6 @@ const model = defineModel<Course>({
 	CourseSelect(
 		:id="id"
 		v-model="model"
+		:readonly="props.readonly"
 	)
 </template>

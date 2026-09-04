@@ -113,6 +113,7 @@ export const workflowMutations = pgTable('workflow_mutations', {
 	table: varchar({ length: 64 }).notNull(),
 	action: workflowMutationActions().notNull(),
 	meta: jsonb(),
+	presets: jsonb(),
 })
 
 export const workflowMutationsRelations = relations(workflowMutations, ({ one }) => ({

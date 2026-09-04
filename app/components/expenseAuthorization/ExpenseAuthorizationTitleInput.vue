@@ -1,5 +1,9 @@
 <script setup lang="ts">
 const id = useId()
+
+const props = defineProps<{
+	readonly?: boolean
+}>()
 const model = defineModel<string>()
 </script>
 
@@ -11,6 +15,7 @@ const model = defineModel<string>()
 	input.kern-form-input__input(
 		:id="id"
 		v-model="model"
+		:readonly="props.readonly"
 		type="text"
 	)
 </template>

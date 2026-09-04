@@ -5,6 +5,8 @@ import type {
 	RepresentationAllowanceRecipientInput,
 } from '~/types'
 
+type Tasks = KernTaskListItems[number]['tasks']
+
 defineOptions({
 	summaryItems: 2,
 })
@@ -14,7 +16,10 @@ const props = defineProps<{
 	readonly?: boolean
 	summaryOffset?: number
 	meta?: unknown
+	presets?: unknown
 }>()
+
+const presets = useProcessPresets(() => props.presets, () => props.readonly)
 
 const emit = defineEmits<{
 	select: [item: string]
@@ -75,31 +80,39 @@ const periodLabel = computed(() => {
 		: `ab ${formatDate(model.value.startDate, 'compact')} (unbefristet)`
 })
 
+const titleSet = computed(() => !!model.value.title || presets.fixed('title'))
+const startDateSet = computed(() => !!model.value.startDate || presets.fixed('startDate'))
+
 defineExpose({
 	title: 'Details zur Aufwandsentschädigung',
-	tasks: computed(() => [
-		{
-			id: 'representation-allowance-title',
-			label: 'Aufwandsentschädigung beschreiben',
-			status: model.value.title && model.value.startDate
-				? 'done'
-				: model.value.title || model.value.startDate || model.value.description
-					? 'partial'
-					: 'open',
-		},
-		{
-			id: 'representation-allowance-recipients',
-			label: 'Empfänger*innen hinzufügen',
-			status: recipientsAboveLimit.value.length > 0 || totalAboveLimit.value
-				? 'partial'
-				: model.value.recipients.length > 0 && model.value.recipients
-					.every((recipient) => recipient.person && recipient.amount > 0)
+	tasks: computed<Tasks>(() => [
+		...presets.visible('title', 'description', 'periodUnit', 'startDate', 'endDate')
+			? [ {
+				id: 'representation-allowance-title',
+				label: 'Aufwandsentschädigung beschreiben',
+				status: titleSet.value && startDateSet.value
 					? 'done'
-					: model.value.recipients.length > 0
+					: titleSet.value || startDateSet.value || model.value.description
 						? 'partial'
 						: 'open',
-		},
-	] satisfies KernTaskListItems[number]['tasks']),
+			} ] satisfies Tasks
+			: [],
+		...presets.visible('recipients')
+			? [ {
+				id: 'representation-allowance-recipients',
+				label: 'Empfänger*innen hinzufügen',
+				status: recipientsAboveLimit.value.length > 0 || totalAboveLimit.value
+					? 'partial'
+					: presets.fixed('recipients') ||
+						(model.value.recipients.length > 0 && model.value.recipients
+							.every((recipient) => recipient.person && recipient.amount > 0))
+						? 'done'
+						: model.value.recipients.length > 0
+							? 'partial'
+							: 'open',
+			} ] satisfies Tasks
+			: [],
+	]),
 })
 
 function recipientSummary(recipient: RepresentationAllowanceRecipientInput) {
@@ -153,27 +166,31 @@ const violationText = computed(() => {
 <template lang="pug">
 template(v-if="props.selectedItem === 'representation-allowance-title'")
 	RepresentationAllowanceTitleInput(
+		v-if="presets.visible('title')"
 		v-model="model.title"
-		:readonly="props.readonly"
+		:readonly="presets.readonly('title')"
 	)
 	RepresentationAllowanceDescriptionInput(
+		v-if="presets.visible('description')"
 		v-model="model.description"
-		:readonly="props.readonly"
+		:readonly="presets.readonly('description')"
 	)
 	RepresentationAllowancePeriodUnitInput(
+		v-if="presets.visible('periodUnit')"
 		v-model="model.periodUnit"
-		:readonly="props.readonly"
+		:readonly="presets.readonly('periodUnit')"
 	)
 	.kern-fieldset__body.kern-fieldset__body--horizontal
 		RepresentationAllowanceStartDateInput.flex-1(
+			v-if="presets.visible('startDate')"
 			v-model="model.startDate"
 			:period-unit="model.periodUnit"
-			:readonly="props.readonly"
+			:readonly="presets.readonly('startDate')"
 		)
 		RepresentationAllowanceEndDateInput.flex-1(
-			v-if="model.periodUnit !== 'once'"
+			v-if="model.periodUnit !== 'once' && presets.visible('endDate')"
 			v-model="model.endDate"
-			:readonly="props.readonly"
+			:readonly="presets.readonly('endDate')"
 		)
 template(v-if="props.selectedItem === 'representation-allowance-recipients'")
 	KernAlert(
@@ -193,6 +210,7 @@ template(v-if="props.selectedItem === 'representation-allowance-recipients'")
 	RepresentationAllowanceRecipientsInput(
 		v-model="model.recipients"
 		:period-unit="model.periodUnit"
+		:readonly="presets.readonly('recipients')"
 	)
 template(v-if="props.selectedItem === 'summary'")
 	KernSummary(

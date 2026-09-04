@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Budget, KernTaskListItems, LongtermContractItemInput } from '~/types'
 
+type Tasks = KernTaskListItems[number]['tasks']
+
 defineOptions({
 	summaryItems: 3,
 })
@@ -9,7 +11,10 @@ const props = defineProps<{
 	selectedItem: string | null
 	readonly?: boolean
 	summaryOffset?: number
+	presets?: unknown
 }>()
+
+const presets = useProcessPresets(() => props.presets, () => props.readonly)
 
 const emit = defineEmits<{
 	select: [item: string]
@@ -30,29 +35,38 @@ const model = defineModel<Model>({
 
 const { t } = useI18n()
 
+const titleSet = computed(() => !!model.value.title || presets.fixed('title'))
+const startDateSet = computed(() => !!model.value.startDate || presets.fixed('startDate'))
+
 defineExpose({
 	title: 'Details zum Langzeitvertrag',
-	tasks: computed(() => [
-		{
-			id: 'longterm-contract-budget',
-			label: 'Haushalt auswählen',
-			status: model.value.budget ? 'done' : 'open',
-		},
-		{
-			id: 'longterm-contract-title',
-			label: 'Langzeitvertrag beschreiben',
-			status: model.value.title && model.value.startDate
-				? 'done'
-				: model.value.title || model.value.startDate || model.value.description
-					? 'partial'
-					: 'open',
-		},
-		{
-			id: 'longterm-contract-items',
-			label: 'Kostenaufstellung hinzufügen',
-			status: model.value.items.length > 0 ? 'done' : 'open',
-		},
-	] satisfies KernTaskListItems[number]['tasks']),
+	tasks: computed<Tasks>(() => [
+		...presets.visible('budget')
+			? [ {
+				id: 'longterm-contract-budget',
+				label: 'Haushalt auswählen',
+				status: model.value.budget || presets.fixed('budget') ? 'done' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presets.visible('title', 'description', 'startDate', 'endDate')
+			? [ {
+				id: 'longterm-contract-title',
+				label: 'Langzeitvertrag beschreiben',
+				status: titleSet.value && startDateSet.value
+					? 'done'
+					: titleSet.value || startDateSet.value || model.value.description
+						? 'partial'
+						: 'open',
+			} ] satisfies Tasks
+			: [],
+		...presets.visible('items')
+			? [ {
+				id: 'longterm-contract-items',
+				label: 'Kostenaufstellung hinzufügen',
+				status: model.value.items.length > 0 || presets.fixed('items') ? 'done' : 'open',
+			} ] satisfies Tasks
+			: [],
+	]),
 })
 
 function formatItemAmount(item: Omit<LongtermContractItemInput, 'id'>) {
@@ -86,29 +100,37 @@ function getItemSummaryDescription(item: Omit<LongtermContractItemInput, 'id'>):
 <template lang="pug">
 template(v-if="props.selectedItem === 'longterm-contract-budget'")
 	LongtermContractBudgetInput(
+		v-if="presets.visible('budget')"
 		v-model="model.budget"
-		:readonly="props.readonly"
+		:readonly="presets.readonly('budget')"
 	)
 template(v-if="props.selectedItem === 'longterm-contract-title'")
 	LongtermContractTitleInput(
+		v-if="presets.visible('title')"
 		v-model="model.title"
-		:readonly="props.readonly"
+		:readonly="presets.readonly('title')"
 	)
 	LongtermContractDescriptionInput(
+		v-if="presets.visible('description')"
 		v-model="model.description"
-		:readonly="props.readonly"
+		:readonly="presets.readonly('description')"
 	)
 	.kern-fieldset__body.kern-fieldset__body--horizontal
 		LongtermContractStartDateInput.flex-1(
+			v-if="presets.visible('startDate')"
 			v-model="model.startDate"
-			:readonly="props.readonly"
+			:readonly="presets.readonly('startDate')"
 		)
 		LongtermContractEndDateInput.flex-1(
+			v-if="presets.visible('endDate')"
 			v-model="model.endDate"
-			:readonly="props.readonly"
+			:readonly="presets.readonly('endDate')"
 		)
 template(v-if="props.selectedItem === 'longterm-contract-items'")
-	LongtermContractItemsInput(v-model="model.items")
+	LongtermContractItemsInput(
+		v-model="model.items"
+		:readonly="presets.readonly('items')"
+	)
 template(v-if="props.selectedItem === 'summary'")
 	KernSummary(
 		:number="(props.summaryOffset ?? 0) + 1"

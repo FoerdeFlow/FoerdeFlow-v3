@@ -3,6 +3,7 @@ import type { Council, CourseType, Department } from '~/types'
 
 const props = defineProps<{
 	id: string
+	readonly?: boolean
 }>()
 
 const { data } = await useFetch('/api/courses')
@@ -35,6 +36,7 @@ const selectModel = computed({
 	select.kern-form-input__select(
 		:id="props.id"
 		v-model="selectModel"
+		:disabled="props.readonly"
 	)
 		option(
 			value=""
