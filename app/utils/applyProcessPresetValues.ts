@@ -1,13 +1,12 @@
-const dateFields = [ 'startDate', 'endDate' ]
-
 function clonePresetValue(field: string, value: unknown): unknown {
-	if(dateFields.includes(field) && typeof value === 'string') {
-		return new Date(value)
+	const revived = reviveFormDate(field, value)
+	if(revived instanceof Date) {
+		return revived
 	}
-	if(value === null || typeof value !== 'object') {
-		return value
+	if(revived === null || typeof revived !== 'object') {
+		return revived
 	}
-	return JSON.parse(JSON.stringify(value))
+	return JSON.parse(JSON.stringify(revived))
 }
 
 /**

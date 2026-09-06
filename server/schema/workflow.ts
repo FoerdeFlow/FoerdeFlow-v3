@@ -281,3 +281,29 @@ export const workflowProcessSignaturesRelations = relations(workflowProcessSigna
 		references: [ persons.id ],
 	}),
 }))
+
+export const workflowProcessDrafts = pgTable('workflow_process_drafts', {
+	id: uuid().notNull().primaryKey().defaultRandom(),
+	workflow: uuid().notNull().references(() => workflows.id, { onDelete: 'cascade' }),
+	owner: uuid().notNull().references(() => persons.id, { onDelete: 'cascade' }),
+	initiatorType: workflowInitiator(),
+	initiatorOrganizationItem: uuid().references(() => organizationItems.id, { onDelete: 'set null' }),
+	data: jsonb().notNull(),
+	createdAt: timestamp().notNull().defaultNow(),
+	modifiedAt: timestamp().notNull().defaultNow(),
+})
+
+export const workflowProcessDraftsRelations = relations(workflowProcessDrafts, ({ one }) => ({
+	workflow: one(workflows, {
+		fields: [ workflowProcessDrafts.workflow ],
+		references: [ workflows.id ],
+	}),
+	owner: one(persons, {
+		fields: [ workflowProcessDrafts.owner ],
+		references: [ persons.id ],
+	}),
+	initiatorOrganizationItem: one(organizationItems, {
+		fields: [ workflowProcessDrafts.initiatorOrganizationItem ],
+		references: [ organizationItems.id ],
+	}),
+}))

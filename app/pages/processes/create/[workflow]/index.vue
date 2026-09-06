@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 
+import { FetchError } from 'ofetch'
+
 import type {
 	BudgetPlanFormModel,
 	ExpenseAuthorizationFormModel,
@@ -20,7 +22,10 @@ import {
 } from '#components'
 
 const route = useRoute('processes-create-workflow')
+const router = useRouter()
 const authStore = useAuthStore()
+const alertStore = useAlertStore()
+const confirmDialogStore = useConfirmDialogStore()
 authStore.requireLogin()
 
 const { data: workflow } = useFetch(`/api/workflows/${route.params.workflow}`)
@@ -31,10 +36,51 @@ const { data: mutations } = await useFetch('/api/workflowMutations', {
 	},
 })
 
+/**
+ * The draft this wizard continues, taken from the query once. It must not be
+ * reactive, saving a new draft adds it to the query and would reload the page.
+ */
+const initialDraft = typeof route.query.draft === 'string' ? route.query.draft : null
+// Awaited as well, for the same reason as the mutations.
+const { data: draft } = await useFetch(`/api/processDrafts/${initialDraft}`, {
+	immediate: initialDraft !== null,
+})
+
+const draftData = computed(() => draft.value ? parseProcessDraftData(draft.value.data) : null)
+
+/** The id the draft is saved under, `null` as long as it was never saved. */
+const draftId = ref(initialDraft)
+
+/** The attachments of the draft, loaded back into files after mounting. */
+const draftFiles = ref<Record<string, File>>({})
+
+/** Whether a saved draft is worked on, either continued or saved just now. */
+const editingDraft = computed(() => draftId.value !== null)
+
+/** When the draft was saved last, shown next to the heading. */
+const savedAt = ref<Date | string | null>(draft.value?.modifiedAt ?? null)
+
+const { data: drafts } = useFetch('/api/processDrafts', {
+	query: {
+		workflow: route.params.workflow,
+	},
+})
+
+/**
+ * The saved drafts of this workflow that can be continued instead of starting
+ * over, without the one that is being worked on.
+ */
+const continuableDrafts = computed(() =>
+	(drafts.value ?? []).filter((item) => item.id !== draftId.value))
+
 const { availableTypes } = useProcessInitiatorTypes(() => workflow.value?.allowedInitiators)
 
-const selectedInitiatorType = ref<ProcessInitiatorType | null>(null)
-const selectedInitiatorOrganizationItem = ref<OrganizationItem>(null)
+const selectedInitiatorType = ref<ProcessInitiatorType | null>(
+	draft.value?.initiatorType ?? null,
+)
+const selectedInitiatorOrganizationItem = ref<OrganizationItem>(
+	(draftData.value?.initiatorOrganizationItem ?? null) as OrganizationItem,
+)
 
 const initiatorType = computed<ProcessInitiatorType | null>({
 	get: () =>
@@ -108,11 +154,18 @@ function modelOf(table: string): object | undefined {
 	return model.value[modelKey(table)]
 }
 
+// The draft is applied inside the watch, so that it also wins when the presets
+// are applied again after the mutations resolved anew.
 watch(mutations, (items) => {
 	for(const mutation of items ?? []) {
 		const target = modelOf(mutation.table)
 		if(!target) continue
 		applyProcessPresetValues(target, mutation.resolvedPresets)
+
+		const draftModel = draftData.value?.model[modelKey(mutation.table)]
+		if(!draftModel) continue
+		applyDraftModelValues(target, draftModel, mutation.resolvedPresets)
+		applyDraftModelFiles(target, modelKey(mutation.table), draftFiles.value)
 	}
 }, { immediate: true })
 
@@ -236,6 +289,169 @@ const selectedItem = computed(() => openedItem.value ?? flatItems.value[0]?.id ?
 const selectedItemIndex = computed(() => flatItems.value.findIndex((task) => task.id === selectedItem.value))
 const selectedItemTask = computed(() => flatItems.value[selectedItemIndex.value] ?? null)
 
+/**
+ * Loads the attachments of the draft back into files, so that the forms behave
+ * exactly as if they had just been picked. An attachment that cannot be loaded
+ * is left out, its task simply falls back to being open.
+ */
+async function loadDraftAttachments() {
+	const data = draftData.value
+	if(!draft.value || !data) return
+
+	const files: Record<string, File> = {}
+	for(const [ path, attachment ] of Object.entries(data.attachments)) {
+		try {
+			const blob = await $fetch<Blob>(
+				`/api/processDrafts/${draft.value.id}/attachments/${path}`,
+				{ responseType: 'blob' },
+			)
+			files[path] = new File([ blob ], attachment.name, { type: attachment.type })
+		} catch(_error) {
+			// The draft stays usable without the attachment.
+		}
+	}
+	draftFiles.value = files
+
+	for(const mutation of mutations.value ?? []) {
+		const target = modelOf(mutation.table)
+		if(!target) continue
+		applyDraftModelFiles(target, modelKey(mutation.table), files)
+	}
+}
+
+/** Everything that is saved with a draft, as a string that can be compared. */
+function currentState() {
+	const { model: encodedModel, attachments } = encodeDraftModel(model.value)
+	return JSON.stringify({
+		initiatorType: initiatorType.value,
+		initiatorOrganizationItem: initiatorOrganizationItem.value?.id ?? null,
+		model: encodedModel,
+		attachments,
+	})
+}
+
+/**
+ * The state of the wizard when it was saved, `null` until it is known. It
+ * starts out as the state the wizard was opened with, so that an untouched
+ * wizard counts as saved.
+ */
+const savedState = ref<string | null>(null)
+const saving = ref(false)
+
+/** Set while the page navigates away on purpose, so that it is not guarded. */
+const leaving = ref(false)
+
+/**
+ * Whether there is anything to save. As long as there is not, the button to
+ * save a draft is not shown and leaving the page is not guarded.
+ */
+const unsaved = computed(() => savedState.value !== null && savedState.value !== currentState())
+
+function warnUnsaved(event: BeforeUnloadEvent) {
+	if(!unsaved.value) return
+	event.preventDefault()
+}
+
+onMounted(async () => {
+	window.addEventListener('beforeunload', warnUnsaved)
+	await loadDraftAttachments()
+	savedState.value = currentState()
+})
+
+onBeforeUnmount(() => {
+	window.removeEventListener('beforeunload', warnUnsaved)
+})
+
+onBeforeRouteLeave(async () => {
+	if(leaving.value || !unsaved.value) return true
+
+	return await confirmDialogStore.askConfirm({
+		title: 'Seite verlassen?',
+		text: 'Der Zwischenstand wurde nicht gespeichert und geht dabei verloren.',
+		abortLabel: 'Nein, hier bleiben',
+		confirmLabel: 'Ja, verwerfen',
+	}) === true
+})
+
+async function saveDraft() {
+	saving.value = true
+	try {
+		const { model: encodedModel, attachments, files } = encodeDraftModel(model.value)
+
+		const formData = new FormData()
+		formData.append('data', JSON.stringify({
+			workflow: route.params.workflow,
+			initiatorType: initiatorType.value,
+			initiatorOrganizationItem: initiatorOrganizationItem.value?.id ?? null,
+			data: {
+				version: processDraftVersion,
+				initiatorOrganizationItem: initiatorOrganizationItem.value,
+				model: encodedModel,
+				attachments,
+			},
+		}))
+		Object.entries(files).forEach(([ path, file ]) => {
+			formData.append(`attachment_${path}`, file)
+		})
+
+		if(draftId.value) {
+			await $fetch(`/api/processDrafts/${draftId.value}`, {
+				method: 'PUT',
+				body: formData,
+			})
+		} else {
+			const response = await $fetch('/api/processDrafts', {
+				method: 'POST',
+				body: formData,
+			})
+			draftId.value = response.id
+			await router.replace({ query: { ...route.query, draft: response.id } })
+		}
+
+		savedState.value = currentState()
+		savedAt.value = new Date()
+		alertStore.showAlert({
+			type: 'success',
+			title: 'Entwurf gespeichert',
+			text: 'Der Zwischenstand kann später weiterbearbeitet werden.',
+		})
+	} catch(e: unknown) {
+		if(e instanceof FetchError) {
+			alertStore.showAlert({
+				type: 'danger',
+				title: 'Fehler beim Speichern',
+				text: e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.',
+			})
+		}
+	} finally {
+		saving.value = false
+	}
+}
+
+async function discardDraft() {
+	if(!draftId.value) return
+	if(!await confirmDialogStore.askConfirm({
+		title: 'Entwurf verwerfen?',
+		text: 'Der gespeicherte Zwischenstand wird gelöscht, die Eingaben gehen dabei verloren.',
+	})) return
+
+	try {
+		await $fetch(`/api/processDrafts/${draftId.value}`, { method: 'DELETE' })
+
+		leaving.value = true
+		await navigateTo('/processes')
+	} catch(e: unknown) {
+		leaving.value = false
+		if(e instanceof FetchError) {
+			alertStore.showAlert({
+				type: 'danger',
+				title: 'Fehler beim Verwerfen',
+				text: e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.',
+			})
+		}
+	}
+}
+
 async function create() {
 	const body = {
 		initiatorType: initiatorType.value,
@@ -261,20 +477,61 @@ async function create() {
 		})
 	}
 
-	const response = await $fetch('/api/processes', {
-		method: 'POST',
-		body: formData,
-	})
-	await navigateTo(`/processes/view/${response.id}`)
+	try {
+		const response = await $fetch('/api/processes', {
+			method: 'POST',
+			body: formData,
+		})
+
+		if(draftId.value) {
+			// A draft that is left behind can still be discarded from the
+			// overview, so it must never block the navigation.
+			await $fetch(`/api/processDrafts/${draftId.value}`, { method: 'DELETE' })
+				.catch(() => { /* ignore */ })
+		}
+
+		leaving.value = true
+		await navigateTo(`/processes/view/${response.id}`)
+	} catch(e: unknown) {
+		leaving.value = false
+		if(e instanceof FetchError) {
+			alertStore.showAlert({
+				type: 'danger',
+				title: 'Fehler beim Erstellen',
+				text: e.data?.message ?? 'Ein unbekannter Fehler ist aufgetreten.',
+			})
+		}
+	}
 }
 </script>
 
 <template lang="pug">
 header
-	p.kern-preline Neuen Prozess erstellen
+	p.kern-preline {{ editingDraft ? 'Entwurf bearbeiten' : 'Neuen Prozess erstellen' }}
 	h1.kern-heading-large {{ workflow?.name }} ({{ workflow?.code }})
+	.mb-4.flex.flex-wrap.items-center.gap-4(v-if="editingDraft")
+		span.kern-badge.kern-badge--info
+			span.kern-icon.kern-icon--draft(aria-hidden="true")
+			span.kern-label.kern-label--small Entwurf
+		span.kern-body.kern-body--small(v-if="savedAt")
+			| Zuletzt gespeichert: {{ formatDatetime(savedAt, 'compact') }}
 .mb-8(v-if="workflow?.description")
 	KernText(:text="workflow.description")
+section.mb-8(v-if="!editingDraft && continuableDrafts.length")
+	h2.kern-heading-medium Entwurf fortsetzen
+	p.kern-body Für diesen Workflow sind bereits Entwürfe gespeichert. Sie können einen davon weiterbearbeiten oder unten neu beginnen.
+	ul.kern-list.kern-list--bullet
+		li(
+			v-for="item of continuableDrafts"
+			:key="item.id"
+		)
+			//- Loaded externally, the wizard reads the draft from the query
+				once and a query change alone would not remount it.
+			NuxtLink.kern-link(
+				external
+				:to="{ name: 'processes-create-workflow', params: { workflow: route.params.workflow }, query: { draft: item.id } }"
+			) {{ item.title ?? workflow?.name }}
+			span.kern-body.kern-body--small  (zuletzt bearbeitet: {{ formatDatetime(item.modifiedAt, 'compact') }})
 .kern-container(v-if="authStore.loggedIn")
 	.kern-row
 		.kern-col-12.kern-col-xl-4(
@@ -329,37 +586,59 @@ header
 				v-if="selectedItemTask"
 			)
 				.kern-row
-					.kern-col.text-left
-						button.kern-btn.kern-btn--secondary(
-							v-if="selectedItemIndex > 0"
-							type="button"
-							@click="openedItem = flatItems[selectedItemIndex - 1]?.id ?? null"
-						)
-							span.kern-icon.kern-icon--arrow-back
-							span.kern-label Zurück
-						button.kern-btn.kern-btn--secondary.hide-desktop(
-							v-else
-							type="button"
-							@click="openedItem = null"
-						)
-							span.kern-icon.kern-icon--arrow-back
-							span.kern-label Zurück zur Übersicht
-					.kern-col.text-right
-						button.kern-btn.kern-btn--primary(
-							v-if="selectedItemIndex < flatItems.length - 1"
-							type="button"
-							@click="openedItem = flatItems[selectedItemIndex + 1]?.id ?? null"
-						)
-							span.kern-label Weiter
-							span.kern-icon.kern-icon--arrow-forward
-						button.kern-btn.kern-btn--primary(
-							v-else-if="selectedItemIndex === flatItems.length - 1"
-							type="button"
-							:disabled="!valid"
-							@click="create()"
-						)
-							span.kern-label Erstellen
-							span.kern-icon.kern-icon--check
+					.kern-col.flex.flex-wrap.items-center.justify-between.gap-4
+						//- The buttons on the left keep their own container, so
+							that the ones on the right stay on the right even
+							when there is no button on the left.
+						.flex.flex-wrap.items-center.gap-4
+							button.kern-btn.kern-btn--secondary(
+								v-if="selectedItemIndex > 0"
+								type="button"
+								@click="openedItem = flatItems[selectedItemIndex - 1]?.id ?? null"
+							)
+								span.kern-icon.kern-icon--arrow-back
+								span.kern-label Zurück
+							button.kern-btn.kern-btn--secondary.hide-desktop(
+								v-else
+								type="button"
+								@click="openedItem = null"
+							)
+								span.kern-icon.kern-icon--arrow-back
+								span.kern-label Zurück zur Übersicht
+							button.kern-btn.kern-btn--tertiary(
+								v-if="editingDraft"
+								type="button"
+								:disabled="saving"
+								@click="discardDraft()"
+							)
+								span.kern-icon.kern-icon--delete
+								span.kern-label Verwerfen
+						//- Pushed to the right by itself as well, so that it
+							stays there when the row wraps on narrow screens.
+						.ml-auto.flex.flex-wrap.items-center.gap-4
+							button.kern-btn.kern-btn--secondary(
+								v-if="unsaved"
+								type="button"
+								:disabled="saving"
+								@click="saveDraft()"
+							)
+								span.kern-label {{ editingDraft ? 'Speichern' : 'Als Entwurf speichern' }}
+								span.kern-icon.kern-icon--draft
+							button.kern-btn.kern-btn--primary(
+								v-if="selectedItemIndex < flatItems.length - 1"
+								type="button"
+								@click="openedItem = flatItems[selectedItemIndex + 1]?.id ?? null"
+							)
+								span.kern-label Weiter
+								span.kern-icon.kern-icon--arrow-forward
+							button.kern-btn.kern-btn--primary(
+								v-else-if="selectedItemIndex === flatItems.length - 1"
+								type="button"
+								:disabled="!valid"
+								@click="create()"
+							)
+								span.kern-label Erstellen
+								span.kern-icon.kern-icon--check
 </template>
 
 <style scoped>
