@@ -208,6 +208,23 @@ export function formatProcessStepStatus(type: 'pending' | 'completed' | 'failed'
 	}[type]
 }
 
+export function formatProcessSignatureStatus(type: 'pending' | 'received'): string {
+	return {
+		pending: 'Ausstehend',
+		received: 'Eingegangen',
+	}[type]
+}
+
+export function formatProcessPaperStatus(
+	type: 'notRequired' | 'pending' | 'received',
+): string {
+	return {
+		notRequired: 'Nicht erforderlich',
+		pending: 'Papier ausstehend',
+		received: 'Papier vollständig',
+	}[type]
+}
+
 export function formatBudget(
 	budget: {
 		name: string,

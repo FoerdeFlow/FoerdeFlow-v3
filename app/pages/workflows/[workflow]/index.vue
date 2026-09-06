@@ -33,6 +33,15 @@ const subPages: KernCardNavItems = [
 		linkLabel: 'Workflow-Mutationen anzeigen',
 		permission: 'workflowMutations.read',
 	},
+	{
+		title: 'Unterschriften',
+		link: {
+			name: 'workflows-workflow-signatures',
+			params: { workflow: route.params.workflow },
+		},
+		linkLabel: 'Unterschriften anzeigen',
+		permission: 'workflowSignatures.read',
+	},
 ]
 </script>
 

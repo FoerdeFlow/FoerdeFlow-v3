@@ -1,5 +1,7 @@
 import { jsPDF } from 'jspdf'
 
+import type { PdfEncoderOptions } from './types'
+
 const timeUnitLabels = {
 	month: 'Monat',
 	quarter: 'Quartal',
@@ -50,9 +52,7 @@ export async function pdfEncodeLongtermContract(entry: {
 		usageUnit: string | null
 		expectedUsage: number | null
 	}[]
-}, options: {
-	document?: boolean
-} = {}) {
+}, options: PdfEncoderOptions = {}) {
 	if(!entry.budget) {
 		throw createError({
 			status: 500,
@@ -223,6 +223,10 @@ export async function pdfEncodeLongtermContract(entry: {
 	}
 
 	pos.y += 10
+
+	if(options.signature) {
+		pdfDrawSignatureBlock(doc, pos, options.signature)
+	}
 
 	pos.finalize()
 	return doc

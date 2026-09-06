@@ -77,105 +77,15 @@ export async function checkProcessStepPermission(
 			})
 		}
 	} else {
-		switch(step.assignee) {
-			case 'initiator':
-				switch(process.initiatorType) {
-					case 'person':
-						if(
-							process.initiatorPerson !==
-						(event.context as EventContext).user?.person?.id
-						) {
-							throw createError({
-								statusCode: 403,
-								statusMessage: 'Forbidden',
-								data: 'User is not the initiator of the process',
-							})
-						}
-						break
-					case 'organizationItem':
-						await checkPermission(
-							'workflowProcesses.update',
-							{ organizationItem: process.initiatorOrganizationItem ?? '' },
-							{ exactScopeMatch: true },
-						)
-						break
-				}
-				break
-			case 'referencedPerson': {
-				const [ referencedPersonTable, ...referencedPersonSteps ] =
-					step.assigneeReferencedPerson?.split('.') ?? []
-				if(!referencedPersonTable || referencedPersonSteps.length <= 0) {
-					throw createError({
-						statusCode: 403,
-						statusMessage: 'Forbidden',
-						data: 'Invalid referenced person assignment',
-					})
-				}
-
-				const mutation = await tx.query.workflowProcessMutations.findFirst({
-					where: (tbl, { and, eq, exists }) => and(
-						eq(tbl.process, result.process),
-						exists(tx.select()
-							.from(workflowMutations)
-							.where(and(
-								eq(workflowMutations.id, tbl.mutation),
-								eq(workflowMutations.table, referencedPersonTable),
-							))),
-					),
-					columns: {
-						data: true,
-					},
-				})
-				if(!mutation) {
-					throw createError({
-						statusCode: 403,
-						statusMessage: 'Forbidden',
-						data: 'Referenced person mutation not found',
-					})
-				}
-
-				let referencedPersonData: unknown = mutation.data
-				for(const referencedPersonStep of referencedPersonSteps) {
-					if(typeof referencedPersonData === 'object' && referencedPersonData !== null) {
-						const record = referencedPersonData as Record<string, unknown>
-						referencedPersonData = record[referencedPersonStep]
-					} else {
-						referencedPersonData = undefined
-						break
-					}
-				}
-
-				const referencedPersonId = typeof referencedPersonData === 'string'
-					? referencedPersonData
-					: undefined
-				if(referencedPersonId !== (event.context as EventContext).user?.person?.id) {
-					throw createError({
-						statusCode: 403,
-						statusMessage: 'Forbidden',
-						data: 'User is not the referenced person assigned to the step',
-					})
-				}
-				break
-			}
-			case 'organizationItem':
-				try {
-					await checkPermission(
-						'workflowProcesses.update',
-						{ organizationItem: step.assigneeOrganizationItem ?? '' },
-						{ exactScopeMatch: true },
-					)
-				} catch(error) {
-					if(
-						requireEditable ||
-					!(event.context as EventContext).user?.memberships?.some((membership) =>
-						membership.organizationItem.id === step.assigneeOrganizationItem,
-					)
-					) {
-						throw error
-					}
-				}
-				break
-		}
+		await checkParticipantPermission(
+			tx,
+			{
+				id: result.process,
+				...process,
+			},
+			step,
+			{ allowMembershipFallback: !requireEditable },
+		)
 	}
 
 	if(requireEditable && process.status === 'completed') {

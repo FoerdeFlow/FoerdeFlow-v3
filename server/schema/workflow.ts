@@ -6,6 +6,7 @@ import {
 	pgEnum,
 	pgTable,
 	timestamp,
+	unique,
 	uuid,
 	varchar,
 } from 'drizzle-orm/pg-core'
@@ -26,6 +27,7 @@ export const workflowsRelations = relations(workflows, ({ many }) => ({
 	allowedInitiators: many(workflowAllowedInitiators),
 	steps: many(workflowSteps),
 	mutations: many(workflowMutations),
+	signatures: many(workflowSignatures),
 }))
 
 export const workflowAllowedInitiators = pgTable('workflow_allowed_initiators', {
@@ -124,6 +126,36 @@ export const workflowMutationsRelations = relations(workflowMutations, ({ one })
 	}),
 }))
 
+export const workflowSignatures = pgTable('workflow_signatures', {
+	id: uuid().notNull().primaryKey().defaultRandom(),
+	workflow: uuid().notNull().references(() => workflows.id, { onDelete: 'cascade' }),
+	mutation: uuid().notNull().references(() => workflowMutations.id, { onDelete: 'cascade' }),
+	stage: integer().notNull(),
+	code: varchar({ length: 32 }).notNull(),
+	name: varchar({ length: 256 }).notNull(),
+	description: varchar({ length: 1024 }),
+	hint: varchar({ length: 1024 }),
+	lines: jsonb().$type<{ label: string, hint: string | null }[]>().notNull(),
+	assignee: workflowParticipants().notNull(),
+	assigneeReferencedPerson: varchar({ length: 256 }),
+	assigneeOrganizationItem: uuid().references(() => organizationItems.id),
+})
+
+export const workflowSignaturesRelations = relations(workflowSignatures, ({ one }) => ({
+	workflow: one(workflows, {
+		fields: [ workflowSignatures.workflow ],
+		references: [ workflows.id ],
+	}),
+	mutation: one(workflowMutations, {
+		fields: [ workflowSignatures.mutation ],
+		references: [ workflowMutations.id ],
+	}),
+	assigneeOrganizationItem: one(organizationItems, {
+		fields: [ workflowSignatures.assigneeOrganizationItem ],
+		references: [ organizationItems.id ],
+	}),
+}))
+
 export const workflowStatuses = pgEnum('workflow_statuses', [
 	'pending',
 	'completed',
@@ -135,10 +167,17 @@ export const workflowInitiator = pgEnum('workflow_initiator', [
 	'organizationItem',
 ])
 
+export const workflowPaperStatuses = pgEnum('workflow_paper_statuses', [
+	'notRequired',
+	'pending',
+	'received',
+])
+
 export const workflowProcesses = pgTable('workflow_processes', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	workflow: uuid().notNull().references(() => workflows.id),
 	status: workflowStatuses().notNull().default('pending'),
+	paperStatus: workflowPaperStatuses().notNull().default('notRequired'),
 	initiatorType: workflowInitiator().notNull(),
 	initiatorPerson: uuid().references(() => persons.id),
 	initiatorOrganizationItem: uuid().references(() => organizationItems.id),
@@ -160,6 +199,7 @@ export const workflowProcessesRelations = relations(workflowProcesses, ({ one, m
 	}),
 	steps: many(workflowProcessSteps),
 	mutations: many(workflowProcessMutations),
+	signatures: many(workflowProcessSignatures),
 }))
 
 export const workflowStepStatuses = pgEnum('workflow_step_statuses', [
@@ -205,5 +245,39 @@ export const workflowProcessMutationsRelations = relations(workflowProcessMutati
 	mutation: one(workflowMutations, {
 		fields: [ workflowProcessMutations.mutation ],
 		references: [ workflowMutations.id ],
+	}),
+}))
+
+export const workflowSignatureStatuses = pgEnum('workflow_signature_statuses', [
+	'pending',
+	'received',
+])
+
+export const workflowProcessSignatures = pgTable('workflow_process_signatures', {
+	id: uuid().notNull().primaryKey().defaultRandom(),
+	process: uuid().notNull().references(() => workflowProcesses.id, { onDelete: 'cascade' }),
+	signature: uuid().notNull().references(() => workflowSignatures.id),
+	status: workflowSignatureStatuses().notNull().default('pending'),
+	comment: varchar({ length: 1024 }),
+	confirmedBy: uuid().references(() => persons.id),
+	confirmedAt: timestamp(),
+	modifiedAt: timestamp().notNull().defaultNow(),
+}, (table) => [
+	unique('workflow_process_signature_unique')
+		.on(table.process, table.signature),
+])
+
+export const workflowProcessSignaturesRelations = relations(workflowProcessSignatures, ({ one }) => ({
+	process: one(workflowProcesses, {
+		fields: [ workflowProcessSignatures.process ],
+		references: [ workflowProcesses.id ],
+	}),
+	signature: one(workflowSignatures, {
+		fields: [ workflowProcessSignatures.signature ],
+		references: [ workflowSignatures.id ],
+	}),
+	confirmedBy: one(persons, {
+		fields: [ workflowProcessSignatures.confirmedBy ],
+		references: [ persons.id ],
 	}),
 }))

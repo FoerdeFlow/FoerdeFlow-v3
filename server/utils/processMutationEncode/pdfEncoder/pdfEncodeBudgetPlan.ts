@@ -1,5 +1,7 @@
 import { jsPDF } from 'jspdf'
 
+import type { PdfEncoderOptions } from './types'
+
 export async function pdfEncodeBudgetPlan(entry: {
 	id?: string
 	budget: {
@@ -15,9 +17,7 @@ export async function pdfEncodeBudgetPlan(entry: {
 		expenses: number
 		ord: number | null
 	}[]
-}, options: {
-	document?: boolean
-} = {}) {
+}, options: PdfEncoderOptions = {}) {
 	const budget = `${entry.budget.name} (${entry.budget.code})`
 	const period = `${formatDate(entry.startDate, 'compact')} - ${formatDate(entry.endDate, 'compact')}`
 
@@ -197,6 +197,10 @@ export async function pdfEncodeBudgetPlan(entry: {
 	)
 
 	pos.y += 10
+
+	if(options.signature) {
+		pdfDrawSignatureBlock(doc, pos, options.signature)
+	}
 
 	pos.finalize()
 	return doc

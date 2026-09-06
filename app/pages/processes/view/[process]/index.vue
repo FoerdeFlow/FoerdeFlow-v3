@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProcessStepConnectionEditor, ProcessStepEditor } from '#components'
+import type { ProcessSignatureEditor, ProcessStepConnectionEditor, ProcessStepEditor } from '#components'
 import type {
 	BudgetPlanFormModel,
 	ExpenseAuthorizationFormModel,
@@ -11,6 +11,7 @@ import type {
 const route = useRoute('processes-view-process')
 const editor = useTemplateRef<typeof ProcessStepEditor>('editor')
 const connectionEditor = useTemplateRef<typeof ProcessStepConnectionEditor>('connectionEditor')
+const signatureEditor = useTemplateRef<typeof ProcessSignatureEditor>('signatureEditor')
 
 const { data, refresh } = useFetch(`/api/processes/${route.params.process}`)
 
@@ -27,6 +28,15 @@ function openEditor(id: string) {
 function openConnectionEditor(id: string, organizationItem: string) {
 	if(!connectionEditor.value) return
 	connectionEditor.value.open(id, organizationItem)
+}
+
+function openSignatureEditor(id: string) {
+	if(!signatureEditor.value) return
+	signatureEditor.value.open(id)
+}
+
+function openSignaturePdf(id: string) {
+	window.open(`/api/processSignatures/${id}/pdf`, '_blank')
 }
 
 const asBudgetPlan = (data: unknown) => data as BudgetPlanFormModel
@@ -51,6 +61,10 @@ dl.kern-description-list(v-if="data")
 		dt.kern-description-list-item__key Status
 		dd.kern-description-list-item__value
 			ProcessStatusBadge(:status="data.status")
+	.kern-description-list-item(v-if="data.paperStatus !== 'notRequired'")
+		dt.kern-description-list-item__key Unterschriften
+		dd.kern-description-list-item__value
+			ProcessPaperStatusBadge(:status="data.paperStatus")
 	.kern-description-list-item
 		dt.kern-description-list-item__key Workflow
 		dd.kern-description-list-item__value {{ formatWorkflow(data.workflow) }}
@@ -167,8 +181,61 @@ KernTable.mt-8(
 		)
 			span.kern-icon.kern-icon--content-copy(aria-hidden="true")
 			span.kern-label.kern-sr-only Zu OpenSlides übertragen
+section.mt-8(v-if="data?.signatures.length")
+	h2.kern-heading-medium Unterschriften
+	KernTable(
+		caption="Übersicht der erforderlichen Papierunterschriften"
+		:columns="[ 'name', 'assignee', 'status' ]"
+		:create-permission="null"
+		:update-permission="null"
+		:delete-permission="null"
+		show-actions
+		:data="data?.signatures ?? []"
+	)
+		template(#name-header)
+			| Dokument
+		template(#name-body="{ item }")
+			| {{ item.signature.name }}
+			template(v-if="item.comment")
+				br
+				KernText(
+					size="small"
+					:text="item.comment"
+				)
+		template(#assignee-header)
+			| Bestätigung durch
+		template(#assignee-body="{ item }")
+			template(v-if="item.signature.assignee === 'initiator'")
+				em Anforderer*in
+			template(v-else-if="item.signature.assignee === 'referencedPerson'")
+				| {{ formatReferencedPerson(item.signature.assigneeReferencedPerson, data?.mutations) }}
+			template(v-else-if="item.signature.assignee === 'organizationItem'")
+				| {{ formatOrganizationItem(item.signature.assigneeOrganizationItem) }}
+		template(#status-header)
+			| Status
+		template(#status-body="{ item }")
+			ProcessSignatureStatusBadge(:status="item.status")
+		template(#actions="{ item }")
+			button.kern-btn.kern-btn--tertiary(
+				v-if="item.due"
+				type="button"
+				@click="openSignaturePdf(item.id)"
+			)
+				span.kern-icon.kern-icon--download(aria-hidden="true")
+				span.kern-label.kern-sr-only Unterschriftendokument herunterladen
+			button.kern-btn.kern-btn--tertiary(
+				v-if="item.due && item.confirmable"
+				type="button"
+				@click="openSignatureEditor(item.id)"
+			)
+				span.kern-icon.kern-icon--edit(aria-hidden="true")
+				span.kern-label.kern-sr-only Unterschrifteneingang bestätigen
 ProcessStepEditor(
 	ref="editor"
+	@refresh="refresh"
+)
+ProcessSignatureEditor(
+	ref="signatureEditor"
 	@refresh="refresh"
 )
 ProcessStepConnectionEditor(

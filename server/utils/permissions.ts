@@ -630,6 +630,26 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'workflowSignatures.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowSignatures.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowSignatures.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'workflowSignatures.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
 		id: 'workflowProcesses.create',
 		scope: 'organizationItem',
 		assignable: true,

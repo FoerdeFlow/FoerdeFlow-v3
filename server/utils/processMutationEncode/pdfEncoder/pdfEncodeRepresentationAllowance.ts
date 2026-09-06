@@ -1,5 +1,7 @@
 import { jsPDF } from 'jspdf'
 
+import type { PdfEncoderOptions } from './types'
+
 export async function pdfEncodeRepresentationAllowance(entry: {
 	id?: string
 	organizationItem: {
@@ -21,9 +23,7 @@ export async function pdfEncodeRepresentationAllowance(entry: {
 			pronouns: string | null
 		} | null
 	}[]
-}, options: {
-	document?: boolean
-} = {}) {
+}, options: PdfEncoderOptions = {}) {
 	if(!entry.organizationItem) {
 		throw createError({
 			status: 500,
@@ -181,6 +181,10 @@ export async function pdfEncodeRepresentationAllowance(entry: {
 	doc.text('Summe', 50, pos.y)
 	doc.text(formatCurrency(total), docWidth - 15, pos.y, { align: 'right' })
 	pos.y += 15
+
+	if(options.signature) {
+		pdfDrawSignatureBlock(doc, pos, options.signature)
+	}
 
 	pos.finalize()
 	return doc

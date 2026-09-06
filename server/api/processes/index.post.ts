@@ -129,6 +129,7 @@ export default defineEventHandler(async (event) => {
 			with: {
 				steps: true,
 				mutations: true,
+				signatures: true,
 			},
 		})
 		if(!workflow) throw createError({ statusCode: 500 })
@@ -137,6 +138,14 @@ export default defineEventHandler(async (event) => {
 			await tx.insert(workflowProcessSteps).values({
 				process: result.id,
 				step: step.id,
+				status: 'pending',
+			})
+		}
+
+		for(const signature of workflow.signatures) {
+			await tx.insert(workflowProcessSignatures).values({
+				process: result.id,
+				signature: signature.id,
 				status: 'pending',
 			})
 		}
@@ -199,6 +208,8 @@ export default defineEventHandler(async (event) => {
 				data,
 			})
 		}
+
+		await updateProcessPaperStatus(tx, result.id)
 
 		return result
 	})

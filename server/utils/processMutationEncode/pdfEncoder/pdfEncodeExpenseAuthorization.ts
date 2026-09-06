@@ -1,5 +1,7 @@
 import { jsPDF } from 'jspdf'
 
+import type { PdfEncoderOptions } from './types'
+
 export async function pdfEncodeExpenseAuthorization(entry: {
 	id?: string
 	budgetPlanItem: {
@@ -25,9 +27,7 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 		amount: number
 		ord: number | null
 	}[]
-}, options: {
-	document?: boolean
-} = {}) {
+}, options: PdfEncoderOptions = {}) {
 	const budgetData = entry.budgetPlanItem?.plan.budget ?? entry.budget
 	if(!budgetData) {
 		throw createError({
@@ -246,6 +246,10 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 	)
 
 	pos.y += 10
+
+	if(options.signature) {
+		pdfDrawSignatureBlock(doc, pos, options.signature)
+	}
 
 	pos.finalize()
 	return doc

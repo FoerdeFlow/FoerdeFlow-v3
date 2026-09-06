@@ -1,7 +1,7 @@
-import type jsPDF from 'jspdf'
-
 import { desc, eq } from 'drizzle-orm'
 import { writeFile } from 'node:fs/promises'
+
+import type { PdfSupportedMutationTable } from '../../../shared/utils/signature'
 
 export async function jobCreateDocument(
 	tx: ReturnType<typeof useDatabase>,
@@ -26,12 +26,6 @@ export async function jobCreateDocument(
 		})
 	}
 
-	const allowedMutationTables = [
-		'budgetPlans',
-		'expenseAuthorizations',
-		'longtermContracts',
-		'representationAllowances',
-	] as const
 	const mutation = await tx.query.workflowProcessMutations.findFirst({
 		where: (tbl, { and, eq, inArray, exists }) => and(
 			eq(tbl.process, processId),
@@ -40,7 +34,7 @@ export async function jobCreateDocument(
 					.from(workflowMutations)
 					.where(and(
 						eq(workflowMutations.id, tbl.mutation),
-						inArray(workflowMutations.table, allowedMutationTables),
+						inArray(workflowMutations.table, pdfSupportedMutationTables),
 					)),
 			),
 		),
@@ -67,40 +61,14 @@ export async function jobCreateDocument(
 		})
 	}
 
-	const table = mutation.mutation.table as typeof allowedMutationTables[number]
+	const table = mutation.mutation.table as PdfSupportedMutationTable
 	const data = await encodeProcessData(
 		tx,
 		table,
 		mutation.data as Parameters<typeof encodeProcessData<typeof table>>[2],
 	)
 
-	let doc: jsPDF
-	switch(mutation.mutation.table) {
-		case 'budgetPlans':
-			// @ts-expect-error - We ensure the type safety above
-			doc = await pdfEncodeBudgetPlan(data, { document: true })
-			break
-		case 'expenseAuthorizations':
-			// @ts-expect-error - We ensure the type safety above
-			doc = await pdfEncodeExpenseAuthorization(data, { document: true })
-			break
-		case 'longtermContracts':
-			// @ts-expect-error - We ensure the type safety above
-			doc = await pdfEncodeLongtermContract(data, { document: true })
-			break
-		case 'representationAllowances':
-			// @ts-expect-error - We ensure the type safety above
-			doc = await pdfEncodeRepresentationAllowance(data, { document: true })
-			break
-		default:
-			throw createError({
-				statusCode: 400,
-				statusMessage: 'Unsupported mutation type for document creation',
-				data: {
-					mutationTable: mutation.mutation.table,
-				},
-			})
-	}
+	const doc = await pdfEncodeProcessMutation(table, data, { document: true })
 
 	const latestDocument = await tx.query.documents.findFirst({
 		orderBy: (tbl) => [ desc(tbl.period) ],

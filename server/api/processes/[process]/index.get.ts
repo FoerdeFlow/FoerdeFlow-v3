@@ -49,6 +49,28 @@ export default defineEventHandler(async (event) => {
 						process: false,
 					},
 				},
+				signatures: {
+					with: {
+						signature: {
+							with: {
+								assigneeOrganizationItem: true,
+							},
+							columns: {
+								assigneeOrganizationItem: false,
+							},
+						},
+					},
+					columns: {
+						process: false,
+					},
+					orderBy: (signature, { asc, sql }) => asc(
+						sql<number>`(
+							SELECT stage
+							FROM ${workflowSignatures} ff3_wsig
+							WHERE ff3_wsig.id = ${signature.signature}
+						)`,
+					),
+				},
 			},
 			columns: {
 				workflow: false,
@@ -71,9 +93,24 @@ export default defineEventHandler(async (event) => {
 				.catch(() => false),
 		})))
 
+		const signatures = await Promise.all(
+			processItem.signatures.map(async (processSignature) => ({
+				...processSignature,
+				due: await isProcessSignatureDue(
+					tx,
+					params.process,
+					processSignature.signature.stage,
+				),
+				confirmable: await checkProcessSignaturePermission(tx, processSignature.id)
+					.then(() => true)
+					.catch(() => false),
+			})),
+		)
+
 		return {
 			...processItem,
 			steps,
+			signatures,
 			mutations: await Promise.all(processItem.mutations.map(async (mutation) => {
 				const schema = processSchemas[mutation.mutation.table as keyof typeof processSchemas]
 				const attachmentNames = 'attachments' in schema ? schema.attachments : []
