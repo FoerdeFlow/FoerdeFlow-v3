@@ -9,14 +9,20 @@ interface Model {
 	ord: number | null
 	title: string
 	description: string | null
-	revenues: number
-	expenses: number
+	revenues: number | null
+	expenses: number | null
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
 const modified = computed(() => {
 	if(!itemModel.value || !model.value) return false
 	return JSON.stringify(itemModel.value) !== JSON.stringify(model.value)
+})
+
+const valid = computed(() => {
+	if(!model.value) return false
+	return model.value.title.trim() !== '' &&
+		((model.value.revenues ?? 0) !== 0 || (model.value.expenses ?? 0) !== 0)
 })
 
 function openDialog(id: string | null, data: Model) {
@@ -63,6 +69,7 @@ KernDialog(
 	ref="dialog"
 	:title="itemId ? $t('budgetPlanItem.edit.title') : $t('budgetPlanItem.create.title')"
 	:modal="modified"
+	:valid="valid"
 	@cancel="cancel"
 	@save="save"
 )

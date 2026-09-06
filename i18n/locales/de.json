@@ -130,6 +130,10 @@
 			"caption": "Liste der Haushaltstitel",
 			"footer": "Summe"
 		},
+		"balance": {
+			"title": "Einnahmen und Ausgaben stimmen nicht überein",
+			"text": "Die Summe der Einnahmen weicht um {amount} von der Summe der Ausgaben ab. Ein Haushaltsplan kann erst gespeichert werden, wenn beide Summen übereinstimmen."
+		},
 		"field": {
 			"title": "Titel",
 			"description": "Hinweise",
