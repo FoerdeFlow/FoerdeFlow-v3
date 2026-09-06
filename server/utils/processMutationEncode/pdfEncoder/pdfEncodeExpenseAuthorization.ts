@@ -109,8 +109,9 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 
 	doc.setFont('OpenSans', 'normal')
 	doc.setFontSize(18)
-	doc.text(entry.title, 20, pos.y)
-	pos.y += 14
+	const titleLines = doc.splitTextToSize(entry.title, docWidth - logoWidth - 45) as string[]
+	doc.text(titleLines, 20, pos.y)
+	pos.y += (titleLines.length - 1) * doc.getLineHeight() / doc.internal.scaleFactor + 14
 
 	doc.setFont('OpenSans', 'bold')
 	doc.setFontSize(14)
