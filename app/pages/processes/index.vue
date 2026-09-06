@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 
-const { data } = useFetch('/api/processes')
+const offset = ref(0)
+const { data } = useFetch('/api/processes', {
+	query: {
+		page: computed(() => offset.value / 10),
+		limit: 10,
+	},
+})
 const { data: drafts, refresh: refreshDrafts } = useFetch('/api/processDrafts')
 const router = useRouter()
 const confirmDialogStore = useConfirmDialogStore()
@@ -65,13 +71,18 @@ KernTable.mb-8(
 		)
 			span.kern-icon.kern-icon--edit(aria-hidden="true")
 			span.kern-label.kern-sr-only Weiterbearbeiten
+KernPagination(
+	v-model="offset"
+	:count="data?.count ?? 1"
+	:page-size="10"
+)
 KernTable(
 	caption="Liste deiner aktiven Prozesse"
 	:columns="[ 'workflow', 'initiator', 'status', 'assignee' ]"
 	create-permission="workflowProcesses.create"
 	:update-permission="null"
 	:delete-permission="null"
-	:data="data ?? []"
+	:data="data?.items ?? []"
 	show-actions
 	@create="create"
 )

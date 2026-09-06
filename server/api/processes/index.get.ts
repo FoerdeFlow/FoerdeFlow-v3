@@ -1,6 +1,12 @@
 import { sql } from 'drizzle-orm'
+import z from 'zod'
 
-export default defineEventHandler(async (_event) => {
+export default defineEventHandler(async (event) => {
+	const query = await getValidatedQuery(event, async (data) => await z.strictObject({
+		page: z.coerce.number().int().min(0).optional(),
+		limit: z.coerce.number().int().min(1).max(10).default(10),
+	}).parseAsync(data))
+
 	const database = useDatabase()
 
 	const processes = await database.query.workflowProcesses.findMany({
@@ -53,7 +59,7 @@ export default defineEventHandler(async (_event) => {
 		],
 	})
 
-	return (await Promise.all(processes.map(async (process) => {
+	const items = (await Promise.all(processes.map(async (process) => {
 		try {
 			await checkProcessPermission(process.id)
 			const { steps, ...processData } = process
@@ -68,4 +74,11 @@ export default defineEventHandler(async (_event) => {
 			return null
 		}
 	}))).filter((process): process is NonNullable<typeof process> => process !== null)
+
+	const offset = (query.page ?? 0) * query.limit
+
+	return {
+		count: items.length,
+		items: items.slice(offset, offset + query.limit),
+	}
 })
