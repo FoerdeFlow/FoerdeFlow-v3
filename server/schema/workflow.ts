@@ -10,6 +10,7 @@ import {
 	varchar,
 } from 'drizzle-orm/pg-core'
 
+import { reminderDefaults } from '../../shared/utils/reminder'
 import { roles } from './accessControl'
 import { organizationItems, organizationTypes } from './organizationItem'
 import { persons } from './person'
@@ -83,11 +84,11 @@ export const workflowSteps = pgTable('workflow_steps', {
 	assigneeReferencedPerson: varchar({ length: 256 }),
 	assigneeOrganizationItem: uuid().references(() => organizationItems.id),
 	reminderEnabled: boolean().notNull().default(false),
-	reminderInterval: integer().notNull().default(604800),
-	reminderDelay: integer().notNull().default(259200),
+	reminderInterval: integer().notNull().default(reminderDefaults.interval),
+	reminderDelay: integer().notNull().default(reminderDefaults.delay),
 	reminderReplyTo: varchar({ length: 256 }),
-	reminderSubject: varchar({ length: 512 }).notNull().default('Erinnerung: Du hast eine anstehende Aufgabe'),
-	reminderMessage: varchar({ length: 2048 }).notNull().default('Du hast eine anstehende Aufgabe.'),
+	reminderSubject: varchar({ length: 512 }).notNull().default(reminderDefaults.subject),
+	reminderMessage: varchar({ length: 2048 }).notNull().default(reminderDefaults.message),
 })
 
 export const workflowStepsRelations = relations(workflowSteps, ({ one }) => ({

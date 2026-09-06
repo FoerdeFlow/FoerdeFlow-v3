@@ -7,7 +7,11 @@ const model = defineModel<number | null>({
 	required: true,
 })
 
-const unit = ref(1)
+const units = [ 86400, 3600, 60, 1 ]
+
+// Show the value in the largest unit it can be expressed in without a
+// remainder, so that a preset like 604800 reads as "7 Tage".
+const unit = ref(units.find((u) => model.value && model.value % u === 0) ?? 1)
 
 const unitModel = computed({
 	get: () => (model.value ?? 0) / unit.value,

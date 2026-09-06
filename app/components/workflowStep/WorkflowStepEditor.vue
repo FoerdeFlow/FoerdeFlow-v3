@@ -54,11 +54,11 @@ defineExpose({
 			assigneeReferencedPerson: null,
 			assigneeOrganizationItem: null,
 			reminderEnabled: false,
-			reminderInterval: null,
-			reminderDelay: null,
+			reminderInterval: reminderDefaults.interval,
+			reminderDelay: reminderDefaults.delay,
 			reminderReplyTo: null,
-			reminderSubject: '',
-			reminderMessage: '',
+			reminderSubject: reminderDefaults.subject,
+			reminderMessage: reminderDefaults.message,
 		})
 	},
 	async edit(id: string) {
@@ -105,12 +105,16 @@ async function save() {
 			assigneeOrganizationItem: model.value.assignee === 'organizationItem'
 				? model.value.assigneeOrganizationItem?.id
 				: null,
-			reminderEnabled: model.value.reminderEnabled,
-			reminderInterval: model.value.reminderInterval,
-			reminderDelay: model.value.reminderDelay,
-			reminderReplyTo: model.value.reminderReplyTo,
-			reminderSubject: model.value.reminderSubject,
-			reminderMessage: model.value.reminderMessage,
+			...model.value.reminderEnabled
+				? {
+					reminderEnabled: true,
+					reminderInterval: model.value.reminderInterval,
+					reminderDelay: model.value.reminderDelay,
+					reminderReplyTo: model.value.reminderReplyTo,
+					reminderSubject: model.value.reminderSubject,
+					reminderMessage: model.value.reminderMessage,
+				}
+				: { reminderEnabled: false },
 		}
 		if(itemId.value) {
 			await $fetch(`/api/workflowSteps/${itemId.value}`, {
