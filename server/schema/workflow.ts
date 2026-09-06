@@ -85,6 +85,8 @@ export const workflowSteps = pgTable('workflow_steps', {
 	assignee: workflowParticipants().notNull(),
 	assigneeReferencedPerson: varchar({ length: 256 }),
 	assigneeOrganizationItem: uuid().references(() => organizationItems.id),
+	commentRequired: boolean().notNull().default(false),
+	commentLabel: varchar({ length: 256 }),
 	reminderEnabled: boolean().notNull().default(false),
 	reminderInterval: integer().notNull().default(reminderDefaults.interval),
 	reminderDelay: integer().notNull().default(reminderDefaults.delay),

@@ -14,6 +14,8 @@ export default defineEventHandler(async (event) => {
 			step: {
 				columns: {
 					type: true,
+					commentRequired: true,
+					commentLabel: true,
 				},
 			},
 		},

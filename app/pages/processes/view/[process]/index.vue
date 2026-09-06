@@ -136,7 +136,7 @@ KernTable.mt-8(
 			br
 			KernText(
 				size="small"
-				:text="item.comment"
+				:text="item.step.commentLabel ? `${item.step.commentLabel}: ${item.comment}` : item.comment"
 			)
 	template(#assignee-header)
 		| Zuständig

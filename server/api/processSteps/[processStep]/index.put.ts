@@ -32,6 +32,8 @@ export default defineEventHandler(async (event) => {
 			.returning({
 				process: workflowProcessSteps.process,
 				step: workflowProcessSteps.step,
+				status: workflowProcessSteps.status,
+				comment: workflowProcessSteps.comment,
 			})
 
 		if(!result) {
@@ -52,6 +54,8 @@ export default defineEventHandler(async (event) => {
 				assigneeOrganizationItem: true,
 				type: true,
 				code: true,
+				commentRequired: true,
+				commentLabel: true,
 			},
 		})
 		if(!step) {
@@ -60,6 +64,21 @@ export default defineEventHandler(async (event) => {
 				statusMessage: 'Workflow-Schritt nicht gefunden',
 				data: {
 					stepId: result.step,
+				},
+			})
+		}
+
+		if(
+			step.commentRequired &&
+			result.status !== 'pending' &&
+			(result.comment ?? '').trim() === ''
+		) {
+			throw createError({
+				statusCode: 400,
+				message: `${step.commentLabel ?? 'Kommentar'} ist erforderlich, ` +
+					'um den Prozessschritt abzuschließen',
+				data: {
+					processStepId: params.processStep,
 				},
 			})
 		}

@@ -5,23 +5,20 @@ const model = defineModel<string | null>({
 	get: (v) => v ?? '',
 	set: (v) => v === '' ? null : v,
 })
-
-const { label = null, required = false } = defineProps<{
-	label?: string | null
-	required?: boolean
-}>()
 </script>
 
 <template lang="pug">
 .kern-form-input
 	label.kern-label(
 		:for="id"
-	)
-		| {{ label ?? 'Kommentar' }}
-		span.kern-label__optional(v-if="!required") - Optional
-	textarea.kern-form-input__input(
+	) Bezeichnung des Kommentars
+	div.kern-hint(
+		:id="`${id}-hint`"
+	) Wird beim Bearbeiten des Prozessschritts anstelle von „Kommentar“ angezeigt, etwa „Beschlussnummer“.
+	input.kern-form-input__input(
 		:id="id"
 		v-model="model"
-		:required="required"
+		type="text"
+		:aria-describedby="`${id}-hint`"
 	)
 </template>

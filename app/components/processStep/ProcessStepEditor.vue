@@ -20,7 +20,17 @@ const modified = computed(() => {
 
 const step = ref<{
 	type: 'comment' | 'approval' | 'task' | 'job'
+	commentRequired: boolean
+	commentLabel: string | null
 } | null>(null)
+
+// A pending step is not being completed yet, so a required comment may still
+// be missing at that point.
+const valid = computed(() => {
+	if(!model.value || !step.value) return false
+	if(!step.value.commentRequired || model.value.status === 'pending') return true
+	return (model.value.comment ?? '').trim() !== ''
+})
 
 function openDialog(id: string | null, data: Model) {
 	if(!dialog.value) return
@@ -73,6 +83,7 @@ KernDialog(
 	ref="dialog"
 	title="Prozessschritt bearbeiten"
 	:modal="modified"
+	:valid="valid"
 	@cancel="cancel"
 	@save="save"
 )
@@ -81,5 +92,9 @@ KernDialog(
 			v-model="model.status"
 			:type="step.type"
 		)
-		ProcessStepCommentInput(v-model="model.comment")
+		ProcessStepCommentInput(
+			v-model="model.comment"
+			:label="step.commentLabel"
+			:required="step.commentRequired"
+		)
 </template>

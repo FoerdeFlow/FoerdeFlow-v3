@@ -21,6 +21,8 @@ interface Model {
 	assignee: 'initiator' | 'referencedPerson' | 'organizationItem'
 	assigneeReferencedPerson: string | null
 	assigneeOrganizationItem: OrganizationItem
+	commentRequired: boolean
+	commentLabel: string | null
 	reminderEnabled: boolean
 	reminderInterval: number | null
 	reminderDelay: number | null
@@ -33,6 +35,16 @@ const model = ref<Model | null>(null)
 const modified = computed(() => {
 	if(!itemModel.value || !model.value) return false
 	return JSON.stringify(itemModel.value) !== JSON.stringify(model.value)
+})
+
+// A job is completed by the server without anyone entering a comment, so a
+// required comment could never be satisfied.
+const commentConfigurable = computed(() => model.value?.type !== 'job')
+
+const valid = computed(() => {
+	if(!model.value) return false
+	if(!commentConfigurable.value || !model.value.commentRequired) return true
+	return (model.value.commentLabel ?? '').trim() !== ''
 })
 
 function openDialog(id: string | null, data: Model) {
@@ -53,6 +65,8 @@ defineExpose({
 			assignee: 'initiator',
 			assigneeReferencedPerson: null,
 			assigneeOrganizationItem: null,
+			commentRequired: false,
+			commentLabel: null,
 			reminderEnabled: false,
 			reminderInterval: reminderDefaults.interval,
 			reminderDelay: reminderDefaults.delay,
@@ -71,6 +85,8 @@ defineExpose({
 			assignee: item.assignee,
 			assigneeReferencedPerson: item.assigneeReferencedPerson,
 			assigneeOrganizationItem: item.assigneeOrganizationItem,
+			commentRequired: item.commentRequired,
+			commentLabel: item.commentLabel,
 			reminderEnabled: item.reminderEnabled,
 			reminderInterval: item.reminderInterval,
 			reminderDelay: item.reminderDelay,
@@ -105,6 +121,15 @@ async function save() {
 			assigneeOrganizationItem: model.value.assignee === 'organizationItem'
 				? model.value.assigneeOrganizationItem?.id
 				: null,
+			...commentConfigurable.value && model.value.commentRequired
+				? {
+					commentRequired: true,
+					commentLabel: model.value.commentLabel,
+				}
+				: {
+					commentRequired: false,
+					commentLabel: null,
+				},
 			...model.value.reminderEnabled
 				? {
 					reminderEnabled: true,
@@ -149,6 +174,7 @@ KernDialog(
 	ref="dialog"
 	:title="`Workflow-Schritt ${itemId ? 'bearbeiten' : 'erstellen'}`"
 	:modal="modified"
+	:valid="valid"
 	@cancel="cancel"
 	@save="save"
 )
@@ -162,6 +188,12 @@ KernDialog(
 			v-model:referenced-person="model.assigneeReferencedPerson"
 			v-model:organization-item="model.assigneeOrganizationItem"
 		)
+		template(v-if="commentConfigurable")
+			WorkflowStepCommentRequiredInput(v-model="model.commentRequired")
+			WorkflowStepCommentLabelInput(
+				v-if="model.commentRequired"
+				v-model="model.commentLabel"
+			)
 		WorkflowStepReminderEnabledInput(v-model="model.reminderEnabled")
 		template(v-if="model.reminderEnabled")
 			WorkflowStepReminderIntervalInput(v-model="model.reminderInterval")
