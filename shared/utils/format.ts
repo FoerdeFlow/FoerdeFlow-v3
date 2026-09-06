@@ -79,6 +79,39 @@ export function formatCurrency(
 	}
 }
 
+const currencyAmountFormatter = new Intl.NumberFormat('de-DE', {
+	minimumFractionDigits: 2,
+	maximumFractionDigits: 2,
+})
+
+// Money as it is written into an input field: German notation, but without the
+// currency symbol, so that parseCurrency() can read it back.
+export function formatCurrencyAmount(
+	value: number | null,
+): string {
+	if(value === null || !Number.isFinite(value)) return ''
+	try {
+		return currencyAmountFormatter.format(value)
+	} catch(_) {
+		return ''
+	}
+}
+
+const currencyPattern = /^[+-]?(?:\d{1,3}(?:\.\d{3})+|\d*)(?:,\d*)?$/
+
+// Reads money in the German notation, i.e. with a comma as the decimal
+// separator and an optional dot as the thousands separator. Returns null if the
+// value is not a well-formed amount.
+export function parseCurrency(
+	value: string,
+): number | null {
+	const text = value.replace(/[\s\u00a0€]/g, '')
+	if(text === '' || !currencyPattern.test(text)) return null
+	const result = Number(text.replaceAll('.', '').replace(',', '.'))
+	if(!Number.isFinite(result)) return null
+	return Math.round(result * 100) / 100
+}
+
 export function formatBuilding(
 	building: {
 		code: string

@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { RepresentationAllowancePeriodUnit } from '~/types'
 
-const id = useId()
-
 const props = defineProps<{
 	periodUnit: RepresentationAllowancePeriodUnit
 }>()
@@ -19,12 +17,8 @@ const label = computed(() => props.periodUnit === 'once'
 </script>
 
 <template lang="pug">
-.kern-form-input
-	label.kern-label(
-		:for="id"
-	) {{ label }}
-	KernCurrencyInput(
-		:id="id"
-		v-model="model"
-	)
+KernCurrencyInput(
+	v-model="model"
+	:label="label"
+)
 </template>
