@@ -24,12 +24,9 @@ const model = defineModel<IdModel[]>({
 	required: true,
 })
 
-const revenues = computed(() => model.value.reduce((sum, item) => sum + (item.revenues ?? 0), 0))
-const expenses = computed(() => model.value.reduce((sum, item) => sum + (item.expenses ?? 0), 0))
-
-// The amounts have two decimal places, so summing them up may introduce a
-// rounding error, which must not be reported as an imbalance.
-const balanced = computed(() => Math.abs(revenues.value - expenses.value) < 0.00001)
+const revenues = computed(() => budgetPlanTotal(model.value, 'revenues'))
+const expenses = computed(() => budgetPlanTotal(model.value, 'expenses'))
+const balance = computed(() => budgetPlanBalance(model.value))
 
 function create() {
 	if(!editor.value) return
@@ -111,11 +108,11 @@ KernTable(
 	template(#expenses-footer)
 		| {{ formatCurrency(expenses) }}
 KernAlert(
-	v-if="!balanced"
+	v-if="balance !== 0"
 	type="warning"
 	:dismissible="false"
 	:title="$t('budgetPlanItem.balance.title')"
-	:text="$t('budgetPlanItem.balance.text', { amount: formatCurrency(Math.abs(revenues - expenses)) })"
+	:text="$t('budgetPlanItem.balance.text', { amount: formatCurrency(Math.abs(balance)) })"
 )
 BudgetPlanItemEditor(
 	ref="editor"

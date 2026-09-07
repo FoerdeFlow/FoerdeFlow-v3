@@ -18,10 +18,7 @@ export interface ProcessFormTasks {
 function budgetPlanTasks(model: BudgetPlanFormModel, presets: Presets): Tasks {
 	const itemsComplete = model.items.length > 0 &&
 		model.items.every((item) => item.title) &&
-		model.items.reduce(
-			(sum, item) => sum + (item.revenues ?? 0) - (item.expenses ?? 0),
-			0,
-		) === 0
+		budgetPlanBalanced(model.items)
 
 	return [
 		...presetVisible(presets, 'budget', 'startDate', 'endDate')
