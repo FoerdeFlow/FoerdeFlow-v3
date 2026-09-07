@@ -27,13 +27,24 @@ const encoders = {
 			budget: model.budget?.id ?? null,
 		}),
 	}),
-	expenseAuthorizations: (model: ExpenseAuthorizationFormModel) => ({
-		data: JSON.stringify({
-			...model,
-			budgetPlanItem: model.budgetPlanItem?.id ?? null,
-			budget: model.budget?.id ?? null,
-		}),
-	}),
+	expenseAuthorizations: (model: ExpenseAuthorizationFormModel) => {
+		// A budget plan that is still being applied for has no rows yet, so its
+		// item is referenced by the process it is applied for in.
+		const pending = model.budgetPlanItem && 'pending' in model.budgetPlanItem
+			? model.budgetPlanItem
+			: null
+
+		return {
+			data: JSON.stringify({
+				...model,
+				budgetPlanItem: pending ? null : model.budgetPlanItem?.id ?? null,
+				pendingBudgetPlanItem: pending
+					? { process: pending.process, ord: pending.ord }
+					: null,
+				budget: model.budget?.id ?? null,
+			}),
+		}
+	},
 	longtermContracts: (model: LongtermContractFormModel) => ({
 		data: JSON.stringify({
 			...model,

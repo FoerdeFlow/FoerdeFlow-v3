@@ -13,6 +13,8 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 			}
 			startDate: string
 			endDate: string
+			/** Whether the plan is still being applied for. */
+			pending?: boolean
 		}
 	} | null
 	budget: {
@@ -45,7 +47,7 @@ export async function pdfEncodeExpenseAuthorization(entry: {
 		? [
 			formatDate(entry.budgetPlanItem.plan.startDate, 'compact'),
 			formatDate(entry.budgetPlanItem.plan.endDate, 'compact'),
-		].join(' - ')
+		].join(' - ') + (entry.budgetPlanItem.plan.pending ? ' (beantragt)' : '')
 		: ''
 
 	// eslint-disable-next-line new-cap

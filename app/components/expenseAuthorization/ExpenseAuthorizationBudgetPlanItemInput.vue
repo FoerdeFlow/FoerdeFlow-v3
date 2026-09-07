@@ -6,6 +6,8 @@ const id = useId()
 const props = defineProps<{
 	budget?: Budget
 	budgetPlan?: BudgetPlan
+	/** Whether budget plans that are still being applied for may be picked. */
+	pending?: boolean
 	readonly?: boolean
 }>()
 
@@ -18,6 +20,13 @@ const budgetPlanModel = ref<BudgetPlan>(null)
 watch(() => props.budgetPlan, (budgetPlan) => {
 	budgetPlanModel.value = budgetPlan ?? null
 })
+
+/** The selected plan as long as it is still being applied for. */
+const pendingPlan = computed(() =>
+	budgetPlanModel.value && 'pending' in budgetPlanModel.value
+		? budgetPlanModel.value
+		: null,
+)
 
 const model = defineModel<BudgetPlanItem>({
 	required: true,
@@ -44,6 +53,7 @@ watch(() => model.value, (item) => {
 		:id="`${id}-budget-plan`"
 		v-model="budgetPlanModel"
 		:budget="budgetModel.id"
+		:pending="props.pending"
 		:readonly="props.readonly"
 	)
 .kern-form-input(v-if="budgetPlanModel")
@@ -52,6 +62,7 @@ watch(() => model.value, (item) => {
 		:id="`${id}-budget-plan-item`"
 		v-model="model"
 		:budget-plan="budgetPlanModel.id"
+		:pending-plan="pendingPlan"
 		:readonly="props.readonly"
 	)
 </template>

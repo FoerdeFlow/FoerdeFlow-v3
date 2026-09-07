@@ -1,19 +1,39 @@
 <script setup lang="ts">
 import type { DestructureArray } from '#shared/types'
+import type { PendingBudgetPlan } from '~/types'
 
 const props = defineProps<{
 	id: string
 	budgetPlan: string
+	/**
+	 * The plan when it is still being applied for. Such a plan has no rows to
+	 * load, it carries its items itself.
+	 */
+	pendingPlan?: PendingBudgetPlan | null
 	readonly?: boolean
 }>()
 
-const { data } = useFetch(() => `/api/budgetPlans/${props.budgetPlan}`)
+const { data, execute } = useFetch(() => `/api/budgetPlans/${props.budgetPlan}`, {
+	immediate: false,
+	watch: false,
+})
+
+watch(() => [ props.budgetPlan, props.pendingPlan ], async () => {
+	if(props.pendingPlan) return
+	await execute()
+}, { immediate: true })
+
 const items = computed(() => {
+	const plan = props.pendingPlan
+	if(plan) {
+		return plan.items.map((item) => ({ plan, ...item }))
+	}
+
 	if(!data.value) return []
-	const { items, ...plan } = data.value
+	const { items, ...planData } = data.value
 	return items.map((item) => ({
 		plan: {
-			...plan,
+			...planData,
 			id: props.budgetPlan,
 		},
 		...item,

@@ -9,6 +9,8 @@ interface ExpenseAuthorizationProcessMutation {
 			}
 			startDate: string
 			endDate: string
+			/** Whether the plan is still being applied for. */
+			pending?: boolean
 		}
 	} | null
 	budget: {

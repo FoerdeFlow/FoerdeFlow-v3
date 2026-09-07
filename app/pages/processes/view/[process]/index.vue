@@ -20,6 +20,21 @@ const processTitle = computed(() => {
 	return (first && 'title' in first ? first.title : null) ?? data.value?.workflow.name
 })
 
+/** The applications this process waits for before it can be completed. */
+const openDependencies = computed(() =>
+	(data.value?.dependencies ?? []).filter((dependency) => dependency.status !== 'completed'))
+
+function dependencyText(status: 'pending' | 'completed' | 'failed' | null) {
+	if(status === 'pending') {
+		return 'Die Ausgabe soll aus einem Haushaltsplan bezahlt werden, der noch ' +
+			'beantragt ist. Dieser Prozess kann erst abgeschlossen werden, wenn der ' +
+			'Haushaltsplan genehmigt wurde.'
+	}
+	return 'Der Antrag auf Genehmigung des Haushaltsplans, aus dem die Ausgabe bezahlt ' +
+		'werden soll, ' + (status === 'failed' ? 'wurde abgelehnt' : 'existiert nicht mehr') +
+		'. Dieser Prozess kann nicht mehr abgeschlossen werden.'
+}
+
 function openEditor(id: string) {
 	if(!editor.value) return
 	editor.value.open(id)
@@ -75,6 +90,20 @@ dl.kern-description-list(v-if="data")
 				| {{ formatPerson(data.initiatorPerson) }}
 			template(v-if="data.initiatorType === 'organizationItem'")
 				| {{ formatOrganizationItem(data.initiatorOrganizationItem) }}
+template(
+	v-for="dependency of openDependencies"
+	:key="dependency.process"
+)
+	KernAlert(
+		:type="dependency.status === 'pending' ? 'warning' : 'danger'"
+		:dismissible="false"
+		title="Abhängigkeit von einem anderen Antrag"
+		:text="dependencyText(dependency.status)"
+	)
+	p.kern-body.mb-4
+		NuxtLink.kern-link(
+			:to="`/processes/view/${dependency.process}`"
+		) Zum Antrag auf Genehmigung des Haushaltsplans{{ dependency.workflow ? ` (${dependency.workflow.code})` : '' }}
 section.my-8(
 	v-for="mutation of data?.mutations"
 	:key="mutation.id"

@@ -9,13 +9,14 @@ const props = defineProps<{
 	selectedItem: string | null
 	readonly?: boolean
 	summaryOffset?: number
-	meta?: { type?: 'planned' | 'reserve' }
+	meta?: { type?: 'planned' | 'reserve', allowPendingBudgetPlan?: boolean }
 	presets?: unknown
 }>()
 
 const presets = useProcessPresets(() => props.presets, () => props.readonly)
 
 const type = computed(() => expenseAuthorizationType(props.meta))
+const pending = computed(() => expenseAuthorizationAllowsPendingBudgetPlan(props.meta))
 
 const emit = defineEmits<{
 	select: [item: string]
@@ -36,6 +37,7 @@ template(v-if="props.selectedItem === 'expense-authorization-plan-item'")
 		ExpenseAuthorizationBudgetPlanItemInput(
 			v-if="presets.visible('budgetPlanItem')"
 			v-model="model.budgetPlanItem"
+			:pending="pending"
 			:readonly="presets.readonly('budgetPlanItem')"
 		)
 	template(v-else)
@@ -76,7 +78,10 @@ template(v-if="props.selectedItem === 'summary'")
 				},
 				{
 					key: 'Haushaltsplan',
-					value: formatBudgetPlan(model.budgetPlanItem?.plan ?? null),
+					value: formatBudgetPlan(model.budgetPlanItem?.plan ?? null) +
+						(model.budgetPlanItem && 'pending' in model.budgetPlanItem
+							? ' (beantragt)'
+							: ''),
 				},
 				{
 					key: 'Haushaltstitel',

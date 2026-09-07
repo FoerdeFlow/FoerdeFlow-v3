@@ -58,6 +58,18 @@ export function expenseAuthorizationType(meta: unknown): 'planned' | 'reserve' {
 		: 'planned'
 }
 
+/**
+ * Reads from the meta data of a mutation whether an expense authorization may
+ * be paid out of a budget plan that is still being applied for itself.
+ *
+ * @param meta - The meta data of the mutation
+ * @returns Whether budget plans that are still being applied for may be picked
+ */
+export function expenseAuthorizationAllowsPendingBudgetPlan(meta: unknown): boolean {
+	return typeof meta === 'object' && meta !== null &&
+		'allowPendingBudgetPlan' in meta && meta.allowPendingBudgetPlan === true
+}
+
 function expenseAuthorizationTasks(
 	model: ExpenseAuthorizationFormModel,
 	presets: Presets,

@@ -17,6 +17,8 @@ export function htmlEncodeExpenseAuthorization(entry: {
 			}
 			startDate: string
 			endDate: string
+			/** Whether the plan is still being applied for. */
+			pending?: boolean
 		}
 	} | null
 	budget: {
@@ -44,7 +46,10 @@ export function htmlEncodeExpenseAuthorization(entry: {
 		`Die Ausgabe „${entry.title}“ ` +
 		(entry.budgetPlanItem
 			? `aus dem Haushalt ${formatBudget(budgetData)} ` +
-				`in der Haushaltsperiode ${formatBudgetPlan(entry.budgetPlanItem.plan)} `
+				`in der Haushaltsperiode ${formatBudgetPlan(entry.budgetPlanItem.plan)} ` +
+				(entry.budgetPlanItem.plan.pending
+					? 'nach Maßgabe des beantragten Haushaltsplans '
+					: '')
 			: `aus der Rücklage des Haushalts ${formatBudget(budgetData)} `) +
 		`mit Ausgaben in Höhe von ${formatCurrency(entry.items.reduce((sum, item) => sum + item.amount, 0))} ` +
 		'wird genehmigt.' +

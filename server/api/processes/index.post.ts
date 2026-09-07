@@ -183,7 +183,7 @@ export default defineEventHandler(async (event) => {
 
 			if(mutation.table in processValidators) {
 				const validate = processValidators[mutation.table as keyof typeof processValidators]
-				data = validate(
+				data = await validate(
 					tx,
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					data as any,

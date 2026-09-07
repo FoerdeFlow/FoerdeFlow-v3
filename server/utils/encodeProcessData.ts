@@ -2,6 +2,63 @@ import type z from 'zod'
 
 import { eq, type InferSelectModel } from 'drizzle-orm'
 
+/**
+ * Expands a reference to an item of a budget plan that is still being applied
+ * for into the same shape an approved budget plan item is expanded to, so that
+ * every consumer can render it without a special case.
+ *
+ * @param tx - The transaction to read in
+ * @param reference - The referenced process and the ordinal within its plan
+ * @returns The referenced item or `null` if it cannot be resolved any more
+ */
+async function encodePendingBudgetPlanItem(
+	tx: ReturnType<typeof useDatabase>,
+	reference: { process: string, ord: number },
+) {
+	const mutations = await tx.query.workflowProcessMutations.findMany({
+		where: eq(workflowProcessMutations.process, reference.process),
+		with: {
+			mutation: true,
+		},
+		columns: {
+			data: true,
+		},
+	})
+	const plan = mutations.find((item) =>
+		item.mutation.table === 'budgetPlans' && item.mutation.action === 'create')
+	if(!plan) return null
+
+	const parsed = processSchemas.budgetPlans.create.safeParse(plan.data)
+	if(!parsed.success) return null
+
+	const item = parsed.data.items.find((entry) => entry.ord === reference.ord)
+	if(!item) return null
+
+	const budget = await tx.query.budgets.findFirst({
+		where: eq(budgets.id, parsed.data.budget),
+	})
+	if(!budget) return null
+
+	return {
+		id: `pending:${reference.process}:${item.ord}`,
+		pending: true as const,
+		process: reference.process,
+		ord: item.ord,
+		title: item.title,
+		description: item.description,
+		revenues: item.revenues ?? null,
+		expenses: item.expenses ?? null,
+		plan: {
+			id: `pending:${reference.process}`,
+			pending: true as const,
+			process: reference.process,
+			startDate: parsed.data.startDate.toISOString().slice(0, 10),
+			endDate: parsed.data.endDate.toISOString().slice(0, 10),
+			budget,
+		},
+	}
+}
+
 const encoders = {
 	candidates: async (
 		tx: ReturnType<typeof useDatabase>,
@@ -99,6 +156,7 @@ const encoders = {
 	expenseAuthorizations: async (
 		tx: ReturnType<typeof useDatabase>,
 		model: InferSelectModel<typeof expenseAuthorizations> & {
+			pendingBudgetPlanItem?: { process: string, ord: number } | null
 			items: InferSelectModel<typeof expenseAuthorizationItems>[]
 		},
 	) => ({
@@ -120,7 +178,9 @@ const encoders = {
 					plan: false,
 				},
 			}) ?? null
-			: null,
+			: model.pendingBudgetPlanItem
+				? await encodePendingBudgetPlanItem(tx, model.pendingBudgetPlanItem)
+				: null,
 		budget: model.budget
 			? await tx.query.budgets.findFirst({
 				where: eq(budgets.id, model.budget),

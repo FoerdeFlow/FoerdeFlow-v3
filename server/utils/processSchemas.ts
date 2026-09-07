@@ -24,13 +24,24 @@ export const processSchemas = {
 			description: z.string().min(1).nullable(),
 			budgetPlanItem: z.uuid().nullable().optional(),
 			budget: z.uuid().nullable().optional(),
+			// A budget plan that is still being applied for has no rows in the
+			// database yet, so its item is referenced by the process it is
+			// applied for in and its ordinal within that plan.
+			pendingBudgetPlanItem: z.strictObject({
+				process: z.uuid(),
+				ord: z.number().int().positive(),
+			}).nullable().optional(),
 			items: z.array(z.strictObject({
 				ord: z.number().int().positive(),
 				title: z.string().min(1),
 				amount: z.number().multipleOf(0.01),
 				description: z.string().min(1).nullable(),
 			})).min(1),
-		}).refine((o) => Boolean(o.budgetPlanItem) !== Boolean(o.budget)),
+		}).refine((o) => [
+			o.budgetPlanItem,
+			o.budget,
+			o.pendingBudgetPlanItem,
+		].filter(Boolean).length === 1),
 		update: null,
 		delete: null,
 	},

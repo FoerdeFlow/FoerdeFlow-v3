@@ -104,6 +104,9 @@ export default defineEventHandler(async (event) => {
 			.where(eq(workflowProcesses.id, result.process))
 
 		if(status === 'completed') {
+			// The mutations may refer to data another process is still applying
+			// for, which has to be approved first.
+			await checkProcessDependencies(tx, result.process)
 			await applyProcessMutations(tx, result.process)
 		}
 	})

@@ -1,3 +1,5 @@
+import type { InternalApi } from 'nitropack'
+
 import type {
 	AttendanceStatusSelect,
 	BudgetPeriodTypeSelect,
@@ -25,11 +27,18 @@ import type {
 	SessionSelect,
 	WorkflowStepTypeSelect,
 } from '#components'
+import type { DestructureArray } from '#shared/types'
 
 export type AttendanceStatus = InstanceType<typeof AttendanceStatusSelect>['$props']['modelValue']
 export type Budget = InstanceType<typeof BudgetSelect>['$props']['modelValue']
 export type BudgetPeriodType = InstanceType<typeof BudgetPeriodTypeSelect>['$props']['modelValue']
 export type BudgetPlan = InstanceType<typeof BudgetPlanSelect>['$props']['modelValue']
+/**
+ * A budget plan that is still being applied for and has no rows yet. Taken from
+ * the API rather than from the select, so that it stays a real type outside of
+ * the single-file components.
+ */
+export type PendingBudgetPlan = DestructureArray<InternalApi['/api/pendingBudgetPlans']['get']>
 export type BudgetPlanItem = InstanceType<typeof BudgetPlanItemSelect>['$props']['modelValue']
 export type Building = InstanceType<typeof BuildingSelect>['$props']['modelValue']
 export type Council = InstanceType<typeof CouncilSelect>['$props']['modelValue']

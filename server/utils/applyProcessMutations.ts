@@ -36,16 +36,18 @@ async function createCandidate(
 		course: data.course,
 	}).where(eq(persons.id, data.candidate))
 
-	await tx.insert(candidates).values({
+	const [ candidate ] = await tx.insert(candidates).values({
 		electionProposal: result.id,
 		candidate: data.candidate,
 		applicationLetter: data.applicationLetter,
-	})
+	}).returning({ id: candidates.id })
 
 	await copyFile(
 		`./data/${processMetadata.id}_${processMetadata.mutationId}_photo`,
 		`./data/${data.candidate}`,
 	)
+
+	return candidate?.id ?? null
 }
 
 async function createBudgetPlan(
@@ -79,6 +81,66 @@ async function createBudgetPlan(
 			plan: result.id,
 		})
 	}
+
+	return result.id
+}
+
+/**
+ * Resolves a reference to an item of a budget plan that was still being applied
+ * for when the reference was made.
+ *
+ * The plan of the referenced process exists by now, because a process is only
+ * completed once every process it depends on is. Its rows are found through the
+ * `dataId` its mutation was given when it was applied.
+ *
+ * @param tx - The transaction to resolve in
+ * @param reference - The referenced process and the ordinal within its plan
+ * @returns The id of the budget plan item the reference points at
+ */
+async function resolvePendingBudgetPlanItem(
+	tx: ReturnType<typeof useDatabase>,
+	reference: { process: string, ord: number },
+) {
+	const mutations = await tx.query.workflowProcessMutations.findMany({
+		where: eq(workflowProcessMutations.process, reference.process),
+		with: {
+			mutation: true,
+		},
+		columns: {
+			dataId: true,
+		},
+	})
+	const plan = mutations.find((item) =>
+		item.mutation.table === 'budgetPlans' && item.mutation.action === 'create')
+
+	if(!plan?.dataId) {
+		throw createError({
+			statusCode: 409,
+			message: 'Der beantragte Haushaltsplan, aus dem die Ausgabeermächtigung bezahlt ' +
+				'werden soll, wurde nicht angelegt',
+			data: { process: reference.process },
+		})
+	}
+
+	const item = await tx.query.budgetPlanItems.findFirst({
+		where: and(
+			eq(budgetPlanItems.plan, plan.dataId),
+			eq(budgetPlanItems.ord, reference.ord),
+		),
+		columns: {
+			id: true,
+		},
+	})
+	if(!item) {
+		throw createError({
+			statusCode: 409,
+			message: 'Der Haushaltstitel, aus dem die Ausgabeermächtigung bezahlt werden ' +
+				'soll, kommt im genehmigten Haushaltsplan nicht vor',
+			data: { process: reference.process, ord: reference.ord },
+		})
+	}
+
+	return item.id
 }
 
 async function createExpenseAuthorization(
@@ -88,6 +150,7 @@ async function createExpenseAuthorization(
 		InferInsertModel<typeof expenseAuthorizations>,
 		'id'
 	> & {
+		pendingBudgetPlanItem?: { process: string, ord: number } | null
 		items: Omit<
 			InferInsertModel<typeof expenseAuthorizationItems>,
 			'id' | 'expenseAuthorization'
@@ -105,9 +168,14 @@ async function createExpenseAuthorization(
 			? processMetadata.meta.type as 'planned' | 'reserve'
 			: data.type ?? 'planned'
 
+	const { pendingBudgetPlanItem, ...values } = data
+	const budgetPlanItem = pendingBudgetPlanItem
+		? await resolvePendingBudgetPlanItem(tx, pendingBudgetPlanItem)
+		: values.budgetPlanItem ?? null
+
 	const [ result ] = await tx
 		.insert(expenseAuthorizations)
-		.values({ ...data, type })
+		.values({ ...values, budgetPlanItem, type })
 		.returning({ id: expenseAuthorizations.id })
 
 	if(!result) {
@@ -123,6 +191,8 @@ async function createExpenseAuthorization(
 			expenseAuthorization: result.id,
 		})
 	}
+
+	return result.id
 }
 
 async function createLongtermContract(
@@ -156,6 +226,8 @@ async function createLongtermContract(
 			longtermContract: result.id,
 		})
 	}
+
+	return result.id
 }
 
 function previousDay(date: string) {
@@ -246,6 +318,8 @@ async function createRepresentationAllowance(
 			representationAllowance: result.id,
 		})
 	}
+
+	return result.id
 }
 
 export async function applyProcessMutations(
@@ -268,6 +342,7 @@ export async function applyProcessMutations(
 			mutation: true,
 		},
 		columns: {
+			id: true,
 			dataId: true,
 			data: true,
 		},
@@ -307,10 +382,20 @@ export async function applyProcessMutations(
 		}
 
 		// @ts-expect-error | Data is untyped in database
-		await handler(tx, mutation.dataId, mutation.data, {
+		const dataId = await handler(tx, mutation.dataId, mutation.data, {
 			...processMetadata,
 			mutationId: mutation.mutation.id,
 			meta: mutation.mutation.meta,
 		})
+
+		// From now on the mutation refers to the row it created. That is how a
+		// process finds the data of an application it depends on, once that
+		// application has been approved.
+		if(typeof dataId === 'string') {
+			await tx
+				.update(workflowProcessMutations)
+				.set({ dataId })
+				.where(eq(workflowProcessMutations.id, mutation.id))
+		}
 	}
 }
