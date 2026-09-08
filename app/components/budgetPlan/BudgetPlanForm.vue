@@ -9,6 +9,8 @@ const props = defineProps<{
 	selectedItem: string | null
 	readonly?: boolean
 	summaryOffset?: number
+	/** The organization item whose budgets may be picked, if it is restricted. */
+	organizationItem?: string | null
 	presets?: unknown
 }>()
 
@@ -36,6 +38,7 @@ template(v-if="props.selectedItem === 'budget-plan-meta'")
 	BudgetPlanBudgetInput(
 		v-if="presets.visible('budget')"
 		v-model="model.budget"
+		:organization-item="props.organizationItem"
 		:readonly="presets.readonly('budget')"
 	)
 	BudgetPlanPeriodInput(

@@ -10,6 +10,8 @@ const props = defineProps<{
 	readonly?: boolean
 	summaryOffset?: number
 	meta?: { type?: 'planned' | 'reserve', allowPendingBudgetPlan?: boolean }
+	/** The organization item whose budgets may be picked, if it is restricted. */
+	organizationItem?: string | null
 	presets?: unknown
 }>()
 
@@ -38,12 +40,14 @@ template(v-if="props.selectedItem === 'expense-authorization-plan-item'")
 			v-if="presets.visible('budgetPlanItem')"
 			v-model="model.budgetPlanItem"
 			:pending="pending"
+			:organization-item="props.organizationItem"
 			:readonly="presets.readonly('budgetPlanItem')"
 		)
 	template(v-else)
 		ExpenseAuthorizationBudgetInput(
 			v-if="presets.visible('budget')"
 			v-model="model.budget"
+			:organization-item="props.organizationItem"
 			:readonly="presets.readonly('budget')"
 		)
 template(v-if="props.selectedItem === 'expense-authorization-title'")

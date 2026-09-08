@@ -295,6 +295,11 @@ const mutationForms = computed(() => {
 			form,
 			key: modelKey(mutation.table),
 			meta: mutation.meta,
+			// Set only where the workflow ties the budgets to the initiator, so
+			// that every other mutation keeps offering all of them.
+			organizationItem: metaBudgetScope(mutation.meta) === 'initiator'
+				? initiatorOrganizationItem.value?.id ?? null
+				: null,
 			presets: mutation.resolvedPresets,
 			summaryOffset: offset,
 		} ]
@@ -671,6 +676,7 @@ section.mb-8(v-if="!editingDraft && continuableDrafts.length")
 					:selected-item="selectedItem"
 					:summary-offset="form.summaryOffset"
 					:meta="form.meta"
+					:organization-item="form.organizationItem"
 					:presets="form.presets"
 					@select="openedItem = $event"
 				)

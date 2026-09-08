@@ -4,6 +4,8 @@ import type { Budget } from '~/types'
 const id = useId()
 
 const props = defineProps<{
+	/** The organization item whose budgets may be picked, if it is restricted. */
+	organizationItem?: string | null
 	readonly?: boolean
 }>()
 
@@ -18,6 +20,7 @@ const model = defineModel<Budget>({
 	BudgetSelect(
 		:id="id"
 		v-model="model"
+		:organization-item="props.organizationItem"
 		:readonly="props.readonly"
 	)
 </template>

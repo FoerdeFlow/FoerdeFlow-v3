@@ -8,6 +8,8 @@ const props = defineProps<{
 	budgetPlan?: BudgetPlan
 	/** Whether budget plans that are still being applied for may be picked. */
 	pending?: boolean
+	/** The organization item whose budgets may be picked, if it is restricted. */
+	organizationItem?: string | null
 	readonly?: boolean
 }>()
 
@@ -37,6 +39,15 @@ watch(() => model.value, (item) => {
 	budgetModel.value = item.plan.budget
 	budgetPlanModel.value = item.plan
 }, { immediate: true })
+
+// The budget select clears itself once the restriction no longer offers what
+// was picked, and the plan and the title below it then have nothing left to
+// belong to.
+watch(budgetModel, (budget) => {
+	if(budget) return
+	budgetPlanModel.value = null
+	model.value = null
+})
 </script>
 
 <template lang="pug">
@@ -45,6 +56,7 @@ watch(() => model.value, (item) => {
 	BudgetSelect(
 		:id="`${id}-budget`"
 		v-model="budgetModel"
+		:organization-item="props.organizationItem"
 		:readonly="props.readonly"
 	)
 .kern-form-input(v-if="budgetModel")

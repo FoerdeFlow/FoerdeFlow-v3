@@ -3,13 +3,29 @@ import type { DestructureArray } from '#shared/types'
 
 const props = defineProps<{
 	id: string
+	/** The organization item whose budgets may be picked, if it is restricted. */
+	organizationItem?: string | null
 	readonly?: boolean
 }>()
 
-const { data } = useFetch('/api/budgets')
+const { data } = useFetch('/api/budgets', {
+	query: computed(() => ({
+		organizationItem: props.organizationItem ?? undefined,
+	})),
+})
 
 const model = defineModel<DestructureArray<typeof data.value> | null>({
 	required: true,
+})
+
+// A budget that has dropped out of the list, because the restriction changed
+// with the initiator, must not stay picked behind a select that no longer
+// offers it. A readonly select shows what was decided and keeps it either way.
+watch(data, (budgets) => {
+	if(props.readonly || !model.value || !budgets) return
+	if(!budgets.some(({ id }) => id === model.value?.id)) {
+		model.value = null
+	}
 })
 
 const selectModel = computed({

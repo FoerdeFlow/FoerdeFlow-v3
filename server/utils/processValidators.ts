@@ -31,11 +31,21 @@ function requireInitiatorPerson(context: MutationContext) {
 }
 
 export const processValidators = {
+	budgetPlans: async (
+		tx: ReturnType<typeof useDatabase>,
+		data: z.infer<typeof processSchemas.budgetPlans.create>,
+		context: MutationContext,
+	) => {
+		await checkBudgetOrigin(tx, data, context)
+		return data
+	},
 	expenseAuthorizations: async (
 		tx: ReturnType<typeof useDatabase>,
 		data: z.infer<typeof processSchemas.expenseAuthorizations.create>,
-		_context: MutationContext,
+		context: MutationContext,
 	) => {
+		await checkBudgetOrigin(tx, data, context)
+
 		const reference = data.pendingBudgetPlanItem
 		if(!reference) return data
 
@@ -86,14 +96,27 @@ export const processValidators = {
 			})
 		}
 
+		// The plan is not in the database yet, so the budget it is applied for
+		// stands in for the title the authorization will later point at.
+		await checkBudgetOrigin(tx, { budget: parsed.data.budget }, context)
+
 		return data
 	},
 	paymentOrders: async (
 		tx: ReturnType<typeof useDatabase>,
 		data: z.infer<typeof processSchemas.paymentOrders.create>,
-		_context: MutationContext,
+		context: MutationContext,
 	) => {
+		await checkBudgetOrigin(tx, data, context)
 		await checkPaymentOrderOrigin(tx, data)
+		return data
+	},
+	longtermContracts: async (
+		tx: ReturnType<typeof useDatabase>,
+		data: z.infer<typeof processSchemas.longtermContracts.create>,
+		context: MutationContext,
+	) => {
+		await checkBudgetOrigin(tx, data, context)
 		return data
 	},
 	representationAllowances: (
