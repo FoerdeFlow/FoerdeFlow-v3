@@ -59,6 +59,12 @@
 	"processes": {
 		"candidates": {
 			"candidate": "Kandidat*in"
+		},
+		"persons": {
+			"person": "Betroffene Person"
+		},
+		"personPhotos": {
+			"person": "Betroffene Person"
 		}
 	},
 	"budget": {
@@ -170,6 +176,16 @@
 				"title": "Fehler bei der Erstellung",
 				"message": "Bei der Erstellung der Kandidatur ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
 			}
+		}
+	},
+	"person": {
+		"update": {
+			"title": "Änderung der eigenen Daten"
+		}
+	},
+	"personPhoto": {
+		"update": {
+			"title": "Änderung des eigenen Lichtbildes"
 		}
 	},
 	"expenseAuthorization": {

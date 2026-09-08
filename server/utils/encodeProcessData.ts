@@ -59,6 +59,27 @@ async function encodePendingBudgetPlanItem(
 	}
 }
 
+/**
+ * Expands the person a mutation about own data applies to, so that a reader of
+ * the process sees whose data is changed instead of a bare id.
+ *
+ * @param tx - The transaction to read in
+ * @param person - The id of the person
+ * @returns The person or `null` if they do not exist any more
+ */
+async function encodeAffectedPerson(tx: ReturnType<typeof useDatabase>, person: string) {
+	return await tx.query.persons.findFirst({
+		where: eq(persons.id, person),
+		columns: {
+			id: true,
+			firstName: true,
+			lastName: true,
+			callName: true,
+			pronouns: true,
+		},
+	}) ?? null
+}
+
 const encoders = {
 	candidates: async (
 		tx: ReturnType<typeof useDatabase>,
@@ -186,6 +207,34 @@ const encoders = {
 				where: eq(budgets.id, model.budget),
 			}) ?? null
 			: null,
+	}),
+	persons: async (
+		tx: ReturnType<typeof useDatabase>,
+		model: z.infer<typeof processSchemas.persons.update> & { person: string },
+	) => ({
+		...model,
+		person: await encodeAffectedPerson(tx, model.person),
+		course: model.course
+			? await tx.query.courses.findFirst({
+				where: eq(courses.id, model.course),
+				with: {
+					type: true,
+					council: true,
+				},
+				columns: {
+					type: false,
+					council: false,
+					department: false,
+				},
+			}) ?? null
+			: null,
+	}),
+	personPhotos: async (
+		tx: ReturnType<typeof useDatabase>,
+		model: z.infer<typeof processSchemas.personPhotos.update> & { person: string },
+	) => ({
+		...model,
+		person: await encodeAffectedPerson(tx, model.person),
 	}),
 } as const
 

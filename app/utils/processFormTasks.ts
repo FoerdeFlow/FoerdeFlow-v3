@@ -238,6 +238,38 @@ function workflowCustomCandidateTasks(
 	]
 }
 
+function workflowCustomPersonTasks(presets: Presets): Tasks {
+	// Every field a person may adjust about themselves is optional, so neither
+	// step can ever be incomplete: leaving a field empty is a valid answer.
+	// The steps stay in the list so that they can be opened and reviewed.
+	return [
+		...presetVisible(presets, 'callName', 'pronouns', 'gender')
+			? [ {
+				id: 'person-name',
+				label: 'Namen und Pronomen angeben',
+				status: 'done',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'matriculationNumber', 'course', 'postalAddress')
+			? [ {
+				id: 'person-contact',
+				label: 'Matrikelnummer, Studiengang und Anschrift angeben',
+				status: 'done',
+			} ] satisfies Tasks
+			: [],
+	]
+}
+
+function workflowCustomPersonPhotoTasks(): Tasks {
+	// Handing in no photo means that the current one stays in place, so this
+	// step is never incomplete either.
+	return [ {
+		id: 'person-photo',
+		label: 'Lichtbild erfassen',
+		status: 'done',
+	} ]
+}
+
 /**
  * Builds the tasks a mutation of a process contributes to the task list of its
  * initiator.
@@ -292,6 +324,16 @@ export function processFormTasks(
 			return {
 				title: 'Daten zur Kandidatur',
 				tasks: workflowCustomCandidateTasks(model as WorkflowCustomCandidateFormModel, parsed),
+			}
+		case 'persons':
+			return {
+				title: 'Eigene Daten',
+				tasks: workflowCustomPersonTasks(parsed),
+			}
+		case 'personPhotos':
+			return {
+				title: 'Eigenes Lichtbild',
+				tasks: workflowCustomPersonPhotoTasks(),
 			}
 		default:
 			return null

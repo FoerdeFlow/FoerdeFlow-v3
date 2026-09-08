@@ -111,6 +111,9 @@ const resolvers: Record<string, Record<string, Resolver>> = {
 		candidate: resolvePerson,
 		course: resolveCourse,
 	},
+	persons: {
+		course: resolveCourse,
+	},
 }
 
 /**

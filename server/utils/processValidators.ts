@@ -4,8 +4,30 @@ import { eq } from 'drizzle-orm'
 
 interface MutationContext {
 	initiatorType: 'person' | 'organizationItem'
+	initiatorPerson: string | null
 	initiatorOrganizationItem: string | null
 	meta: unknown
+}
+
+/**
+ * Returns the person a mutation about own data applies to.
+ *
+ * Own data may only ever be changed by the person themselves, so the person is
+ * taken from the initiator instead of from the input. A process that was
+ * started for an organization item can therefore not carry such a mutation.
+ *
+ * @param context - The context of the mutation
+ * @returns The id of the person whose data is changed
+ */
+function requireInitiatorPerson(context: MutationContext) {
+	if(context.initiatorType !== 'person' || !context.initiatorPerson) {
+		throw createError({
+			statusCode: 400,
+			statusMessage: 'Die eigenen Daten können nur von der Person selbst geändert werden',
+		})
+	}
+
+	return context.initiatorPerson
 }
 
 export const processValidators = {
@@ -115,4 +137,14 @@ export const processValidators = {
 
 		return { ...data, organizationItem: context.initiatorOrganizationItem }
 	},
+	persons: (
+		_tx: ReturnType<typeof useDatabase>,
+		data: z.infer<typeof processSchemas.persons.update>,
+		context: MutationContext,
+	) => ({ ...data, person: requireInitiatorPerson(context) }),
+	personPhotos: (
+		_tx: ReturnType<typeof useDatabase>,
+		data: z.infer<typeof processSchemas.personPhotos.update>,
+		context: MutationContext,
+	) => ({ ...data, person: requireInitiatorPerson(context) }),
 } as const

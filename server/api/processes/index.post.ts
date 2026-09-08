@@ -189,6 +189,7 @@ export default defineEventHandler(async (event) => {
 					data as any,
 					{
 						initiatorType: body.initiatorType,
+						initiatorPerson: context.user?.person?.id ?? null,
 						initiatorOrganizationItem: body.initiatorOrganizationItem ?? null,
 						meta: mutation.meta,
 					},
@@ -198,6 +199,9 @@ export default defineEventHandler(async (event) => {
 			const attachments = 'attachments' in schemaGroup ? schemaGroup.attachments : []
 			for(const attachment of attachments) {
 				const attachmentData = entries[`mutation_${mutation.id}_attachment_${attachment}`]
+				// An attachment that was not sent simply stays absent, the
+				// process must not fail while its rows are already written.
+				if(!attachmentData) continue
 				attachmentFiles[`${mutation.id}_${attachment}`] = attachmentData
 			}
 

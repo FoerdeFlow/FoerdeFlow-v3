@@ -116,4 +116,29 @@ export const processSchemas = {
 			'photo',
 		],
 	},
+	persons: {
+		create: null,
+		// Only the data a person may adjust about themselves. Whose data is
+		// changed is not part of the input, it follows from the initiator.
+		update: z.strictObject({
+			callName: z.string().min(1).nullable(),
+			pronouns: z.string().min(1).nullable(),
+			gender: z.enum([ 'male', 'female', 'non_binary', 'diverse' ]).nullable(),
+			matriculationNumber: z.number().int().min(100000).max(9999999).nullable(),
+			course: z.uuid().nullable(),
+			postalAddress: z.string().min(1).nullable(),
+		}),
+		delete: null,
+	},
+	personPhotos: {
+		create: null,
+		// The photo travels as an attachment, so this mutation carries no data
+		// of its own. It is kept apart from the other data of a person, so that
+		// a workflow can have the two approved separately.
+		update: z.strictObject({}),
+		delete: null,
+		attachments: [
+			'photo',
+		],
+	},
 } as const

@@ -6,6 +6,8 @@ import type {
 	LongtermContractFormModel,
 	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
+	WorkflowCustomPersonFormModel,
+	WorkflowCustomPersonPhotoFormModel,
 } from '~/types'
 
 const route = useRoute('processes-view-process')
@@ -59,6 +61,8 @@ const asExpenseAuthorization = (data: unknown) => data as ExpenseAuthorizationFo
 const asLongtermContract = (data: unknown) => data as LongtermContractFormModel
 const asRepresentationAllowance = (data: unknown) => data as RepresentationAllowanceFormModel
 const asCandidate = (data: unknown) => data as WorkflowCustomCandidateFormModel
+const asPerson = (data: unknown) => data as WorkflowCustomPersonFormModel
+const asPersonPhoto = (data: unknown) => data as WorkflowCustomPersonPhotoFormModel
 </script>
 
 <template lang="pug">
@@ -142,6 +146,21 @@ section.my-8(
 		:process-id="route.params.process"
 		:mutation-id="mutation.mutation.id"
 		:model-value="asCandidate(mutation.data)"
+		:attachments="mutation.attachments"
+	)
+	WorkflowCustomPersonForm(
+		v-if="mutation.mutation.table === 'persons'"
+		readonly
+		selected-item="summary"
+		:model-value="asPerson(mutation.data)"
+	)
+	WorkflowCustomPersonPhotoForm(
+		v-if="mutation.mutation.table === 'personPhotos'"
+		readonly
+		selected-item="summary"
+		:process-id="route.params.process"
+		:mutation-id="mutation.mutation.id"
+		:model-value="asPersonPhoto(mutation.data)"
 		:attachments="mutation.attachments"
 	)
 KernTable.mt-8(

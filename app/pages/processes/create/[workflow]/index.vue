@@ -11,6 +11,8 @@ import type {
 	OrganizationItem,
 	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
+	WorkflowCustomPersonFormModel,
+	WorkflowCustomPersonPhotoFormModel,
 } from '~/types'
 
 import {
@@ -19,6 +21,8 @@ import {
 	LongtermContractForm,
 	RepresentationAllowanceForm,
 	WorkflowCustomCandidateForm,
+	WorkflowCustomPersonForm,
+	WorkflowCustomPersonPhotoForm,
 } from '#components'
 
 const route = useRoute('processes-create-workflow')
@@ -66,6 +70,9 @@ const { data: drafts } = useFetch('/api/processDrafts', {
 	},
 })
 
+/** Used to resolve the course of the initiator, see the prefill below. */
+const { data: courses } = useFetch('/api/courses')
+
 /**
  * The saved drafts of this workflow that can be continued instead of starting
  * over, without the one that is being worked on.
@@ -100,6 +107,23 @@ const initiatorOrganizationItem = computed<OrganizationItem>({
 		selectedInitiatorOrganizationItem.value = item
 	},
 })
+
+/**
+ * The data a person may adjust about themselves. It is typed explicitly, so
+ * that the current values of the initiator can be filled in below.
+ */
+const ownData: WorkflowCustomPersonFormModel = {
+	callName: null,
+	pronouns: null,
+	gender: null,
+	matriculationNumber: null,
+	course: null,
+	postalAddress: null,
+}
+
+const ownPhoto: WorkflowCustomPersonPhotoFormModel = {
+	photo: null,
+}
 
 const model = ref({
 	candidate: {
@@ -143,6 +167,8 @@ const model = ref({
 		endDate: null,
 		recipients: [],
 	} satisfies RepresentationAllowanceFormModel,
+	person: ownData,
+	personPhoto: ownPhoto,
 })
 
 function modelKey(table: string) {
@@ -169,6 +195,44 @@ watch(mutations, (items) => {
 	}
 }, { immediate: true })
 
+/** Whether the own data of the initiator was already filled in below. */
+const ownDataPrefilled = ref(false)
+
+/**
+ * Prefills the form for the own data of the initiator with the values they have
+ * at the moment, so that a field they do not touch keeps its value. Only empty
+ * fields are filled, a preset or a draft always wins over the current value.
+ *
+ * It runs exactly once. A field the initiator cleared on purpose has to stay
+ * cleared, so a later refresh of the user info must not fill it in again.
+ */
+watch(() => authStore.userInfo.person, (person) => {
+	if(ownDataPrefilled.value || !person) return
+	ownDataPrefilled.value = true
+
+	const own = model.value.person
+	own.callName ??= person.callName
+	own.pronouns ??= person.pronouns
+	own.gender ??= person.gender
+	own.matriculationNumber ??= person.matriculationNumber
+	own.postalAddress ??= person.postalAddress
+}, { immediate: true })
+
+/** Whether the course of the initiator was already looked up below. */
+const ownCoursePrefilled = ref(false)
+
+/**
+ * Fills in the course of the initiator, which needs a lookup of its own: the
+ * session only carries its id, while the form works with the course itself. It
+ * is taken from the list the select of the form loads anyway.
+ */
+watch([ () => authStore.userInfo.person?.course, courses ], ([ course, items ]) => {
+	if(ownCoursePrefilled.value || !course || !items) return
+	ownCoursePrefilled.value = true
+
+	model.value.person.course ??= items.find((item) => item.id === course) ?? null
+}, { immediate: true })
+
 /**
  * Whether the initiator has to be asked at all. If they may only act for
  * themselves, there is nothing to choose and the step is left out.
@@ -182,6 +246,8 @@ const formsByTable: Record<string, Component> = {
 	expenseAuthorizations: ExpenseAuthorizationForm,
 	longtermContracts: LongtermContractForm,
 	representationAllowances: RepresentationAllowanceForm,
+	persons: WorkflowCustomPersonForm,
+	personPhotos: WorkflowCustomPersonPhotoForm,
 }
 
 function summaryItemsOf(form: Component) {

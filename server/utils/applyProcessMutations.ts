@@ -1,7 +1,7 @@
 import type z from 'zod'
 
 import { and, eq, gt, inArray, type InferInsertModel, isNull, or } from 'drizzle-orm'
-import { copyFile } from 'node:fs/promises'
+import { access, copyFile } from 'node:fs/promises'
 
 async function createCandidate(
 	tx: ReturnType<typeof useDatabase>,
@@ -322,6 +322,67 @@ async function createRepresentationAllowance(
 	return result.id
 }
 
+/**
+ * Writes the data a person adjusted about themselves.
+ *
+ * The whole set of fields is written, not only the ones that were changed. The
+ * form starts out with the values the person has at the moment, so everything
+ * that was left untouched is written back unchanged.
+ *
+ * @param tx - The transaction to write in
+ * @param _dataId - Unused, the person exists before the process
+ * @param data - The data of the mutation, with the person it applies to
+ * @returns The id of the person whose data was written
+ */
+async function updatePerson(
+	tx: ReturnType<typeof useDatabase>,
+	_dataId: string | null,
+	data: z.infer<typeof processSchemas.persons.update> & { person: string },
+) {
+	await tx.update(persons).set({
+		callName: data.callName,
+		pronouns: data.pronouns,
+		gender: data.gender,
+		matriculationNumber: data.matriculationNumber,
+		course: data.course,
+		postalAddress: data.postalAddress,
+	}).where(eq(persons.id, data.person))
+
+	return data.person
+}
+
+/**
+ * Puts the photo a person handed in during the process in place of their
+ * current one.
+ *
+ * Handing in no photo is allowed and means that the current one stays, so a
+ * mutation without an attachment does nothing.
+ *
+ * @param _tx - Unused, the photo is not stored in the database
+ * @param _dataId - Unused, the person exists before the process
+ * @param data - The data of the mutation, with the person it applies to
+ * @param processMetadata - The process and the mutation the photo came with
+ * @returns The id of the person the mutation applies to
+ */
+async function updatePersonPhoto(
+	_tx: ReturnType<typeof useDatabase>,
+	_dataId: string | null,
+	data: { person: string },
+	processMetadata: {
+		id: string
+		mutationId: string
+	},
+) {
+	const source = `./data/${processMetadata.id}_${processMetadata.mutationId}_photo`
+	const handedIn = await access(source).then(() => true).catch(() => false)
+
+	if(handedIn) {
+		await copyFile(source, `./data/${data.person}`)
+	}
+
+	return data.person
+}
+
 export async function applyProcessMutations(
 	tx: ReturnType<typeof useDatabase>,
 	processId: string,
@@ -373,6 +434,16 @@ export async function applyProcessMutations(
 			representationAllowances: {
 				create: createRepresentationAllowance,
 				update: () => { /**/ },
+				delete: () => { /**/ },
+			},
+			persons: {
+				create: () => { /**/ },
+				update: updatePerson,
+				delete: () => { /**/ },
+			},
+			personPhotos: {
+				create: () => { /**/ },
+				update: updatePersonPhoto,
 				delete: () => { /**/ },
 			},
 		}[mutation.mutation.table]?.[mutation.mutation.action]

@@ -4,6 +4,8 @@ import type {
 	LongtermContractFormModel,
 	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
+	WorkflowCustomPersonFormModel,
+	WorkflowCustomPersonPhotoFormModel,
 } from '~/types'
 
 const encoders = {
@@ -66,6 +68,19 @@ const encoders = {
 				amount: recipient.amount,
 			})),
 		}),
+	}),
+	persons: (model: WorkflowCustomPersonFormModel) => ({
+		data: JSON.stringify({
+			...model,
+			course: model.course?.id ?? null,
+		}),
+	}),
+	personPhotos: (model: WorkflowCustomPersonPhotoFormModel) => ({
+		// Whose photo it is follows from the initiator, so the mutation itself
+		// only carries the file. Without a new photo the attachment is left out
+		// entirely, which the process reads as "keep the current one".
+		data: JSON.stringify({}),
+		...model.photo instanceof File ? { attachment_photo: model.photo } : {},
 	}),
 } as const
 

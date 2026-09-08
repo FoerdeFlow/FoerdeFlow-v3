@@ -2,6 +2,11 @@
 import type { Gender } from '~/types'
 
 const id = useId()
+
+const props = defineProps<{
+	readonly?: boolean
+}>()
+
 const model = defineModel<Gender>({
 	required: true,
 })
@@ -13,5 +18,6 @@ const model = defineModel<Gender>({
 	GenderSelect(
 		:id="id"
 		v-model="model"
+		:readonly="props.readonly"
 	)
 </template>

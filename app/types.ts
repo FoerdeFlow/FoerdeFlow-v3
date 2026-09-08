@@ -93,6 +93,24 @@ export interface RepresentationAllowanceFormModel {
 	recipients: RepresentationAllowanceRecipientInput[]
 }
 
+/** The data a person may adjust about themselves. */
+export interface WorkflowCustomPersonFormModel {
+	callName: string | null
+	pronouns: string | null
+	gender: Gender
+	matriculationNumber: number | null
+	course: Course
+	postalAddress: string | null
+}
+
+/**
+ * The photo of a person. It is its own form, because it is its own mutation:
+ * a workflow can have the photo approved separately from the other data.
+ */
+export interface WorkflowCustomPersonPhotoFormModel {
+	photo: File | null
+}
+
 export interface WorkflowCustomCandidateFormModel {
 	electionCommittee: ElectionCommittee
 	candidate: Person
