@@ -85,6 +85,11 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'personBankDetails.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
 		id: 'organizationItems.read',
 		scope: 'global',
 		assignable: true,

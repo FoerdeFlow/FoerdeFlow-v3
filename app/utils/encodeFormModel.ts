@@ -5,6 +5,7 @@ import type {
 	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonFormModel,
+	WorkflowCustomPersonIbanFormModel,
 	WorkflowCustomPersonPhotoFormModel,
 } from '~/types'
 
@@ -73,6 +74,12 @@ const encoders = {
 		data: JSON.stringify({
 			...model,
 			course: model.course?.id ?? null,
+		}),
+	}),
+	personIbans: (model: WorkflowCustomPersonIbanFormModel) => ({
+		data: JSON.stringify({
+			// Stored without its spaces, the server checks it once more anyway.
+			iban: normalizeIban(model.iban) || null,
 		}),
 	}),
 	personPhotos: (model: WorkflowCustomPersonPhotoFormModel) => ({

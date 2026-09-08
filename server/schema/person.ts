@@ -27,6 +27,8 @@ export const persons = pgTable('persons', {
 	matriculationNumber: integer(),
 	course: uuid().references(() => courses.id),
 	postalAddress: varchar({ length: 256 }),
+	// Stored without the spaces it is written with, so that it can be compared.
+	iban: varchar({ length: 34 }),
 })
 
 export const personsRelations = relations(persons, ({ one }) => ({

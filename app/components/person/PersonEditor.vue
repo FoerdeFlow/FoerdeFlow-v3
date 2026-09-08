@@ -5,9 +5,17 @@ import type { Course, Gender } from '~/types'
 
 import { KernDialog } from '#components'
 
+const authStore = useAuthStore()
 const dialog = useTemplateRef<typeof KernDialog>('dialog')
 
 const itemId = ref<string | null>(null)
+
+/**
+ * Whether the bank details may be seen and maintained here. Without the
+ * permission the field is not shown and never sent, so that saving leaves the
+ * bank details of the person untouched.
+ */
+const bankDetailsVisible = authStore.hasPermission('personBankDetails.read')
 
 interface Model {
 	firstName: string
@@ -19,6 +27,7 @@ interface Model {
 	matriculationNumber: number | null
 	postalAddress: string | null
 	course: Course
+	iban: string | null
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -47,11 +56,12 @@ defineExpose({
 			matriculationNumber: null,
 			postalAddress: null,
 			course: null,
+			iban: null,
 		})
 	},
 	async edit(id: string) {
 		const item = await $fetch(`/api/persons/${id}`)
-		openDialog(id, item)
+		openDialog(id, { ...item, iban: 'iban' in item ? item.iban ?? null : null })
 	},
 })
 
@@ -65,11 +75,15 @@ function cancel() {
 }
 
 async function save() {
-	if(!dialog.value) return
+	if(!dialog.value || !model.value) return
 	try {
+		const { iban, ...rest } = model.value
 		const body = {
-			...model.value,
-			course: model.value?.course?.id ?? null,
+			...rest,
+			course: model.value.course?.id ?? null,
+			// Left out entirely without the permission, so that a save never
+			// clears bank details the editor was not allowed to show.
+			...bankDetailsVisible.value ? { iban } : {},
 		}
 		if(itemId.value) {
 			await $fetch(`/api/persons/${itemId.value}`, {
@@ -130,4 +144,7 @@ KernDialog(
 			.kern-row
 				.kern-col
 					PersonPostalAddressInput(v-model="model.postalAddress")
+			.kern-row(v-if="bankDetailsVisible")
+				.kern-col
+					PersonIbanInput(v-model="model.iban")
 </template>

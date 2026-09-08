@@ -6,6 +6,7 @@ import type {
 	LongtermContractFormModel,
 	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
+	WorkflowCustomPersonIbanFormModel,
 } from '~/types'
 
 type Tasks = KernTaskListItems[number]['tasks']
@@ -260,6 +261,19 @@ function workflowCustomPersonTasks(presets: Presets): Tasks {
 	]
 }
 
+function workflowCustomPersonIbanTasks(model: WorkflowCustomPersonIbanFormModel): Tasks {
+	// The bank details are optional, so an empty field is a valid answer. An
+	// IBAN that was entered has to be a real one though, otherwise the process
+	// would be rejected when it is created.
+	return [ {
+		id: 'person-iban',
+		label: 'Bankverbindung angeben',
+		status: normalizeIban(model.iban) === '' || isValidIban(model.iban)
+			? 'done'
+			: 'partial',
+	} ]
+}
+
 function workflowCustomPersonPhotoTasks(): Tasks {
 	// Handing in no photo means that the current one stays in place, so this
 	// step is never incomplete either.
@@ -329,6 +343,11 @@ export function processFormTasks(
 			return {
 				title: 'Eigene Daten',
 				tasks: workflowCustomPersonTasks(parsed),
+			}
+		case 'personIbans':
+			return {
+				title: 'Eigene Bankverbindung',
+				tasks: workflowCustomPersonIbanTasks(model as WorkflowCustomPersonIbanFormModel),
 			}
 		case 'personPhotos':
 			return {

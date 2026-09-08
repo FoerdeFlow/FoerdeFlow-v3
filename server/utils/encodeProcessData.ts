@@ -229,6 +229,13 @@ const encoders = {
 			}) ?? null
 			: null,
 	}),
+	personIbans: async (
+		tx: ReturnType<typeof useDatabase>,
+		model: z.infer<typeof processSchemas.personIbans.update> & { person: string },
+	) => ({
+		...model,
+		person: await encodeAffectedPerson(tx, model.person),
+	}),
 	personPhotos: async (
 		tx: ReturnType<typeof useDatabase>,
 		model: z.infer<typeof processSchemas.personPhotos.update> & { person: string },

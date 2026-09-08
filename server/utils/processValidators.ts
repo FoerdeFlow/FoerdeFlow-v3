@@ -142,6 +142,11 @@ export const processValidators = {
 		data: z.infer<typeof processSchemas.persons.update>,
 		context: MutationContext,
 	) => ({ ...data, person: requireInitiatorPerson(context) }),
+	personIbans: (
+		_tx: ReturnType<typeof useDatabase>,
+		data: z.infer<typeof processSchemas.personIbans.update>,
+		context: MutationContext,
+	) => ({ ...data, person: requireInitiatorPerson(context) }),
 	personPhotos: (
 		_tx: ReturnType<typeof useDatabase>,
 		data: z.infer<typeof processSchemas.personPhotos.update>,

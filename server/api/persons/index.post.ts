@@ -1,5 +1,6 @@
 import { createInsertSchema } from 'drizzle-zod'
 import { mapGender } from 'openslides-client/utils/mapGender'
+import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
 	await checkPermission('persons.create')
@@ -8,7 +9,15 @@ export default defineEventHandler(async (event) => {
 	const client = useOpenslides()
 
 	const body = await readValidatedBody(event, async (data) =>
-		await createInsertSchema(persons).omit({ id: true }).parseAsync(data))
+		await createInsertSchema(persons).omit({ id: true }).extend({
+			// The generated schema would only check the length, so the IBAN is
+			// held to the same rules as everywhere else.
+			iban: z.string()
+				.transform((value) => normalizeIban(value))
+				.refine((value) => isValidIban(value), 'Die IBAN ist ungültig')
+				.nullable()
+				.optional(),
+		}).parseAsync(data))
 
 	return await database.transaction(async (tx) => {
 		const [ result ] = await tx.insert(persons).values(body).returning({ id: persons.id })

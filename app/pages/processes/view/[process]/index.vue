@@ -7,6 +7,7 @@ import type {
 	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonFormModel,
+	WorkflowCustomPersonIbanFormModel,
 	WorkflowCustomPersonPhotoFormModel,
 } from '~/types'
 
@@ -62,6 +63,7 @@ const asLongtermContract = (data: unknown) => data as LongtermContractFormModel
 const asRepresentationAllowance = (data: unknown) => data as RepresentationAllowanceFormModel
 const asCandidate = (data: unknown) => data as WorkflowCustomCandidateFormModel
 const asPerson = (data: unknown) => data as WorkflowCustomPersonFormModel
+const asPersonIban = (data: unknown) => data as WorkflowCustomPersonIbanFormModel
 const asPersonPhoto = (data: unknown) => data as WorkflowCustomPersonPhotoFormModel
 </script>
 
@@ -153,6 +155,12 @@ section.my-8(
 		readonly
 		selected-item="summary"
 		:model-value="asPerson(mutation.data)"
+	)
+	WorkflowCustomPersonIbanForm(
+		v-if="mutation.mutation.table === 'personIbans'"
+		readonly
+		selected-item="summary"
+		:model-value="asPersonIban(mutation.data)"
 	)
 	WorkflowCustomPersonPhotoForm(
 		v-if="mutation.mutation.table === 'personPhotos'"

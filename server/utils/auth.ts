@@ -1,6 +1,36 @@
 import type { EventContext } from '../types'
 import type { Permission } from './permissions'
 
+/**
+ * Checks a permission without refusing the request, for the places that hand
+ * out a part of a response only to those who may see it.
+ *
+ * `checkPermission` throws rather than rejecting, so it cannot be caught with
+ * `.catch()` the way the asynchronous permission checks can.
+ *
+ * @param permission - The permission to look for
+ * @param scope - The scope the permission has to cover
+ * @param options - The options of the check
+ * @returns Whether the current user has the permission
+ */
+export function hasPermission(
+	permission: Permission,
+	scope: {
+		organizationItem?: string
+	} = {},
+	options: {
+		exactScopeMatch?: boolean
+	} = {},
+) {
+	try {
+		// The result is a resolved promise, the refusal is thrown right away.
+		checkPermission(permission, scope, options).catch(() => { /**/ })
+		return true
+	} catch(_error) {
+		return false
+	}
+}
+
 export function checkPermission(
 	permission: Permission,
 	scope: {

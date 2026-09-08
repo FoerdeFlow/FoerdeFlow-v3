@@ -130,6 +130,19 @@ export const processSchemas = {
 		}),
 		delete: null,
 	},
+	personIbans: {
+		create: null,
+		// Kept apart from the other data, so that a workflow can have the bank
+		// details approved separately. Whose IBAN it is follows from the
+		// initiator, just like it does for the other data of a person.
+		update: z.strictObject({
+			iban: z.string()
+				.transform((value) => normalizeIban(value))
+				.refine((value) => isValidIban(value), 'Die IBAN ist ungültig')
+				.nullable(),
+		}),
+		delete: null,
+	},
 	personPhotos: {
 		create: null,
 		// The photo travels as an attachment, so this mutation carries no data

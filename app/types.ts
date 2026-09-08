@@ -104,6 +104,14 @@ export interface WorkflowCustomPersonFormModel {
 }
 
 /**
+ * The bank details of a person. Its own form for the same reason the photo has
+ * one: a workflow can have it approved apart from the rest.
+ */
+export interface WorkflowCustomPersonIbanFormModel {
+	iban: string | null
+}
+
+/**
  * The photo of a person. It is its own form, because it is its own mutation:
  * a workflow can have the photo approved separately from the other data.
  */

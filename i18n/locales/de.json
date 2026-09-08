@@ -22,6 +22,8 @@
 			"membershipTypes": "Mitgliedschaftsarten",
 			"membershipEndReasons": "Gründe für das Mitgliedschaftsende",
 			"persons": "Personen",
+			"personDetails": "Personendetails",
+			"personBankDetails": "Bankverbindungen",
 			"organizationItems": "Organisationseinheiten",
 			"organizationItemGroups": "OE-Gruppen",
 			"memberships": "Mitgliedschaften",
@@ -61,6 +63,9 @@
 			"candidate": "Kandidat*in"
 		},
 		"persons": {
+			"person": "Betroffene Person"
+		},
+		"personIbans": {
 			"person": "Betroffene Person"
 		},
 		"personPhotos": {
@@ -181,6 +186,11 @@
 	"person": {
 		"update": {
 			"title": "Änderung der eigenen Daten"
+		}
+	},
+	"personIban": {
+		"update": {
+			"title": "Änderung der eigenen Bankverbindung"
 		}
 	},
 	"personPhoto": {

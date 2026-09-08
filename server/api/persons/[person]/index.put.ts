@@ -14,7 +14,15 @@ export default defineEventHandler(async (event) => {
 	}).parseAsync(data))
 
 	const body = await readValidatedBody(event, async (data) =>
-		await createUpdateSchema(persons).omit({ id: true }).parseAsync(data))
+		await createUpdateSchema(persons).omit({ id: true }).extend({
+			// The generated schema would only check the length, so the IBAN is
+			// held to the same rules as the workflow holds it to.
+			iban: z.string()
+				.transform((value) => normalizeIban(value))
+				.refine((value) => isValidIban(value), 'Die IBAN ist ungültig')
+				.nullable()
+				.optional(),
+		}).parseAsync(data))
 
 	await database.transaction(async (tx) => {
 		const person = await tx.query.persons.findFirst({

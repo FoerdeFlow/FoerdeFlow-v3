@@ -12,6 +12,7 @@ import type {
 	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonFormModel,
+	WorkflowCustomPersonIbanFormModel,
 	WorkflowCustomPersonPhotoFormModel,
 } from '~/types'
 
@@ -22,6 +23,7 @@ import {
 	RepresentationAllowanceForm,
 	WorkflowCustomCandidateForm,
 	WorkflowCustomPersonForm,
+	WorkflowCustomPersonIbanForm,
 	WorkflowCustomPersonPhotoForm,
 } from '#components'
 
@@ -121,6 +123,10 @@ const ownData: WorkflowCustomPersonFormModel = {
 	postalAddress: null,
 }
 
+const ownIban: WorkflowCustomPersonIbanFormModel = {
+	iban: null,
+}
+
 const ownPhoto: WorkflowCustomPersonPhotoFormModel = {
 	photo: null,
 }
@@ -168,6 +174,7 @@ const model = ref({
 		recipients: [],
 	} satisfies RepresentationAllowanceFormModel,
 	person: ownData,
+	personIban: ownIban,
 	personPhoto: ownPhoto,
 })
 
@@ -216,6 +223,7 @@ watch(() => authStore.userInfo.person, (person) => {
 	own.gender ??= person.gender
 	own.matriculationNumber ??= person.matriculationNumber
 	own.postalAddress ??= person.postalAddress
+	model.value.personIban.iban ??= person.iban
 }, { immediate: true })
 
 /** Whether the course of the initiator was already looked up below. */
@@ -247,6 +255,7 @@ const formsByTable: Record<string, Component> = {
 	longtermContracts: LongtermContractForm,
 	representationAllowances: RepresentationAllowanceForm,
 	persons: WorkflowCustomPersonForm,
+	personIbans: WorkflowCustomPersonIbanForm,
 	personPhotos: WorkflowCustomPersonPhotoForm,
 }
 

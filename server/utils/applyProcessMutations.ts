@@ -352,6 +352,29 @@ async function updatePerson(
 }
 
 /**
+ * Writes the bank details a person handed in.
+ *
+ * The IBAN was already checked against its check digits and stripped of its
+ * spaces when the process was created, so it is stored as it comes.
+ *
+ * @param tx - The transaction to write in
+ * @param _dataId - Unused, the person exists before the process
+ * @param data - The data of the mutation, with the person it applies to
+ * @returns The id of the person whose IBAN was written
+ */
+async function updatePersonIban(
+	tx: ReturnType<typeof useDatabase>,
+	_dataId: string | null,
+	data: z.infer<typeof processSchemas.personIbans.update> & { person: string },
+) {
+	await tx.update(persons).set({
+		iban: data.iban,
+	}).where(eq(persons.id, data.person))
+
+	return data.person
+}
+
+/**
  * Puts the photo a person handed in during the process in place of their
  * current one.
  *
@@ -439,6 +462,11 @@ export async function applyProcessMutations(
 			persons: {
 				create: () => { /**/ },
 				update: updatePerson,
+				delete: () => { /**/ },
+			},
+			personIbans: {
+				create: () => { /**/ },
+				update: updatePersonIban,
 				delete: () => { /**/ },
 			},
 			personPhotos: {
