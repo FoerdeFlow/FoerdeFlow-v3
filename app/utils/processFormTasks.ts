@@ -4,6 +4,7 @@ import type {
 	ExpenseAuthorizationFormModel,
 	KernTaskListItems,
 	LongtermContractFormModel,
+	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonIbanFormModel,
@@ -103,6 +104,70 @@ function expenseAuthorizationTasks(
 				id: 'expense-authorization-amount-and-items',
 				label: 'Kostenaufstellung hinzufügen',
 				status: model.amount !== 0 || presetFixed(presets, 'items') ? 'done' : 'open',
+			} ] satisfies Tasks
+			: [],
+	]
+}
+
+function paymentOrderTasks(model: PaymentOrderFormModel, presets: Presets): Tasks {
+	// Where the money comes from is part of the application itself, so the field
+	// that has to be filled in follows the choice the applicant made.
+	const budgetField = model.type === 'planned' ? 'budgetPlanItem' : 'budget'
+	const budgetFieldSet = presetFixed(presets, budgetField) || (model.type === 'planned'
+		? !!model.budgetPlanItem
+		: !!model.budget)
+
+	// The recipient is complete once the fields of the chosen kind are filled in.
+	// An IBAN that was entered has to be a real one, otherwise the process would
+	// be rejected when it is created.
+	const recipientSet = model.recipientType === 'reimbursement'
+		? !!model.recipientPerson || presetFixed(presets, 'recipientPerson')
+		: !!model.recipientName &&
+			isValidIban(model.recipientIban) &&
+			!!model.purpose
+
+	const recipientStarted = model.recipientType === 'reimbursement'
+		? false
+		: !!model.recipientName || !!model.recipientIban || !!model.purpose
+
+	return [
+		...presetVisible(presets, 'type', budgetField, 'expenseAuthorization')
+			? [ {
+				id: 'payment-order-source',
+				label: 'Herkunft der Mittel auswählen',
+				status: budgetFieldSet ? 'done' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(
+			presets,
+			'recipientType',
+			'recipientPerson',
+			'recipientName',
+			'recipientIban',
+			'purpose',
+		)
+			? [ {
+				id: 'payment-order-recipient',
+				label: 'Empfänger*in angeben',
+				status: recipientSet
+					? 'done'
+					: recipientStarted ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'title', 'description')
+			? [ {
+				id: 'payment-order-title',
+				label: 'Zahlungsanweisung beschreiben',
+				status: model.title || presetFixed(presets, 'title')
+					? 'done'
+					: model.description ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'amount')
+			? [ {
+				id: 'payment-order-amount',
+				label: 'Betrag angeben',
+				status: model.amount > 0 || presetFixed(presets, 'amount') ? 'done' : 'open',
 			} ] satisfies Tasks
 			: [],
 	]
@@ -319,6 +384,11 @@ export function processFormTasks(
 					parsed,
 					meta,
 				),
+			}
+		case 'paymentOrders':
+			return {
+				title: 'Details zur Zahlungsanweisung',
+				tasks: paymentOrderTasks(model as PaymentOrderFormModel, parsed),
 			}
 		case 'longtermContracts':
 			return {

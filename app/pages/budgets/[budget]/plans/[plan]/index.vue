@@ -24,6 +24,19 @@ const subPages = computed<KernCardNavItems>(() => [
 		linkLabel: t('expenseAuthorization.menu.linkLabel'),
 		permission: 'attendances.read',
 	},
+	{
+		title: t('paymentOrder.menu.title'),
+		description: t('paymentOrder.menu.description'),
+		link: {
+			name: 'budgets-budget-plans-plan-paymentOrders',
+			params: {
+				budget: route.params.budget,
+				plan: route.params.plan,
+			},
+		},
+		linkLabel: t('paymentOrder.menu.linkLabel'),
+		permission: 'paymentOrders.read',
+	},
 ])
 </script>
 

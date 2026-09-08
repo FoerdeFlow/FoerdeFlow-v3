@@ -88,6 +88,14 @@ export const processValidators = {
 
 		return data
 	},
+	paymentOrders: async (
+		tx: ReturnType<typeof useDatabase>,
+		data: z.infer<typeof processSchemas.paymentOrders.create>,
+		_context: MutationContext,
+	) => {
+		await checkPaymentOrderOrigin(tx, data)
+		return data
+	},
 	representationAllowances: (
 		_tx: ReturnType<typeof useDatabase>,
 		data: z.infer<typeof processSchemas.representationAllowances.create>,

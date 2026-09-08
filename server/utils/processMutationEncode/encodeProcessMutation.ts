@@ -13,6 +13,10 @@ const encoders = {
 		html: htmlEncodeExpenseAuthorization,
 		pdf: pdfEncodeExpenseAuthorization,
 	},
+	paymentOrder: {
+		html: htmlEncodePaymentOrder,
+		pdf: pdfEncodePaymentOrder,
+	},
 	longtermContract: {
 		html: htmlEncodeLongtermContract,
 		pdf: pdfEncodeLongtermContract,

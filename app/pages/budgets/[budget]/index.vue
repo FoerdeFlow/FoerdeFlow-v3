@@ -31,6 +31,15 @@ const subPages: KernCardNavItems = [
 		permission: 'expenseAuthorizations.read',
 	},
 	{
+		title: 'Zahlungsanweisungen aus Rücklagen',
+		link: {
+			name: 'budgets-budget-paymentOrders',
+			params: { budget: route.params.budget },
+		},
+		linkLabel: 'Zahlungsanweisungen anzeigen',
+		permission: 'paymentOrders.read',
+	},
+	{
 		title: 'Langzeitverträge',
 		link: {
 			name: 'budgets-budget-longtermContracts',

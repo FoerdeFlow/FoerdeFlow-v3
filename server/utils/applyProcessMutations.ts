@@ -195,6 +195,38 @@ async function createExpenseAuthorization(
 	return result.id
 }
 
+/**
+ * Writes a payment order that was applied for.
+ *
+ * Where the money comes from and who receives it are part of the application
+ * itself, so both are taken from the input. A workflow that wants to fix either
+ * of them does so with a preset on the field.
+ *
+ * @param tx - The transaction to write in
+ * @param _dataId - Unused, a payment order is always created anew
+ * @param data - The data of the mutation
+ * @returns The id of the payment order that was created
+ */
+async function createPaymentOrder(
+	tx: ReturnType<typeof useDatabase>,
+	_dataId: string | null,
+	data: Omit<InferInsertModel<typeof paymentOrders>, 'id'>,
+) {
+	const [ result ] = await tx
+		.insert(paymentOrders)
+		.values(data)
+		.returning({ id: paymentOrders.id })
+
+	if(!result) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Zahlungsanweisung konnte nicht erstellt werden',
+		})
+	}
+
+	return result.id
+}
+
 async function createLongtermContract(
 	tx: ReturnType<typeof useDatabase>,
 	_dataId: string | null,
@@ -446,6 +478,11 @@ export async function applyProcessMutations(
 			},
 			expenseAuthorizations: {
 				create: createExpenseAuthorization,
+				update: () => { /**/ },
+				delete: () => { /**/ },
+			},
+			paymentOrders: {
+				create: createPaymentOrder,
 				update: () => { /**/ },
 				delete: () => { /**/ },
 			},

@@ -12,8 +12,7 @@ const model = defineModel<string | null>({
 <template lang="pug">
 KernIbanInput(
 	v-model="model"
-	label="IBAN"
-	optional
+	label="IBAN der Empfänger*in"
 	:readonly="props.readonly"
 )
 </template>

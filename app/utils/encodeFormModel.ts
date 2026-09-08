@@ -2,6 +2,7 @@ import type {
 	BudgetPlanFormModel,
 	ExpenseAuthorizationFormModel,
 	LongtermContractFormModel,
+	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonFormModel,
@@ -45,6 +46,27 @@ const encoders = {
 					? { process: pending.process, ord: pending.ord }
 					: null,
 				budget: model.budget?.id ?? null,
+			}),
+		}
+	},
+	paymentOrders: (model: PaymentOrderFormModel) => {
+		// Only the fields of the chosen origin and of the chosen kind of recipient
+		// travel, the others are cleared: the table only accepts one set of each
+		// at a time.
+		const planned = model.type === 'planned'
+		const reimbursement = model.recipientType === 'reimbursement'
+
+		return {
+			data: JSON.stringify({
+				...model,
+				budgetPlanItem: planned ? model.budgetPlanItem?.id ?? null : null,
+				budget: planned ? null : model.budget?.id ?? null,
+				expenseAuthorization: model.expenseAuthorization?.id ?? null,
+				recipientPerson: reimbursement ? model.recipientPerson?.id ?? null : null,
+				recipientName: reimbursement ? null : model.recipientName,
+				// Stored without its spaces, the server checks it once more anyway.
+				recipientIban: reimbursement ? null : normalizeIban(model.recipientIban) || null,
+				purpose: reimbursement ? null : model.purpose,
 			}),
 		}
 	},

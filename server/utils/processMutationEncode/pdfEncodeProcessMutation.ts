@@ -21,6 +21,8 @@ export async function pdfEncodeProcessMutation(
 			return await pdfEncodeBudgetPlan(data, options)
 		case 'expenseAuthorizations':
 			return await pdfEncodeExpenseAuthorization(data, options)
+		case 'paymentOrders':
+			return await pdfEncodePaymentOrder(data, options)
 		case 'longtermContracts':
 			return await pdfEncodeLongtermContract(data, options)
 		case 'representationAllowances':

@@ -515,6 +515,26 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'paymentOrders.read',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'paymentOrders.create',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'paymentOrders.update',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'paymentOrders.delete',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
 		id: 'longtermContracts.read',
 		scope: 'organizationItem',
 		assignable: true,

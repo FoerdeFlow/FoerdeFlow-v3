@@ -330,6 +330,13 @@
       "when": 1788866386615,
       "tag": "0046_person_iban",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1788873576950,
+      "tag": "0047_payment_order",
+      "breakpoints": true
     }
   ]
 }

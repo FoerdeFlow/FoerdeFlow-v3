@@ -100,6 +100,11 @@ const resolvers: Record<string, Record<string, Resolver>> = {
 		budget: resolveBudget,
 		budgetPlanItem: resolveBudgetPlanItem,
 	},
+	paymentOrders: {
+		budget: resolveBudget,
+		budgetPlanItem: resolveBudgetPlanItem,
+		recipientPerson: resolvePerson,
+	},
 	longtermContracts: {
 		budget: resolveBudget,
 	},

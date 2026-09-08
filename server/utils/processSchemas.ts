@@ -45,6 +45,25 @@ export const processSchemas = {
 		update: null,
 		delete: null,
 	},
+	paymentOrders: {
+		create: z.strictObject({
+			type: z.enum([ 'planned', 'reserve' ]),
+			budgetPlanItem: z.uuid().nullable().optional(),
+			budget: z.uuid().nullable().optional(),
+			// The expense authorization the payment is made on, if there is one.
+			expenseAuthorization: z.uuid().nullable().optional(),
+			recipientType: z.enum([ 'reimbursement', 'invoice' ]),
+			recipientPerson: z.uuid().nullable().optional(),
+			recipientName: z.string().min(1).nullable().optional(),
+			recipientIban: paymentOrderIbanSchema.nullable().optional(),
+			purpose: z.string().min(1).nullable().optional(),
+			title: z.string().min(1),
+			description: z.string().min(1).nullable(),
+			amount: z.number().multipleOf(0.01).positive(),
+		}).refine(paymentOrderVariantsValid),
+		update: null,
+		delete: null,
+	},
 	longtermContracts: {
 		create: z.strictObject({
 			budget: z.uuid(),

@@ -288,6 +288,30 @@ export function formatBudgetPlanItem(
 	return `${budgetPlanItem.title} (${budgetPlanItem.ord ?? '–'})`
 }
 
+/**
+ * Names the receiving side of a payment order, no matter which of the two kinds
+ * it is: a member who is reimbursed or a company that sent an invoice.
+ *
+ * @param paymentOrder - The payment order to name the recipient of
+ * @returns The name of the recipient
+ */
+export function formatPaymentOrderRecipient(
+	paymentOrder: {
+		recipientPerson?: {
+			firstName: string,
+			lastName: string,
+			callName?: string | null,
+			pronouns?: string | null,
+		} | null,
+		recipientName?: string | null,
+	} | null,
+): string {
+	if(!paymentOrder) return ''
+	return paymentOrder.recipientPerson
+		? formatPerson(paymentOrder.recipientPerson)
+		: paymentOrder.recipientName ?? ''
+}
+
 export function formatRole(
 	role: {
 		name: string,

@@ -14,6 +14,7 @@ import type {
 	DocumentTypeSelect,
 	ElectionCommitteeSelect,
 	ElectionSelect,
+	ExpenseAuthorizationSelect,
 	GenderSelect,
 	KernCardNav,
 	KernTaskList,
@@ -48,6 +49,7 @@ export type Department = InstanceType<typeof DepartmentSelect>['$props']['modelV
 export type DocumentType = InstanceType<typeof DocumentTypeSelect>['$props']['modelValue']
 export type Election = InstanceType<typeof ElectionSelect>['$props']['modelValue']
 export type ElectionCommittee = InstanceType<typeof ElectionCommitteeSelect>['$props']['modelValue']
+export type ExpenseAuthorization = InstanceType<typeof ExpenseAuthorizationSelect>['$props']['modelValue']
 export type Gender = InstanceType<typeof GenderSelect>['$props']['modelValue']
 export type MembershipEndReason = InstanceType<typeof MembershipEndReasonSelect>['$props']['modelValue']
 export type MembershipType = InstanceType<typeof MembershipTypeSelect>['$props']['modelValue']
@@ -73,6 +75,21 @@ export interface ExpenseAuthorizationFormModel {
 	description: string | null
 	amount: number
 	items: ExpenseAuthorizationItemInput[]
+}
+
+export interface PaymentOrderFormModel {
+	type: PaymentOrderType
+	budgetPlanItem: BudgetPlanItem
+	budget: Budget
+	expenseAuthorization: ExpenseAuthorization
+	recipientType: PaymentOrderRecipientType
+	recipientPerson: Person
+	recipientName: string | null
+	recipientIban: string | null
+	purpose: string | null
+	title: string
+	description: string | null
+	amount: number
 }
 
 export interface LongtermContractFormModel {
@@ -161,6 +178,9 @@ export interface ExpenseAuthorizationItemInput {
 	description: string | null
 	amount: number
 }
+
+export type PaymentOrderType = 'planned' | 'reserve'
+export type PaymentOrderRecipientType = 'reimbursement' | 'invoice'
 
 export type LongtermContractItemType = 'time' | 'usage' | 'fixed'
 export type LongtermContractTimeUnit = 'month' | 'quarter' | 'semester' | 'year'

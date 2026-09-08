@@ -208,6 +208,51 @@ const encoders = {
 			}) ?? null
 			: null,
 	}),
+	paymentOrders: async (
+		tx: ReturnType<typeof useDatabase>,
+		model: InferSelectModel<typeof paymentOrders>,
+	) => ({
+		...model,
+		budgetPlanItem: model.budgetPlanItem
+			? await tx.query.budgetPlanItems.findFirst({
+				where: eq(budgetPlanItems.id, model.budgetPlanItem),
+				with: {
+					plan: {
+						with: {
+							budget: true,
+						},
+						columns: {
+							budget: false,
+						},
+					},
+				},
+				columns: {
+					plan: false,
+				},
+			}) ?? null
+			: null,
+		budget: model.budget
+			? await tx.query.budgets.findFirst({
+				where: eq(budgets.id, model.budget),
+			}) ?? null
+			: null,
+		expenseAuthorization: model.expenseAuthorization
+			? await tx.query.expenseAuthorizations.findFirst({
+				where: eq(expenseAuthorizations.id, model.expenseAuthorization),
+				columns: {
+					id: true,
+					type: true,
+					title: true,
+					amount: true,
+				},
+			}) ?? null
+			: null,
+		// The bank details of a member stay out of the process data: everyone
+		// who takes part in the process may read it.
+		recipientPerson: model.recipientPerson
+			? await encodeAffectedPerson(tx, model.recipientPerson)
+			: null,
+	}),
 	persons: async (
 		tx: ReturnType<typeof useDatabase>,
 		model: z.infer<typeof processSchemas.persons.update> & { person: string },

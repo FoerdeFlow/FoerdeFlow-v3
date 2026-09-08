@@ -27,6 +27,43 @@ interface ExpenseAuthorizationProcessMutation {
 	}[]
 }
 
+interface PaymentOrderProcessMutation {
+	id?: string
+	budgetPlanItem: {
+		title: string
+		plan: {
+			budget: {
+				name: string
+				code: string
+			}
+			startDate: string
+			endDate: string
+		}
+	} | null
+	budget: {
+		name: string
+		code: string
+	} | null
+	expenseAuthorization: {
+		title: string
+		amount: number
+	} | null
+	recipientType: 'reimbursement' | 'invoice'
+	recipientPerson: {
+		firstName: string
+		lastName: string
+		callName: string | null
+		pronouns: string | null
+		iban: string | null
+	} | null
+	recipientName: string | null
+	recipientIban: string | null
+	purpose: string | null
+	title: string
+	description: string | null
+	amount: number
+}
+
 interface LongtermContractProcessMutation {
 	id?: string
 	budget: {
@@ -74,6 +111,7 @@ interface RepresentationAllowanceProcessMutation {
 
 export interface ExpandedProcessMutations {
 	expenseAuthorization: ExpenseAuthorizationProcessMutation
+	paymentOrder: PaymentOrderProcessMutation
 	longtermContract: LongtermContractProcessMutation
 	representationAllowance: RepresentationAllowanceProcessMutation
 }

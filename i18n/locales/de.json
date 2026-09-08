@@ -55,7 +55,8 @@
 			"rolePermissions": "Rollenberechtigungen",
 			"roleOccupants": "Rolleninhaber",
 			"permissions": "Berechtigungen",
-			"announcements": "Ankündigungen"
+			"announcements": "Ankündigungen",
+			"paymentOrders": "Zahlungsanweisungen"
 		}
 	},
 	"processes": {
@@ -283,6 +284,64 @@
 			"error": {
 				"title": "Fehler beim Löschen",
 				"message": "Beim Löschen des Einnahme- oder Ausgabentitels ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
+	"paymentOrder": {
+		"title": "Zahlungsanweisungen",
+		"mutationTitle": "Daten zur Zahlungsanweisung",
+		"menu": {
+			"title": "Zahlungsanweisungen",
+			"description": "Eine Zahlungsanweisung ordnet die Auszahlung eines Betrages an, entweder als Auslagenerstattung an ein Gremienmitglied oder zur Begleichung der Rechnung einer Firma oder eines externen Dienstleisters.",
+			"linkLabel": "Zu den Zahlungsanweisungen"
+		},
+		"table": {
+			"caption": "Liste der Zahlungsanweisungen"
+		},
+		"field": {
+			"budgetPlanItem": "Haushaltstitel",
+			"title": "Bezeichnung der Zahlung",
+			"recipient": "Empfänger*in",
+			"amount": "Betrag"
+		},
+		"type": {
+			"planned": "Aus einem Haushaltstitel",
+			"reserve": "Aus den Rücklagen"
+		},
+		"recipientType": {
+			"reimbursement": "Auslagenerstattung an ein Gremienmitglied",
+			"invoice": "Rechnung einer Firma oder eines externen Dienstleisters"
+		},
+		"input": {
+			"type": {
+				"label": "Herkunft der Mittel",
+				"hint": "Eine Zahlung aus einem Haushaltstitel belastet den laufenden Haushaltsplan, eine Zahlung aus den Rücklagen den Haushalt selbst."
+			},
+			"recipientType": {
+				"label": "Art der Zahlung",
+				"hint": "Bei einer Auslagenerstattung wird die Bankverbindung des Mitglieds verwendet, bei einer Rechnung die hier angegebene."
+			}
+		},
+		"create": {
+			"title": "Zahlungsanweisung erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung der Zahlungsanweisung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Zahlungsanweisung bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung der Zahlungsanweisung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Zahlungsanweisung löschen?",
+			"text": "Sind Sie sicher, dass Sie diese Zahlungsanweisung löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen der Zahlungsanweisung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
 			}
 		}
 	},

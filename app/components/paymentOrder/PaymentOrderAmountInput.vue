@@ -3,17 +3,15 @@ const props = defineProps<{
 	readonly?: boolean
 }>()
 
-/** The IBAN without its spaces, which is how it is stored and checked. */
-const model = defineModel<string | null>({
+const model = defineModel<number | null>({
 	required: true,
 })
 </script>
 
 <template lang="pug">
-KernIbanInput(
+KernCurrencyInput(
 	v-model="model"
-	label="IBAN"
-	optional
+	label="Anzuweisender Betrag"
 	:readonly="props.readonly"
 )
 </template>
