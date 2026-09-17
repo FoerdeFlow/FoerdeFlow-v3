@@ -121,5 +121,8 @@ KernDialog(
 				v-model="model.endDate"
 				:readonly="props.readonly"
 			)
-		BudgetPlanItemsInput(v-model="model.items")
+		BudgetPlanItemsInput(
+			v-model="model.items"
+			:readonly="props.readonly"
+		)
 </template>

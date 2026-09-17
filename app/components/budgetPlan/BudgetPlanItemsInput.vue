@@ -58,9 +58,9 @@ function save(id: string | null, item: Model) {
 <template lang="pug">
 KernTable(
 	:caption="$t('budgetPlanItem.table.caption')"
-	:create-permission="props.readonly ? null : 'budgetPlans.update'"
-	:update-permission="props.readonly ? null : 'budgetPlans.update'"
-	:delete-permission="props.readonly ? null : 'budgetPlans.update'"
+	:create-permission="props.readonly ? null : true"
+	:update-permission="props.readonly ? null : true"
+	:delete-permission="props.readonly ? null : true"
 	:columns=`[
 		{
 			name: 'revenues',
