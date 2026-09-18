@@ -109,6 +109,7 @@ export default defineEventHandler(async (event) => {
 
 		return {
 			...processItem,
+			initiatorPerson: withDisplayName(processItem.initiatorPerson),
 			steps,
 			signatures,
 			dependencies: await processDependencies(tx, params.process),

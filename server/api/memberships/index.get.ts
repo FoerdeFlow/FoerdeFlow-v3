@@ -41,21 +41,21 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	return memberships.map((membership) => ({
+	const result = memberships.map((membership) => ({
 		...membership,
 		memberPerson: membership.memberPerson
 			? {
-				...membership.memberPerson,
+				...withDisplayName(membership.memberPerson),
 				hasPhoto: existsSync(`./data/${membership.memberPerson.id}`),
 			}
 			: null,
-	})) as (DestructureArray<typeof memberships> & (
+	}))
+
+	return result as (DestructureArray<typeof result> & (
 		{
 			memberType: 'person'
 			memberPerson: Exclude<
-				(DestructureArray<typeof memberships>)['memberPerson'] | {
-					hasPhoto: boolean
-				},
+				(DestructureArray<typeof result>)['memberPerson'],
 				null
 			>
 			memberOrganizationItem: null
@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
 			memberType: 'organizationItem'
 			memberPerson: null
 			memberOrganizationItem: Exclude<
-				(DestructureArray<typeof memberships>)['memberOrganizationItem'],
+				(DestructureArray<typeof result>)['memberOrganizationItem'],
 				null
 			>
 		}

@@ -44,6 +44,7 @@ export default defineEventHandler(async (event) => {
 		...document,
 		id: text.id,
 		documentId: document.id,
+		authorPerson: withDisplayName(document.authorPerson),
 		authorType: document.authorPerson ? 'person' as const : 'organizationItem' as const,
 	}
 })

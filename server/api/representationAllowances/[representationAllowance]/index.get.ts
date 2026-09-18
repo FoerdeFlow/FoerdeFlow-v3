@@ -65,7 +65,7 @@ export default defineEventHandler(async (event) => {
 		recipients: representationAllowance.recipients.map((recipient) => ({
 			...recipient,
 			person: {
-				...recipient.person,
+				...withDisplayName(recipient.person),
 				hasPhoto: existsSync(`./data/${recipient.person.id}`),
 			},
 		})),

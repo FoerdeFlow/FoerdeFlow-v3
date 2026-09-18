@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
 		...membership,
 		memberPerson: membership.memberPerson
 			? {
-				...membership.memberPerson,
+				...withDisplayName(membership.memberPerson),
 				hasPhoto: existsSync(`./data/${membership.memberPerson.id}`),
 			}
 			: null,

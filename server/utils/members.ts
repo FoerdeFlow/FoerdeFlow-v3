@@ -44,12 +44,16 @@ export async function getEffectiveMembers(
 		},
 	})
 
-	const result: NonNullable<DestructureArray<typeof members>['memberPerson']>[] = []
+	const result: (
+		NonNullable<DestructureArray<typeof members>['memberPerson']> & {
+			displayName: string
+		}
+	)[] = []
 	for(const entry of members) {
 		switch(entry.memberType) {
 			case 'person':
 				if(!entry.memberPerson) break
-				result.push(entry.memberPerson)
+				result.push(withDisplayName(entry.memberPerson))
 				break
 			case 'organizationItem':
 				if(!entry.memberOrganizationItem) break

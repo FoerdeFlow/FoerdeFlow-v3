@@ -41,5 +41,11 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	return result
+	return result.map((representationAllowance) => ({
+		...representationAllowance,
+		recipients: representationAllowance.recipients.map((recipient) => ({
+			...recipient,
+			person: withDisplayName(recipient.person),
+		})),
+	}))
 })

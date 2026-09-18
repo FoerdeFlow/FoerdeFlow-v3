@@ -68,7 +68,7 @@ async function encodePendingBudgetPlanItem(
  * @returns The person or `null` if they do not exist any more
  */
 async function encodeAffectedPerson(tx: ReturnType<typeof useDatabase>, person: string) {
-	return await tx.query.persons.findFirst({
+	return withDisplayName(await tx.query.persons.findFirst({
 		where: eq(persons.id, person),
 		columns: {
 			id: true,
@@ -77,7 +77,7 @@ async function encodeAffectedPerson(tx: ReturnType<typeof useDatabase>, person: 
 			callName: true,
 			pronouns: true,
 		},
-	}) ?? null
+	}))
 }
 
 const encoders = {
@@ -97,7 +97,7 @@ const encoders = {
 				committee: false,
 			},
 		}) ?? null,
-		candidate: await tx.query.persons.findFirst({
+		candidate: withDisplayName(await tx.query.persons.findFirst({
 			where: eq(persons.id, model.candidate),
 			columns: {
 				course: false,
@@ -106,7 +106,7 @@ const encoders = {
 				postalAddress: false,
 				callName: false,
 			},
-		}) ?? null,
+		})),
 		course: await tx.query.courses.findFirst({
 			where: eq(courses.id, model.course),
 			with: {
@@ -162,7 +162,7 @@ const encoders = {
 		}) ?? null,
 		recipients: await Promise.all(model.recipients.map(async (recipient) => ({
 			...recipient,
-			person: await tx.query.persons.findFirst({
+			person: withDisplayName(await tx.query.persons.findFirst({
 				where: eq(persons.id, recipient.person),
 				columns: {
 					id: true,
@@ -171,7 +171,7 @@ const encoders = {
 					callName: true,
 					pronouns: true,
 				},
-			}) ?? null,
+			})),
 		}))),
 	}),
 	expenseAuthorizations: async (

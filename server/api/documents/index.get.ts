@@ -40,6 +40,7 @@ export default defineEventHandler(async (event) => {
 
 	return await Promise.all(result.map(async (document) => ({
 		...document,
+		authorPerson: withDisplayName(document.authorPerson),
 		hasContent: await stat(`./data/${document.id}.pdf`).then((it) => it.isFile()).catch(() => false),
 	})))
 })

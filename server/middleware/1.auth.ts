@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
 		)).flat()
 
 	event.context.user = {
-		person,
+		person: withDisplayName(person),
 		memberships,
 		roles,
 		permissions,

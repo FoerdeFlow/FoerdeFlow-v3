@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
 		...roleOccupant,
 		person: roleOccupant.person
 			? {
-				...roleOccupant.person,
+				...withDisplayName(roleOccupant.person),
 				hasPhoto: existsSync(`./data/${roleOccupant.person.id}`),
 			}
 			: null,

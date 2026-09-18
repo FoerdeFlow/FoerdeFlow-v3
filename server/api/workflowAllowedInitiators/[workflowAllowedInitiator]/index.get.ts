@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
 		...allowedInitiator,
 		person: allowedInitiator.person
 			? {
-				...allowedInitiator.person,
+				...withDisplayName(allowedInitiator.person),
 				hasPhoto: existsSync(`./data/${allowedInitiator.person.id}`),
 			}
 			: null,

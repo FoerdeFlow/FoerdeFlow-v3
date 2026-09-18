@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
 	return {
 		...attendance,
 		person: {
-			...attendance.person,
+			...withDisplayName(attendance.person),
 			hasPhoto: existsSync(`./data/${attendance.person.id}`),
 		},
 	}

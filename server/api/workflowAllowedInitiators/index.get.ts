@@ -44,5 +44,8 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	return allowedInitiators
+	return allowedInitiators.map((allowedInitiator) => ({
+		...allowedInitiator,
+		person: withDisplayName(allowedInitiator.person),
+	}))
 })

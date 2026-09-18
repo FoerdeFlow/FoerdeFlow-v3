@@ -32,5 +32,8 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	return electionProposals
+	return electionProposals.map((electionProposal) => ({
+		...electionProposal,
+		submitter: withDisplayName(electionProposal.submitter),
+	}))
 })

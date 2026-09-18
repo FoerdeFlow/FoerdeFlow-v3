@@ -37,9 +37,17 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
+	const result = workflows.map((workflow) => ({
+		...workflow,
+		allowedInitiators: workflow.allowedInitiators.map((initiator) => ({
+			...initiator,
+			person: withDisplayName(initiator.person),
+		})),
+	}))
+
 	if(query.filter === 'mine') {
 		const context = event.context as EventContext
-		return workflows.filter((workflow) =>
+		return result.filter((workflow) =>
 			workflow.allowedInitiators.some((initiator) => (
 				initiator.person === null ||
 				initiator.person.id === context.user?.person?.id
@@ -70,5 +78,5 @@ export default defineEventHandler(async (event) => {
 		)
 	}
 
-	return workflows
+	return result
 })

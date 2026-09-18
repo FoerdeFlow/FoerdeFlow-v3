@@ -50,7 +50,7 @@ export async function getSessionMembers(
 		},
 	})
 
-	const attendances = await database.query.sessionAttendances.findMany({
+	const attendances = (await database.query.sessionAttendances.findMany({
 		where: eq(sessionAttendances.session, session.id),
 		columns: {
 			id: true,
@@ -59,7 +59,10 @@ export async function getSessionMembers(
 		with: {
 			person: true,
 		},
-	})
+	})).map((attendance) => ({
+		...attendance,
+		person: withDisplayName(attendance.person),
+	}))
 
 	const groupsWithStatus = await Promise.all(groups.map(async (group) => ({
 		id: group.id,

@@ -68,7 +68,7 @@ export default defineEventHandler(async (event) => {
 	return {
 		count: personsCount[0]?.count ?? 0,
 		items: personsList.map((person) => ({
-			...person,
+			...withDisplayName(person),
 			hasPhoto: existsSync(`./data/${person.id}`),
 		})),
 	}

@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
 	const { iban, ...rest } = person
 
 	return {
-		...rest,
+		...withDisplayName(rest),
 		...bankDetailsVisible ? { iban } : {},
 		hasPhoto: existsSync(`./data/${params.person}`),
 	}

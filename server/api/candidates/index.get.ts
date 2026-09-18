@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
 		candidate: {
 			matriculationNumber: null as number | null,
 			postalAddress: null as string | null,
-			...candidate.candidate,
+			...withDisplayName(candidate.candidate),
 			hasPhoto: existsSync(`./data/${candidate.candidate.id}`),
 		},
 	}))

@@ -49,7 +49,7 @@ export default defineEventHandler(async (event) => {
 	return {
 		...electionProposal,
 		submitter: {
-			...electionProposal.submitter,
+			...withDisplayName(electionProposal.submitter),
 			hasPhoto: existsSync(`./data/${electionProposal.submitter.id}`),
 		},
 	}

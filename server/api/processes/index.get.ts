@@ -69,6 +69,7 @@ export default defineEventHandler(async (event) => {
 
 			return {
 				...processData,
+				initiatorPerson: withDisplayName(processData.initiatorPerson),
 				currentStep: steps[currentStepIndex] ?? null,
 				previousStep: currentStepIndex > 0 ? steps[currentStepIndex - 1] ?? null : null,
 			}

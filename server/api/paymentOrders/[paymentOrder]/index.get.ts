@@ -99,8 +99,14 @@ export default defineEventHandler(async (event) => {
 	// whole payment order.
 	if(paymentOrder.recipientPerson && !hasPermission('personBankDetails.read')) {
 		const { iban: _iban, ...recipientPerson } = paymentOrder.recipientPerson
-		return { ...paymentOrder, recipientPerson: { ...recipientPerson, iban: null } }
+		return {
+			...paymentOrder,
+			recipientPerson: { ...withDisplayName(recipientPerson), iban: null },
+		}
 	}
 
-	return paymentOrder
+	return {
+		...paymentOrder,
+		recipientPerson: withDisplayName(paymentOrder.recipientPerson),
+	}
 })

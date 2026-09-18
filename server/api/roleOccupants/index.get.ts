@@ -23,5 +23,8 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	return roleOccupants
+	return roleOccupants.map((roleOccupant) => ({
+		...roleOccupant,
+		person: withDisplayName(roleOccupant.person),
+	}))
 })

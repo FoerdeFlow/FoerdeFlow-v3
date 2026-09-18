@@ -95,5 +95,8 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	return result
+	return result.map((paymentOrder) => ({
+		...paymentOrder,
+		recipientPerson: withDisplayName(paymentOrder.recipientPerson),
+	}))
 })

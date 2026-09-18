@@ -42,9 +42,9 @@ const resolveBudgetPlanItem: Resolver = async (database, value) => {
 
 const resolvePerson: Resolver = async (database, value) => {
 	if(typeof value !== 'string') return null
-	return await database.query.persons.findFirst({
+	return withDisplayName(await database.query.persons.findFirst({
 		where: eq(persons.id, value),
-	}) ?? null
+	}))
 }
 
 const resolveCourse: Resolver = async (database, value) => {

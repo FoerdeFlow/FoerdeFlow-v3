@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
 		...document,
 		authorPerson: document.authorPerson
 			? {
-				...document.authorPerson,
+				...withDisplayName(document.authorPerson),
 				hasPhoto: existsSync(`./data/${document.authorPerson.id}`),
 			}
 			: null,
