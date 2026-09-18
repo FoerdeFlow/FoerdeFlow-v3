@@ -705,6 +705,16 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'settings.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'settings.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
 		id: 'permissions.read',
 		scope: 'global',
 		assignable: true,

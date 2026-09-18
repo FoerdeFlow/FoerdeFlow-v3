@@ -1,0 +1,30 @@
+CREATE TABLE "settings" (
+	"id" integer PRIMARY KEY DEFAULT 1 NOT NULL,
+	"provider_name" varchar(256) DEFAULT '' NOT NULL,
+	"provider_legal_form" varchar(256) DEFAULT '' NOT NULL,
+	"provider_address" varchar(1024) DEFAULT '' NOT NULL,
+	"represented_by" varchar(1024) DEFAULT '' NOT NULL,
+	"contact_email" varchar(256) DEFAULT '' NOT NULL,
+	"contact_phone" varchar(256) DEFAULT '' NOT NULL,
+	"supervisory_authority" varchar(1024) DEFAULT '' NOT NULL,
+	"responsible_for_content" varchar(1024) DEFAULT '' NOT NULL,
+	"vat_id" varchar(256) DEFAULT '' NOT NULL,
+	"privacy_controller" varchar(1024) DEFAULT '' NOT NULL,
+	"privacy_officer" varchar(1024) DEFAULT '' NOT NULL,
+	"privacy_purposes" varchar(4096) DEFAULT '' NOT NULL,
+	"privacy_retention" varchar(4096) DEFAULT '' NOT NULL,
+	"privacy_recipients" varchar(4096) DEFAULT '' NOT NULL,
+	"privacy_authority" varchar(1024) DEFAULT '' NOT NULL,
+	"accessibility_conformance" varchar(4096) DEFAULT '' NOT NULL,
+	"accessibility_non_accessible" varchar(4096) DEFAULT '' NOT NULL,
+	"accessibility_created_at" varchar(256) DEFAULT '' NOT NULL,
+	"accessibility_reviewed_at" varchar(256) DEFAULT '' NOT NULL,
+	"accessibility_review_method" varchar(1024) DEFAULT '' NOT NULL,
+	"accessibility_feedback_contact" varchar(1024) DEFAULT '' NOT NULL,
+	"accessibility_arbitration_body" varchar(1024) DEFAULT '' NOT NULL,
+	"accessibility_easy_language" varchar(4096) DEFAULT '' NOT NULL,
+	"accessibility_sign_language" varchar(4096) DEFAULT '' NOT NULL,
+	CONSTRAINT "settings_singleton" CHECK ("settings"."id" = 1)
+);
+--> statement-breakpoint
+INSERT INTO "settings" ("id", "provider_name") VALUES (1, 'Studierendenschaft der HAW Kiel') ON CONFLICT ("id") DO NOTHING;

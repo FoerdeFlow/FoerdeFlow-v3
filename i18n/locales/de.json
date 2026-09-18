@@ -56,7 +56,8 @@
 			"roleOccupants": "Rolleninhaber",
 			"permissions": "Berechtigungen",
 			"announcements": "Ankündigungen",
-			"paymentOrders": "Zahlungsanweisungen"
+			"paymentOrders": "Zahlungsanweisungen",
+			"settings": "Einstellungen"
 		}
 	},
 	"processes": {
