@@ -5,6 +5,7 @@ export default defineEventHandler(async (event) => {
 	const query = await getValidatedQuery(event, async (data) => await z.strictObject({
 		page: z.coerce.number().int().min(0).optional(),
 		limit: z.coerce.number().int().min(1).max(10).default(10),
+		filter: z.enum([ 'waiting' ]).optional(),
 	}).parseAsync(data))
 
 	const database = useDatabase()
@@ -21,6 +22,7 @@ export default defineEventHandler(async (event) => {
 							assigneeOrganizationItem: true,
 						},
 						columns: {
+							name: true,
 							type: true,
 							assignee: true,
 							assigneeReferencedPerson: true,
@@ -75,10 +77,16 @@ export default defineEventHandler(async (event) => {
 		}
 	}))).filter((process): process is NonNullable<typeof process> => process !== null)
 
+	const filtered = query.filter === 'waiting'
+		? (await Promise.all(items.map(async (item) =>
+			await isProcessWaitingForUser(item) ? item : null,
+		))).filter((item): item is NonNullable<typeof item> => item !== null)
+		: items
+
 	const offset = (query.page ?? 0) * query.limit
 
 	return {
-		count: items.length,
-		items: items.slice(offset, offset + query.limit),
+		count: filtered.length,
+		items: filtered.slice(offset, offset + query.limit),
 	}
 })

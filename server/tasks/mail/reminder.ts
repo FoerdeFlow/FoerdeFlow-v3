@@ -1,70 +1,5 @@
 import { eq } from 'drizzle-orm'
 
-async function getEffectiveAssignees(options: {
-	assignee: 'initiator' | 'organizationItem' | 'referencedPerson',
-	assigneeReferencedPerson: string | null,
-	assigneeOrganizationItem: string | null,
-	processId: string,
-	initiatorType: 'person' | 'organizationItem',
-	initiatorPerson: string | null,
-	initiatorOrganizationItem: string | null,
-}) {
-	const database = useDatabase()
-
-	if(options.assignee === 'organizationItem' && options.assigneeOrganizationItem) {
-		return await getEffectiveMembers([ options.assigneeOrganizationItem ], null)
-	}
-
-	if(options.assignee === 'initiator') {
-		if(options.initiatorType === 'person' && options.initiatorPerson) {
-			return await database.query.persons.findMany({
-				where: eq(persons.id, options.initiatorPerson),
-			})
-		}
-
-		if(options.initiatorType === 'organizationItem' && options.initiatorOrganizationItem) {
-			return await getEffectiveMembers([ options.initiatorOrganizationItem ], null)
-		}
-	}
-
-	if(options.assignee === 'referencedPerson' && options.assigneeReferencedPerson) {
-		const mutations = await database.query.workflowProcessMutations.findMany({
-			where: (mutation, { eq }) => eq(mutation.process, options.processId),
-			with: {
-				mutation: {
-					columns: {
-						table: true,
-					},
-				},
-			},
-			columns: {
-				data: true,
-			},
-		})
-
-		const [ table, ...steps ] = options.assigneeReferencedPerson.split('.')
-		const mutation = mutations.find((m) => m.mutation.table === table)
-		if(!mutation) {
-			return []
-		}
-
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const field = steps.reduce<any>(
-			(acc, step) => acc?.[step] ?? null,
-			mutation.data,
-		)
-		if(typeof field !== 'string') {
-			return []
-		}
-
-		return await database.query.persons.findMany({
-			where: eq(persons.id, field),
-		})
-	}
-
-	return []
-}
-
 function replacePlaceholders(template: string, data: Record<string, string>): string {
 	return template.replaceAll(/{{\s*([^}]+)\s*}}/g, (_, key) => data[key] ?? '')
 }
@@ -138,7 +73,7 @@ async function checkProcessReminder(process: {
 			}
 		}
 
-		const recipients = await getEffectiveAssignees({
+		const recipients = await getProcessAssignees({
 			assignee: currentStep.step.assignee,
 			assigneeReferencedPerson: currentStep.step.assigneeReferencedPerson,
 			assigneeOrganizationItem: currentStep.step.assigneeOrganizationItem,
