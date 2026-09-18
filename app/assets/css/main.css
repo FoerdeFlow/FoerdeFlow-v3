@@ -4,12 +4,21 @@
 body {
 	margin: 0;
 	padding: 0;
+
+	/*
+	 * KERN färbt Text nur über Komponentenklassen. Ohne diese Vorgabe bliebe
+	 * Text ohne KERN-Klasse bei der Browser-Voreinstellung Schwarz und wäre im
+	 * Dark Mode auf schwarzem Grund unlesbar.
+	 */
+	color: var(--kern-color-layout-text-default);
 }
 
-.kern-link {
-	color: blue !important;
-
-	&>.kern-icon {
-		background-color: blue !important;
-	}
+/*
+ * Nuxt rendert die Anwendung in `#__nuxt`. Das Flex-Layout hält die Fußzeile
+ * auch bei kurzen Seiten am unteren Rand des Viewports.
+ */
+#__nuxt {
+	display: flex;
+	min-height: 100dvh;
+	flex-direction: column;
 }

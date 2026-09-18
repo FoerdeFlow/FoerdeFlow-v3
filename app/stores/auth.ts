@@ -12,6 +12,12 @@ export const useAuthStore = defineStore('auth', () => {
 
 	const loggedIn = computed(() => Boolean(userInfo.value.person))
 
+	const displayName = computed(() => {
+		const person = userInfo.value.person
+		if(!person) return 'Gast'
+		return `${person.callName ?? person.firstName} ${person.lastName}`
+	})
+
 	function hasPermission(
 		permission: string,
 		scope: {
@@ -59,6 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
 	}
 
 	return {
+		displayName,
 		hasPermission,
 		loggedIn,
 		login,

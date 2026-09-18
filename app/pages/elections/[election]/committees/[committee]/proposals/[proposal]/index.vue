@@ -31,7 +31,6 @@ const subPages: KernCardNavItems = [
 				proposal: route.params.proposal,
 			},
 		},
-		linkLabel: 'Kandidaturen anzeigen',
 		permission: 'candidates.read',
 	},
 ]

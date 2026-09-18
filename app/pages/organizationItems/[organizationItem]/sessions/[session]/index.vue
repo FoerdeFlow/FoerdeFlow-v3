@@ -26,17 +26,15 @@ const subPages = computed<KernCardNavItems>(() => [
 			name: 'organizationItems-organizationItem-sessions-session-attendances',
 			params: { organizationItem: route.params.organizationItem, session: route.params.session },
 		},
-		linkLabel: 'Zur Anwesenheitsliste',
 		permission: 'attendances.read',
 	},
 	...(minutesStatus.value === 'success'
 		? [ {
-			title: 'Protokoll',
+			title: 'Protokoll (PDF)',
 			description: 'Das Protokoll bietet eine Zusammenfassung der Sitzung, einschließlich der ' +
 				'besprochenen Themen und der getroffenen Entscheidungen.',
 			link: `/api/sessions/${route.params.session}/minutes`,
 			linkTarget: '_blank' as const,
-			linkLabel: 'Protokoll herunterladen (PDF)',
 			permission: 'sessions.read',
 		} ]
 		: []),

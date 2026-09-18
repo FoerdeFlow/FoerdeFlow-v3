@@ -18,7 +18,6 @@ const subPages: KernCardNavItems = [
 			name: 'budgets-budget-plans',
 			params: { budget: route.params.budget },
 		},
-		linkLabel: 'Haushaltspläne anzeigen',
 		permission: 'budgetPlans.read',
 	},
 	{
@@ -27,7 +26,6 @@ const subPages: KernCardNavItems = [
 			name: 'budgets-budget-expenseAuthorizations',
 			params: { budget: route.params.budget },
 		},
-		linkLabel: 'Rücklagenausschüttungen anzeigen',
 		permission: 'expenseAuthorizations.read',
 	},
 	{
@@ -36,7 +34,6 @@ const subPages: KernCardNavItems = [
 			name: 'budgets-budget-paymentOrders',
 			params: { budget: route.params.budget },
 		},
-		linkLabel: 'Zahlungsanweisungen anzeigen',
 		permission: 'paymentOrders.read',
 	},
 	{
@@ -45,7 +42,6 @@ const subPages: KernCardNavItems = [
 			name: 'budgets-budget-longtermContracts',
 			params: { budget: route.params.budget },
 		},
-		linkLabel: 'Langzeitverträge anzeigen',
 		permission: 'longtermContracts.read',
 	},
 ]

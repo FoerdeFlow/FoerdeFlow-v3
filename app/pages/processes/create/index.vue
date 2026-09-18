@@ -16,7 +16,6 @@ const navigationItems = computed(() =>
 			name: 'processes-create-workflow',
 			params: { workflow: workflow.id },
 		},
-		linkLabel: 'Prozess starten',
 	})) ?? []) satisfies KernCardNavItems,
 )
 </script>

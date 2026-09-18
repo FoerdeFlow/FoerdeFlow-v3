@@ -20,7 +20,6 @@ const subPages: KernCardNavItems = [
 			name: 'organizationItems-organizationItem-members',
 			params: { organizationItem: route.params.organizationItem },
 		},
-		linkLabel: 'Mitglieder anzeigen',
 		permission: 'memberships.read',
 	},
 	{
@@ -30,7 +29,6 @@ const subPages: KernCardNavItems = [
 			name: 'organizationItems-organizationItem-groups',
 			params: { organizationItem: route.params.organizationItem },
 		},
-		linkLabel: 'Gruppen anzeigen',
 		permission: 'organizationItemGroups.read',
 	},
 	{
@@ -40,7 +38,6 @@ const subPages: KernCardNavItems = [
 			name: 'organizationItems-organizationItem-sessions',
 			params: { organizationItem: route.params.organizationItem },
 		},
-		linkLabel: 'Sitzungen anzeigen',
 		permission: 'sessions.read',
 	},
 	{
@@ -50,7 +47,6 @@ const subPages: KernCardNavItems = [
 			name: 'organizationItems-organizationItem-documents',
 			params: { organizationItem: route.params.organizationItem },
 		},
-		linkLabel: 'Vorlagen anzeigen',
 		permission: 'documents.read',
 	},
 	{
@@ -60,7 +56,6 @@ const subPages: KernCardNavItems = [
 			name: 'organizationItems-organizationItem-texts',
 			params: { organizationItem: route.params.organizationItem },
 		},
-		linkLabel: 'Texte anzeigen',
 		permission: 'texts.read',
 	},
 	{
@@ -70,7 +65,6 @@ const subPages: KernCardNavItems = [
 			name: 'organizationItems-organizationItem-representationAllowances',
 			params: { organizationItem: route.params.organizationItem },
 		},
-		linkLabel: 'Aufwandsentschädigungen anzeigen',
 		permission: 'representationAllowances.read',
 	},
 ]
@@ -88,28 +82,41 @@ header
 	h1.kern-heading-large {{ data.name }} ({{ data.code }})
 .mb-8
 	KernText(:text="data.description")
-.kern-container
-	.kern-row
-		.kern-col(v-if="data.parent")
-			article.kern-card
-				.kern-card__container
-					.kern-card__header
-						p.kern-preline Übergeordnete Organisationseinheit
-						h2.kern-title {{ data.parent.name }} ({{ data.parent.code }})
-		.kern-col(v-if="data.children.length > 0")
-			article.kern-card
-				.kern-card__container
-					.kern-card__header
-						h2.kern-title Untergeordnete Organisationseinheiten
-					.kern-card__body
-						ul
-							li(
-								v-for="item of data.children"
-								:key="item.id"
-							)
-								| {{ item.name }} ({{ item.code }})
+.ff3-relations(v-if="data.parent || data.children.length > 0")
+	article.kern-card(v-if="data.parent")
+		.kern-card__container
+			header.kern-card__header
+				hgroup.kern-hgroup
+					h2.kern-title {{ data.parent.name }} ({{ data.parent.code }})
+					p.kern-preline Übergeordnete Organisationseinheit
+	article.kern-card(v-if="data.children.length > 0")
+		.kern-card__container
+			header.kern-card__header
+				h2.kern-title Untergeordnete Organisationseinheiten
+			section.kern-card__body
+				ul.kern-list.kern-list--bullet
+					li(
+						v-for="item of data.children"
+						:key="item.id"
+					)
+						| {{ item.name }} ({{ item.code }})
 KernCardNav(
 	:items="subPages"
 	:scope="{ organizationItem: route.params.organizationItem }"
 )
 </template>
+
+<style scoped>
+/* Gleiches Raster wie KernCardNav, damit beide Kartenblöcke fluchten. */
+.ff3-relations {
+	display: grid;
+	gap: var(--kern-metric-space-default);
+	margin-bottom: var(--kern-metric-space-default);
+}
+
+@media (min-width: 48rem) {
+	.ff3-relations {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+</style>

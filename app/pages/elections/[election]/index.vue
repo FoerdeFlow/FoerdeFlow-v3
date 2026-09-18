@@ -18,7 +18,6 @@ const subPages: KernCardNavItems = [
 			name: 'elections-election-committees',
 			params: { election: route.params.election },
 		},
-		linkLabel: 'Wahlgremien anzeigen',
 		permission: 'electionCommittees.read',
 	},
 ]

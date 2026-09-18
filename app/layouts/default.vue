@@ -1,6 +1,10 @@
 <script setup lang="ts">
-const runtimeConfig = useRuntimeConfig()
-const authStore = useAuthStore()
+const { settings } = useSettings()
+
+// Ohne gepflegten Namen bliebe sonst ein Gedankenstrich ohne Bezug stehen.
+const officialLabel = computed(() => settings.value?.providerName
+	? `Offizielle Website – ${settings.value.providerName}`
+	: 'Offizielle Website')
 const alertStore = useAlertStore()
 
 const { data: announcements } = await useFetch('/api/announcements', {
@@ -8,34 +12,19 @@ const { data: announcements } = await useFetch('/api/announcements', {
 		filter: 'active',
 	},
 })
-
-const displayName = computed(() => {
-	const person = authStore.userInfo.person
-	if(!person) return 'Gast'
-	return `${person.callName ?? person.firstName} ${person.lastName}`
-})
 </script>
 
 <template lang="pug">
-.kern-kopfzeile(
-	v-if="runtimeConfig.public.environment !== 'production'"
-	:class="`ff3-env-${runtimeConfig.public.environment}`"
-)
-	.kern-container
-		.kern-kopfzeile__content
-			span.kern-icon.kern-icon--warning.ff3-env-icon(aria-hidden="true")
-			span.kern-kopfzeile__label.ff3-env-label
-				| Sie befinden sich in der
-				|
-				b {{ $t(`environment.${runtimeConfig.public.environment}`) }}.
-				|
-				| Diese Umgebung dient nur zu Testzwecken und könnte jederzeit zurückgesetzt werden.
+a.ff3-skip-link(href="#inhalt") Direkt zum Inhalt springen
 .kern-kopfzeile
 	.kern-container
 		.kern-kopfzeile__content
-			span.kern-kopfzeile__label Offizielle Website – Studierendenparlament der HAW Kiel
-template(v-if="announcements && announcements.length > 0")
-	.kern-container.mt-4(
+			span.kern-kopfzeile__label {{ officialLabel }}
+LayoutEnvironmentBanner
+LayoutHeader
+main#inhalt.ff3-main.kern-container
+	div(
+		v-if="announcements && announcements.length > 0"
 		aria-live="polite"
 	)
 		KernAlert(
@@ -44,63 +33,50 @@ template(v-if="announcements && announcements.length > 0")
 			type="info"
 			:title="announcement.title"
 			:text="announcement.text"
+			:dismissible="false"
 		)
-	hr.kern-divider(aria-hidden="true")
-header.kern-container.mt-4
-	template(v-if="authStore.loggedIn")
-		.flex.flex-col.justify-between.gap-2.mb-4(class="md:flex-row")
-			p.flex-1.kern-text Willkommen, #[b {{ displayName }}]!
-			.flex.flex-row.gap-2
-				button.kern-btn.kern-btn--primary(
-					type="button"
-					@click="$router.push('/')"
-				)
-					span.kern-icon.kern-icon--home(aria-hidden="true")
-					span.kern-sr-only Startseite
-				button.flex-1.kern-btn.kern-btn--primary(
-					type="button"
-					@click="authStore.logout()"
-				)
-					span.kern-label Abmelden
-	template(v-else)
-		.flex.flex-row.justify-between.gap-2.mb-4
-			button.kern-btn.kern-btn--primary(
-				type="button"
-				@click="$router.push('/')"
-			)
-				span.kern-icon.kern-icon--home(aria-hidden="true")
-				span.kern-sr-only Startseite
-			button.flex-1.kern-btn.kern-btn--primary(
-				type="button"
-				@click="authStore.login()"
-			)
-				span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
-				span.kern-label Anmelden
-hr.kern-divider(aria-hidden="true")
-main.kern-container
-	.mt-4
-		KernAlert(
-			v-for="(alert, idx) of alertStore.alerts"
-			:key="idx"
-			:type="alert.type"
-			:title="alert.title"
-			:text="alert.text"
-			@close="alertStore.alerts.splice(idx, 1)"
-		)
-		slot
+	KernAlert(
+		v-for="(alert, idx) of alertStore.alerts"
+		:key="idx"
+		:type="alert.type"
+		:title="alert.title"
+		:text="alert.text"
+		@close="alertStore.alerts.splice(idx, 1)"
+	)
+	slot
+LayoutFooter
 </template>
 
 <style scoped>
-.ff3-env-development { background-color: #e86a5b; }
-.ff3-env-stage { background-color: #009dc9; }
-.ff3-env-test { background-color: #d07e00; }
-.ff3-env-qa { background-color: #00a481; }
-
-.ff3-env-icon {
-	background-color: white;
+.ff3-main {
+	flex: 1;
+	padding-top: var(--kern-metric-space-large);
 }
 
-.ff3-env-label {
-	color: white;
+/*
+ * Sprunglink: außerhalb des Fokus visuell verborgen, bei Tastaturfokus sichtbar
+ * über dem Inhalt. `kern-sr-only` ist hier nicht nutzbar, da die Klasse den
+ * Inhalt per `!important` dauerhaft ausblendet.
+ */
+.ff3-skip-link {
+	position: absolute;
+	z-index: 100;
+	top: var(--kern-metric-space-small);
+	left: var(--kern-metric-space-small);
+	padding: var(--kern-metric-space-small) var(--kern-metric-space-default);
+	border-radius: var(--kern-metric-border-radius-default);
+	background-color: var(--kern-color-action-default);
+	color: var(--kern-color-action-on-default);
+	font-size: var(--kern-typography-font-size-small-static);
+	font-weight: var(--kern-typography-font-weight-label-default);
+	line-height: var(--kern-typography-line-height-medium-static);
+	text-decoration: none;
+	transform: translateY(calc(-100% - var(--kern-metric-space-large)));
+}
+
+.ff3-skip-link:focus {
+	outline: var(--kern-metric-border-width-bold) solid var(--kern-color-action-focus-default);
+	outline-offset: var(--kern-metric-space-2x-small);
+	transform: translateY(0);
 }
 </style>

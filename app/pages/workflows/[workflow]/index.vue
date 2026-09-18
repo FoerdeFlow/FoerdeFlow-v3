@@ -12,7 +12,6 @@ const subPages: KernCardNavItems = [
 			name: 'workflows-workflow-allowedInitiators',
 			params: { workflow: route.params.workflow },
 		},
-		linkLabel: 'Zugelassene Initiatoren anzeigen',
 		permission: 'workflowAllowedInitiators.read',
 	},
 	{
@@ -21,7 +20,6 @@ const subPages: KernCardNavItems = [
 			name: 'workflows-workflow-steps',
 			params: { workflow: route.params.workflow },
 		},
-		linkLabel: 'Workflow-Schritte anzeigen',
 		permission: 'workflowSteps.read',
 	},
 	{
@@ -30,7 +28,6 @@ const subPages: KernCardNavItems = [
 			name: 'workflows-workflow-mutations',
 			params: { workflow: route.params.workflow },
 		},
-		linkLabel: 'Workflow-Mutationen anzeigen',
 		permission: 'workflowMutations.read',
 	},
 	{
@@ -39,7 +36,6 @@ const subPages: KernCardNavItems = [
 			name: 'workflows-workflow-signatures',
 			params: { workflow: route.params.workflow },
 		},
-		linkLabel: 'Unterschriften anzeigen',
 		permission: 'workflowSignatures.read',
 	},
 ]

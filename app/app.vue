@@ -3,6 +3,14 @@ import type { KernConfirmDialog } from '#components'
 
 const confirmDialogStore = useConfirmDialogStore()
 const confirmDialog = useTemplateRef<typeof KernConfirmDialog>('confirmDialog')
+
+const { kernTheme } = useTheme()
+
+useHead({
+	htmlAttrs: {
+		'data-kern-theme': kernTheme,
+	},
+})
 </script>
 
 <template lang="pug">

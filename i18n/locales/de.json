@@ -205,8 +205,7 @@
 		"mutationTitle": "Daten zur Ausgabeermächtigung",
 		"menu": {
 			"title": "Ausgabeermächtigungen",
-			"description": "Ausgabeermächtigungen sind Genehmigungen des Studierendenparlaments oder des Allgemeinen Studierendenausschusses über Ausgaben, welche im Einzelfall den Betrag von 150 Euro überschreiten.",
-			"linkLabel": "Zu den Ausgabeermächtigungen"
+			"description": "Ausgabeermächtigungen sind Genehmigungen des Studierendenparlaments oder des Allgemeinen Studierendenausschusses über Ausgaben, welche im Einzelfall den Betrag von 150 Euro überschreiten."
 		},
 		"table": {
 			"caption": "Liste der Ausgabeermächtigungen"
@@ -293,8 +292,7 @@
 		"mutationTitle": "Daten zur Zahlungsanweisung",
 		"menu": {
 			"title": "Zahlungsanweisungen",
-			"description": "Eine Zahlungsanweisung ordnet die Auszahlung eines Betrages an, entweder als Auslagenerstattung an ein Gremienmitglied oder zur Begleichung der Rechnung einer Firma oder eines externen Dienstleisters.",
-			"linkLabel": "Zu den Zahlungsanweisungen"
+			"description": "Eine Zahlungsanweisung ordnet die Auszahlung eines Betrages an, entweder als Auslagenerstattung an ein Gremienmitglied oder zur Begleichung der Rechnung einer Firma oder eines externen Dienstleisters."
 		},
 		"table": {
 			"caption": "Liste der Zahlungsanweisungen"

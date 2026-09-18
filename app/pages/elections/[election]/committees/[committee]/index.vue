@@ -23,7 +23,6 @@ const subPages: KernCardNavItems = [
 			name: 'elections-election-committees-committee-proposals',
 			params: { election: route.params.election, committee: route.params.committee },
 		},
-		linkLabel: 'Wahlvorschläge anzeigen',
 		permission: 'electionProposals.read',
 	},
 ]
