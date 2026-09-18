@@ -1,3 +1,20 @@
+interface BudgetPlanProcessMutation {
+	id?: string
+	budget: {
+		name: string
+		code: string
+	} | null
+	startDate: string
+	endDate: string
+	items: {
+		title: string
+		description: string | null
+		revenues?: number | null
+		expenses?: number | null
+		ord: number | null
+	}[]
+}
+
 interface ExpenseAuthorizationProcessMutation {
 	id?: string
 	budgetPlanItem: {
@@ -110,6 +127,7 @@ interface RepresentationAllowanceProcessMutation {
 }
 
 export interface ExpandedProcessMutations {
+	budgetPlan: BudgetPlanProcessMutation
 	expenseAuthorization: ExpenseAuthorizationProcessMutation
 	paymentOrder: PaymentOrderProcessMutation
 	longtermContract: LongtermContractProcessMutation

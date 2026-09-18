@@ -1,11 +1,3 @@
-function escapeHtml(htmlStr: string) {
-	return htmlStr.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#39;')
-}
-
 export function htmlEncodeExpenseAuthorization(entry: {
 	id?: string
 	budgetPlanItem: {
@@ -42,16 +34,18 @@ export function htmlEncodeExpenseAuthorization(entry: {
 		})
 	}
 
+	const total = entry.items.reduce((sum, item) => sum + item.amount, 0)
+
 	const motionText = '<p>' +
-		`Die Ausgabe „${entry.title}“ ` +
+		`Die Ausgabe „${escapeHtml(entry.title)}“ ` +
 		(entry.budgetPlanItem
-			? `aus dem Haushalt ${formatBudget(budgetData)} ` +
+			? `aus dem Haushalt ${escapeHtml(formatBudget(budgetData))} ` +
 				`in der Haushaltsperiode ${formatBudgetPlan(entry.budgetPlanItem.plan)} ` +
 				(entry.budgetPlanItem.plan.pending
 					? 'nach Maßgabe des beantragten Haushaltsplans '
 					: '')
-			: `aus der Rücklage des Haushalts ${formatBudget(budgetData)} `) +
-		`mit Ausgaben in Höhe von ${formatCurrency(entry.items.reduce((sum, item) => sum + item.amount, 0))} ` +
+			: `aus der Rücklage des Haushalts ${escapeHtml(formatBudget(budgetData))} `) +
+		`mit Ausgaben in Höhe von ${formatCurrency(total, 'amount')} ` +
 		'wird genehmigt.' +
 		'</p>'
 

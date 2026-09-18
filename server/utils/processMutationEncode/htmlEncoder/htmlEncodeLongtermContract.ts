@@ -5,14 +5,6 @@ const timeUnitLabels = {
 	year: 'Jahr',
 } as const
 
-function escapeHtml(htmlStr: string) {
-	return htmlStr.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#39;')
-}
-
 function formatItemCondition(item: {
 	type: 'time' | 'usage' | 'fixed'
 	timeUnit: 'month' | 'quarter' | 'semester' | 'year' | null
@@ -69,8 +61,8 @@ export function htmlEncodeLongtermContract(entry: {
 		: `ab ${formatDate(entry.startDate, 'compact')} (unbefristet) `
 
 	const motionText = '<p>' +
-		`Der Langzeitvertrag „${entry.title}“ ` +
-		`aus dem Haushalt ${formatBudget(entry.budget)} ` +
+		`Der Langzeitvertrag „${escapeHtml(entry.title)}“ ` +
+		`aus dem Haushalt ${escapeHtml(formatBudget(entry.budget))} ` +
 		period +
 		'wird genehmigt.' +
 		'</p>'

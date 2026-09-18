@@ -1,11 +1,3 @@
-function escapeHtml(htmlStr: string) {
-	return htmlStr.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#39;')
-}
-
 export function htmlEncodePaymentOrder(entry: {
 	id?: string
 	budgetPlanItem: {
@@ -50,17 +42,17 @@ export function htmlEncodePaymentOrder(entry: {
 	}
 
 	const recipient = entry.recipientType === 'reimbursement'
-		? `zur Auslagenerstattung an ${formatPerson(entry.recipientPerson, 'long')} `
+		? `zur Auslagenerstattung an ${escapeHtml(formatPerson(entry.recipientPerson, 'long'))} `
 		: `zur Begleichung der Rechnung von ${escapeHtml(entry.recipientName ?? '')} `
 
 	const motionText = '<p>' +
 		`Die Zahlung „${escapeHtml(entry.title)}“ ` +
 		(entry.budgetPlanItem
-			? `aus dem Haushalt ${formatBudget(budgetData)} ` +
+			? `aus dem Haushalt ${escapeHtml(formatBudget(budgetData))} ` +
 				`in der Haushaltsperiode ${formatBudgetPlan(entry.budgetPlanItem.plan)} `
-			: `aus der Rücklage des Haushalts ${formatBudget(budgetData)} `) +
+			: `aus der Rücklage des Haushalts ${escapeHtml(formatBudget(budgetData))} `) +
 		recipient +
-		`in Höhe von ${formatCurrency(entry.amount)} ` +
+		`in Höhe von ${formatCurrency(entry.amount, 'amount')} ` +
 		'wird angewiesen.' +
 		'</p>'
 
@@ -72,21 +64,21 @@ export function htmlEncodePaymentOrder(entry: {
 			? [ {
 				key: 'Ausgabeermächtigung',
 				value: `${escapeHtml(entry.expenseAuthorization.title)} ` +
-					`(${formatCurrency(entry.expenseAuthorization.amount)})`,
+					`(${formatCurrency(entry.expenseAuthorization.amount, 'amount')})`,
 			} ]
 			: [],
 		...entry.recipientType === 'invoice'
 			? [
 				// The IBAN of a member is not repeated here, it is kept with the
 				// person and only shown to those who may see bank details.
-				{ key: 'IBAN', value: formatIban(entry.recipientIban) },
+				{ key: 'IBAN', value: escapeHtml(formatIban(entry.recipientIban)) },
 				{ key: 'Verwendungszweck', value: escapeHtml(entry.purpose ?? '') },
 			]
 			: [],
 		...entry.description
 			? [ { key: 'Beschreibung', value: escapeHtml(entry.description) } ]
 			: [],
-		{ key: 'Betrag', value: formatCurrency(entry.amount) },
+		{ key: 'Betrag', value: formatCurrency(entry.amount, 'amount') },
 	]
 
 	const detailsText = '<h3>Angaben zur Zahlung</h3>' +

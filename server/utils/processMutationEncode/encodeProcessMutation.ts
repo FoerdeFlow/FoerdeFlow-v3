@@ -9,6 +9,10 @@ interface MutationEncoders<T> {
 }
 
 const encoders = {
+	budgetPlan: {
+		html: htmlEncodeBudgetPlan,
+		pdf: pdfEncodeBudgetPlan,
+	},
 	expenseAuthorization: {
 		html: htmlEncodeExpenseAuthorization,
 		pdf: pdfEncodeExpenseAuthorization,

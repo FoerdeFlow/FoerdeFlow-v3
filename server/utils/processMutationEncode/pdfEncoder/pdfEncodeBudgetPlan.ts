@@ -7,17 +7,24 @@ export async function pdfEncodeBudgetPlan(entry: {
 	budget: {
 		name: string
 		code: string
-	}
+	} | null
 	startDate: string
 	endDate: string
 	items: {
 		title: string
 		description: string | null
-		revenues: number
-		expenses: number
+		revenues?: number | null
+		expenses?: number | null
 		ord: number | null
 	}[]
 }, options: PdfEncoderOptions = {}) {
+	if(!entry.budget) {
+		throw createError({
+			status: 500,
+			message: 'Invalid budgetPlan object (no budget)',
+		})
+	}
+
 	const budget = `${entry.budget.name} (${entry.budget.code})`
 	const period = `${formatDate(entry.startDate, 'compact')} - ${formatDate(entry.endDate, 'compact')}`
 
@@ -143,7 +150,7 @@ export async function pdfEncodeBudgetPlan(entry: {
 
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(12)
-		doc.text(formatCurrency(item.revenues), 42, pos.y, { align: 'right' })
+		doc.text(formatCurrency(item.revenues ?? 0), 42, pos.y, { align: 'right' })
 
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(12)
@@ -170,7 +177,7 @@ export async function pdfEncodeBudgetPlan(entry: {
 
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(12)
-		doc.text(formatCurrency(item.expenses), docWidth - 15, pos.y, { align: 'right' })
+		doc.text(formatCurrency(item.expenses ?? 0), docWidth - 15, pos.y, { align: 'right' })
 
 		pos.y += titleHeight + descriptionHeight + 5
 	}
@@ -181,7 +188,7 @@ export async function pdfEncodeBudgetPlan(entry: {
 	doc.setFont('OpenSans', 'normal')
 	doc.setFontSize(12)
 	doc.text(
-		formatCurrency(entry.items.map((item) => item.revenues).reduce((a, b) => a + b, 0)),
+		formatCurrency(entry.items.reduce((sum, item) => sum + (item.revenues ?? 0), 0)),
 		42, pos.y, { align: 'right' },
 	)
 
@@ -192,7 +199,7 @@ export async function pdfEncodeBudgetPlan(entry: {
 	doc.setFont('OpenSans', 'normal')
 	doc.setFontSize(12)
 	doc.text(
-		formatCurrency(entry.items.map((item) => item.expenses).reduce((a, b) => a + b, 0)),
+		formatCurrency(entry.items.reduce((sum, item) => sum + (item.expenses ?? 0), 0)),
 		docWidth - 15, pos.y, { align: 'right' },
 	)
 

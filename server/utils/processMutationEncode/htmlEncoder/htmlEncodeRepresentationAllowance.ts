@@ -1,11 +1,3 @@
-function escapeHtml(htmlStr: string) {
-	return htmlStr.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#39;')
-}
-
 export function htmlEncodeRepresentationAllowance(entry: {
 	id?: string
 	organizationItem: {
@@ -47,8 +39,8 @@ export function htmlEncodeRepresentationAllowance(entry: {
 			: `ab ${formatDate(entry.startDate, 'compact')} (unbefristet) `
 
 	const amount = entry.periodUnit === 'once'
-		? `in Höhe von ${formatCurrency(total)} `
-		: `in Höhe von ${formatCurrency(total)} je Monat `
+		? `in Höhe von ${formatCurrency(total, 'amount')} `
+		: `in Höhe von ${formatCurrency(total, 'amount')} je Monat `
 
 	const motionText = '<p>' +
 		`Die ${entry.periodUnit === 'once' ? 'einmalige ' : ''}Aufwandsentschädigung ` +
@@ -83,7 +75,7 @@ export function htmlEncodeRepresentationAllowance(entry: {
 		'<tr>' +
 		'<th></th>' +
 		'<th>Summe</th>' +
-		`<th>${formatCurrency(total)}</th>` +
+		`<th>${formatCurrency(total, 'amount')}</th>` +
 		'</tr>' +
 		'</tfoot>' +
 		'</table>'

@@ -68,10 +68,21 @@ const currencyFormatter = new Intl.NumberFormat('de-DE', {
 	currency: 'EUR',
 })
 
+/**
+ * Formats an amount of money.
+ *
+ * @param value - The amount
+ * @param zero - How a zero amount is rendered: blank, which reads well in a
+ *   cell of its own, or as an amount, which running text needs
+ * @returns The formatted amount
+ */
 export function formatCurrency(
 	value: number | null,
+	zero: 'blank' | 'amount' = 'blank',
 ): string {
-	if(!value) return ''
+	if(!value) {
+		return value === 0 && zero === 'amount' ? currencyFormatter.format(0) : ''
+	}
 	try {
 		return currencyFormatter.format(value)
 	} catch(_) {
