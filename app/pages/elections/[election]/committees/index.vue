@@ -46,7 +46,7 @@ aside
 		| Zurück zu: {{ election.title }}
 header
 	h1.kern-heading-large Wahlgremien
-p.mb-8.kern-text
+p.mb-8.kern-body
 	| Wahlgremien sind die Gremien, für welche im Rahmen der Wahl Wahlvorschläge eingereicht werden können.
 KernTable(
 	caption="Liste der Wahlgremien"

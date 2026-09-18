@@ -62,7 +62,7 @@ aside
 		| Zurück zu: {{ organizationItem.name }} ({{ organizationItem.code }})
 header
 	h1.kern-heading-large Mitglieder im {{ organizationItem.name }} ({{ organizationItem.code }})
-p.mb-8.kern-text
+p.mb-8.kern-body
 	| Mitglieder sind Personen oder Organisationseinheiten, die Teil dieser Organisationseinheit sind.
 	| Ihre Rolle in der Organisationseinheit ergibt sich aus der Mitgliedschaftsart.
 KernTable(

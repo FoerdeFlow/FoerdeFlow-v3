@@ -47,7 +47,7 @@ watchEffect(() => {
 			type="text"
 			inputmode="numeric"
 		)
-p.kern-text(v-if="valid && periodModel")
+p.kern-body(v-if="valid && periodModel")
 	b Vorlagennummer:
 	|
 	| {{ formatDocumentNumber(periodModel, numberModel) }}

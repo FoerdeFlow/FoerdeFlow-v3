@@ -134,12 +134,12 @@ function onMinuteInput() {
 				:readonly="props.readonly"
 				@input="onMinuteInput()"
 			)
-	button.mt-8.kern-button.kern-button--secondary(
+	button.mt-8.kern-btn.kern-btn--secondary(
 		v-if="!props.readonly"
 		type="button"
 		@click="day = ''; month = ''; year = ''; hour = ''; minute = ''"
 	)
 		span.kern-icon.kern-icon--delete
 		span.kern-label.kern-sr-only Leeren
-p.kern-text(v-if="model") #[b Datum:] {{ props.showTime ? formatDatetime(model) : formatDate(model) }}
+p.kern-body(v-if="model") #[b Datum:] {{ props.showTime ? formatDatetime(model) : formatDate(model) }}
 </template>

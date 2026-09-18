@@ -31,7 +31,7 @@ dialog.kern-dialog(
 	header.kern-dialog__header
 		h2.kern-title.kern-title--large(:id="`${id}-heading`") {{ props.title }}
 	section.kern-dialog__body
-		p.kern-text {{ props.text }}
+		p.kern-body {{ props.text }}
 	footer.kern-dialog__footer
 		button.kern-btn.kern-btn--secondary(@click="emit('abort')")
 			span.kern-icon.kern-icon--close(aria-hidden="true")

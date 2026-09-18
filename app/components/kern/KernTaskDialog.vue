@@ -160,7 +160,7 @@ KernDialog(
 				)
 					span.kern-icon.kern-icon--arrow-back(aria-hidden="true")
 					span.kern-label.kern-sr-only Zurück
-				h2.kern-title.kern-title--medium Schritt {{ currentTaskIndex + 1 }}: {{ currentTask.label }}
+				h2.kern-heading-medium Schritt {{ currentTaskIndex + 1 }}: {{ currentTask.label }}
 			div(ref="task-detail")
 				slot(:name="`task-${currentTaskId}`")
 		template(v-if="currentView === 'check-data'")
@@ -171,7 +171,7 @@ KernDialog(
 				)
 					span.kern-icon.kern-icon--arrow-back(aria-hidden="true")
 					span.kern-label.kern-sr-only Zurück
-				h2.kern-title.kern-title--medium Angaben überprüfen
+				h2.kern-heading-medium Angaben überprüfen
 			.kern-summary-group.w-full(ref="task-detail")
 				.kern-summary(
 					v-for="(task, idx) of tasks"

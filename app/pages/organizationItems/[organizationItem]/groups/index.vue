@@ -46,7 +46,7 @@ aside
 		| Zurück zu: {{ organizationItem.name }} ({{ organizationItem.code }})
 header
 	h1.kern-heading-large Gruppen im {{ organizationItem.name }} ({{ organizationItem.code }})
-p.mb-8.kern-text
+p.mb-8.kern-body
 	| Gruppen sind Beteiligte bei dieser Organisationseinheit und/oder deren Sitzungen.
 	| Sie können aus Mitgliedern der Organisationseinheit oder aus bestimmten Rollen anderer Organisationseinheiten bestehen.
 KernTable(

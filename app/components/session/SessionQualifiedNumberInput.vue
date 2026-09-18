@@ -48,7 +48,7 @@ watchEffect(() => {
 			type="text"
 			inputmode="numeric"
 		)
-p.kern-text(v-if="valid && periodModel && numberModel")
+p.kern-body(v-if="valid && periodModel && numberModel")
 	b Sitzungsnummer:
 	|
 	| {{ formatSessionNumber(periodModel, numberModel) }}

@@ -42,7 +42,7 @@ const items = computed(() => {
 		.kern-task-list__header(
 			v-if="item.title"
 		)
-			h2.kern-title.kern-title--medium {{ item.title }}
+			h2.kern-heading-medium {{ item.title }}
 		ul.kern-task-list__list
 			li.kern-task-list__item(
 				v-for="(task, subidx) of item.tasks"
