@@ -3,6 +3,7 @@ interface HomeNavigationEntry {
 	title: string
 	link: string
 	permission?: string
+	requiresLogin?: boolean
 }
 
 interface HomeNavigationArea {
@@ -19,7 +20,7 @@ const areas: HomeNavigationArea[] = [
 		description: 'Eigene Vorgänge einsehen und neue Anträge einreichen.',
 		entries: [
 			// TODO: Sobald es die Berechtigung gibt: workflowProcesses.read
-			{ title: 'Meine Prozesse', link: '/processes' },
+			{ title: 'Meine Prozesse', link: '/processes', requiresLogin: true },
 			{ title: 'Prozess starten', link: '/processes/create', permission: 'workflowProcesses.create' },
 		],
 	},
@@ -74,7 +75,8 @@ const visibleAreas = computed(() => areas
 	.map((area) => ({
 		...area,
 		entries: area.entries.filter((entry) =>
-			!entry.permission || authStore.hasPermission(entry.permission).value,
+			(!entry.requiresLogin || authStore.loggedIn) &&
+			(!entry.permission || authStore.hasPermission(entry.permission).value),
 		),
 	}))
 	.filter((area) => area.entries.length > 0))

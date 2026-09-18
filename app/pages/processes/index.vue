@@ -10,8 +10,10 @@ const { data } = useFetch('/api/processes', {
 })
 const { data: drafts, refresh: refreshDrafts } = useFetch('/api/processDrafts')
 const router = useRouter()
+const authStore = useAuthStore()
 const confirmDialogStore = useConfirmDialogStore()
 const alertStore = useAlertStore()
+authStore.requireLogin()
 
 async function create() {
 	await router.push({
