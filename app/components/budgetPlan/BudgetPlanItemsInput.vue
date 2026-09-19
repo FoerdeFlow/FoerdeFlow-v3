@@ -37,6 +37,12 @@ const usedOrds = computed(() => model.value
 	.map((item) => item.ord)
 	.filter((ord) => ord !== null))
 
+// The balance of the other entries, which the edited one may take over so that
+// the plan as a whole adds up.
+const otherBalance = computed(() => budgetPlanBalance(
+	model.value.filter((item) => item.id !== editing.value),
+))
+
 // Ordinals are handed out in steps of ten, so that entries can be squeezed in
 // between them later on.
 const nextOrd = computed(() => Math.floor(Math.max(0, ...usedOrds.value) / 10) * 10 + 10)
@@ -132,6 +138,7 @@ KernAlert(
 BudgetPlanItemEditor(
 	ref="editor"
 	:used-ords="usedOrds"
+	:other-balance="otherBalance"
 	@save="save"
 )
 </template>

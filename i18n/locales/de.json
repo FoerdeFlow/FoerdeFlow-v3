@@ -147,6 +147,9 @@
 			"title": "Einnahmen und Ausgaben stimmen nicht überein",
 			"text": "Die Summe der Einnahmen weicht um {amount} von der Summe der Ausgaben ab. Ein Haushaltsplan kann erst gespeichert werden, wenn beide Summen übereinstimmen."
 		},
+		"remainder": {
+			"assign": "Restbetrag zuweisen ({amount})"
+		},
 		"field": {
 			"title": "Titel",
 			"description": "Hinweise",
@@ -243,6 +246,11 @@
 		"table": {
 			"caption": "Kostenaufstellung",
 			"footer": "Summe"
+		},
+		"fillTotal": {
+			"label": "Angestrebter Gesamtbetrag",
+			"hint": "Optionale Rechenhilfe: Beim Bearbeiten eines Postens kann dessen Betrag so aufgefüllt werden, dass die Ausgaben genau diesen Gesamtbetrag erreichen.",
+			"button": "Auf Gesamtbetrag auffüllen ({amount})"
 		},
 		"field": {
 			"title": "Titel",

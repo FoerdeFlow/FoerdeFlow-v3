@@ -138,9 +138,8 @@ KernDialog(
 			v-model="model.description"
 			:readonly="props.readonly"
 		)
-		ExpenseAuthorizationAmountInput(
-			v-model="model.amount"
-			:readonly="true"
+		ExpenseAuthorizationItemsInput(
+			v-model="model.items"
+			:readonly="props.readonly"
 		)
-		ExpenseAuthorizationItemsInput(v-model="model.items")
 </template>

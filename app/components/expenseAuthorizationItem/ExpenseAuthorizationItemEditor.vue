@@ -6,6 +6,8 @@ const dialog = useTemplateRef<typeof KernDialog>('dialog')
 const props = defineProps<{
 	/** The ordinals of the other items of the authorization, not to be repeated. */
 	usedOrds?: number[]
+	/** The amount which tops the breakdown up to the total entered for it. */
+	fillAmount?: number | null
 }>()
 
 const itemId = ref<string | null>(null)
@@ -28,6 +30,11 @@ const ordValid = computed(() => {
 	return typeof ord === 'number' && Number.isInteger(ord) && ord >= 1 &&
 		!props.usedOrds?.includes(ord)
 })
+
+const fillAmount = computed(() => props.fillAmount ?? null)
+
+// Topping up is only worth offering as long as it changes this item's amount.
+const fillable = computed(() => fillAmount.value !== null && fillAmount.value !== model.value?.amount)
 
 const valid = computed(() => {
 	if(!model.value) return false
@@ -59,6 +66,11 @@ defineExpose({
 const emit = defineEmits<{
 	save: [string | null, Model]
 }>()
+
+function fill() {
+	if(!model.value || fillAmount.value === null) return
+	model.value.amount = fillAmount.value
+}
 
 function cancel() {
 	if(!dialog.value) return
@@ -92,6 +104,13 @@ KernDialog(
 		ExpenseAuthorizationItemAmountInput.flex-1(
 			v-model="model.amount"
 		)
+		button.mt-4.kern-btn.kern-btn--secondary(
+			v-if="fillable"
+			type="button"
+			@click="fill()"
+		)
+			span.kern-icon.kern-icon--autorenew(aria-hidden="true")
+			span.kern-label {{ $t('expenseAuthorizationItem.fillTotal.button', { amount: formatCurrency(fillAmount, 'amount') }) }}
 		ExpenseAuthorizationItemDescriptionInput(
 			v-model="model.description"
 		)

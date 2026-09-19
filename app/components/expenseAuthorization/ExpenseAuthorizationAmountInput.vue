@@ -11,8 +11,8 @@ const model = defineModel<number | null>({
 <template lang="pug">
 KernCurrencyInput(
 	v-model="model"
-	label="Ausgaben"
-	hint="Falls die erwarteten Einnahmen die Ausgaben übersteigen, bitte den Betrag mit einem Minuszeichen angeben."
+	label="Ausgaben laut Kostenaufstellung"
+	hint="Summe der Posten aus der Kostenaufstellung. Einnahmen sind als negative Beträge gegengerechnet."
 	:readonly="props.readonly"
 )
 </template>

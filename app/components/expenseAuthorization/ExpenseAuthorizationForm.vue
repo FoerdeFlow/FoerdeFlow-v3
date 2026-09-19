@@ -62,10 +62,6 @@ template(v-if="props.selectedItem === 'expense-authorization-title'")
 		:readonly="presets.readonly('description')"
 	)
 template(v-if="props.selectedItem === 'expense-authorization-amount-and-items'")
-	ExpenseAuthorizationAmountInput(
-		v-model="model.amount"
-		:readonly="true"
-	)
 	ExpenseAuthorizationItemsInput(
 		v-model="model.items"
 		:readonly="presets.readonly('items')"

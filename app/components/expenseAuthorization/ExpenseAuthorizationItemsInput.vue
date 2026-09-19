@@ -32,6 +32,23 @@ const usedOrds = computed(() => model.value
 	.map((item) => item.ord)
 	.filter((ord) => ord !== null))
 
+const total = computed(() => currencySum(...model.value.map((item) => item.amount)))
+
+// The total of the other entries, which the edited one may top up to the
+// total entered above.
+const otherTotal = computed(() => currencySum(...model.value
+	.filter((item) => item.id !== editing.value)
+	.map((item) => item.amount)))
+
+// The total the breakdown is meant to reach. It is only an aid for filling in
+// the amounts and is therefore not part of the model.
+const fillTotal = ref<number | null>(null)
+
+// The amount the edited entry has to carry so that the breakdown reaches it.
+const fillAmount = computed(() => fillTotal.value === null
+	? null
+	: currencySum(fillTotal.value, -otherTotal.value))
+
 // Ordinals are handed out in steps of ten, so that entries can be squeezed in
 // between them later on.
 const nextOrd = computed(() => Math.floor(Math.max(0, ...usedOrds.value) / 10) * 10 + 10)
@@ -66,6 +83,15 @@ function save(id: string | null, item: Model) {
 </script>
 
 <template lang="pug">
+.kern-fieldset__body.kern-fieldset__body--horizontal
+	ExpenseAuthorizationAmountInput.flex-1(
+		:model-value="total"
+		:readonly="true"
+	)
+	ExpenseAuthorizationFillTotalInput.flex-1(
+		v-if="!props.readonly"
+		v-model="fillTotal"
+	)
 KernTable(
 	:caption="$t('expenseAuthorizationItem.table.caption')"
 	:create-permission="props.readonly ? null : true"
@@ -105,10 +131,11 @@ KernTable(
 	template(#amount-body="{ item }")
 		| {{ formatCurrency(item.amount) }}
 	template(#amount-footer)
-		| {{ formatCurrency(model.map(item => item.amount ?? 0).reduce((a, b) => a + b, 0)) }}
+		| {{ formatCurrency(total) }}
 ExpenseAuthorizationItemEditor(
 	ref="editor"
 	:used-ords="usedOrds"
+	:fill-amount="fillAmount"
 	@save="save"
 )
 </template>
