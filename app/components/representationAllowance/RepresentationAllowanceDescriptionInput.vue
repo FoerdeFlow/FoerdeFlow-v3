@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const id = useId()
+const maxLength = 1024
 
 const props = defineProps<{
 	readonly?: boolean
@@ -20,5 +21,11 @@ const model = defineModel<string | null>({
 		:id="id"
 		v-model="model"
 		:readonly="props.readonly"
+		:maxlength="maxLength"
+	)
+	KernCharacterCount(
+		v-if="!props.readonly"
+		:value="model"
+		:max="maxLength"
 	)
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const id = useId()
+const maxLength = 1024
 const model = defineModel<string | null>({
 	required: true,
 	get: (v) => v ?? '',
@@ -23,5 +24,10 @@ const { label = null, required = false } = defineProps<{
 		:id="id"
 		v-model="model"
 		:required="required"
+		:maxlength="maxLength"
+	)
+	KernCharacterCount(
+		:value="model"
+		:max="maxLength"
 	)
 </template>

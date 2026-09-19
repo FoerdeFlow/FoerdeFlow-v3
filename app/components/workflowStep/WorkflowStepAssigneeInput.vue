@@ -2,6 +2,7 @@
 import type { OrganizationItem } from '~/types'
 
 const id = useId()
+const maxLength = 256
 
 const typeModel = defineModel<'initiator' | 'referencedPerson' | 'organizationItem' | null>('type', {
 	required: true,
@@ -37,6 +38,11 @@ function onTypeChange() {
 	input.kern-form-input__input(
 		:id="`${id}-referencedPerson`"
 		v-model="referencedPersonModel"
+		:maxlength="maxLength"
+	)
+	KernCharacterCount(
+		:value="referencedPersonModel"
+		:max="maxLength"
 	)
 .kern-form-input(v-if="typeModel === 'organizationItem'")
 	label.kern-label(:for="`${id}-organizationItem`") Organisationseinheit

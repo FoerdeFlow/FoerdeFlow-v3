@@ -7,6 +7,8 @@ const props = defineProps<{
 	label: string
 	hint?: string
 	rows?: number
+	/** The number of characters the column accepts at most. */
+	max: number
 }>()
 
 const model = defineModel<string>({
@@ -27,6 +29,11 @@ const model = defineModel<string>({
 		:id="id"
 		v-model="model"
 		:rows="props.rows ?? 3"
+		:maxlength="props.max"
 		:aria-describedby="props.hint ? `${id}-hint` : undefined"
+	)
+	KernCharacterCount(
+		:value="model"
+		:max="props.max"
 	)
 </template>

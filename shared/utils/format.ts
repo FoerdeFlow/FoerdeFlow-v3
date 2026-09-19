@@ -63,6 +63,19 @@ export function formatTime(date: string | Date | null): string {
 	}
 }
 
+const numberFormatter = new Intl.NumberFormat('de-DE')
+
+/**
+ * Formats a whole number in the German notation, i.e. with a dot as the
+ * thousands separator.
+ *
+ * @param value - The number
+ * @returns The formatted number
+ */
+export function formatNumber(value: number): string {
+	return numberFormatter.format(value)
+}
+
 const currencyFormatter = new Intl.NumberFormat('de-DE', {
 	style: 'currency',
 	currency: 'EUR',

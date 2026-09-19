@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const id = useId()
+const maxLength = 256
 const model = defineModel<string | null>({
 	required: true,
 	get: (v) => v ?? '',
@@ -20,5 +21,10 @@ const model = defineModel<string | null>({
 		v-model="model"
 		type="text"
 		:aria-describedby="`${id}-hint`"
+		:maxlength="maxLength"
+	)
+	KernCharacterCount(
+		:value="model"
+		:max="maxLength"
 	)
 </template>

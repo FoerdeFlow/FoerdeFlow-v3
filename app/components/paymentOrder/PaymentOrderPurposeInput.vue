@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const id = useId()
+const maxLength = 256
 
 const props = defineProps<{
 	readonly?: boolean
@@ -25,6 +26,11 @@ const model = defineModel<string | null>({
 		:readonly="props.readonly"
 		:aria-describedby="`${id}-hint`"
 		type="text"
-		maxlength="256"
+		:maxlength="maxLength"
+	)
+	KernCharacterCount(
+		v-if="!props.readonly"
+		:value="model"
+		:max="maxLength"
 	)
 </template>
