@@ -47,34 +47,38 @@ export default defineEventHandler(async (event) => {
 
 	if(query.filter === 'mine') {
 		const context = event.context as EventContext
+		const personId = context.user?.person?.id ?? null
+		const isAdmin = context.user?.roles.some((role) => role.isAdmin) ?? false
+		const createPermissions = (context.user?.permissions ?? [])
+			.filter((permission) => permission.permission === 'workflowProcesses.create')
+
+		// Both checks mirror the ones the POST endpoint runs, so that the list
+		// only offers the workflows that a process may actually be created for.
+		const canCreateAsPerson = hasPermission('workflowProcesses.create')
+		const canCreateForOrganizationItem = (organizationItem: string) =>
+			isAdmin || createPermissions.some((permission) =>
+				permission.organizationItem === false ||
+				permission.organizationItem === organizationItem,
+			)
+
 		return result.filter((workflow) =>
-			workflow.allowedInitiators.some((initiator) => (
-				initiator.person === null ||
-				initiator.person.id === context.user?.person?.id
-			) && (
-				initiator.role === null ||
-				context.user?.roles
-					.map((role) => role.id)
-					.includes(initiator.role.id)
-			) && (
-				initiator.organizationType === null ||
-				context.user?.permissions
-					.filter((permission) =>
-						permission.permission === 'workflowProcesses.create' &&
-						(
-							permission.organizationItem === false ||
-							initiator.organizationType?.items
-								.map((item) => item.id)
-								.includes(permission.organizationItem ?? '')
-						),
-					)
-			) && (
-				initiator.organizationItem === null ||
-				context.user?.permissions
-					.filter((permission) =>
-						permission.permission === 'workflowProcesses.create' &&
-						permission.organizationItem === initiator.organizationItem)
-			)),
+			workflow.allowedInitiators.some((initiator) => {
+				// An initiator without a single restriction lets anyone who may
+				// create a process start the workflow in their own name.
+				const isUnrestricted = Object.entries(initiator)
+					.every(([ key, value ]) => key === 'id' || value === null)
+
+				if(canCreateAsPerson && (
+					isUnrestricted ||
+					(personId !== null && initiator.person?.id === personId) ||
+					(context.user?.roles ?? []).some((role) => initiator.role?.id === role.id)
+				)) return true
+
+				const itemIds = initiator.organizationItem
+					? [ initiator.organizationItem.id ]
+					: initiator.organizationType?.items.map((item) => item.id) ?? []
+				return itemIds.some(canCreateForOrganizationItem)
+			}),
 		)
 	}
 
