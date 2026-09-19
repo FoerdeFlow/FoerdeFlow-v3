@@ -76,15 +76,15 @@ export function htmlEncodeBudgetPlan(entry: {
 				`<td>${formatCurrency(item.expenses ?? 0)}</td>` +
 				'</tr>'
 		}).join('') +
-		'</tbody>' +
-		'<tfoot>' +
+		// Die Summenzeile steht im `tbody`, da OpenSlides `tfoot` nicht
+		// erlaubt und das Tag sonst als Klartext ausgibt.
 		'<tr>' +
 		'<th></th>' +
 		'<th>Summe Einnahmen/Ausgaben</th>' +
 		`<th>${formatCurrency(revenues, 'amount')}</th>` +
 		`<th>${formatCurrency(expenses, 'amount')}</th>` +
 		'</tr>' +
-		'</tfoot>' +
+		'</tbody>' +
 		'</table>'
 
 	return motionText + detailsText

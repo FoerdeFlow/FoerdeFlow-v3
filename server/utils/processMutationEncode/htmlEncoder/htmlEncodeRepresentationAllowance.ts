@@ -70,14 +70,14 @@ export function htmlEncodeRepresentationAllowance(entry: {
 			`<td>${escapeHtml(formatPerson(recipient.person, 'long'))}</td>` +
 			`<td>${formatCurrency(recipient.amount)}</td>` +
 			'</tr>').join('') +
-		'</tbody>' +
-		'<tfoot>' +
+		// Die Summenzeile steht im `tbody`, da OpenSlides `tfoot` nicht
+		// erlaubt und das Tag sonst als Klartext ausgibt.
 		'<tr>' +
 		'<th></th>' +
 		'<th>Summe</th>' +
 		`<th>${formatCurrency(total, 'amount')}</th>` +
 		'</tr>' +
-		'</tfoot>' +
+		'</tbody>' +
 		'</table>'
 
 	return motionText + descriptionText + detailsText
