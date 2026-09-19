@@ -62,6 +62,8 @@ export async function pdfEncodePaymentOrder(entry: {
 	const doc = new jsPDF()
 	const docWidth = doc.internal.pageSize.getWidth()
 	const docHeight = doc.internal.pageSize.getHeight()
+	const pageTop = options.document ? 40 : 30
+	const pageBottom = docHeight - 30
 	const pos = {
 		_y: options.document ? 30 : 20,
 		_number: 1,
@@ -69,7 +71,7 @@ export async function pdfEncodePaymentOrder(entry: {
 			return this._y
 		},
 		set y(value) {
-			if(value > docHeight - 30) {
+			if(value > pageBottom) {
 				if(!options.document) {
 					doc.setFont('OpenSans', 'normal')
 					doc.setFontSize(14)
@@ -82,20 +84,27 @@ export async function pdfEncodePaymentOrder(entry: {
 				}
 				doc.addPage()
 				this._number++
-				this._y = options.document ? 40 : 30
+				this._y = pageTop
 
-				doc.setFont('OpenSans', 'italic')
-				doc.setFontSize(14)
-				doc.text('Zahlungsanweisung', 20, options.document ? 25 : 15, { align: 'left' })
-				doc.text(
-					period ? `${title} | ${period}` : title,
-					docWidth - 20,
+				pdfDrawRunningHeader(
+					doc,
+					'Zahlungsanweisung',
+					[ title, period ],
 					options.document ? 25 : 15,
-					{ align: 'right' },
 				)
 				return
 			}
 			this._y = value
+		},
+		/**
+		 * Starts a new page unless the given height still fits on the current one.
+		 *
+		 * @param height - The height of the block about to be drawn
+		 */
+		reserve(height: number) {
+			if(this._y > pageTop && this._y + height > pageBottom) {
+				this.y = docHeight
+			}
 		},
 		finalize() {
 			if(!options.document) {
@@ -113,6 +122,12 @@ export async function pdfEncodePaymentOrder(entry: {
 	 * @param value - The value of the field
 	 */
 	function field(label: string, value: string) {
+		doc.setFont('OpenSans', 'normal')
+		doc.setFontSize(14)
+		const lines = doc.splitTextToSize(value, docWidth - 40) as string[]
+		const valueHeight = (lines.length - 1) * doc.getLineHeight() / doc.internal.scaleFactor
+		pos.reserve(valueHeight + 8)
+
 		doc.setFont('OpenSans', 'bold')
 		doc.setFontSize(14)
 		doc.text(label, 20, pos.y)
@@ -120,9 +135,8 @@ export async function pdfEncodePaymentOrder(entry: {
 
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(14)
-		const lines = doc.splitTextToSize(value, docWidth - 40) as string[]
 		doc.text(lines, 20, pos.y)
-		pos.y += (lines.length - 1) * doc.getLineHeight() / doc.internal.scaleFactor + 12
+		pos.y += valueHeight + 12
 	}
 
 	const logo = await useStorage('assets:server').getItemRaw('img/logo.png')
@@ -181,11 +195,13 @@ export async function pdfEncodePaymentOrder(entry: {
 		const descriptionHeight =
 			(doc.splitTextToSize(entry.description, docWidth - 40) as unknown[]).length *
 			doc.getLineHeight() / doc.internal.scaleFactor
+		pos.reserve(descriptionHeight)
 		doc.text(entry.description, 20, pos.y, { align: 'justify', maxWidth: docWidth - 40 })
 		pos.y += descriptionHeight + 10
 	}
 	pos.y += 5
 
+	pos.reserve(3)
 	doc.rect(10, pos.y - 7, docWidth - 20, 10)
 
 	doc.setFont('OpenSans', 'bold')

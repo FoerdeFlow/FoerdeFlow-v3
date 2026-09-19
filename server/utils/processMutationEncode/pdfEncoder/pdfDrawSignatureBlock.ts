@@ -1,6 +1,6 @@
 import type jsPDF from 'jspdf'
 
-import type { PdfSignatureOptions } from './types'
+import type { PdfPosition, PdfSignatureOptions } from './types'
 
 /**
  * Draws a block of handwritten signature lines below the content already written.
@@ -16,13 +16,21 @@ import type { PdfSignatureOptions } from './types'
  */
 export function pdfDrawSignatureBlock(
 	doc: jsPDF,
-	pos: { y: number },
+	pos: PdfPosition,
 	entry: PdfSignatureOptions,
 ) {
 	const docWidth = doc.internal.pageSize.getWidth()
-	const docHeight = doc.internal.pageSize.getHeight()
 
 	pos.y += 15
+
+	doc.setFont('OpenSans', 'normal')
+	doc.setFontSize(10)
+	const hintHeight = entry.hint
+		? (doc.splitTextToSize(entry.hint, docWidth - 40) as unknown[]).length *
+			doc.getLineHeight() / doc.internal.scaleFactor + 5
+		: 0
+	// The name introduces the lines below it and must not be left behind alone.
+	pos.reserve(hintHeight + 8 + 30)
 
 	doc.setFont('OpenSans', 'bold')
 	doc.setFontSize(14)
@@ -32,18 +40,12 @@ export function pdfDrawSignatureBlock(
 	if(entry.hint) {
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(10)
-		const hintHeight =
-			(doc.splitTextToSize(entry.hint, docWidth - 40) as unknown[]).length *
-			doc.getLineHeight() / doc.internal.scaleFactor
 		doc.text(entry.hint, 20, pos.y, { align: 'justify', maxWidth: docWidth - 40 })
-		pos.y += hintHeight + 5
+		pos.y += hintHeight
 	}
 
 	for(const line of entry.lines) {
-		const lineHeight = line.hint ? 35 : 30
-		if(pos.y + lineHeight > docHeight - 30) {
-			pos.y = docHeight
-		}
+		pos.reserve(line.hint ? 35 : 30)
 
 		pos.y += 20
 		doc.setLineWidth(0.3)

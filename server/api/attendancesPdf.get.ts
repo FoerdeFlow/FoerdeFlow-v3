@@ -58,10 +58,7 @@ export default defineEventHandler(async (event) => {
 				this._number++
 				this._y = 30
 
-				doc.setFont('OpenSans', 'italic')
-				doc.setFontSize(14)
-				doc.text('Anwesenheitsliste', 20, 15, { align: 'left' })
-				doc.text(sessionTitle, docWidth - 20, 15, { align: 'right' })
+				pdfDrawRunningHeader(doc, 'Anwesenheitsliste', [ sessionTitle ], 15)
 				return
 			}
 			this._y = value

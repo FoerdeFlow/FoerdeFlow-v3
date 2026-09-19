@@ -32,6 +32,8 @@ export async function pdfEncodeBudgetPlan(entry: {
 	const doc = new jsPDF()
 	const docWidth = doc.internal.pageSize.getWidth()
 	const docHeight = doc.internal.pageSize.getHeight()
+	const pageTop = options.document ? 40 : 30
+	const pageBottom = docHeight - 30
 	const pos = {
 		_y: options.document ? 30 : 20,
 		_number: 1,
@@ -39,7 +41,7 @@ export async function pdfEncodeBudgetPlan(entry: {
 			return this._y
 		},
 		set y(value) {
-			if(value > docHeight - 30) {
+			if(value > pageBottom) {
 				if(!options.document) {
 					doc.setFont('OpenSans', 'normal')
 					doc.setFontSize(14)
@@ -52,20 +54,27 @@ export async function pdfEncodeBudgetPlan(entry: {
 				}
 				doc.addPage()
 				this._number++
-				this._y = options.document ? 40 : 30
+				this._y = pageTop
 
-				doc.setFont('OpenSans', 'italic')
-				doc.setFontSize(14)
-				doc.text('Haushaltsplan', 20, options.document ? 25 : 15, { align: 'left' })
-				doc.text(
-					`${budget} | ${period}`,
-					docWidth - 20,
+				pdfDrawRunningHeader(
+					doc,
+					'Haushaltsplan',
+					[ budget, period ],
 					options.document ? 25 : 15,
-					{ align: 'right' },
 				)
 				return
 			}
 			this._y = value
+		},
+		/**
+		 * Starts a new page unless the given height still fits on the current one.
+		 *
+		 * @param height - The height of the block about to be drawn
+		 */
+		reserve(height: number) {
+			if(this._y > pageTop && this._y + height > pageBottom) {
+				this.y = docHeight
+			}
 		},
 		finalize() {
 			if(!options.document) {
@@ -107,6 +116,8 @@ export async function pdfEncodeBudgetPlan(entry: {
 	doc.text(period, 20, pos.y)
 	pos.y += 20
 
+	// The headings are worthless on their own, so they take the first row along.
+	pos.reserve(21)
 	doc.rect(10, pos.y - 7, docWidth - 20, 10)
 	doc.setFont('OpenSans', 'bold')
 	doc.setFontSize(14)
@@ -118,20 +129,13 @@ export async function pdfEncodeBudgetPlan(entry: {
 
 	let category: string | null = null
 	for(const item of entry.items) {
+		let itemCategory: string | null = null
 		if(item.title.includes(' - ')) {
-			const [ itemCategory = '', itemTitle = '' ] = item.title.split(' - ')
-			if(category !== itemCategory) {
-				doc.setFont('OpenSans', 'bold')
-				doc.setFontSize(12)
-				doc.text(itemCategory, docWidth / 2, pos.y, { align: 'center' })
-				pos.y += 10
-				category = itemCategory
-			}
-			item.title = itemTitle
-		} else if(category !== null) {
-			pos.y += 2
-			category = null
+			const [ splitCategory = '', splitTitle = '' ] = item.title.split(' - ')
+			itemCategory = splitCategory
+			item.title = splitTitle
 		}
+		const categoryChanged = itemCategory !== category
 
 		doc.setFont('OpenSans', 'normal')
 		doc.setFontSize(12)
@@ -145,6 +149,23 @@ export async function pdfEncodeBudgetPlan(entry: {
 			? (doc.splitTextToSize(item.description, docWidth - 115) as unknown[]).length
 			: 0) *
 			doc.getLineHeight() / doc.internal.scaleFactor
+
+		// A category heading is measured together with the row it announces, so that
+		// the two never end up on different pages.
+		const leadHeight = categoryChanged ? (itemCategory === null ? 2 : 10) : 0
+		pos.reserve(leadHeight + titleHeight + descriptionHeight)
+
+		if(categoryChanged) {
+			if(itemCategory === null) {
+				pos.y += 2
+			} else {
+				doc.setFont('OpenSans', 'bold')
+				doc.setFontSize(12)
+				doc.text(itemCategory, docWidth / 2, pos.y, { align: 'center' })
+				pos.y += 10
+			}
+			category = itemCategory
+		}
 
 		doc.rect(10, pos.y - 7, docWidth - 20, titleHeight + descriptionHeight + 5)
 
@@ -183,6 +204,7 @@ export async function pdfEncodeBudgetPlan(entry: {
 	}
 
 	pos.y += 1
+	pos.reserve(3)
 	doc.rect(10, pos.y - 7, docWidth - 20, 10)
 
 	doc.setFont('OpenSans', 'normal')
