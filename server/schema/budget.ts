@@ -57,7 +57,7 @@ export const budgetPlansRelations = relations(budgetPlans, ({ many, one }) => ({
 export const budgetPlanItems = pgTable('budget_plan_items', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	plan: uuid().notNull().references(() => budgetPlans.id, { onDelete: 'cascade' }),
-	ord: integer(),
+	ord: integer().notNull(),
 	title: varchar({ length: 256 }).notNull(),
 	description: varchar({ length: 1024 }),
 	revenues: numeric({ precision: 16, scale: 2, mode: 'number' }).notNull(),

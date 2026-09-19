@@ -251,7 +251,12 @@
 		},
 		"input": {
 			"ord": {
-				"label": "Lfd."
+				"label": "Laufende Nummer",
+				"hint": "Legt die Reihenfolge fest und darf je Ausgabeermächtigung nur einmal vorkommen. Vergeben wird in Zehnerschritten, damit später Posten dazwischen passen.",
+				"error": {
+					"invalid": "Bitte geben Sie eine ganze Zahl größer als 0 ein.",
+					"duplicate": "Diese laufende Nummer ist bereits vergeben."
+				}
 			},
 			"title": {
 				"label": "Titel"
@@ -423,7 +428,12 @@
 		},
 		"input": {
 			"ord": {
-				"label": "Lfd."
+				"label": "Laufende Nummer",
+				"hint": "Legt die Reihenfolge fest und darf je Langzeitvertrag nur einmal vorkommen. Vergeben wird in Zehnerschritten, damit später Posten dazwischen passen.",
+				"error": {
+					"invalid": "Bitte geben Sie eine ganze Zahl größer als 0 ein.",
+					"duplicate": "Diese laufende Nummer ist bereits vergeben."
+				}
 			},
 			"title": {
 				"label": "Titel"
@@ -545,7 +555,12 @@
 		},
 		"input": {
 			"ord": {
-				"label": "Lfd."
+				"label": "Laufende Nummer",
+				"hint": "Legt die Reihenfolge fest und darf je Aufwandsentschädigung nur einmal vorkommen. Vergeben wird in Zehnerschritten, damit später Empfänger*innen dazwischen passen.",
+				"error": {
+					"invalid": "Bitte geben Sie eine ganze Zahl größer als 0 ein.",
+					"duplicate": "Diese laufende Nummer ist bereits vergeben."
+				}
 			},
 			"person": {
 				"label": "Person"

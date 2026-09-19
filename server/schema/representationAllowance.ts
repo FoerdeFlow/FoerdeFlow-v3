@@ -51,7 +51,7 @@ export const representationAllowanceRecipients = pgTable('representation_allowan
 	representationAllowance: uuid()
 		.notNull()
 		.references(() => representationAllowances.id, { onDelete: 'cascade' }),
-	ord: integer(),
+	ord: integer().notNull(),
 	person: uuid().notNull().references(() => persons.id),
 	amount: numeric({ precision: 16, scale: 2, mode: 'number' }).notNull(),
 }, (table) => [

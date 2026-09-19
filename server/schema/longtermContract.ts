@@ -51,7 +51,7 @@ export const longtermContractTimeUnits = pgEnum('longterm_contract_time_units', 
 export const longtermContractItems = pgTable('longterm_contract_items', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	longtermContract: uuid().notNull().references(() => longtermContracts.id, { onDelete: 'cascade' }),
-	ord: integer(),
+	ord: integer().notNull(),
 	type: longtermContractItemTypes().notNull().default('time'),
 	title: varchar({ length: 256 }).notNull(),
 	description: varchar({ length: 1024 }),

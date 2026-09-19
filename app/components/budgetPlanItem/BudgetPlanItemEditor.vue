@@ -3,6 +3,11 @@ import { KernDialog } from '#components'
 
 const dialog = useTemplateRef<typeof KernDialog>('dialog')
 
+const props = defineProps<{
+	/** The ordinals of the other titles of the plan, which may not be repeated. */
+	usedOrds?: number[]
+}>()
+
 const itemId = ref<string | null>(null)
 
 interface Model {
@@ -19,9 +24,16 @@ const modified = computed(() => {
 	return JSON.stringify(itemModel.value) !== JSON.stringify(model.value)
 })
 
+const ordValid = computed(() => {
+	const ord = model.value?.ord
+	return typeof ord === 'number' && Number.isInteger(ord) && ord >= 1 &&
+		!props.usedOrds?.includes(ord)
+})
+
 const valid = computed(() => {
 	if(!model.value) return false
-	return model.value.title.trim() !== '' &&
+	return ordValid.value &&
+		model.value.title.trim() !== '' &&
 		((model.value.revenues ?? 0) !== 0 || (model.value.expenses ?? 0) !== 0)
 })
 
@@ -34,9 +46,9 @@ function openDialog(id: string | null, data: Model) {
 }
 
 defineExpose({
-	create() {
+	create(ord: number) {
 		openDialog(null, {
-			ord: null,
+			ord,
 			title: '',
 			description: null,
 			revenues: 0,
@@ -74,13 +86,13 @@ KernDialog(
 	@save="save"
 )
 	template(v-if="model")
-		.kern-fieldset__body.kern-fieldset__body--horizontal
-			BudgetPlanItemOrdInput(
-				v-model="model.ord"
-			)
-			BudgetPlanItemTitleInput.flex-1(
-				v-model="model.title"
-			)
+		BudgetPlanItemOrdInput(
+			v-model="model.ord"
+			:used-ords="props.usedOrds"
+		)
+		BudgetPlanItemTitleInput(
+			v-model="model.title"
+		)
 		.kern-fieldset__body.kern-fieldset__body--horizontal
 			BudgetPlanItemRevenuesInput.flex-1(
 				v-model="model.revenues"

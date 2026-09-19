@@ -5,6 +5,11 @@ import { KernDialog } from '#components'
 
 const dialog = useTemplateRef<typeof KernDialog>('dialog')
 
+const props = defineProps<{
+	/** The ordinals of the other items of the contract, not to be repeated. */
+	usedOrds?: number[]
+}>()
+
 const itemId = ref<string | null>(null)
 
 interface Model {
@@ -24,6 +29,17 @@ const modified = computed(() => {
 	return JSON.stringify(itemModel.value) !== JSON.stringify(model.value)
 })
 
+const ordValid = computed(() => {
+	const ord = model.value?.ord
+	return typeof ord === 'number' && Number.isInteger(ord) && ord >= 1 &&
+		!props.usedOrds?.includes(ord)
+})
+
+const valid = computed(() => {
+	if(!model.value) return false
+	return ordValid.value && model.value.title.trim() !== ''
+})
+
 function openDialog(id: string | null, data: Model) {
 	if(!dialog.value) return
 	itemId.value = id
@@ -33,9 +49,9 @@ function openDialog(id: string | null, data: Model) {
 }
 
 defineExpose({
-	create() {
+	create(ord: number) {
 		openDialog(null, {
-			ord: null,
+			ord,
 			type: 'time',
 			title: '',
 			description: null,
@@ -78,17 +94,18 @@ KernDialog(
 	ref="dialog"
 	:title="itemId ? $t('longtermContractItem.edit.title') : $t('longtermContractItem.create.title')"
 	:modal="modified"
+	:valid="valid"
 	@cancel="cancel"
 	@save="save"
 )
 	template(v-if="model")
-		.kern-fieldset__body.kern-fieldset__body--horizontal
-			LongtermContractItemOrdInput(
-				v-model="model.ord"
-			)
-			LongtermContractItemTitleInput.flex-1(
-				v-model="model.title"
-			)
+		LongtermContractItemOrdInput(
+			v-model="model.ord"
+			:used-ords="props.usedOrds"
+		)
+		LongtermContractItemTitleInput(
+			v-model="model.title"
+		)
 		LongtermContractItemTypeInput(
 			v-model="model.type"
 		)

@@ -344,6 +344,20 @@
       "when": 1789736005776,
       "tag": "0048_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1789797120077,
+      "tag": "0049_budget_item_ord",
+      "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1789798525300,
+      "tag": "0050_contract_allowance_ord",
+      "breakpoints": true
     }
   ]
 }

@@ -28,13 +28,28 @@ const revenues = computed(() => budgetPlanTotal(model.value, 'revenues'))
 const expenses = computed(() => budgetPlanTotal(model.value, 'expenses'))
 const balance = computed(() => budgetPlanBalance(model.value))
 
+// Which entry the editor is working on, so that its own ordinal does not count
+// as taken. `undefined` means that a new entry is being created.
+const editing = ref<string | symbol | null | undefined>()
+
+const usedOrds = computed(() => model.value
+	.filter((item) => item.id !== editing.value)
+	.map((item) => item.ord)
+	.filter((ord) => ord !== null))
+
+// Ordinals are handed out in steps of ten, so that entries can be squeezed in
+// between them later on.
+const nextOrd = computed(() => Math.floor(Math.max(0, ...usedOrds.value) / 10) * 10 + 10)
+
 function create() {
 	if(!editor.value) return
-	editor.value.create()
+	editing.value = undefined
+	editor.value.create(nextOrd.value)
 }
 
-function edit(item: Model) {
+function edit(item: IdModel) {
 	if(!editor.value) return
+	editing.value = item.id
 	editor.value.edit(item)
 }
 
@@ -116,6 +131,7 @@ KernAlert(
 )
 BudgetPlanItemEditor(
 	ref="editor"
+	:used-ords="usedOrds"
 	@save="save"
 )
 </template>

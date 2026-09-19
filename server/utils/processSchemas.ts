@@ -72,7 +72,7 @@ export const processSchemas = {
 			startDate: z.coerce.date(),
 			endDate: z.coerce.date().nullable(),
 			items: z.array(z.strictObject({
-				ord: z.number().int().positive().nullable(),
+				ord: z.number().int().positive(),
 				type: z.enum([ 'time', 'usage', 'fixed' ]),
 				title: z.string().min(1),
 				description: z.string().min(1).nullable(),
@@ -107,7 +107,7 @@ export const processSchemas = {
 			startDate: z.coerce.date(),
 			endDate: z.coerce.date().nullable(),
 			recipients: z.array(z.strictObject({
-				ord: z.number().int().nonnegative().nullable(),
+				ord: z.number().int().positive(),
 				person: z.uuid(),
 				amount: z.number().multipleOf(0.01).positive(),
 			})).min(1),

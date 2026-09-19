@@ -55,7 +55,7 @@ export const expenseAuthorizationsRelations = relations(expenseAuthorizations, (
 export const expenseAuthorizationItems = pgTable('expense_authorization_items', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	expenseAuthorization: uuid().notNull().references(() => expenseAuthorizations.id, { onDelete: 'cascade' }),
-	ord: integer(),
+	ord: integer().notNull(),
 	title: varchar({ length: 256 }).notNull(),
 	description: varchar({ length: 1024 }),
 	amount: numeric({ precision: 16, scale: 2, mode: 'number' }).notNull(),
