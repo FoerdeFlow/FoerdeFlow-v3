@@ -102,6 +102,9 @@ export default defineEventHandler(async (event) => {
 		)
 	})
 
+	const mutationName = mutation.mutation.table
+		.substring(0, mutation.mutation.table.length - 1) as ProcessMutation
+
 	const client = useOpenslides()
 	await client.connect()
 
@@ -109,9 +112,14 @@ export default defineEventHandler(async (event) => {
 	await client.motion.create({
 		meeting_id: openslidesMeetingId,
 		additional_submitter: formatOrganizationItem(step.process.initiatorOrganizationItem),
-		title: 'TITEL',
+		title: await encodeProcessMutation(
+			mutationName,
+			'title',
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			encodedData as any,
+		),
 		text: await encodeProcessMutation(
-			mutation.mutation.table.substring(0, mutation.mutation.table.length - 1) as ProcessMutation,
+			mutationName,
 			'html',
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			encodedData as any,
