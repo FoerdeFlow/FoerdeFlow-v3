@@ -35,6 +35,7 @@ export default defineEventHandler(async (event) => {
 				},
 			},
 		},
+		orderBy: (workflows, { asc }) => [ asc(workflows.code) ],
 	})
 
 	const result = workflows.map((workflow) => ({
