@@ -17,6 +17,29 @@ export const processSchemas = {
 		update: null,
 		delete: null,
 	},
+	// Kept apart from `budgetPlans`, so that changing the titles of an approved
+	// plan travels as a mutation of its own: every registry of the process
+	// system is keyed by the table of a mutation, not by its action. The plan
+	// itself and its period are never touched, only its titles are.
+	budgetPlanItems: {
+		create: null,
+		update: z.strictObject({
+			plan: z.uuid(),
+			items: z.array(z.strictObject({
+				// Set for a title that exists, absent for one that is new.
+				id: z.uuid().nullable().optional(),
+				ord: z.number().int().positive(),
+				title: z.string().min(1),
+				revenues: z.number().multipleOf(0.01).nonnegative().nullable().optional(),
+				expenses: z.number().multipleOf(0.01).nonnegative().nullable().optional(),
+				description: z.string().min(1).nullable(),
+			}).refine((item) => (item.revenues ?? 0) > 0 || (item.expenses ?? 0) > 0))
+				.min(1)
+				.refine((items) => new Set(items.map((item) => item.ord)).size === items.length)
+				.refine((items) => budgetPlanBalanced(items)),
+		}),
+		delete: null,
+	},
 	expenseAuthorizations: {
 		create: z.strictObject({
 			title: z.string().min(1),
@@ -174,3 +197,22 @@ export const processSchemas = {
 		],
 	},
 } as const
+
+/**
+ * Reads the stored data of a change to the titles of a budget plan.
+ *
+ * The data a process carries is enriched by its validator with the budget of
+ * the plan and with the titles as they stood, so the schema of the input
+ * itself is too strict to read it back.
+ */
+export const storedBudgetPlanItemsUpdate = z.looseObject({
+	plan: z.uuid(),
+	items: z.array(z.looseObject({
+		id: z.uuid().nullable().optional(),
+		ord: z.number().int().positive(),
+		title: z.string().min(1),
+		revenues: z.number().nullable().optional(),
+		expenses: z.number().nullable().optional(),
+		description: z.string().nullable(),
+	})),
+})

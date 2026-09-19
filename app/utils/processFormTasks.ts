@@ -6,6 +6,7 @@ import type {
 	LongtermContractFormModel,
 	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
+	WorkflowCustomBudgetPlanItemsFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonIbanFormModel,
 } from '~/types'
@@ -39,6 +40,43 @@ function budgetPlanTasks(model: BudgetPlanFormModel, presets: Presets): Tasks {
 					: model.items.length > 0
 						? 'partial'
 						: 'open',
+			} ] satisfies Tasks
+			: [],
+	]
+}
+
+function budgetPlanItemsTasks(
+	model: WorkflowCustomBudgetPlanItemsFormModel,
+	presets: Presets,
+): Tasks {
+	const planSet = !!model.plan || presetFixed(presets, 'plan')
+	const ords = model.items.map((item) => item.ord)
+	const itemsComplete = model.items.length > 0 &&
+		model.items.every((item) => item.title && item.ord) &&
+		new Set(ords).size === ords.length &&
+		budgetPlanBalanced(model.items)
+
+	return [
+		...presetVisible(presets, 'plan')
+			? [ {
+				id: 'budget-plan-items-plan',
+				label: 'Haushaltsplan auswählen',
+				status: planSet ? 'done' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'items')
+			? [ {
+				id: 'budget-plan-items-items',
+				label: 'Haushaltstitel ändern',
+				// The titles are loaded from the plan, so there is nothing to
+				// change before one is picked.
+				status: !planSet
+					? 'blocked'
+					: presetFixed(presets, 'items') || itemsComplete
+						? 'done'
+						: model.items.length > 0
+							? 'partial'
+							: 'open',
 			} ] satisfies Tasks
 			: [],
 	]
@@ -375,6 +413,14 @@ export function processFormTasks(
 			return {
 				title: 'Details zum Haushaltsplan',
 				tasks: budgetPlanTasks(model as BudgetPlanFormModel, parsed),
+			}
+		case 'budgetPlanItems':
+			return {
+				title: 'Änderung der Haushaltstitel',
+				tasks: budgetPlanItemsTasks(
+					model as WorkflowCustomBudgetPlanItemsFormModel,
+					parsed,
+				),
 			}
 		case 'expenseAuthorizations':
 			return {

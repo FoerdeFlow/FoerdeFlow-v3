@@ -75,6 +75,7 @@ watch(budgetModel, (budget) => {
 		v-model="model"
 		:budget-plan="budgetPlanModel.id"
 		:pending-plan="pendingPlan"
+		:pending="props.pending"
 		:readonly="props.readonly"
 	)
 </template>

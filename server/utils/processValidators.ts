@@ -30,6 +30,89 @@ function requireInitiatorPerson(context: MutationContext) {
 	return context.initiatorPerson
 }
 
+/**
+ * Reads the budget of the plan a process applies for, so that a reference to
+ * one of its titles can be checked against the origin of the applicant.
+ *
+ * A plan is either applied for as a whole or changed through a supplement, and
+ * both carry their titles in the data of a single mutation. A title the
+ * supplement merely changes exists already and is referenced directly, so only
+ * the titles it adds can be referred to as applied for.
+ *
+ * @param tx - The transaction to read in
+ * @param processId - The process the plan is applied for in
+ * @param ord - The ordinal of the referenced title within that plan
+ * @returns The id of the budget the plan belongs to
+ * @throws When the process applies for no such title
+ */
+async function referencedPendingBudget(
+	tx: ReturnType<typeof useDatabase>,
+	processId: string,
+	ord: number,
+) {
+	const mutations = await tx.query.workflowProcessMutations.findMany({
+		where: eq(workflowProcessMutations.process, processId),
+		with: {
+			mutation: true,
+		},
+		columns: {
+			data: true,
+		},
+	})
+	const applications = mutations.filter((item) =>
+		(item.mutation.table === 'budgetPlans' && item.mutation.action === 'create') ||
+		(item.mutation.table === 'budgetPlanItems' && item.mutation.action === 'update'))
+
+	const [ application ] = applications
+	if(applications.length !== 1 || !application) {
+		throw createError({
+			statusCode: 400,
+			message: 'Der referenzierte Prozess beantragt oder ändert nicht genau einen ' +
+				'Haushaltsplan',
+		})
+	}
+
+	const missing = createError({
+		statusCode: 400,
+		message: 'Der referenzierte Haushaltstitel kommt im beantragten Haushaltsplan nicht vor',
+	})
+
+	if(application.mutation.table === 'budgetPlans') {
+		const parsed = processSchemas.budgetPlans.create.safeParse(application.data)
+		if(!parsed.success || !parsed.data.items.some((item) => item.ord === ord)) throw missing
+		return parsed.data.budget
+	}
+
+	const parsed = storedBudgetPlanItemsUpdate.safeParse(application.data)
+	if(!parsed.success) throw missing
+
+	const item = parsed.data.items.find((entry) => entry.ord === ord)
+	if(!item) throw missing
+	if(item.id) {
+		throw createError({
+			statusCode: 400,
+			message: 'Der referenzierte Haushaltstitel besteht bereits und ist unmittelbar ' +
+				'auszuwählen',
+		})
+	}
+
+	const plan = await tx.query.budgetPlans.findFirst({
+		where: eq(budgetPlans.id, parsed.data.plan),
+		columns: {
+			budget: true,
+		},
+	})
+	if(!plan) {
+		throw createError({
+			statusCode: 400,
+			message: 'Der Haushaltsplan, der durch den referenzierten Prozess geändert wird, ' +
+				'wurde nicht gefunden',
+		})
+	}
+
+	return plan.budget
+}
+
 export const processValidators = {
 	budgetPlans: async (
 		tx: ReturnType<typeof useDatabase>,
@@ -38,6 +121,61 @@ export const processValidators = {
 	) => {
 		await checkBudgetOrigin(tx, data, context)
 		return data
+	},
+	budgetPlanItems: async (
+		tx: ReturnType<typeof useDatabase>,
+		data: z.infer<typeof processSchemas.budgetPlanItems.update>,
+		context: MutationContext,
+	) => {
+		const plan = await tx.query.budgetPlans.findFirst({
+			where: eq(budgetPlans.id, data.plan),
+			with: {
+				items: {
+					columns: {
+						plan: false,
+					},
+					orderBy: (items, { asc }) => [ asc(items.ord) ],
+				},
+			},
+		})
+		if(!plan) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: 'Der zu ändernde Haushaltsplan wurde nicht gefunden',
+				data: { budgetPlanId: data.plan },
+			})
+		}
+
+		// The plan stands in for its budget, so that a workflow which ties the
+		// mutation to the initiator keeps doing so.
+		await checkBudgetOrigin(tx, { budget: plan.budget }, context)
+
+		const known = new Set(plan.items.map((item) => item.id))
+		const foreign = data.items.find((item) => item.id && !known.has(item.id))
+		if(foreign) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: 'Ein geänderter Haushaltstitel gehört nicht zu diesem Haushaltsplan',
+				data: { budgetPlanItemId: foreign.id },
+			})
+		}
+
+		// Reported here as well as when the change is applied, so that the
+		// regular case is caught while the application is still being written.
+		await checkBudgetPlanItemsDroppable(tx, plan.items, data.items)
+
+		return {
+			...data,
+			budget: plan.budget,
+			// The titles as they stand now travel with the application, so that
+			// the motion text keeps showing what was changed even after the
+			// change was applied and a dropped title no longer exists.
+			previous: {
+				startDate: plan.startDate,
+				endDate: plan.endDate,
+				items: plan.items,
+			},
+		}
 	},
 	expenseAuthorizations: async (
 		tx: ReturnType<typeof useDatabase>,
@@ -67,38 +205,11 @@ export const processValidators = {
 			})
 		}
 
-		const mutations = await tx.query.workflowProcessMutations.findMany({
-			where: eq(workflowProcessMutations.process, reference.process),
-			with: {
-				mutation: true,
-			},
-			columns: {
-				data: true,
-			},
-		})
-		const plans = mutations.filter((item) =>
-			item.mutation.table === 'budgetPlans' && item.mutation.action === 'create')
-
-		const [ plan ] = plans
-		if(plans.length !== 1 || !plan) {
-			throw createError({
-				statusCode: 400,
-				message: 'Der referenzierte Prozess beantragt nicht genau einen Haushaltsplan',
-			})
-		}
-
-		const parsed = processSchemas.budgetPlans.create.safeParse(plan.data)
-		if(!parsed.success || !parsed.data.items.some((item) => item.ord === reference.ord)) {
-			throw createError({
-				statusCode: 400,
-				message: 'Der referenzierte Haushaltstitel kommt im beantragten Haushaltsplan ' +
-					'nicht vor',
-			})
-		}
-
-		// The plan is not in the database yet, so the budget it is applied for
-		// stands in for the title the authorization will later point at.
-		await checkBudgetOrigin(tx, { budget: parsed.data.budget }, context)
+		// The title is not in the database yet, so the budget of the plan it is
+		// applied for stands in for the title the authorization will later
+		// point at.
+		const budget = await referencedPendingBudget(tx, reference.process, reference.ord)
+		await checkBudgetOrigin(tx, { budget }, context)
 
 		return data
 	},

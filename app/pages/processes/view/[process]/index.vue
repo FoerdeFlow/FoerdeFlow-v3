@@ -6,6 +6,7 @@ import type {
 	LongtermContractFormModel,
 	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
+	WorkflowCustomBudgetPlanItemsFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonFormModel,
 	WorkflowCustomPersonIbanFormModel,
@@ -59,6 +60,7 @@ function openSignaturePdf(id: string) {
 }
 
 const asBudgetPlan = (data: unknown) => data as BudgetPlanFormModel
+const asBudgetPlanItems = (data: unknown) => data as WorkflowCustomBudgetPlanItemsFormModel
 const asExpenseAuthorization = (data: unknown) => data as ExpenseAuthorizationFormModel
 const asLongtermContract = (data: unknown) => data as LongtermContractFormModel
 const asPaymentOrder = (data: unknown) => data as PaymentOrderFormModel
@@ -123,6 +125,12 @@ section.my-8(
 		readonly
 		selected-item="summary"
 		:model-value="asBudgetPlan(mutation.data)"
+	)
+	WorkflowCustomBudgetPlanItemsForm(
+		v-if="mutation.mutation.table === 'budgetPlanItems'"
+		readonly
+		selected-item="summary"
+		:model-value="asBudgetPlanItems(mutation.data)"
 	)
 	ExpenseAuthorizationForm(
 		v-if="mutation.mutation.table === 'expenseAuthorizations'"

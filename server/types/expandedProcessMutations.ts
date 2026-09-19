@@ -15,10 +15,51 @@ interface BudgetPlanProcessMutation {
 	}[]
 }
 
+interface BudgetPlanItemsProcessMutation {
+	id?: string
+	title: string
+	budget: {
+		name: string
+		code: string
+	} | null
+	plan: {
+		id: string
+		startDate: string
+		endDate: string
+		budget: {
+			name: string
+			code: string
+		} | null
+	}
+	items: {
+		id?: string | null
+		ord: number | null
+		title: string
+		description: string | null
+		revenues?: number | null
+		expenses?: number | null
+	}[]
+	/** The titles as they stood when the change was applied for. */
+	previous: {
+		startDate: string
+		endDate: string
+		items: {
+			id: string
+			ord: number | null
+			title: string
+			description: string | null
+			revenues?: number | null
+			expenses?: number | null
+		}[]
+	}
+}
+
 interface ExpenseAuthorizationProcessMutation {
 	id?: string
 	budgetPlanItem: {
 		title: string
+		/** Whether the title itself is still being applied for. */
+		pending?: boolean
 		plan: {
 			budget: {
 				name: string
@@ -128,6 +169,7 @@ interface RepresentationAllowanceProcessMutation {
 
 export interface ExpandedProcessMutations {
 	budgetPlan: BudgetPlanProcessMutation
+	budgetPlanItem: BudgetPlanItemsProcessMutation
 	expenseAuthorization: ExpenseAuthorizationProcessMutation
 	paymentOrder: PaymentOrderProcessMutation
 	longtermContract: LongtermContractProcessMutation

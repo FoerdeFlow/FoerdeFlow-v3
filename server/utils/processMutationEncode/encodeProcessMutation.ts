@@ -13,6 +13,10 @@ const encoders = {
 		html: htmlEncodeBudgetPlan,
 		pdf: pdfEncodeBudgetPlan,
 	},
+	budgetPlanItem: {
+		html: htmlEncodeBudgetPlanItems,
+		pdf: pdfEncodeBudgetPlanItems,
+	},
 	expenseAuthorization: {
 		html: htmlEncodeExpenseAuthorization,
 		pdf: pdfEncodeExpenseAuthorization,

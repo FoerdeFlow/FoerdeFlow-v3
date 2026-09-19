@@ -139,6 +139,9 @@
 	},
 	"budgetPlanItem": {
 		"title": "Haushaltstitel",
+		"update": {
+			"title": "Änderung der Haushaltstitel"
+		},
 		"table": {
 			"caption": "Liste der Haushaltstitel",
 			"footer": "Summe"

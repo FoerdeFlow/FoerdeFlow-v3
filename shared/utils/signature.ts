@@ -1,5 +1,6 @@
 export const pdfSupportedMutationTables = [
 	'budgetPlans',
+	'budgetPlanItems',
 	'expenseAuthorizations',
 	'paymentOrders',
 	'longtermContracts',

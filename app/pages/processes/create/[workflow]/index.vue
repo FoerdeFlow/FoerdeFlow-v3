@@ -11,6 +11,7 @@ import type {
 	OrganizationItem,
 	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
+	WorkflowCustomBudgetPlanItemsFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonFormModel,
 	WorkflowCustomPersonIbanFormModel,
@@ -23,6 +24,7 @@ import {
 	LongtermContractForm,
 	PaymentOrderForm,
 	RepresentationAllowanceForm,
+	WorkflowCustomBudgetPlanItemsForm,
 	WorkflowCustomCandidateForm,
 	WorkflowCustomPersonForm,
 	WorkflowCustomPersonIbanForm,
@@ -151,6 +153,11 @@ const model = ref({
 		endDate: null,
 		items: [],
 	} satisfies BudgetPlanFormModel,
+	budgetPlanItem: {
+		budget: null,
+		plan: null,
+		items: [],
+	} satisfies WorkflowCustomBudgetPlanItemsFormModel,
 	expenseAuthorization: {
 		budgetPlanItem: null,
 		budget: null,
@@ -267,6 +274,7 @@ const metaTaskVisible = computed(() =>
 const formsByTable: Record<string, Component> = {
 	candidates: WorkflowCustomCandidateForm,
 	budgetPlans: BudgetPlanForm,
+	budgetPlanItems: WorkflowCustomBudgetPlanItemsForm,
 	expenseAuthorizations: ExpenseAuthorizationForm,
 	longtermContracts: LongtermContractForm,
 	paymentOrders: PaymentOrderForm,

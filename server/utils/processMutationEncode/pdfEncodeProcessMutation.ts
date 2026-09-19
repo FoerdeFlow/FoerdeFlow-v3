@@ -19,6 +19,8 @@ export async function pdfEncodeProcessMutation(
 	switch(table) {
 		case 'budgetPlans':
 			return await pdfEncodeBudgetPlan(data, options)
+		case 'budgetPlanItems':
+			return await pdfEncodeBudgetPlanItems(data, options)
 		case 'expenseAuthorizations':
 			return await pdfEncodeExpenseAuthorization(data, options)
 		case 'paymentOrders':

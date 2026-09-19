@@ -40,6 +40,19 @@ const resolveBudgetPlanItem: Resolver = async (database, value) => {
 	}) ?? null
 }
 
+const resolveBudgetPlan: Resolver = async (database, value) => {
+	if(typeof value !== 'string') return null
+	return await database.query.budgetPlans.findFirst({
+		where: eq(budgetPlans.id, value),
+		with: {
+			budget: true,
+		},
+		columns: {
+			budget: false,
+		},
+	}) ?? null
+}
+
 const resolvePerson: Resolver = async (database, value) => {
 	if(typeof value !== 'string') return null
 	return withDisplayName(await database.query.persons.findFirst({
@@ -95,6 +108,9 @@ const resolveRecipients: Resolver = async (database, value) => {
 const resolvers: Record<string, Record<string, Resolver>> = {
 	budgetPlans: {
 		budget: resolveBudget,
+	},
+	budgetPlanItems: {
+		plan: resolveBudgetPlan,
 	},
 	expenseAuthorizations: {
 		budget: resolveBudget,

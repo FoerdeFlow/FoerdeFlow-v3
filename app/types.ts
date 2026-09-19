@@ -68,6 +68,22 @@ export interface BudgetPlanFormModel {
 	items: BudgetPlanItemInput[]
 }
 
+/**
+ * The titles of an existing budget plan, changed through a workflow. It has a
+ * form of its own for the same reason the IBAN of a person has one: the process
+ * system is keyed by the table of a mutation, not by its action.
+ */
+export interface WorkflowCustomBudgetPlanItemsFormModel {
+	budget: Budget
+	plan: BudgetPlan
+	items: BudgetPlanItemInput[]
+	/**
+	 * The titles as they stood when the process was created. Only a stored
+	 * mutation carries them, the form loads them from the plan instead.
+	 */
+	previous?: { items: BudgetPlanItemInput[] } | null
+}
+
 export interface ExpenseAuthorizationFormModel {
 	budgetPlanItem: BudgetPlanItem
 	budget: Budget

@@ -91,7 +91,9 @@ async function createBudgetPlan(
  *
  * The plan of the referenced process exists by now, because a process is only
  * completed once every process it depends on is. Its rows are found through the
- * `dataId` its mutation was given when it was applied.
+ * `dataId` its mutation was given when it was applied, no matter whether the
+ * plan was applied for as a whole or a supplement added the title to a plan
+ * that already existed: both mutations report the plan as their `dataId`.
  *
  * @param tx - The transaction to resolve in
  * @param reference - The referenced process and the ordinal within its plan
@@ -111,13 +113,14 @@ async function resolvePendingBudgetPlanItem(
 		},
 	})
 	const plan = mutations.find((item) =>
-		item.mutation.table === 'budgetPlans' && item.mutation.action === 'create')
+		(item.mutation.table === 'budgetPlans' && item.mutation.action === 'create') ||
+		(item.mutation.table === 'budgetPlanItems' && item.mutation.action === 'update'))
 
 	if(!plan?.dataId) {
 		throw createError({
 			statusCode: 409,
 			message: 'Der beantragte Haushaltsplan, aus dem die Ausgabeermächtigung bezahlt ' +
-				'werden soll, wurde nicht angelegt',
+				'werden soll, wurde nicht angelegt oder geändert',
 			data: { process: reference.process },
 		})
 	}
@@ -438,6 +441,41 @@ async function updatePersonPhoto(
 	return data.person
 }
 
+/**
+ * Writes the titles an approved application changed a budget plan to.
+ *
+ * The change is written the same way the direct way writes it, so that an
+ * application never leaves the plan in a state the other way could not.
+ *
+ * @param tx - The transaction to write in
+ * @param _dataId - Unused, the plan exists before the process
+ * @param data - The data of the mutation, with the plan it applies to
+ * @returns The id of the plan whose titles were written
+ */
+async function updateBudgetPlanItems(
+	tx: ReturnType<typeof useDatabase>,
+	_dataId: string | null,
+	data: z.infer<typeof processSchemas.budgetPlanItems.update>,
+) {
+	const plan = await tx.query.budgetPlans.findFirst({
+		where: eq(budgetPlans.id, data.plan),
+		columns: {
+			id: true,
+		},
+	})
+	if(!plan) {
+		throw createError({
+			statusCode: 409,
+			message: 'Der Haushaltsplan, dessen Titel geändert werden sollten, existiert nicht mehr',
+			data: { budgetPlanId: data.plan },
+		})
+	}
+
+	await writeBudgetPlanItems(tx, data.plan, data.items)
+
+	return data.plan
+}
+
 export async function applyProcessMutations(
 	tx: ReturnType<typeof useDatabase>,
 	processId: string,
@@ -474,6 +512,11 @@ export async function applyProcessMutations(
 			budgetPlans: {
 				create: createBudgetPlan,
 				update: () => { /**/ },
+				delete: () => { /**/ },
+			},
+			budgetPlanItems: {
+				create: () => { /**/ },
+				update: updateBudgetPlanItems,
 				delete: () => { /**/ },
 			},
 			expenseAuthorizations: {

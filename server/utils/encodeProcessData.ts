@@ -7,6 +7,10 @@ import { eq, type InferSelectModel } from 'drizzle-orm'
  * for into the same shape an approved budget plan item is expanded to, so that
  * every consumer can render it without a special case.
  *
+ * The title is either part of a plan that is applied for as a whole, and then
+ * its plan is applied for along with it, or a supplement adds it to a plan that
+ * exists already, and then only the title itself is still being applied for.
+ *
  * @param tx - The transaction to read in
  * @param reference - The referenced process and the ordinal within its plan
  * @returns The referenced item or `null` if it cannot be resolved any more
@@ -24,11 +28,16 @@ async function encodePendingBudgetPlanItem(
 			data: true,
 		},
 	})
-	const plan = mutations.find((item) =>
-		item.mutation.table === 'budgetPlans' && item.mutation.action === 'create')
-	if(!plan) return null
+	const application = mutations.find((item) =>
+		(item.mutation.table === 'budgetPlans' && item.mutation.action === 'create') ||
+		(item.mutation.table === 'budgetPlanItems' && item.mutation.action === 'update'))
+	if(!application) return null
 
-	const parsed = processSchemas.budgetPlans.create.safeParse(plan.data)
+	if(application.mutation.table === 'budgetPlanItems') {
+		return await encodePendingBudgetPlanSupplementItem(tx, reference, application.data)
+	}
+
+	const parsed = processSchemas.budgetPlans.create.safeParse(application.data)
 	if(!parsed.success) return null
 
 	const item = parsed.data.items.find((entry) => entry.ord === reference.ord)
@@ -56,6 +65,55 @@ async function encodePendingBudgetPlanItem(
 			endDate: parsed.data.endDate.toISOString().slice(0, 10),
 			budget,
 		},
+	}
+}
+
+/**
+ * Expands a reference to a title that a supplement adds to a budget plan that
+ * exists already.
+ *
+ * Only the title is still being applied for, the plan around it is the one that
+ * is in force, so it is reported as it stands.
+ *
+ * @param tx - The transaction to read in
+ * @param reference - The referenced process and the ordinal within the plan
+ * @param data - The data of the mutation that applies for the change
+ * @returns The referenced item or `null` if it cannot be resolved any more
+ */
+async function encodePendingBudgetPlanSupplementItem(
+	tx: ReturnType<typeof useDatabase>,
+	reference: { process: string, ord: number },
+	data: unknown,
+) {
+	const parsed = storedBudgetPlanItemsUpdate.safeParse(data)
+	if(!parsed.success) return null
+
+	const item = parsed.data.items.find((entry) => entry.ord === reference.ord)
+	// A title the supplement merely changes exists already and is referenced
+	// through its own row, so it never stands in for a pending one.
+	if(!item || item.id) return null
+
+	const plan = await tx.query.budgetPlans.findFirst({
+		where: eq(budgetPlans.id, parsed.data.plan),
+		with: {
+			budget: true,
+		},
+		columns: {
+			budget: false,
+		},
+	})
+	if(!plan) return null
+
+	return {
+		id: `pending:${reference.process}:${item.ord}`,
+		pending: true as const,
+		process: reference.process,
+		ord: item.ord,
+		title: item.title,
+		description: item.description,
+		revenues: item.revenues ?? null,
+		expenses: item.expenses ?? null,
+		plan,
 	}
 }
 
@@ -133,6 +191,41 @@ const encoders = {
 			},
 		}) ?? null,
 	}),
+	budgetPlanItems: async (
+		tx: ReturnType<typeof useDatabase>,
+		model: z.infer<typeof processSchemas.budgetPlanItems.update> & {
+			budget: string
+			previous: {
+				startDate: string
+				endDate: string
+				items: Omit<InferSelectModel<typeof budgetPlanItems>, 'plan'>[]
+			}
+		},
+	) => {
+		const budget = await tx.query.budgets.findFirst({
+			where: eq(budgets.id, model.budget),
+			columns: {
+				code: true,
+				name: true,
+			},
+		}) ?? null
+
+		return {
+			...model,
+			budget,
+			// The period never changes, and the plan itself may already be gone
+			// by the time this is read, so both come from the snapshot.
+			plan: {
+				id: model.plan,
+				startDate: model.previous.startDate,
+				endDate: model.previous.endDate,
+				budget,
+			},
+			// Named `title` like every other mutation that carries one, so that
+			// the heading of the process and the document a job creates find one.
+			title: `Nachtrag zum Haushaltsplan ${formatBudgetPlan(model.previous)}`,
+		}
+	},
 	longtermContracts: async (
 		tx: ReturnType<typeof useDatabase>,
 		model: z.infer<typeof processSchemas.longtermContracts.create>,

@@ -59,36 +59,6 @@ export default defineEventHandler(async (event) => {
 			})
 		}
 
-		const existingItems = await tx.query.budgetPlanItems.findMany({
-			where: eq(budgetPlanItems.plan, params.budgetPlan),
-			columns: {
-				id: true,
-			},
-		})
-
-		for(const { id: itemId, ...item } of body.items) {
-			if(itemId) {
-				await tx
-					.update(budgetPlanItems)
-					.set(item)
-					.where(eq(budgetPlanItems.id, itemId))
-			} else {
-				await tx
-					.insert(budgetPlanItems)
-					.values({
-						...item,
-						plan: params.budgetPlan,
-					})
-			}
-		}
-
-		const deletedItems = existingItems
-			.filter((existingItem) => !body.items.some((item) => item.id === existingItem.id))
-
-		for(const deletedItem of deletedItems) {
-			await tx
-				.delete(budgetPlanItems)
-				.where(eq(budgetPlanItems.id, deletedItem.id))
-		}
+		await writeBudgetPlanItems(tx, params.budgetPlan, body.items)
 	})
 })

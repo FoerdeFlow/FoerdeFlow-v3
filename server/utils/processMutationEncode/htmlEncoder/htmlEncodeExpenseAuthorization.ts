@@ -2,6 +2,8 @@ export function htmlEncodeExpenseAuthorization(entry: {
 	id?: string
 	budgetPlanItem: {
 		title: string
+		/** Whether the title itself is still being applied for. */
+		pending?: boolean
 		plan: {
 			budget: {
 				name: string
@@ -43,7 +45,9 @@ export function htmlEncodeExpenseAuthorization(entry: {
 				`in der Haushaltsperiode ${formatBudgetPlan(entry.budgetPlanItem.plan)} ` +
 				(entry.budgetPlanItem.plan.pending
 					? 'nach Maßgabe des beantragten Haushaltsplans '
-					: '')
+					: entry.budgetPlanItem.pending
+						? 'nach Maßgabe des beantragten Nachtrags zum Haushaltsplan '
+						: '')
 			: `aus der Rücklage des Haushalts ${escapeHtml(formatBudget(budgetData))} `) +
 		`mit Ausgaben in Höhe von ${formatCurrency(total, 'amount')} ` +
 		'wird genehmigt.' +

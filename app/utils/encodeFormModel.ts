@@ -4,6 +4,7 @@ import type {
 	LongtermContractFormModel,
 	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
+	WorkflowCustomBudgetPlanItemsFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonFormModel,
 	WorkflowCustomPersonIbanFormModel,
@@ -29,6 +30,23 @@ const encoders = {
 			startDate: serializeDate(model.startDate),
 			endDate: serializeDate(model.endDate),
 			budget: model.budget?.id ?? null,
+		}),
+	}),
+	budgetPlanItems: (model: WorkflowCustomBudgetPlanItemsFormModel) => ({
+		// The budget only narrows down the plans to pick from, and the titles as
+		// they stood are read from the plan by the server, so neither travels.
+		data: JSON.stringify({
+			plan: model.plan?.id ?? null,
+			// A title that was added in this session is identified by a symbol,
+			// which the server reads as a title that does not exist yet.
+			items: model.items.map((item) => ({
+				id: typeof item.id === 'string' ? item.id : null,
+				ord: item.ord,
+				title: item.title,
+				description: item.description,
+				revenues: item.revenues,
+				expenses: item.expenses,
+			})),
 		}),
 	}),
 	expenseAuthorizations: (model: ExpenseAuthorizationFormModel) => {
