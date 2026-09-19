@@ -9,6 +9,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	close: [],
+	pause: [],
+	resume: [],
 }>()
 </script>
 
@@ -16,6 +18,10 @@ const emit = defineEmits<{
 .kern-alert.my-4(
 	:class="`kern-alert--${props.type}`"
 	role="alert"
+	@mouseenter="emit('pause')"
+	@mouseleave="emit('resume')"
+	@focusin="emit('pause')"
+	@focusout="emit('resume')"
 )
 	.kern-alert__header
 		span.kern-icon(

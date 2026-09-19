@@ -36,12 +36,15 @@ main#inhalt.ff3-main.kern-container
 			:dismissible="false"
 		)
 	KernAlert(
-		v-for="(alert, idx) of alertStore.alerts"
-		:key="idx"
-		:type="alert.type"
-		:title="alert.title"
-		:text="alert.text"
-		@close="alertStore.alerts.splice(idx, 1)"
+		v-for="alert of alertStore.alerts"
+		:key="alert.id"
+		:type="alert.props.type"
+		:title="alert.props.title"
+		:text="alert.props.text"
+		:items="alert.props.items"
+		@close="alertStore.dismissAlert(alert.id)"
+		@pause="alertStore.pauseAlert(alert.id)"
+		@resume="alertStore.resumeAlert(alert.id)"
 	)
 	slot
 LayoutFooter

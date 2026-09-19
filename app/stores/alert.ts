@@ -1,20 +1,19 @@
-import type { KernAlert } from '#components'
-
 export const useAlertStore = defineStore('alert', () => {
-	type AlertProps = InstanceType<typeof KernAlert>['$props']
-	const alerts = ref<AlertProps[]>([])
+	const { alerts, clearAlerts, dismissAlert, pauseAlert, resumeAlert, showAlert } = useAlerts()
 
-	function showAlert(props: AlertProps) {
-		alerts.value.push(props)
-		if(props.type !== 'danger') {
-			setTimeout(() => {
-				alerts.value.shift()
-			}, 5000)
-		}
-	}
+	// Eine Meldung bezieht sich auf die Aktion, die sie ausgelöst hat. Nach
+	// einem Seitenwechsel fehlt dieser Bezug, deshalb räumt die Navigation auch
+	// die Fehlermeldungen ab, die von sich aus nicht ablaufen.
+	useRouter().afterEach(() => {
+		clearAlerts()
+	})
 
 	return {
 		alerts,
+		clearAlerts,
+		dismissAlert,
+		pauseAlert,
+		resumeAlert,
 		showAlert,
 	}
 })

@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import { KernAlert } from '#components'
-
 const id = useId()
 const dialog = useTemplateRef<HTMLDialogElement>('dialog')
 
-type AlertProps = InstanceType<typeof KernAlert>['$props']
-const alerts: Ref<AlertProps[]> = ref([])
+const { alerts, clearAlerts, dismissAlert, pauseAlert, resumeAlert, showAlert } = useAlerts()
 
 const { title, modal = false, valid = true, readonly = false } = defineProps<{
 	title: string
@@ -27,22 +24,15 @@ defineExpose({
 	},
 	hide() {
 		if(!dialog.value) return
-		alerts.value = []
+		clearAlerts()
 		dialog.value.close()
 	},
-	showAlert(props: AlertProps) {
-		alerts.value.push(props)
-		if(props.type !== 'danger') {
-			setTimeout(() => {
-				alerts.value.shift()
-			}, 5000)
-		}
-	},
+	showAlert,
 })
 
 function close() {
 	if(!dialog.value) return
-	alerts.value = []
+	clearAlerts()
 	dialog.value.close()
 }
 </script>
@@ -62,12 +52,15 @@ dialog.kern-dialog(
 			span.kern-sr-only Schließen
 	section.kern-dialog__body
 		KernAlert(
-			v-for="(alert, idx) of alerts"
-			:key="idx"
-			:type="alert.type"
-			:title="alert.title"
-			:text="alert.text"
-			@close="alerts.splice(idx, 1)"
+			v-for="alert of alerts"
+			:key="alert.id"
+			:type="alert.props.type"
+			:title="alert.props.title"
+			:text="alert.props.text"
+			:items="alert.props.items"
+			@close="dismissAlert(alert.id)"
+			@pause="pauseAlert(alert.id)"
+			@resume="resumeAlert(alert.id)"
 		)
 		slot
 	footer.kern-dialog__footer

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { KernDialog, KernTaskList } from '#components'
+import type { KernTaskList } from '#components'
+import type { AlertProps } from '~/composables/useAlerts'
 import type { KernTaskListItems } from '~/types'
 
 const props = defineProps<{
@@ -134,7 +135,7 @@ defineExpose({
 		if(!dialog.value) return
 		dialog.value.hide()
 	},
-	showAlert: (props: InstanceType<typeof KernDialog>['$props']) => {
+	showAlert: (props: AlertProps) => {
 		if(!dialog.value) return
 		dialog.value.showAlert(props)
 	},
