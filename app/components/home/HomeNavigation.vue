@@ -62,6 +62,7 @@ const areas: HomeNavigationArea[] = [
 				permission: 'membershipEndReasons.read',
 			},
 			{ title: 'Vorlagenarten', link: '/documentTypes', permission: 'documentTypes.read' },
+			{ title: 'Veranstaltungsarten', link: '/eventTypes', permission: 'eventTypes.read' },
 			{ title: 'Workflows', link: '/workflows', permission: 'workflows.read' },
 			{ title: 'Ankündigungen', link: '/announcements', permission: 'announcements.create' },
 			{ title: 'Rollen', link: '/roles', permission: 'roles.read' },

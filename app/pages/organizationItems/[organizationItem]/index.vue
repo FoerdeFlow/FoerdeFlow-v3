@@ -41,6 +41,15 @@ const subPages: KernCardNavItems = [
 		permission: 'sessions.read',
 	},
 	{
+		title: 'Veranstaltungen',
+		description: 'Übersicht über die Veranstaltungen',
+		link: {
+			name: 'organizationItems-organizationItem-events',
+			params: { organizationItem: route.params.organizationItem },
+		},
+		permission: 'events.read',
+	},
+	{
 		title: 'Vorlagen',
 		description: 'Übersicht über die Vorlagen',
 		link: {

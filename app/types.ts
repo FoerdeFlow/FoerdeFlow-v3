@@ -14,6 +14,7 @@ import type {
 	DocumentTypeSelect,
 	ElectionCommitteeSelect,
 	ElectionSelect,
+	EventTypeSelect,
 	ExpenseAuthorizationSelect,
 	GenderSelect,
 	KernCardNav,
@@ -49,6 +50,13 @@ export type Department = InstanceType<typeof DepartmentSelect>['$props']['modelV
 export type DocumentType = InstanceType<typeof DocumentTypeSelect>['$props']['modelValue']
 export type Election = InstanceType<typeof ElectionSelect>['$props']['modelValue']
 export type ElectionCommittee = InstanceType<typeof ElectionCommitteeSelect>['$props']['modelValue']
+/**
+ * An event. The name avoids `Event`, which belongs to the DOM and would be
+ * shadowed in every file that imports this one. Taken from the API rather than
+ * from a select, because nothing references an event.
+ */
+export type CalendarEvent = DestructureArray<InternalApi['/api/events']['get']>
+export type EventType = InstanceType<typeof EventTypeSelect>['$props']['modelValue']
 export type ExpenseAuthorization = InstanceType<typeof ExpenseAuthorizationSelect>['$props']['modelValue']
 export type Gender = InstanceType<typeof GenderSelect>['$props']['modelValue']
 export type MembershipEndReason = InstanceType<typeof MembershipEndReasonSelect>['$props']['modelValue']

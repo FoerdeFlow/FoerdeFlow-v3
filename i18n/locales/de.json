@@ -32,9 +32,11 @@
 			"sessions": "Sitzungen",
 			"minutes": "Protokolle",
 			"attendances": "Sitzungsteilnahmen",
+			"events": "Veranstaltungen",
 			"departments": "Fachbereiche",
 			"councils": "Fachschaften",
 			"courseTypes": "Abschlüsse",
+			"eventTypes": "Veranstaltungsarten",
 			"courses": "Studiengänge",
 			"elections": "Wahlen",
 			"electionCommittees": "Wahlgremien",
@@ -586,6 +588,135 @@
 		},
 		"edit": {
 			"title": "Empfänger*in bearbeiten"
+		}
+	},
+	"eventType": {
+		"title": "Veranstaltungsarten",
+		"table": {
+			"caption": "Liste der Veranstaltungsarten"
+		},
+		"field": {
+			"name": "Name (Kürzel)"
+		},
+		"input": {
+			"code": {
+				"label": "Kürzel"
+			},
+			"name": {
+				"label": "Name"
+			}
+		},
+		"create": {
+			"title": "Veranstaltungsart erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung der Veranstaltungsart ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Veranstaltungsart bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung der Veranstaltungsart ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Veranstaltungsart löschen?",
+			"text": "Sind Sie sicher, dass Sie diese Veranstaltungsart löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen der Veranstaltungsart ist ein unbekannter Fehler aufgetreten. Wird sie noch von einer Veranstaltung verwendet?"
+			}
+		}
+	},
+	"event": {
+		"title": "Veranstaltungen",
+		"menu": {
+			"title": "Veranstaltungen",
+			"description": "Übersicht über die Veranstaltungen"
+		},
+		"table": {
+			"caption": "Liste der Veranstaltungen"
+		},
+		"field": {
+			"timespan": "Zeitraum",
+			"title": "Veranstaltung",
+			"type": "Art",
+			"room": "Ort",
+			"organizationItem": "Gremium",
+			"description": "Beschreibung"
+		},
+		"input": {
+			"title": {
+				"label": "Titel der Veranstaltung"
+			},
+			"description": {
+				"label": "Beschreibung"
+			},
+			"type": {
+				"label": "Art der Veranstaltung"
+			},
+			"allDay": {
+				"label": "Ganztägige Veranstaltung"
+			},
+			"startDate": {
+				"label": "Beginn",
+				"labelAllDay": "Erster Tag"
+			},
+			"endDate": {
+				"label": "Ende",
+				"labelAllDay": "Letzter Tag",
+				"hint": "Bei einer Veranstaltung ohne festes Ende bitte leer lassen."
+			},
+			"room": {
+				"label": "Ort"
+			}
+		},
+		"create": {
+			"title": "Veranstaltung erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung der Veranstaltung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Veranstaltung bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung der Veranstaltung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Veranstaltung löschen?",
+			"text": "Sind Sie sicher, dass Sie diese Veranstaltung löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen der Veranstaltung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"cancelled": {
+			"badge": "Abgesagt",
+			"alert": {
+				"title": "Diese Veranstaltung wurde abgesagt.",
+				"text": "Sie bleibt zur Information sichtbar, findet aber nicht statt."
+			},
+			"cancel": {
+				"action": "Veranstaltung absagen",
+				"title": "Veranstaltung absagen?",
+				"text": "Sind Sie sicher, dass Sie diese Veranstaltung absagen möchten? Sie bleibt mit einem Hinweis sichtbar."
+			},
+			"revoke": {
+				"action": "Absage zurücknehmen",
+				"title": "Absage zurücknehmen?",
+				"text": "Sind Sie sicher, dass diese Veranstaltung wieder stattfindet?"
+			},
+			"error": {
+				"title": "Fehler beim Ändern der Absage",
+				"message": "Beim Ändern der Absage ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"allDay": {
+			"yes": "Ganztägig"
 		}
 	}
 }

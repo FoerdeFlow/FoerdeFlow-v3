@@ -230,6 +230,26 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'events.read',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'events.create',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'events.update',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'events.delete',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
 		id: 'minutes.read',
 		scope: 'organizationItem',
 		assignable: true,
@@ -311,6 +331,26 @@ export const availablePermissions = [
 	},
 	{
 		id: 'courseTypes.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'eventTypes.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'eventTypes.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'eventTypes.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'eventTypes.delete',
 		scope: 'global',
 		assignable: true,
 	},

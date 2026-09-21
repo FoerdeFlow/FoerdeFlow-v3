@@ -395,6 +395,47 @@ export function formatCourseType(
 	return `${courseType.name} (${courseType.code})`
 }
 
+export function formatEventType(
+	eventType: {
+		code: string,
+		name: string,
+	} | null,
+): string {
+	if(!eventType) return ''
+	return `${eventType.name} (${eventType.code})`
+}
+
+/**
+ * Writes the time an event takes up, in the shortest form that still says
+ * everything: an all-day event names days only, and an event that ends on the
+ * day it starts repeats neither the date nor a redundant end.
+ *
+ * @param event - The event to name the time of
+ * @returns The formatted timespan
+ */
+export function formatEventTimespan(
+	event: {
+		startDate: string | Date,
+		endDate?: string | Date | null,
+		allDay?: boolean | null,
+	} | null,
+): string {
+	if(!event) return ''
+	const start = new Date(event.startDate)
+	const end = event.endDate ? new Date(event.endDate) : null
+	if(event.allDay) {
+		if(!end || formatDate(end, 'compact') === formatDate(start, 'compact')) {
+			return formatDate(start, 'compact')
+		}
+		return `${formatDate(start, 'compact')} – ${formatDate(end, 'compact')}`
+	}
+	if(!end) return formatDatetime(start, 'compact')
+	if(formatDate(end, 'compact') === formatDate(start, 'compact')) {
+		return `${formatDatetime(start, 'compact')} – ${formatTime(end)}`
+	}
+	return `${formatDatetime(start, 'compact')} – ${formatDatetime(end, 'compact')}`
+}
+
 export function formatElection(
 	election: {
 		title: string,

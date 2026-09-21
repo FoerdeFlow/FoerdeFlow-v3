@@ -13,7 +13,10 @@ const minute = ref('')
 
 const model = defineModel<Date | null>()
 
-watch([ day, month, year, hour, minute ], ([ d, m, y, h, i ]) => {
+// `showTime` gehört in die Quellen, damit ein Wechsel zwischen Termin mit und
+// ohne Uhrzeit das Modell neu bewertet: sonst behielte ein ganztägiger Termin
+// die zuvor eingegebene Uhrzeit.
+watch([ day, month, year, hour, minute, () => props.showTime ], ([ d, m, y, h, i ]) => {
 	if(!(/^\d{1,2}$/.exec(d)) || !(/^\d{1,2}$/.exec(m)) || !(/^\d{4}$/.exec(y))) {
 		model.value = null
 		return
