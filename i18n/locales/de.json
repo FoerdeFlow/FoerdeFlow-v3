@@ -36,6 +36,7 @@
 			"councils": "Fachschaften",
 			"courseTypes": "Abschlüsse",
 			"eventTypes": "Veranstaltungsarten",
+			"calendarTokens": "Kalender-Abos",
 			"courses": "Studiengänge",
 			"elections": "Wahlen",
 			"electionCommittees": "Wahlgremien",
@@ -817,6 +818,53 @@
 		},
 		"allDay": {
 			"yes": "Ganztägig"
+		}
+	},
+	"calendarToken": {
+		"title": "Kalender-Abos",
+		"intro": "Ein Kalender-Abo ist ein geheimer Link auf alle Sitzungs- und Veranstaltungstermine. Wer den Link hat, sieht diese Termine ohne Anmeldung — geben Sie ihn nur dort weiter, wo das gewollt ist, und widerrufen Sie ihn, sobald er nicht mehr gebraucht wird.",
+		"table": {
+			"caption": "Liste der Kalender-Abos"
+		},
+		"field": {
+			"name": "Name",
+			"url": "Abo-Link",
+			"createdAt": "Erstellt",
+			"lastAccessedAt": "Zuletzt abgerufen"
+		},
+		"input": {
+			"name": {
+				"label": "Name",
+				"hint": "Wofür das Abo gedacht ist, etwa „Website“ oder „AStA-Handy“."
+			}
+		},
+		"never": "noch nie",
+		"copy": {
+			"action": "Link kopieren",
+			"done": "Kopiert",
+			"error": "Der Link ließ sich nicht kopieren. Bitte markieren Sie ihn von Hand."
+		},
+		"create": {
+			"title": "Kalender-Abo erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung des Kalender-Abos ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Kalender-Abo umbenennen",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung des Kalender-Abos ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Kalender-Abo widerrufen?",
+			"text": "Der Link wird sofort ungültig. Kalender, die ihn abonniert haben, erhalten keine Termine mehr.",
+			"error": {
+				"title": "Fehler beim Widerrufen",
+				"message": "Beim Widerrufen des Kalender-Abos ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
 		}
 	}
 }

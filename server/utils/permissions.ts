@@ -337,6 +337,26 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'calendarTokens.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'calendarTokens.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'calendarTokens.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'calendarTokens.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
 		id: 'courses.read',
 		scope: 'global',
 		assignable: true,

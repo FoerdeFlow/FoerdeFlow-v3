@@ -62,6 +62,7 @@ const areas: HomeNavigationArea[] = [
 			},
 			{ title: 'Vorlagenarten', link: '/documentTypes', permission: 'documentTypes.read' },
 			{ title: 'Veranstaltungsarten', link: '/eventTypes', permission: 'eventTypes.read' },
+			{ title: 'Kalender-Abos', link: '/calendarTokens', permission: 'calendarTokens.read' },
 			{ title: 'Workflows', link: '/workflows', permission: 'workflows.read' },
 			{ title: 'Ankündigungen', link: '/announcements', permission: 'announcements.create' },
 			{ title: 'Rollen', link: '/roles', permission: 'roles.read' },
