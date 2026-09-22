@@ -8,8 +8,8 @@ export default defineEventHandler(async (event) => {
 		await sessionSchema.parseAsync(
 			await z.looseObject({
 				plannedDate: z.coerce.date(),
-				startDate: z.coerce.date().optional(),
-				endDate: z.coerce.date().optional(),
+				startDate: z.coerce.date().nullish(),
+				endDate: z.coerce.date().nullish(),
 			}).parseAsync(body),
 		),
 	)

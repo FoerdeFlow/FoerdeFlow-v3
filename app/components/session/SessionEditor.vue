@@ -73,8 +73,9 @@ function cancel() {
 	dialog.value.hide()
 }
 
-// Eine Sitzung wird geladen, also muss der Ort feststehen.
-const valid = computed(() => Boolean(model.value?.location))
+// Eine Sitzung braucht ein Datum, und weil sie geladen wird, muss auch der Ort
+// feststehen.
+const valid = computed(() => Boolean(model.value?.plannedDate && model.value.location))
 
 async function save() {
 	if(!dialog.value) return
