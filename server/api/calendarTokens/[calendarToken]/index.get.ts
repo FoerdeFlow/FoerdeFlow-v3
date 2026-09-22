@@ -12,6 +12,16 @@ export default defineEventHandler(async (event) => {
 
 	const calendarToken = await database.query.calendarTokens.findFirst({
 		where: eq(calendarTokens.id, params.calendarToken),
+		with: {
+			kinds: {
+				with: { eventType: true },
+				columns: { eventType: false },
+			},
+			organizationItems: {
+				with: { organizationItem: true },
+				columns: { organizationItem: false },
+			},
+		},
 	})
 
 	if(!calendarToken) {

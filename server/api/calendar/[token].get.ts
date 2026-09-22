@@ -13,6 +13,10 @@ export default defineEventHandler(async (event) => {
 	const calendarToken = await database.query.calendarTokens.findFirst({
 		where: eq(calendarTokens.token, params.token),
 		columns: { id: true, name: true },
+		with: {
+			kinds: { columns: { eventType: true } },
+			organizationItems: { columns: { organizationItem: true } },
+		},
 	})
 
 	// Dieser Endpunkt prüft bewusst keine Berechtigung: der Feed ist für
@@ -30,20 +34,50 @@ export default defineEventHandler(async (event) => {
 		columns: { parent: false },
 	} as const
 
+	// Eine leere Auswahl schränkt nicht ein. Steht etwas drin, zählt für die
+	// Veranstaltungen ihre Art und für die Sitzungen die leere Zeile.
+	const eventTypeFilter = calendarToken.kinds
+		.map((kind) => kind.eventType)
+		.filter((eventType) => eventType !== null)
+	const sessionsWanted = calendarToken.kinds.length === 0 ||
+		calendarToken.kinds.some((kind) => kind.eventType === null)
+	const eventsWanted = calendarToken.kinds.length === 0 || eventTypeFilter.length > 0
+	// Genau die genannten Gremien, untergeordnete kommen nicht von selbst hinzu.
+	const organizationItemFilter = calendarToken.organizationItems
+		.map((item) => item.organizationItem)
+
 	const [ eventRows, sessionRows ] = await Promise.all([
-		database.query.events.findMany({
-			with: {
-				organizationItem: true,
-				type: true,
-				location: locationWith,
-				onlineLocation: locationWith,
-			},
-			columns: { organizationItem: false, type: false, location: false, onlineLocation: false },
-		}),
-		database.query.sessions.findMany({
-			with: { organizationItem: true, location: locationWith, onlineLocation: locationWith },
-			columns: { organizationItem: false, location: false, onlineLocation: false },
-		}),
+		eventsWanted
+			? database.query.events.findMany({
+				where: (events, { and, inArray }) => and(
+					eventTypeFilter.length > 0 ? inArray(events.type, eventTypeFilter) : undefined,
+					organizationItemFilter.length > 0
+						? inArray(events.organizationItem, organizationItemFilter)
+						: undefined,
+				),
+				with: {
+					organizationItem: true,
+					type: true,
+					location: locationWith,
+					onlineLocation: locationWith,
+				},
+				columns: {
+					organizationItem: false,
+					type: false,
+					location: false,
+					onlineLocation: false,
+				},
+			})
+			: [],
+		sessionsWanted
+			? database.query.sessions.findMany({
+				where: (sessions, { inArray }) => organizationItemFilter.length > 0
+					? inArray(sessions.organizationItem, organizationItemFilter)
+					: undefined,
+				with: { organizationItem: true, location: locationWith, onlineLocation: locationWith },
+				columns: { organizationItem: false, location: false, onlineLocation: false },
+			})
+			: [],
 	])
 
 	const entries: IcsEvent[] = [

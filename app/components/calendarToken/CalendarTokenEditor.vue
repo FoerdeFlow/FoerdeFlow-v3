@@ -11,6 +11,8 @@ const itemId = ref<string | null>(null)
 
 interface Model {
 	name: string
+	kinds: string[]
+	organizationItems: string[]
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -29,11 +31,16 @@ function openDialog(id: string | null, data: Model) {
 
 defineExpose({
 	create() {
-		openDialog(null, { name: '' })
+		openDialog(null, { name: '', kinds: [], organizationItems: [] })
 	},
 	async edit(id: string) {
 		const item = await $fetch(`/api/calendarTokens/${id}`)
-		openDialog(id, { name: item.name })
+		openDialog(id, {
+			name: item.name,
+			// Die leere Zeile steht für die Sitzungen.
+			kinds: item.kinds.map((kind) => kind.eventType?.id ?? calendarSessionKind),
+			organizationItems: item.organizationItems.map((item) => item.organizationItem.id),
+		})
 	},
 })
 
@@ -92,4 +99,6 @@ KernDialog(
 )
 	template(v-if="model")
 		CalendarTokenNameInput(v-model="model.name")
+		CalendarTokenKindsInput(v-model="model.kinds")
+		CalendarTokenOrganizationItemsInput(v-model="model.organizationItems")
 </template>

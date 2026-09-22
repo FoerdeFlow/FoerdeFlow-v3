@@ -830,12 +830,22 @@
 			"name": "Name",
 			"url": "Abo-Link",
 			"createdAt": "Erstellt",
-			"lastAccessedAt": "Zuletzt abgerufen"
+			"lastAccessedAt": "Zuletzt abgerufen",
+			"kinds": "Arten",
+			"organizationItems": "Gremien"
 		},
 		"input": {
 			"name": {
 				"label": "Name",
 				"hint": "Wofür das Abo gedacht ist, etwa „Website“ oder „AStA-Handy“."
+			},
+			"kinds": {
+				"label": "Terminarten",
+				"hint": "Ohne Auswahl enthält das Abo alle Arten."
+			},
+			"organizationItems": {
+				"label": "Gremien",
+				"hint": "Ohne Auswahl enthält das Abo alle Gremien. Untergeordnete Gremien kommen nicht von selbst hinzu."
 			}
 		},
 		"never": "noch nie",
@@ -852,7 +862,7 @@
 			}
 		},
 		"edit": {
-			"title": "Kalender-Abo umbenennen",
+			"title": "Kalender-Abo bearbeiten",
 			"error": {
 				"title": "Fehler bei der Bearbeitung",
 				"message": "Bei der Bearbeitung des Kalender-Abos ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
@@ -865,6 +875,10 @@
 				"title": "Fehler beim Widerrufen",
 				"message": "Beim Widerrufen des Kalender-Abos ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
 			}
-		}
+		},
+		"kind": {
+			"session": "Sitzungen"
+		},
+		"all": "alle"
 	}
 }

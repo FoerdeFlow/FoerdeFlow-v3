@@ -11,26 +11,31 @@ export default defineEventHandler(async (event) => {
 		calendarToken: idSchema,
 	}).parseAsync(data))
 
-	// Nur der Name lässt sich ändern; der Token selbst bleibt, wie er erzeugt
-	// wurde. `strictObject` weist ein mitgeschicktes `token` ab, statt es
-	// stillschweigend zu verwerfen.
+	// Name und Filter lassen sich ändern; der Token selbst bleibt, wie er
+	// erzeugt wurde. `strictObject` weist ein mitgeschicktes `token` ab, statt
+	// es stillschweigend zu verwerfen.
 	const calendarTokenSchema = createUpdateSchema(calendarTokens).required({ name: true })
 	const body = await readValidatedBody(event, async (data) => await z.strictObject({
 		name: calendarTokenSchema.shape.name,
+		...calendarTokenFilterSchema,
 	}).parseAsync(data))
 
-	const result = await database
-		.update(calendarTokens)
-		.set(body)
-		.where(eq(calendarTokens.id, params.calendarToken))
+	await database.transaction(async (tx) => {
+		const result = await tx
+			.update(calendarTokens)
+			.set({ name: body.name })
+			.where(eq(calendarTokens.id, params.calendarToken))
 
-	if(result.rowCount === 0) {
-		throw createError({
-			statusCode: 404,
-			statusMessage: 'Kalender-Abo nicht gefunden',
-			data: {
-				calendarTokenId: params.calendarToken,
-			},
-		})
-	}
+		if(result.rowCount === 0) {
+			throw createError({
+				statusCode: 404,
+				statusMessage: 'Kalender-Abo nicht gefunden',
+				data: {
+					calendarTokenId: params.calendarToken,
+				},
+			})
+		}
+
+		await writeCalendarTokenFilters(tx, params.calendarToken, body)
+	})
 })

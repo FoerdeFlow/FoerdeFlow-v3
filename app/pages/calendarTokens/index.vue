@@ -22,6 +22,20 @@ function subscriptionUrl(token: string) {
 
 const copied = ref<string | null>(null)
 
+// Eine leere Auswahl schränkt nicht ein und wird deshalb als „alle“ gezeigt,
+// nicht als leeres Feld.
+function describeKinds(kinds: { eventType: { code: string, name: string } | null }[]) {
+	if(kinds.length === 0) return t('calendarToken.all')
+	return kinds
+		.map((kind) => kind.eventType ? formatEventType(kind.eventType) : t('calendarToken.kind.session'))
+		.join(', ')
+}
+
+function describeOrganizationItems(items: { organizationItem: { code: string, name: string } }[]) {
+	if(items.length === 0) return t('calendarToken.all')
+	return items.map((item) => formatOrganizationItem(item.organizationItem)).join(', ')
+}
+
 async function copy(token: string) {
 	try {
 		await navigator.clipboard.writeText(subscriptionUrl(token))
@@ -85,6 +99,11 @@ KernTable(
 		| {{ $t('calendarToken.field.name') }}
 	template(#name-body="{ item }")
 		| {{ item.name }}
+		dl.ff3-filters
+			dt {{ $t('calendarToken.field.kinds') }}
+			dd {{ describeKinds(item.kinds) }}
+			dt {{ $t('calendarToken.field.organizationItems') }}
+			dd {{ describeOrganizationItems(item.organizationItems) }}
 	template(#url-header)
 		| {{ $t('calendarToken.field.url') }}
 	template(#url-body="{ item }")
@@ -113,5 +132,18 @@ CalendarTokenEditor(
 .ff3-token {
 	overflow-wrap: anywhere;
 	font-size: 0.875em;
+}
+
+/* Die Filter stehen als Beiwerk unter dem Namen. */
+.ff3-filters {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 0 var(--kern-metric-space-small, 0.5rem);
+	margin-top: var(--kern-metric-space-small, 0.5rem);
+	font-size: 0.875em;
+}
+
+.ff3-filters dt::after {
+	content: ":";
 }
 </style>
