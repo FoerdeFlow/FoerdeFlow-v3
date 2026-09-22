@@ -29,6 +29,8 @@ export default defineEventHandler(async (event) => {
 
 	await checkPermission('events.update', { organizationItem: existing?.organizationItem })
 
+	if(existing) await checkLocationChoice(database, body, existing.organizationItem)
+
 	const result = await database
 		.update(events)
 		.set(updateBody)

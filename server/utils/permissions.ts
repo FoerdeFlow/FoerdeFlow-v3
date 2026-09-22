@@ -170,42 +170,24 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
-		id: 'buildings.read',
+		id: 'locations.read',
 		scope: 'global',
 		assignable: true,
 	},
 	{
-		id: 'buildings.create',
+		id: 'locations.create',
+		scope: 'global',
+		assignable: true,
+	},
+	// Deckt auch das Überführen eines Ad-hoc-Ortes in eine richtige Ortsart und
+	// das Zusammenführen zweier Orte ab.
+	{
+		id: 'locations.update',
 		scope: 'global',
 		assignable: true,
 	},
 	{
-		id: 'buildings.update',
-		scope: 'global',
-		assignable: true,
-	},
-	{
-		id: 'buildings.delete',
-		scope: 'global',
-		assignable: true,
-	},
-	{
-		id: 'rooms.read',
-		scope: 'global',
-		assignable: true,
-	},
-	{
-		id: 'rooms.create',
-		scope: 'global',
-		assignable: true,
-	},
-	{
-		id: 'rooms.update',
-		scope: 'global',
-		assignable: true,
-	},
-	{
-		id: 'rooms.delete',
+		id: 'locations.delete',
 		scope: 'global',
 		assignable: true,
 	},

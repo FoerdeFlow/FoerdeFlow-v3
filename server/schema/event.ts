@@ -8,7 +8,7 @@ import {
 	varchar,
 } from 'drizzle-orm/pg-core'
 
-import { rooms } from './building'
+import { locations } from './location'
 import { organizationItems } from './organizationItem'
 
 export const eventTypes = pgTable('event_types', {
@@ -34,7 +34,10 @@ export const events = pgTable('events', {
 	startDate: timestamp().notNull(),
 	endDate: timestamp(),
 	allDay: boolean().notNull().default(false),
-	room: uuid().notNull().references(() => rooms.id),
+	// Der Ort bleibt offen, solange er noch nicht feststeht.
+	location: uuid().references(() => locations.id),
+	// Der Videokonferenzraum einer hybriden oder rein digitalen Veranstaltung.
+	onlineLocation: uuid().references(() => locations.id),
 	cancelled: boolean().notNull().default(false),
 }, (table) => [
 	check(
@@ -52,8 +55,14 @@ export const eventsRelations = relations(events, ({ one }) => ({
 		fields: [ events.type ],
 		references: [ eventTypes.id ],
 	}),
-	room: one(rooms, {
-		fields: [ events.room ],
-		references: [ rooms.id ],
+	location: one(locations, {
+		fields: [ events.location ],
+		references: [ locations.id ],
+		relationName: 'location',
+	}),
+	onlineLocation: one(locations, {
+		fields: [ events.onlineLocation ],
+		references: [ locations.id ],
+		relationName: 'onlineLocation',
 	}),
 }))

@@ -40,14 +40,13 @@ const areas: HomeNavigationArea[] = [
 	},
 	{
 		title: 'Hochschule und Campus',
-		description: 'Struktur der HAW Kiel sowie Gebäude und Räume.',
+		description: 'Struktur der HAW Kiel sowie die Orte ihrer Sitzungen und Veranstaltungen.',
 		entries: [
 			{ title: 'Fachbereiche', link: '/departments', permission: 'departments.read' },
 			{ title: 'Fachschaften', link: '/councils', permission: 'councils.read' },
 			{ title: 'Abschlüsse', link: '/courseTypes', permission: 'courseTypes.read' },
 			{ title: 'Studiengänge', link: '/courses', permission: 'courses.read' },
-			{ title: 'Gebäude', link: '/building', permission: 'buildings.read' },
-			{ title: 'Räume', link: '/room', permission: 'rooms.read' },
+			{ title: 'Orte', link: '/location', permission: 'locations.read' },
 		],
 	},
 	{

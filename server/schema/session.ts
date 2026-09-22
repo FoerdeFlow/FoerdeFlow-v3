@@ -9,7 +9,7 @@ import {
 	uuid,
 } from 'drizzle-orm/pg-core'
 
-import { rooms } from './building'
+import { locations } from './location'
 import { organizationItems } from './organizationItem'
 import { persons } from './person'
 
@@ -21,7 +21,9 @@ export const sessions = pgTable('sessions', {
 	plannedDate: timestamp().notNull(),
 	startDate: timestamp(),
 	endDate: timestamp(),
-	room: uuid().notNull().references(() => rooms.id),
+	location: uuid().notNull().references(() => locations.id),
+	// Der Videokonferenzraum einer hybriden oder rein digitalen Sitzung.
+	onlineLocation: uuid().references(() => locations.id),
 })
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -29,9 +31,15 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 		fields: [ sessions.organizationItem ],
 		references: [ organizationItems.id ],
 	}),
-	room: one(rooms, {
-		fields: [ sessions.room ],
-		references: [ rooms.id ],
+	location: one(locations, {
+		fields: [ sessions.location ],
+		references: [ locations.id ],
+		relationName: 'location',
+	}),
+	onlineLocation: one(locations, {
+		fields: [ sessions.onlineLocation ],
+		references: [ locations.id ],
+		relationName: 'onlineLocation',
 	}),
 }))
 

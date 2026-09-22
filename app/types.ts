@@ -6,7 +6,6 @@ import type {
 	BudgetPlanItemSelect,
 	BudgetPlanSelect,
 	BudgetSelect,
-	BuildingSelect,
 	CouncilSelect,
 	CourseSelect,
 	CourseTypeSelect,
@@ -19,13 +18,13 @@ import type {
 	GenderSelect,
 	KernCardNav,
 	KernTaskList,
+	LocationSelect,
 	MembershipEndReasonSelect,
 	MembershipTypeSelect,
 	OrganizationItemSelect,
 	OrganizationTypeSelect,
 	PersonSelect,
 	RoleSelect,
-	RoomSelect,
 	SessionSelect,
 	WorkflowStepTypeSelect,
 } from '#components'
@@ -42,7 +41,6 @@ export type BudgetPlan = InstanceType<typeof BudgetPlanSelect>['$props']['modelV
  */
 export type PendingBudgetPlan = DestructureArray<InternalApi['/api/pendingBudgetPlans']['get']>
 export type BudgetPlanItem = InstanceType<typeof BudgetPlanItemSelect>['$props']['modelValue']
-export type Building = InstanceType<typeof BuildingSelect>['$props']['modelValue']
 export type Council = InstanceType<typeof CouncilSelect>['$props']['modelValue']
 export type Course = InstanceType<typeof CourseSelect>['$props']['modelValue']
 export type CourseType = InstanceType<typeof CourseTypeSelect>['$props']['modelValue']
@@ -59,13 +57,18 @@ export type CalendarEvent = DestructureArray<InternalApi['/api/events']['get']>
 export type EventType = InstanceType<typeof EventTypeSelect>['$props']['modelValue']
 export type ExpenseAuthorization = InstanceType<typeof ExpenseAuthorizationSelect>['$props']['modelValue']
 export type Gender = InstanceType<typeof GenderSelect>['$props']['modelValue']
+/**
+ * A place a session or an event is held at. The name shadows the DOM global of
+ * the same name, which nothing in a single-file component reaches for.
+ */
+export type Location = InstanceType<typeof LocationSelect>['$props']['modelValue']
+export type LocationType = NonNullable<Location>['type']
 export type MembershipEndReason = InstanceType<typeof MembershipEndReasonSelect>['$props']['modelValue']
 export type MembershipType = InstanceType<typeof MembershipTypeSelect>['$props']['modelValue']
 export type OrganizationItem = InstanceType<typeof OrganizationItemSelect>['$props']['modelValue']
 export type OrganizationType = InstanceType<typeof OrganizationTypeSelect>['$props']['modelValue']
 export type Person = InstanceType<typeof PersonSelect>['$props']['modelValue']
 export type Role = InstanceType<typeof RoleSelect>['$props']['modelValue']
-export type Room = InstanceType<typeof RoomSelect>['$props']['modelValue']
 export type Session = InstanceType<typeof SessionSelect>['$props']['modelValue']
 export type WorkflowStepType = InstanceType<typeof WorkflowStepTypeSelect>['$props']['modelValue']
 

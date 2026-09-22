@@ -14,19 +14,28 @@ export default defineEventHandler(async (event) => {
 		with: {
 			organizationItem: true,
 			type: true,
-			room: {
+			location: {
 				with: {
-					building: true,
+					parent: true,
 				},
 				columns: {
-					building: false,
+					parent: false,
+				},
+			},
+			onlineLocation: {
+				with: {
+					parent: true,
+				},
+				columns: {
+					parent: false,
 				},
 			},
 		},
 		columns: {
 			organizationItem: false,
 			type: false,
-			room: false,
+			location: false,
+			onlineLocation: false,
 		},
 		orderBy: (events, { asc }) => [
 			asc(events.startDate),

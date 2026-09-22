@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 
-import type { EventType, Room } from '~/types'
+import type { EventType, Location } from '~/types'
 
 import { KernDialog } from '#components'
 
@@ -22,7 +22,8 @@ interface Model {
 	allDay: boolean
 	startDate: Date | null
 	endDate: Date | null
-	room: Room
+	location: Location
+	onlineLocation: Location
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -52,7 +53,8 @@ defineExpose({
 			allDay: false,
 			startDate: null,
 			endDate: null,
-			room: null,
+			location: null,
+			onlineLocation: null,
 		})
 	},
 	async edit(id: string) {
@@ -64,7 +66,8 @@ defineExpose({
 			allDay: item.allDay,
 			startDate: item.startDate ? new Date(item.startDate) : null,
 			endDate: item.endDate ? new Date(item.endDate) : null,
-			room: item.room,
+			location: item.location,
+			onlineLocation: item.onlineLocation,
 		})
 	},
 })
@@ -78,9 +81,10 @@ function cancel() {
 	dialog.value.hide()
 }
 
-// Ein Termin braucht mindestens einen Titel, eine Art, einen Beginn und einen Ort.
+// Ein Termin braucht mindestens einen Titel, eine Art und einen Beginn. Der Ort
+// darf offen bleiben, solange er noch nicht feststeht.
 const valid = computed(() => Boolean(
-	model.value?.title && model.value.type && model.value.startDate && model.value.room,
+	model.value?.title && model.value.type && model.value.startDate,
 ))
 
 async function save() {
@@ -93,7 +97,8 @@ async function save() {
 			allDay: model.value.allDay,
 			startDate: model.value.startDate?.toISOString() ?? null,
 			endDate: model.value.endDate?.toISOString() ?? null,
-			room: model.value.room?.id ?? null,
+			location: model.value.location?.id ?? null,
+			onlineLocation: model.value.onlineLocation?.id ?? null,
 		}
 		if(itemId.value) {
 			await $fetch(`/api/events/${itemId.value}`, {
@@ -151,5 +156,12 @@ KernDialog(
 				v-model="model.endDate"
 				:all-day="model.allDay"
 			)
-		EventRoomInput(v-model="model.room")
+		EventLocationInput(
+			v-model="model.location"
+			:organization-item="props.organizationItem"
+		)
+		EventOnlineLocationInput(
+			v-model="model.onlineLocation"
+			:organization-item="props.organizationItem"
+		)
 </template>

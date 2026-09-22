@@ -67,7 +67,7 @@ KernTable(
 	update-permission="events.update"
 	delete-permission="events.delete"
 	show-actions
-	:columns="[ 'timespan', 'title', 'room' ]"
+	:columns="[ 'timespan', 'title', 'location' ]"
 	:data="data"
 	:scope="scope"
 	@create="create"
@@ -84,10 +84,13 @@ KernTable(
 		p.kern-preline {{ formatEventType(item.type) }}
 		span {{ item.title }}
 		span.kern-badge.kern-badge--danger.ml-2(v-if="item.cancelled") {{ $t('event.cancelled.badge') }}
-	template(#room-header)
-		| {{ $t('event.field.room') }}
-	template(#room-body="{ item }")
-		| {{ formatRoom(item.room) }}
+	template(#location-header)
+		| {{ $t('event.field.location') }}
+	template(#location-body="{ item }")
+		| {{ item.location ? formatLocation(item.location) : $t('event.field.locationOpen') }}
+		template(v-if="item.onlineLocation")
+			br
+			| {{ formatLocation(item.onlineLocation) }}
 	template(#actions="{ item }")
 		NuxtLink.kern-btn.kern-btn--tertiary(
 			:to=`{

@@ -2,7 +2,7 @@
 import { FetchError } from 'ofetch'
 
 import type { KernDialog } from '#components'
-import type { Room } from '~/types'
+import type { Location } from '~/types'
 
 const props = defineProps<{
 	organizationItem: string
@@ -18,7 +18,8 @@ interface Model {
 	plannedDate: Date | null
 	startDate: Date | null
 	endDate: Date | null
-	room: Room
+	location: Location
+	onlineLocation: Location
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -45,7 +46,8 @@ defineExpose({
 			plannedDate: null,
 			startDate: null,
 			endDate: null,
-			room: null,
+			location: null,
+			onlineLocation: null,
 		})
 	},
 	async edit(id: string) {
@@ -56,7 +58,8 @@ defineExpose({
 			plannedDate: item.plannedDate ? new Date(item.plannedDate) : null,
 			startDate: item.startDate ? new Date(item.startDate) : null,
 			endDate: item.endDate ? new Date(item.endDate) : null,
-			room: item.room,
+			location: item.location,
+			onlineLocation: item.onlineLocation,
 		})
 	},
 })
@@ -70,6 +73,9 @@ function cancel() {
 	dialog.value.hide()
 }
 
+// Eine Sitzung wird geladen, also muss der Ort feststehen.
+const valid = computed(() => Boolean(model.value?.location))
+
 async function save() {
 	if(!dialog.value) return
 	try {
@@ -79,7 +85,8 @@ async function save() {
 			plannedDate: model.value?.plannedDate ? model.value.plannedDate.toISOString() : null,
 			startDate: model.value?.startDate ? model.value.startDate.toISOString() : null,
 			endDate: model.value?.endDate ? model.value.endDate.toISOString() : null,
-			room: model.value?.room?.id ?? null,
+			location: model.value?.location?.id ?? null,
+			onlineLocation: model.value?.onlineLocation?.id ?? null,
 		}
 		if(itemId.value) {
 			await $fetch(`/api/sessions/${itemId.value}`, {
@@ -114,6 +121,7 @@ KernDialog(
 	ref="dialog"
 	:title="`Sitzung ${itemId ? 'bearbeiten' : 'erstellen'}`"
 	:modal="modified"
+	:valid="valid"
 	@cancel="cancel"
 	@save="save"
 )
@@ -125,5 +133,12 @@ KernDialog(
 		SessionPlannedDateInput(v-model="model.plannedDate")
 		SessionStartDateInput(v-model="model.startDate")
 		SessionEndDateInput(v-model="model.endDate")
-		SessionRoomInput(v-model="model.room")
+		SessionLocationInput(
+			v-model="model.location"
+			:organization-item="props.organizationItem"
+		)
+		SessionOnlineLocationInput(
+			v-model="model.onlineLocation"
+			:organization-item="props.organizationItem"
+		)
 </template>

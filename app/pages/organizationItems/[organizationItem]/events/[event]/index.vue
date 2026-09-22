@@ -17,7 +17,8 @@ const { data, refresh } = useFetch(() => `/api/events/${route.params.event}`, {
 		allDay: false,
 		startDate: '',
 		endDate: null,
-		room: null,
+		location: null,
+		onlineLocation: null,
 		cancelled: false,
 		organizationItem: null,
 	}),
@@ -32,7 +33,17 @@ const items = computed(() => [
 	{ key: t('event.field.organizationItem'), value: formatOrganizationItem(data.value.organizationItem) },
 	{ key: t('event.field.type'), value: formatEventType(data.value.type) },
 	{ key: t('event.field.timespan'), value: formatEventTimespan(data.value) },
-	{ key: t('event.field.room'), value: formatRoom(data.value.room) },
+	{
+		key: t('event.field.location'),
+		value: data.value.location ? formatLocation(data.value.location) : t('event.field.locationOpen'),
+	},
+	// Der Online-Ort steht nur bei einer hybriden oder digitalen Veranstaltung.
+	...data.value.onlineLocation
+		? [ {
+			key: t('event.field.onlineLocation'),
+			value: formatLocation(data.value.onlineLocation),
+		} ]
+		: [],
 ])
 
 function edit() {
@@ -61,7 +72,8 @@ async function toggleCancelled() {
 				allDay: data.value.allDay,
 				startDate: data.value.startDate,
 				endDate: data.value.endDate,
-				room: data.value.room?.id ?? null,
+				location: data.value.location?.id ?? null,
+				onlineLocation: data.value.onlineLocation?.id ?? null,
 				cancelled: target,
 			},
 		})

@@ -27,8 +27,7 @@
 			"organizationItems": "Organisationseinheiten",
 			"organizationItemGroups": "OE-Gruppen",
 			"memberships": "Mitgliedschaften",
-			"buildings": "Gebäude",
-			"rooms": "Räume",
+			"locations": "Orte",
 			"sessions": "Sitzungen",
 			"minutes": "Protokolle",
 			"attendances": "Sitzungsteilnahmen",
@@ -590,6 +589,102 @@
 			"title": "Empfänger*in bearbeiten"
 		}
 	},
+	"location": {
+		"title": "Orte",
+		"table": {
+			"caption": "Liste der Orte"
+		},
+		"type": {
+			"building": "Gebäude",
+			"room": "Raum",
+			"place": "Platz",
+			"external": "Externer Ort",
+			"online": "Online",
+			"adHoc": "Noch nicht geprüft"
+		},
+		"field": {
+			"type": "Art",
+			"name": "Ort"
+		},
+		"select": {
+			"placeholder": "- Bitte wählen -",
+			"open": "- Noch offen -"
+		},
+		"input": {
+			"type": {
+				"label": "Art des Ortes"
+			},
+			"parent": {
+				"label": "Gebäude"
+			},
+			"code": {
+				"label": "Kürzel",
+				"hint": "Nur für Gebäude und Räume der Hochschule. Sonst bitte leer lassen."
+			},
+			"name": {
+				"label": "Bezeichnung"
+			},
+			"level": {
+				"label": "Stockwerk",
+				"hint": "Das Untergeschoss wird als -1 erfasst."
+			},
+			"capacity": {
+				"label": "Kapazität",
+				"hint": "Bei unbekannter Kapazität bitte leer lassen."
+			},
+			"postalAddress": {
+				"label": "Anschrift"
+			},
+			"url": {
+				"label": "Link zur Videokonferenz",
+				"hint": "Vollständig mit https:// angeben."
+			}
+		},
+		"create": {
+			"title": "Ort erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung des Ortes ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Ort bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung des Ortes ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Ort löschen?",
+			"text": "Sind Sie sicher, dass Sie diesen Ort löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen des Ortes ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"adHoc": {
+			"action": "Ort nicht dabei? Neuen Ort erfassen",
+			"title": "Neuen Ort erfassen",
+			"hint": "Dieser Ort steht zunächst nur Ihrem Gremium zur Verfügung. Eine berechtigte Person prüft ihn später und nimmt ihn in den Ortskatalog auf.",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung des Ortes ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"merge": {
+			"action": "Mit einem anderen Ort zusammenführen",
+			"title": "Orte zusammenführen",
+			"text": "„{location}“ wird gelöscht. Alles, was auf diesen Ort zeigt, zeigt danach auf den gewählten Ort.",
+			"usage": "Betroffen sind {events} Veranstaltungen, {sessions} Sitzungen und {children} Räume.",
+			"target": {
+				"label": "Ort, der erhalten bleibt"
+			},
+			"error": {
+				"title": "Fehler beim Zusammenführen",
+				"message": "Beim Zusammenführen der Orte ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
 	"eventType": {
 		"title": "Veranstaltungsarten",
 		"table": {
@@ -642,7 +737,9 @@
 			"timespan": "Zeitraum",
 			"title": "Veranstaltung",
 			"type": "Art",
-			"room": "Ort",
+			"location": "Ort",
+			"locationOpen": "Noch offen",
+			"onlineLocation": "Online-Ort",
 			"organizationItem": "Gremium",
 			"description": "Beschreibung"
 		},
@@ -668,8 +765,11 @@
 				"labelAllDay": "Letzter Tag",
 				"hint": "Bei einer Veranstaltung ohne festes Ende bitte leer lassen."
 			},
-			"room": {
+			"location": {
 				"label": "Ort"
+			},
+			"onlineLocation": {
+				"label": "Online-Ort"
 			}
 		},
 		"create": {

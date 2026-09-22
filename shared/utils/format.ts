@@ -136,22 +136,35 @@ export function parseCurrency(
 	return Math.round(result * 100) / 100
 }
 
-export function formatBuilding(
-	building: {
-		code: string
+/**
+ * Writes out a location the way it is spoken of.
+ *
+ * A room keeps the familiar `LMS-2.201 (Seminarraum)`, where `K` stands for the
+ * basement. Every other kind carries its name, prefixed with its code as long
+ * as it has one: a pub down the road never gets one.
+ *
+ * @param location - The location to write out
+ * @returns The label of the location, empty if there is none
+ */
+export function formatLocation(
+	location: {
+		type: string
+		code: string | null
 		name: string
+		level?: number | null
+		parent?: { code: string | null } | null
 	} | null,
 ): string {
-	if(!building) return ''
-	return `${building.code} (${building.name})`
-}
+	if(!location) return ''
 
-export function formatRoom(
-	room: { building: { code: string }, code: string, level: number, name: string } | null,
-): string {
-	if(!room) return ''
-	const level = room.level < 0 ? 'K' : room.level
-	return `${room.building.code}-${level}.${room.code} (${room.name})`
+	if(location.type === 'room') {
+		const level = (location.level ?? 0) < 0 ? 'K' : String(location.level ?? 0)
+		const number = location.code ? `${level}.${location.code}` : level
+		const code = location.parent?.code ? `${location.parent.code}-${number}` : number
+		return `${code} (${location.name})`
+	}
+
+	return location.code ? `${location.code} (${location.name})` : location.name
 }
 
 export function formatPeriod(period: number): string {

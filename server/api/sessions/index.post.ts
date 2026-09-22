@@ -20,19 +20,21 @@ export default defineEventHandler(async (event) => {
 	const client = useOpenslides()
 
 	const result = await database.transaction(async (tx) => {
+		await checkLocationChoice(tx, body, body.organizationItem)
+
 		const [ result ] = await tx.insert(sessions).values(body).returning({ id: sessions.id })
 		if(!result) throw new Error('Session could not be created')
 		const committee = await tx.query.organizationItems.findFirst({
 			where: eq(organizationItems.id, body.organizationItem),
 		})
 		if(!committee) throw new Error('Committee not found')
-		const room = await tx.query.rooms.findFirst({
-			where: eq(rooms.id, body.room),
+		const location = await tx.query.locations.findFirst({
+			where: eq(locations.id, body.location),
 			with: {
-				building: true,
+				parent: true,
 			},
 		})
-		if(!room) throw new Error('Room not found')
+		if(!location) throw new Error('Location not found')
 
 		await client.connect()
 		const { id: committeeId } = await client.presenters.search_for_id_by_external_id({
@@ -54,7 +56,7 @@ export default defineEventHandler(async (event) => {
 			description: `${body.number.toString()}. Sitzung | ${formatTime(body.plannedDate)} Uhr`,
 			start_time: body.plannedDate,
 			end_time: body.plannedDate,
-			location: formatRoom(room),
+			location: formatLocation(location),
 		})
 
 		return result

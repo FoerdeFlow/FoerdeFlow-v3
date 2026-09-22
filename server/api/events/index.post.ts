@@ -16,6 +16,8 @@ export default defineEventHandler(async (event) => {
 
 	const database = useDatabase()
 
+	await checkLocationChoice(database, body, body.organizationItem)
+
 	const [ result = null ] = await database
 		.insert(events)
 		.values(normalizeEventDates(body))

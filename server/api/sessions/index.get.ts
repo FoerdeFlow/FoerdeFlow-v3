@@ -13,18 +13,27 @@ export default defineEventHandler(async (event) => {
 		where: (sessions, { eq }) => eq(sessions.organizationItem, query.organizationItem),
 		with: {
 			organizationItem: true,
-			room: {
+			location: {
 				with: {
-					building: true,
+					parent: true,
 				},
 				columns: {
-					building: false,
+					parent: false,
+				},
+			},
+			onlineLocation: {
+				with: {
+					parent: true,
+				},
+				columns: {
+					parent: false,
 				},
 			},
 		},
 		columns: {
 			organizationItem: false,
-			room: false,
+			location: false,
+			onlineLocation: false,
 		},
 		orderBy: (sessions, { asc }) => [
 			asc(sessions.plannedDate),

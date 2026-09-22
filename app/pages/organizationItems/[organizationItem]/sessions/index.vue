@@ -85,7 +85,10 @@ KernTable(
 	template(#timeAndLocation-body="{ item }")
 		| {{ formatDatetime(item.plannedDate) }}
 		br
-		| {{ formatRoom(item.room) }}
+		| {{ formatLocation(item.location) }}
+		template(v-if="item.onlineLocation")
+			br
+			| {{ formatLocation(item.onlineLocation) }}
 	template(#actions="{ item }")
 		NuxtLink.kern-btn.kern-btn--tertiary(
 			:to=`{

@@ -1,5 +1,5 @@
 export * from '../schema/accessControl'
-export * from '../schema/building'
+export * from '../schema/location'
 export * from '../schema/membership'
 export * from '../schema/organizationItem'
 export * from '../schema/organizationItemGroup'
