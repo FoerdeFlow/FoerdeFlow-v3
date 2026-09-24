@@ -11,10 +11,13 @@ import type { EventContext } from '../types'
  *
  * @param tx - The database connection or transaction to use
  * @param workflowProcessSignatureId - The process signature to check
+ * @param requireConfirmable - Whether the user has to hold the assignment itself,
+ *   rather than being a plain member of the organization item it addresses
  */
 export async function checkProcessSignaturePermission(
 	tx: ReturnType<typeof useDatabase>,
 	workflowProcessSignatureId: string,
+	requireConfirmable = true,
 ) {
 	const event = useEvent()
 	if((event.context as EventContext).user?.roles.some((role) => role.isAdmin)) {
@@ -71,5 +74,6 @@ export async function checkProcessSignaturePermission(
 			...process,
 		},
 		processSignature.signature,
+		{ allowMembershipFallback: !requireConfirmable },
 	)
 }

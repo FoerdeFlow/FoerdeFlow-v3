@@ -6,6 +6,10 @@ import type { EventContext } from '../types'
  * Checks whether the current user may see a process, inside a transaction that
  * is already open.
  *
+ * Besides the initiator, everyone a process addresses may see it: the assignees of
+ * its steps as well as those of its signatures. The paper trail is reason enough on
+ * its own, because a signature can address someone no step of the workflow does.
+ *
  * @param tx - The transaction to read the process in
  * @param processId - The process to check
  * @throws When the process does not exist or the user may not see it
@@ -56,13 +60,25 @@ export async function checkProcessPermissionTx(
 		},
 	})
 
-	const hasPermission = (await Promise.all(
-		steps.map(async (step) =>
+	const signatures = await tx.query.workflowProcessSignatures.findMany({
+		where: eq(workflowProcessSignatures.process, processId),
+		columns: {
+			id: true,
+		},
+	})
+
+	const hasPermission = (await Promise.all([
+		...steps.map(async (step) =>
 			await checkProcessStepPermission(tx, step.id, false)
 				.then(() => true)
 				.catch(() => false),
 		),
-	)).some((permission) => permission)
+		...signatures.map(async (signature) =>
+			await checkProcessSignaturePermission(tx, signature.id, false)
+				.then(() => true)
+				.catch(() => false),
+		),
+	])).some((permission) => permission)
 
 	if(!hasPermission) {
 		throw createError({
