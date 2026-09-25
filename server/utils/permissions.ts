@@ -232,6 +232,49 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'inventoryItems.read',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'inventoryItems.create',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'inventoryItems.update',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'inventoryItems.delete',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'inventoryLoans.read',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	// Deckt die Herausgabe ab. Wer sie hat, darf ausleihen, ohne den Katalog
+	// selbst pflegen zu dürfen.
+	{
+		id: 'inventoryLoans.create',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	// Deckt auch das Dokumentieren der Rückgabe ab.
+	{
+		id: 'inventoryLoans.update',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'inventoryLoans.delete',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
 		id: 'minutes.read',
 		scope: 'organizationItem',
 		assignable: true,

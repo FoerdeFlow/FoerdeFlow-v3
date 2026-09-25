@@ -50,6 +50,24 @@ const subPages: KernCardNavItems = [
 		permission: 'events.read',
 	},
 	{
+		title: 'Inventar',
+		description: 'Übersicht über die Gegenstände',
+		link: {
+			name: 'organizationItems-organizationItem-inventoryItems',
+			params: { organizationItem: route.params.organizationItem },
+		},
+		permission: 'inventoryItems.read',
+	},
+	{
+		title: 'Ausleihen',
+		description: 'Übersicht über die ausgeliehenen Gegenstände',
+		link: {
+			name: 'organizationItems-organizationItem-inventoryLoans',
+			params: { organizationItem: route.params.organizationItem },
+		},
+		permission: 'inventoryLoans.read',
+	},
+	{
 		title: 'Vorlagen',
 		description: 'Übersicht über die Vorlagen',
 		link: {

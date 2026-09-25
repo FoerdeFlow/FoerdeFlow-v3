@@ -7,6 +7,7 @@ export * from '../schema/person'
 export * from '../schema/session'
 export * from '../schema/event'
 export * from '../schema/calendarToken'
+export * from '../schema/inventory'
 export * from '../schema/document'
 
 export * from '../schema/text'

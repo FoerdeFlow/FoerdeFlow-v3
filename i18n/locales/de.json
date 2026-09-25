@@ -59,7 +59,9 @@
 			"permissions": "Berechtigungen",
 			"announcements": "Ankündigungen",
 			"paymentOrders": "Zahlungsanweisungen",
-			"settings": "Einstellungen"
+			"settings": "Einstellungen",
+			"inventoryItems": "Inventar",
+			"inventoryLoans": "Ausleihen"
 		}
 	},
 	"processes": {
@@ -818,6 +820,167 @@
 		},
 		"allDay": {
 			"yes": "Ganztägig"
+		}
+	},
+	"inventoryItem": {
+		"title": "Inventar",
+		"menu": {
+			"title": "Inventar",
+			"description": "Übersicht über die Gegenstände"
+		},
+		"table": {
+			"caption": "Liste der Gegenstände"
+		},
+		"field": {
+			"inventoryNumber": "Nummer",
+			"name": "Gegenstand",
+			"description": "Beschreibung",
+			"location": "Lagerort",
+			"locationOpen": "Nicht erfasst",
+			"status": "Status",
+			"loans": "Ausleihen"
+		},
+		"status": {
+			"available": "Verfügbar",
+			"lent": "Verliehen",
+			"overdue": "Überfällig"
+		},
+		"select": {
+			"placeholder": "- Bitte wählen -"
+		},
+		"input": {
+			"inventoryNumber": {
+				"label": "Inventarnummer",
+				"hint": "Ohne Aufkleber bitte leer lassen."
+			},
+			"name": {
+				"label": "Bezeichnung"
+			},
+			"description": {
+				"label": "Beschreibung",
+				"hint": "Zubehör, Zustand oder Besonderheiten."
+			},
+			"location": {
+				"label": "Lagerort",
+				"hint": "Wo der Gegenstand steht, wenn er nicht verliehen ist."
+			}
+		},
+		"history": {
+			"title": "Ausleihhistorie",
+			"caption": "Liste der Ausleihen dieses Gegenstands",
+			"empty": "Dieser Gegenstand wurde noch nie ausgeliehen."
+		},
+		"create": {
+			"title": "Gegenstand erstellen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung des Gegenstands ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Gegenstand bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung des Gegenstands ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Gegenstand löschen?",
+			"text": "Sind Sie sicher, dass Sie diesen Gegenstand löschen möchten?",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen des Gegenstands ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
+	"inventoryLoan": {
+		"title": "Ausleihen",
+		"menu": {
+			"title": "Ausleihen",
+			"description": "Übersicht über die ausgeliehenen Gegenstände"
+		},
+		"table": {
+			"caption": "Liste der Ausleihen"
+		},
+		"field": {
+			"item": "Gegenstand",
+			"borrower": "Entliehen von",
+			"lentAt": "Ausgeliehen am",
+			"dueAt": "Rückgabe bis",
+			"returnedAt": "Zurückgegeben am",
+			"lentBy": "Herausgegeben von",
+			"returnedTo": "Angenommen von",
+			"note": "Bemerkung",
+			"status": "Status",
+			"unknownPerson": "Nicht erfasst"
+		},
+		"status": {
+			"open": "Offen",
+			"overdue": "Überfällig",
+			"returned": "Zurückgegeben"
+		},
+		"filter": {
+			"label": "Anzeigen",
+			"open": "Offene Ausleihen",
+			"overdue": "Überfällige Ausleihen",
+			"returned": "Zurückgegebene Ausleihen",
+			"all": "Alle Ausleihen"
+		},
+		"empty": "Zu dieser Auswahl gibt es keine Ausleihen.",
+		"input": {
+			"item": {
+				"label": "Gegenstand"
+			},
+			"borrower": {
+				"label": "Entleiher",
+				"hint": "Nur erfasste Personen können etwas ausleihen."
+			},
+			"lentAt": {
+				"label": "Ausgeliehen am"
+			},
+			"dueAt": {
+				"label": "Rückgabe bis",
+				"hint": "Der Zeitpunkt, zu dem der Gegenstand zurück sein soll."
+			},
+			"returnedAt": {
+				"label": "Zurückgegeben am"
+			},
+			"note": {
+				"label": "Bemerkung",
+				"hint": "Etwa der Zustand bei der Übergabe."
+			}
+		},
+		"create": {
+			"action": "Ausleihe erfassen",
+			"title": "Ausleihe erfassen",
+			"error": {
+				"title": "Fehler bei der Erstellung",
+				"message": "Bei der Erstellung der Ausleihe ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Ausleihe bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Bei der Bearbeitung der Ausleihe ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"return": {
+			"action": "Rückgabe erfassen",
+			"title": "Rückgabe erfassen",
+			"text": "Die Ausleihe von „{item}“ durch {borrower} wird abgeschlossen.",
+			"error": {
+				"title": "Fehler bei der Rückgabe",
+				"message": "Bei der Rückgabe ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Ausleihe löschen?",
+			"text": "Sind Sie sicher, dass Sie diese Ausleihe löschen möchten? Sie verschwindet damit aus der Historie des Gegenstands.",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen der Ausleihe ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
 		}
 	},
 	"calendarToken": {

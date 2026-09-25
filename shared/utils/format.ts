@@ -167,6 +167,25 @@ export function formatLocation(
 	return location.code ? `${location.code} (${location.name})` : location.name
 }
 
+/**
+ * Writes out an inventory item.
+ *
+ * The inventory number goes first where there is one, because that is what the
+ * sticker on the item says and what people look for in the list.
+ *
+ * @param item - The item to write out
+ * @returns The label of the item, empty if there is none
+ */
+export function formatInventoryItem(
+	item: {
+		inventoryNumber?: string | null
+		name: string
+	} | null,
+): string {
+	if(!item) return ''
+	return item.inventoryNumber ? `${item.inventoryNumber} – ${item.name}` : item.name
+}
+
 export function formatPeriod(period: number): string {
 	return `${period}/${period + 1}`
 }

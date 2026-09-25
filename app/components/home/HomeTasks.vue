@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const listLimit = 5
 
+const authStore = useAuthStore()
+
 // Bewusst ohne `await`: die Komponente hängt an einem `v-if` und darf keine
 // Async-Komponente sein, weil sie sonst erst nach dem Hydrieren aufgelöst wird.
 const { data: waiting } = useFetch('/api/processes', {
@@ -10,6 +12,7 @@ const { data: waiting } = useFetch('/api/processes', {
 	},
 })
 const { data: drafts } = useFetch('/api/processDrafts')
+const { data: loans } = useFetch('/api/inventoryLoans', { query: { borrower: 'me' } })
 
 // Die Anzahl stammt aus dem Endpunkt und kann größer als die Liste sein.
 const hiddenWaiting = computed(() =>
@@ -19,6 +22,33 @@ const hiddenWaiting = computed(() =>
 const visibleDrafts = computed(() => drafts.value?.slice(0, listLimit) ?? [])
 const hiddenDrafts = computed(() =>
 	Math.max((drafts.value?.length ?? 0) - visibleDrafts.value.length, 0),
+)
+
+// Die Liste kommt bereits nach Fälligkeit sortiert, das Dringendste zuerst.
+const visibleLoans = computed(() => (loans.value ?? [])
+	.slice(0, listLimit)
+	.map((loan) => ({
+		loan,
+		// Der Entleiher sieht seine Ausleihe auch ohne Leserecht im
+		// herausgebenden Gremium. Dann führt der Link aber ins Leere.
+		link: authStore.hasPermission('inventoryItems.read', {
+			organizationItem: loan.item.organizationItem.id,
+		}).value
+			? {
+				name: 'organizationItems-organizationItem-inventoryItems-inventoryItem' as const,
+				params: {
+					organizationItem: loan.item.organizationItem.id,
+					inventoryItem: loan.item.id,
+				},
+			}
+			: null,
+	})),
+)
+const hiddenLoans = computed(() =>
+	Math.max((loans.value?.length ?? 0) - visibleLoans.value.length, 0),
+)
+const overdueLoans = computed(() =>
+	(loans.value ?? []).filter((loan) => getLoanStatus(loan) === 'overdue').length,
 )
 </script>
 
@@ -87,6 +117,39 @@ section.ff3-tasks
 								| Zuletzt bearbeitet {{ formatDatetime(draft.modifiedAt, 'compact') }}
 		p.kern-body.kern-body--small.kern-body--muted(v-if="hiddenDrafts > 0")
 			| und {{ hiddenDrafts }} weitere
+	.ff3-tasks__group(v-if="visibleLoans.length > 0")
+		h2.kern-heading-medium
+			| Meine offenen Ausleihen
+			template(v-if="overdueLoans > 0")
+				|
+				span.kern-badge.kern-badge--danger.kern-badge--small
+					span.kern-label.kern-label--small {{ overdueLoans }} überfällig
+		ul.ff3-tasks__list
+			li(
+				v-for="entry of visibleLoans"
+				:key="entry.loan.id"
+			)
+				article.kern-card.kern-card--small(
+					:class="entry.link ? 'kern-card--interactive' : ''"
+				)
+					.kern-card__container
+						header.kern-card__header
+							hgroup.kern-hgroup
+								h3.kern-title.kern-title--small
+									NuxtLink.kern-link--stretched(
+										v-if="entry.link"
+										:to="entry.link"
+									) {{ formatInventoryItem(entry.loan.item) }}
+									template(v-else)
+										| {{ formatInventoryItem(entry.loan.item) }}
+								p.kern-preline {{ formatOrganizationItem(entry.loan.item.organizationItem) }}
+						section.kern-card__body
+							p.kern-body.kern-body--small
+								InventoryLoanStatusBadge(:status="getLoanStatus(entry.loan)")
+								|
+								| Rückgabe bis {{ formatDatetime(entry.loan.dueAt, 'compact') }}
+		p.kern-body.kern-body--small.kern-body--muted(v-if="hiddenLoans > 0")
+			| und {{ hiddenLoans }} weitere
 </template>
 
 <style scoped>

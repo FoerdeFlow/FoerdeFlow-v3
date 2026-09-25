@@ -16,6 +16,7 @@ import type {
 	EventTypeSelect,
 	ExpenseAuthorizationSelect,
 	GenderSelect,
+	InventoryItemSelect,
 	KernCardNav,
 	KernTaskList,
 	LocationSelect,
@@ -57,6 +58,12 @@ export type CalendarEvent = DestructureArray<InternalApi['/api/events']['get']>
 export type EventType = InstanceType<typeof EventTypeSelect>['$props']['modelValue']
 export type ExpenseAuthorization = InstanceType<typeof ExpenseAuthorizationSelect>['$props']['modelValue']
 export type Gender = InstanceType<typeof GenderSelect>['$props']['modelValue']
+export type InventoryItem = InstanceType<typeof InventoryItemSelect>['$props']['modelValue']
+/**
+ * A loan of an inventory item. Taken from the API rather than from a select,
+ * because nothing picks a loan from a list.
+ */
+export type InventoryLoan = DestructureArray<InternalApi['/api/inventoryLoans']['get']>
 /**
  * A place a session or an event is held at. The name shadows the DOM global of
  * the same name, which nothing in a single-file component reaches for.
