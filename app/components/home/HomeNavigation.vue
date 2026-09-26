@@ -33,7 +33,7 @@ const areas: HomeNavigationArea[] = [
 				link: '/organizationItems',
 				permission: 'organizationItems.read',
 			},
-			{ title: 'Personen', link: '/person', permission: 'persons.read' },
+			{ title: 'Personen', link: '/person', permission: 'personDetails.read' },
 			{ title: 'Haushalte', link: '/budgets', permission: 'budgets.read' },
 			{ title: 'Wahlen', link: '/elections', permission: 'elections.read' },
 		],

@@ -8,7 +8,7 @@ const items: { title: string, link: string, permission?: string }[] = [
 	{ title: 'Start', link: '/' },
 	{ title: 'Meine Prozesse', link: '/processes' },
 	{ title: 'Organisationseinheiten', link: '/organizationItems', permission: 'organizationItems.read' },
-	{ title: 'Personen', link: '/person', permission: 'persons.read' },
+	{ title: 'Personen', link: '/person', permission: 'personDetails.read' },
 	{ title: 'Haushalte', link: '/budgets', permission: 'budgets.read' },
 	{ title: 'Wahlen', link: '/elections', permission: 'elections.read' },
 ]

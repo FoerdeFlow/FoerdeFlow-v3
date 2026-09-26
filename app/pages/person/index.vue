@@ -7,6 +7,23 @@ const alertStore = useAlertStore()
 const confirmDialogStore = useConfirmDialogStore()
 const authStore = useAuthStore()
 
+/*
+ * Die Liste führt alle Personen der Studierendenschaft auf und bleibt deshalb
+ * denjenigen vorbehalten, die Personendaten einsehen dürfen. `persons.read`
+ * genügt nicht: Die Berechtigung dient der Personensuche in Formularen und ist
+ * entsprechend breit vergeben.
+ *
+ * Die Prüfung steht bewusst in der Vorlage und nicht als `createError` im
+ * Setup: der Auth-Store lädt `userInfo` per `useFetch` ohne `await`, sodass die
+ * Berechtigungen beim Ausführen des Setups noch nicht vorliegen und ein
+ * synchroner Abbruch auch Berechtigte aussperren würde.
+ *
+ * Das ist eine Sperre der Oberfläche, keine Zugriffskontrolle für die Daten:
+ * `GET /api/persons` verlangt weiterhin nur `persons.read`, weil die
+ * Personensuche dieselbe Route nutzt.
+ */
+const mayRead = authStore.hasPermission('personDetails.read')
+
 const offset = ref(0)
 
 const searchId = useId()
@@ -79,92 +96,100 @@ async function remove({ id }: { id: string }) {
 
 <template lang="pug">
 h1.kern-heading-large Personen
-.kern-form-input.mb-8
-	label.kern-label(:for="searchId") Suche
-	.flex.flex-row.gap-2.w-full
-		input.flex-1.kern-form-input__input(
-			:id="searchId"
-			v-model="search"
-			type="text"
-			placeholder="Nach Name oder E-Mail-Adresse suchen..."
-		)
-		button.kern-btn.kern-btn--tertiary(
-			v-if="search"
-			@click="search = ''"
-		)
-			span.kern-icon.kern-icon--close(aria-hidden="true")
-			span.kern-label.kern-sr-only Suche zurücksetzen
-KernPagination(
-	v-model="offset"
-	:count="data?.count ?? 1"
-	:page-size="10"
-)
-KernTable(
-	caption="Liste der Personen"
-	:columns="[ 'photo', 'name', 'email' ]"
-	create-permission="persons.create"
-	update-permission="persons.update"
-	delete-permission="persons.delete"
-	:data="data?.items ?? []"
-	:show-actions="authStore.hasPermission('persons.update').value"
-	@create="create"
-	@edit="edit"
-	@remove="remove"
-)
-	template(#photo-header)
-		| Lichtbild
-	template(#photo-body="{ item }")
-		template(v-if="item.hasPhoto")
-			img(
-				:src="`/api/persons/${item.id}/photo`"
-				:alt="`Lichtbild von ${formatPerson(item)}`"
-				width="50"
-				height="50"
-				style="border: 1px solid black; border-radius: 4px;"
+template(v-if="mayRead")
+	.kern-form-input.mb-8
+		label.kern-label(:for="searchId") Suche
+		.flex.flex-row.gap-2.w-full
+			input.flex-1.kern-form-input__input(
+				:id="searchId"
+				v-model="search"
+				type="text"
+				placeholder="Nach Name oder E-Mail-Adresse suchen..."
 			)
-		template(v-else)
-			span.kern-icon.kern-icon--close(aria-hidden="true")
-	template(#name-header)
-		| Name (Pronomen)
-	template(#name-body="{ item }")
-		| {{ item.firstName }}
-		template(v-if="item.callName")
+			button.kern-btn.kern-btn--tertiary(
+				v-if="search"
+				@click="search = ''"
+			)
+				span.kern-icon.kern-icon--close(aria-hidden="true")
+				span.kern-label.kern-sr-only Suche zurücksetzen
+	KernPagination(
+		v-model="offset"
+		:count="data?.count ?? 1"
+		:page-size="10"
+	)
+	KernTable(
+		caption="Liste der Personen"
+		:columns="[ 'photo', 'name', 'email' ]"
+		create-permission="persons.create"
+		update-permission="persons.update"
+		delete-permission="persons.delete"
+		:data="data?.items ?? []"
+		:show-actions="authStore.hasPermission('persons.update').value"
+		@create="create"
+		@edit="edit"
+		@remove="remove"
+	)
+		template(#photo-header)
+			| Lichtbild
+		template(#photo-body="{ item }")
+			template(v-if="item.hasPhoto")
+				img(
+					:src="`/api/persons/${item.id}/photo`"
+					:alt="`Lichtbild von ${formatPerson(item)}`"
+					width="50"
+					height="50"
+					style="border: 1px solid black; border-radius: 4px;"
+				)
+			template(v-else)
+				span.kern-icon.kern-icon--close(aria-hidden="true")
+		template(#name-header)
+			| Name (Pronomen)
+		template(#name-body="{ item }")
+			| {{ item.firstName }}
+			template(v-if="item.callName")
+				|
+				| "{{ item.callName }}"
 			|
-			| "{{ item.callName }}"
-		|
-		| {{ item.lastName }}
-		template(v-if="item.pronouns")
-			|
-			| ({{ item.pronouns }})
-	template(#email-header)
-		| E-Mail-Adresse
-	template(#email-body="{ item }")
-		| {{ item.email }}
-	template(#actions="{ item }")
-		NuxtLink.kern-btn.kern-btn--tertiary(
-			v-if="authStore.hasPermission('persons.read').value"
-			:to="{ name: 'person-person', params: { person: item.id } }"
-		)
-			span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
-			span.kern-label.kern-sr-only Details anzeigen
-		button.kern-btn.kern-btn--tertiary(
-			v-if="authStore.hasPermission('persons.update').value"
-			@click="uploadPhoto(item.id)"
-		)
-			span.kern-icon.kern-icon--drive-folder-upload(aria-hidden="true")
-			span.kern-label.kern-sr-only Lichtbild bearbeiten
-		button.kern-btn.kern-btn--tertiary(
-			v-if="authStore.canImpersonate && item.id !== authStore.userInfo.person?.id"
-			@click="impersonate(item)"
-		)
-			span.kern-icon.kern-icon--account-circle(aria-hidden="true")
-			span.kern-label.kern-sr-only Als diese Person anmelden
-PersonEditor(
-	ref="editor"
-	@refresh="refresh"
-)
-PersonPhotoEditor(
-	ref="photo-editor"
-	@refresh="refresh"
+			| {{ item.lastName }}
+			template(v-if="item.pronouns")
+				|
+				| ({{ item.pronouns }})
+		template(#email-header)
+			| E-Mail-Adresse
+		template(#email-body="{ item }")
+			| {{ item.email }}
+		template(#actions="{ item }")
+			NuxtLink.kern-btn.kern-btn--tertiary(
+				v-if="authStore.hasPermission('persons.read').value"
+				:to="{ name: 'person-person', params: { person: item.id } }"
+			)
+				span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
+				span.kern-label.kern-sr-only Details anzeigen
+			button.kern-btn.kern-btn--tertiary(
+				v-if="authStore.hasPermission('persons.update').value"
+				@click="uploadPhoto(item.id)"
+			)
+				span.kern-icon.kern-icon--drive-folder-upload(aria-hidden="true")
+				span.kern-label.kern-sr-only Lichtbild bearbeiten
+			button.kern-btn.kern-btn--tertiary(
+				v-if="authStore.canImpersonate && item.id !== authStore.userInfo.person?.id"
+				@click="impersonate(item)"
+			)
+				span.kern-icon.kern-icon--account-circle(aria-hidden="true")
+				span.kern-label.kern-sr-only Als diese Person anmelden
+	PersonEditor(
+		ref="editor"
+		@refresh="refresh"
+	)
+	PersonPhotoEditor(
+		ref="photo-editor"
+		@refresh="refresh"
+	)
+KernAlert(
+	v-else
+	type="danger"
+	title="Keine Berechtigung"
+	text="Für die Personenliste fehlt Ihnen die Berechtigung „Personendetails lesen“. Wenden Sie sich an eine Person mit Administratorrechten."
+	:dismissible="false"
 )
 </template>
