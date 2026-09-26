@@ -1,4 +1,4 @@
-import { count } from 'drizzle-orm'
+import { and, count, eq, ilike, or, sql } from 'drizzle-orm'
 import { existsSync } from 'node:fs'
 import z from 'zod'
 
@@ -14,36 +14,41 @@ export default defineEventHandler(async (event) => {
 
 	const database = useDatabase()
 
-	const personsCount = await database.select({ count: count() }).from(persons)
+	const filter = and(
+		...(query.email ? [ eq(persons.email, query.email) ] : []),
+		...(query.query
+			? [ or(
+				ilike(persons.firstName, `%${query.query}%`),
+				ilike(persons.callName, `%${query.query}%`),
+				ilike(persons.lastName, `%${query.query}%`),
+				ilike(
+					sql`${persons.firstName} || ' ' || ${persons.lastName}`,
+					`%${query.query}%`,
+				),
+				ilike(
+					sql`${persons.callName} || ' ' || ${persons.lastName}`,
+					`%${query.query}%`,
+				),
+				ilike(
+					sql`${persons.lastName} || ', ' || ${persons.firstName}`,
+					`%${query.query}%`,
+				),
+				ilike(
+					sql`${persons.lastName} || ', ' || ${persons.callName}`,
+					`%${query.query}%`,
+				),
+				ilike(persons.email, `%${query.query}%`),
+			) ]
+			: []),
+	)
+
+	const personsCount = await database
+		.select({ count: count() })
+		.from(persons)
+		.where(filter)
 
 	const personsList = await database.query.persons.findMany({
-		where: (persons, { and, or, eq, ilike, sql }) => and(
-			...(query.email ? [ eq(persons.email, query.email ?? '') ] : []),
-			...(query.query
-				? [ or(
-					ilike(persons.firstName, `%${query.query}%`),
-					ilike(persons.callName, `%${query.query}%`),
-					ilike(persons.lastName, `%${query.query}%`),
-					ilike(
-						sql`${persons.firstName} || ' ' || ${persons.lastName}`,
-						`%${query.query}%`,
-					),
-					ilike(
-						sql`${persons.callName} || ' ' || ${persons.lastName}`,
-						`%${query.query}%`,
-					),
-					ilike(
-						sql`${persons.lastName} || ', ' || ${persons.firstName}`,
-						`%${query.query}%`,
-					),
-					ilike(
-						sql`${persons.lastName} || ', ' || ${persons.callName}`,
-						`%${query.query}%`,
-					),
-					ilike(persons.email, `%${query.query}%`),
-				) ]
-				: []),
-		),
+		where: filter,
 		with: {
 			course: true,
 		},

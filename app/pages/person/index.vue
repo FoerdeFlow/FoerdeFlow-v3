@@ -8,8 +8,20 @@ const confirmDialogStore = useConfirmDialogStore()
 const authStore = useAuthStore()
 
 const offset = ref(0)
+
+const searchId = useId()
+const searchTerm = ref('')
+const search = computed({
+	get: () => searchTerm.value,
+	set: (value: string) => {
+		searchTerm.value = value
+		offset.value = 0
+	},
+})
+
 const { data, refresh } = useFetch('/api/persons', {
 	query: {
+		query: searchTerm,
 		page: computed(() => offset.value / 10),
 		limit: 10,
 	},
@@ -67,6 +79,21 @@ async function remove({ id }: { id: string }) {
 
 <template lang="pug">
 h1.kern-heading-large Personen
+.kern-form-input.mb-8
+	label.kern-label(:for="searchId") Suche
+	.flex.flex-row.gap-2.w-full
+		input.flex-1.kern-form-input__input(
+			:id="searchId"
+			v-model="search"
+			type="text"
+			placeholder="Nach Name oder E-Mail-Adresse suchen..."
+		)
+		button.kern-btn.kern-btn--tertiary(
+			v-if="search"
+			@click="search = ''"
+		)
+			span.kern-icon.kern-icon--close(aria-hidden="true")
+			span.kern-label.kern-sr-only Suche zurücksetzen
 KernPagination(
 	v-model="offset"
 	:count="data?.count ?? 1"
