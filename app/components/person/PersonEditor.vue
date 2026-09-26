@@ -11,6 +11,13 @@ const dialog = useTemplateRef<typeof KernDialog>('dialog')
 const itemId = ref<string | null>(null)
 
 /**
+ * Whether the enrolment data may be seen and maintained here. Without the
+ * permission the fields are not shown and never sent, so that saving leaves the
+ * matriculation number and the address of the person untouched.
+ */
+const detailsVisible = authStore.hasPermission('personDetails.read')
+
+/**
  * Whether the bank details may be seen and maintained here. Without the
  * permission the field is not shown and never sent, so that saving leaves the
  * bank details of the person untouched.
@@ -61,7 +68,12 @@ defineExpose({
 	},
 	async edit(id: string) {
 		const item = await $fetch(`/api/persons/${id}`)
-		openDialog(id, { ...item, iban: 'iban' in item ? item.iban ?? null : null })
+		openDialog(id, {
+			...item,
+			matriculationNumber: 'matriculationNumber' in item ? item.matriculationNumber ?? null : null,
+			postalAddress: 'postalAddress' in item ? item.postalAddress ?? null : null,
+			iban: 'iban' in item ? item.iban ?? null : null,
+		})
 	},
 })
 
@@ -77,10 +89,13 @@ function cancel() {
 async function save() {
 	if(!dialog.value || !model.value) return
 	try {
-		const { iban, ...rest } = model.value
+		const { iban, matriculationNumber, postalAddress, ...rest } = model.value
 		const body = {
 			...rest,
 			course: model.value.course?.id ?? null,
+			// Left out entirely without the permission, so that a save never
+			// clears enrolment data the editor was not allowed to show.
+			...detailsVisible.value ? { matriculationNumber, postalAddress } : {},
 			// Left out entirely without the permission, so that a save never
 			// clears bank details the editor was not allowed to show.
 			...bankDetailsVisible.value ? { iban } : {},
@@ -137,11 +152,11 @@ KernDialog(
 				.kern-col
 					PersonPronounsInput(v-model="model.pronouns")
 			.kern-row
-				.kern-col
+				.kern-col(v-if="detailsVisible")
 					PersonMatriculationNumberInput(v-model="model.matriculationNumber")
 				.kern-col
 					PersonCourseInput(v-model="model.course")
-			.kern-row
+			.kern-row(v-if="detailsVisible")
 				.kern-col
 					PersonPostalAddressInput(v-model="model.postalAddress")
 			.kern-row(v-if="bankDetailsVisible")

@@ -61,7 +61,7 @@ KernTable(
 		| Autor
 	template(#author-body="{ item }")
 		template(v-if="item.authorPerson")
-			| {{ formatPerson(item.authorPerson) }}
+			PersonLink(:person="item.authorPerson")
 		template(v-if="item.authorOrganizationItem")
 			| {{ formatOrganizationItem(item.authorOrganizationItem) }}
 	template(#title-header)

@@ -72,7 +72,7 @@ KernTable(
 		| Inhaber*in
 	template(#name-body="{ item }")
 		template(v-if="item.person")
-			| {{ formatPerson(item.person) }}
+			PersonLink(:person="item.person")
 		template(v-else-if="item.organizationItem || item.organizationType")
 			template(v-if="item.organizationItem")
 				| {{ formatOrganizationItem(item.organizationItem) }}

@@ -3,7 +3,14 @@ import { existsSync } from 'node:fs'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
-	await checkPermission('personDetails.read')
+	// The base fields are the ones the person list hands out anyway, so reading a
+	// single person asks for no more than reading the list does.
+	await checkPermission('persons.read')
+
+	// The enrolment data is not part of the list, so it stays behind the
+	// permission of its own. Missing it leaves the fields out instead of
+	// refusing the whole person.
+	const detailsVisible = hasPermission('personDetails.read')
 
 	// Bank details are payment data, so they are only handed out to those who
 	// were granted the permission of their own that guards them. Missing it
@@ -47,10 +54,11 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const { iban, ...rest } = person
+	const { iban, matriculationNumber, postalAddress, ...rest } = person
 
 	return {
 		...withDisplayName(rest),
+		...detailsVisible ? { matriculationNumber, postalAddress } : {},
 		...bankDetailsVisible ? { iban } : {},
 		hasPhoto: existsSync(`./data/${params.person}`),
 	}

@@ -97,7 +97,7 @@ dl.kern-description-list(v-if="data")
 		dt.kern-description-list-item__key Anforderer*in
 		dd.kern-description-list-item__value
 			template(v-if="data.initiatorType === 'person'")
-				| {{ formatPerson(data.initiatorPerson) }}
+				PersonLink(:person="data.initiatorPerson")
 			template(v-if="data.initiatorType === 'organizationItem'")
 				| {{ formatOrganizationItem(data.initiatorOrganizationItem) }}
 template(

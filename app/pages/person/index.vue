@@ -114,6 +114,12 @@ KernTable(
 	template(#email-body="{ item }")
 		| {{ item.email }}
 	template(#actions="{ item }")
+		NuxtLink.kern-btn.kern-btn--tertiary(
+			v-if="authStore.hasPermission('persons.read').value"
+			:to="{ name: 'person-person', params: { person: item.id } }"
+		)
+			span.kern-icon.kern-icon--arrow-forward(aria-hidden="true")
+			span.kern-label.kern-sr-only Details anzeigen
 		button.kern-btn.kern-btn--tertiary(
 			v-if="authStore.hasPermission('persons.update').value"
 			@click="uploadPhoto(item.id)"

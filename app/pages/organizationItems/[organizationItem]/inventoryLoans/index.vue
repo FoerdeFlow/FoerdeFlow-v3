@@ -114,7 +114,7 @@ KernTable(
 	template(#borrower-header)
 		| {{ $t('inventoryLoan.field.borrower') }}
 	template(#borrower-body="{ item }")
-		| {{ formatPerson(item.borrower) }}
+		PersonLink(:person="item.borrower")
 	template(#lentAt-header)
 		| {{ $t('inventoryLoan.field.lentAt') }}
 	template(#lentAt-body="{ item }")

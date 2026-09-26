@@ -110,7 +110,7 @@ template(v-if="data")
 			template(#name-header)
 				| Name
 			template(#name-body="{ item }")
-				| {{ formatPerson(item.person) }}
+				PersonLink(:person="item.person")
 			template(#status-header)
 				| Status
 			template(#status-body="{ item }")
@@ -137,7 +137,7 @@ template(v-if="data")
 			template(#name-header)
 				| Name
 			template(#name-body="{ item }")
-				| {{ formatPerson(item.person) }}
+				PersonLink(:person="item.person")
 			template(#status-header)
 				| Status
 			template(#status-body="{ item }")

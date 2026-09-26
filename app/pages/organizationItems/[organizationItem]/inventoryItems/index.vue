@@ -95,7 +95,8 @@ KernTable(
 			:key="loan.id"
 		)
 			br
-			span {{ formatPerson(loan.borrower) }}
+			span
+				PersonLink(:person="loan.borrower")
 			span , {{ $t('inventoryLoan.field.dueAt') }} {{ formatDatetime(loan.dueAt, 'compact') }}
 	template(#actions="{ item }")
 		NuxtLink.kern-btn.kern-btn--tertiary(

@@ -90,7 +90,7 @@ KernTable(
 				| – {{ item.comment }}
 		br
 		template(v-if="item.memberType === 'person'")
-			| {{ item.memberPerson.callName || item.memberPerson.firstName }} {{ item.memberPerson.lastName }}
+			PersonLink(:person="item.memberPerson")
 		template(v-if="item.memberType === 'organizationItem'")
 			| {{ item.memberOrganizationItem.name }} ({{ item.memberOrganizationItem.code }})
 	template(#duration-header)

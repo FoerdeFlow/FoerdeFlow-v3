@@ -104,7 +104,7 @@ KernTable(
 		template(v-if="item.authorOrganizationItem")
 			| {{ formatOrganizationItem(item.authorOrganizationItem) }}
 		template(v-else-if="item.authorPerson")
-			| {{ formatPerson(item.authorPerson) }}
+			PersonLink(:person="item.authorPerson")
 	template(#name-header)
 		| Name
 	template(#name-body="{ item }")

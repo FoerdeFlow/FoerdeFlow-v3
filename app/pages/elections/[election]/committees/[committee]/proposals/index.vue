@@ -61,7 +61,7 @@ KernTable(
 	template(#submitter-header)
 		| Einreicher*in
 	template(#submitter-body="{ item }")
-		| {{ formatPerson(item.submitter) }}
+		PersonLink(:person="item.submitter")
 	template(#actions="{ item }")
 		NuxtLink.kern-btn.kern-btn--tertiary(
 			:to=`{

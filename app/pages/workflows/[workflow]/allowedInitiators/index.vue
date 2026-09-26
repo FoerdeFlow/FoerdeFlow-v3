@@ -69,7 +69,7 @@ KernTable(
 		| Initiator*in
 	template(#initiator-body="{ item }")
 		template(v-if="item.person")
-			| {{ formatPerson(item.person) }}
+			PersonLink(:person="item.person")
 		template(v-else-if="item.role")
 			| {{ formatRole(item.role) }}
 		template(v-else-if="item.organizationType")

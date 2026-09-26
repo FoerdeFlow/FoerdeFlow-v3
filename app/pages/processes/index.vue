@@ -102,7 +102,7 @@ KernTable(
 		| Antragsdatum
 	template(#initiator-body="{ item }")
 		template(v-if="item.initiatorType === 'person'")
-			| {{ formatPerson(item.initiatorPerson) }}
+			PersonLink(:person="item.initiatorPerson")
 		template(v-if="item.initiatorType === 'organizationItem'")
 			| {{ formatOrganizationItem(item.initiatorOrganizationItem) }}
 		br

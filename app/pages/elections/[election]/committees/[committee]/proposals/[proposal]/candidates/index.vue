@@ -69,7 +69,7 @@ KernTable(
 	template(#candidate-header)
 		| Kandidat*in
 	template(#candidate-body="{ item }")
-		| {{ formatPerson(item.candidate) }}
+		PersonLink(:person="item.candidate")
 	template(#actions="{ item }")
 		button.kern-btn.kern-btn--tertiary(
 			v-if="!authStore.hasPermission('candidates.update').value"

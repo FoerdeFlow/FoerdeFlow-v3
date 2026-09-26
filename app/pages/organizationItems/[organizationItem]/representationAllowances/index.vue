@@ -118,7 +118,8 @@ KernTable(
 				v-for="recipient of item.recipients"
 				:key="recipient.id"
 			)
-				| {{ formatPerson(recipient.person) }} — {{ formatCurrency(recipient.amount) }}
+				PersonLink(:person="recipient.person")
+				|  — {{ formatCurrency(recipient.amount) }}
 	template(#amount-header)
 		| {{ $t('representationAllowance.field.amount') }}
 	template(#amount-body="{ item }")

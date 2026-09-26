@@ -41,18 +41,25 @@ const items = computed(() => [
 	{
 		key: t('inventoryItem.field.inventoryNumber'),
 		value: data.value.inventoryNumber ?? '',
+		person: null,
 	},
 	{
 		key: t('inventoryItem.field.location'),
 		value: data.value.location
 			? formatLocation(data.value.location)
 			: t('inventoryItem.field.locationOpen'),
+		person: null,
 	},
 	// Nur solange der Gegenstand verliehen ist, steht hier, bei wem er liegt.
 	...openLoan.value
 		? [
-			{ key: t('inventoryLoan.field.borrower'), value: formatPerson(openLoan.value.borrower) },
-			{ key: t('inventoryLoan.field.dueAt'), value: formatDatetime(openLoan.value.dueAt) },
+			// Die entleihende Person steht als Verweis, der Rest als Text.
+			{ key: t('inventoryLoan.field.borrower'), value: '', person: openLoan.value.borrower },
+			{
+				key: t('inventoryLoan.field.dueAt'),
+				value: formatDatetime(openLoan.value.dueAt),
+				person: null,
+			},
 		]
 		: [],
 ])
@@ -140,7 +147,13 @@ dl.kern-description-list
 		:key="item.key"
 	)
 		dt.kern-description-list-item__key {{ item.key }}
-		dd.kern-description-list-item__value {{ item.value }}
+		dd.kern-description-list-item__value
+			PersonLink(
+				v-if="item.person"
+				:person="item.person"
+			)
+			template(v-else)
+				| {{ item.value }}
 section.mb-8(v-if="data.description")
 	h2.kern-title {{ $t('inventoryItem.field.description') }}
 	KernText(:text="data.description")
@@ -185,7 +198,7 @@ section.mt-8
 		template(#borrower-header)
 			| {{ $t('inventoryLoan.field.borrower') }}
 		template(#borrower-body="{ item }")
-			| {{ formatPerson(item.borrower) }}
+			PersonLink(:person="item.borrower")
 		template(#lentAt-header)
 			| {{ $t('inventoryLoan.field.lentAt') }}
 		template(#lentAt-body="{ item }")
