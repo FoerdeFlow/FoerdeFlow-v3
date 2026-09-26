@@ -33,6 +33,17 @@ function uploadPhoto(id: string) {
 	photoEditor.value.edit(id)
 }
 
+async function impersonate({ id, displayName }: { id: string, displayName: string }) {
+	if(await confirmDialogStore.askConfirm({
+		title: 'Als diese Person anmelden?',
+		text: `Sie sehen die Anwendung anschließend als ${displayName} und verlieren Ihre` +
+			' Administratorrechte, bis Sie die Identität wieder verlassen. Alle Änderungen' +
+			' werden dieser Person zugerechnet.',
+	})) {
+		authStore.impersonate(id)
+	}
+}
+
 async function remove({ id }: { id: string }) {
 	if(await confirmDialogStore.askConfirm({
 		title: 'Person löschen?',
@@ -109,6 +120,12 @@ KernTable(
 		)
 			span.kern-icon.kern-icon--drive-folder-upload(aria-hidden="true")
 			span.kern-label.kern-sr-only Lichtbild bearbeiten
+		button.kern-btn.kern-btn--tertiary(
+			v-if="authStore.canImpersonate && item.id !== authStore.userInfo.person?.id"
+			@click="impersonate(item)"
+		)
+			span.kern-icon.kern-icon--account-circle(aria-hidden="true")
+			span.kern-label.kern-sr-only Als diese Person anmelden
 PersonEditor(
 	ref="editor"
 	@refresh="refresh"

@@ -23,6 +23,11 @@ export default defineEventHandler(async (event) => {
 		code_challenge: codeChallenge,
 	})
 
-	await session.update({ codeVerifier, state, returnTo })
+	/*
+	 * `session.update` ergänzt die Session nur, statt sie zu ersetzen. Eine noch
+	 * gespeicherte fremde Identität wird deshalb ausdrücklich verworfen: Wer sich
+	 * anmeldet, will die eigene Identität, auch wenn der Ablauf abbricht.
+	 */
+	await session.update({ codeVerifier, state, returnTo, impersonatedUserId: undefined })
 	await sendRedirect(event, redirectUri.toString(), 303)
 })

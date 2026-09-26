@@ -1,10 +1,7 @@
-import { eq } from 'drizzle-orm'
-
 import type { EventContext } from '../types'
 
 export default defineEventHandler(async (event) => {
 	const runtimeConfig = useRuntimeConfig()
-	const database = useDatabase()
 	const session = await useSession(event, { password: runtimeConfig.sessionSecret })
 
 	if(getHeader(event, 'x-foerdeflow-api-key') === runtimeConfig.apiKey) {
@@ -44,10 +41,12 @@ export default defineEventHandler(async (event) => {
 		return
 	}
 
-	const person = await database.query.persons.findFirst({
-		where: eq(persons.id, session.data.userId),
-	})
-	if(!person) {
+	/*
+	 * Die echte Identität wird immer zuerst aufgebaut, denn sie entscheidet, ob
+	 * eine angenommene Identität überhaupt gelten darf.
+	 */
+	const realUser = await buildUserInfo(session.data.userId)
+	if(!realUser) {
 		throw createError({
 			statusCode: 401,
 			statusMessage: 'Unauthorized',
@@ -55,24 +54,41 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	const memberships = await getEffectiveMemberships({
-		type: 'person',
-		person: person.id,
-	})
-	const roles = await getPersonRoles(person.id)
-	const permissions = roles.some((role) => role.isAdmin)
-		? availablePermissions.map((permission) => ({
-			permission: permission.id,
-			organizationItem: false,
-		}))
-		: (await Promise.all(
-			roles.map(async (role) => await getRolePermissions(role.id)),
-		)).flat()
+	if(session.data.impersonatedUserId) {
+		/*
+		 * Nur Administratoren dürfen eine fremde Identität annehmen. Die Prüfung
+		 * erfolgt bei jedem Request neu, damit eine entzogene Administratorrolle
+		 * die laufende Impersonation sofort beendet.
+		 */
+		const impersonatedUser = realUser.roles.some((role) => role.isAdmin)
+			? await buildUserInfo(session.data.impersonatedUserId)
+			: null
 
-	event.context.user = {
-		person: withDisplayName(person),
-		memberships,
-		roles,
-		permissions,
-	} satisfies EventContext['user']
+		if(impersonatedUser) {
+			/*
+			 * Der Kontext stammt vollständig von der angenommenen Identität, damit
+			 * auch der Administratorkurzschluss in `checkPermission` nur noch deren
+			 * Rollen sieht. `impersonator` dient allein der Anzeige.
+			 */
+			event.context.user = {
+				...impersonatedUser,
+				impersonator: {
+					id: realUser.person.id,
+					displayName: realUser.person.displayName,
+				},
+			} satisfies EventContext['user']
+			return
+		}
+
+		/*
+		 * Administratorrolle entzogen oder Zielperson gelöscht: Die angenommene
+		 * Identität verfällt und wird aus der Session entfernt, damit sie nicht
+		 * später wieder greift. Eine Abweisung wäre hier falsch, weil der echte
+		 * Nutzer sonst ausgesperrt bliebe und die Impersonation gar nicht mehr
+		 * beenden könnte.
+		 */
+		await session.update({ impersonatedUserId: undefined })
+	}
+
+	event.context.user = realUser satisfies EventContext['user']
 })

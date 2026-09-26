@@ -21,6 +21,7 @@ a.ff3-skip-link(href="#inhalt") Direkt zum Inhalt springen
 		.kern-kopfzeile__content
 			span.kern-kopfzeile__label {{ officialLabel }}
 LayoutEnvironmentBanner
+LayoutImpersonationBanner
 LayoutHeader
 main#inhalt.ff3-main.kern-container
 	div(

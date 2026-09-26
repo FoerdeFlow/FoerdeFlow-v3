@@ -94,7 +94,8 @@ export default defineEventHandler(async (event) => {
 				}
 				: {}),
 		})
-		await session.update({ userId })
+		// Ein erneuter Login verwirft eine noch gespeicherte fremde Identität.
+		await session.update({ userId, impersonatedUserId: undefined })
 		await sendRedirect(event, session.data.returnTo, 307)
 	} catch(e) {
 		throw createError({
