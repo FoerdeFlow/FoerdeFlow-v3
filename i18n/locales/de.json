@@ -53,6 +53,8 @@
 			"workflowSteps": "Workflow-Schritte",
 			"workflowMutations": "Workflow-Mutationen",
 			"workflowSignatures": "Unterschriften",
+			"workflowProcesses": "Prozesse",
+			"workflowProcessMutations": "Prozessinhalte",
 			"roles": "Rollen",
 			"rolePermissions": "Rollenberechtigungen",
 			"roleOccupants": "Rolleninhaber",

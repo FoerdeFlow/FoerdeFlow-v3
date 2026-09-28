@@ -93,6 +93,13 @@ export default defineEventHandler(async (event) => {
 				.catch(() => false),
 		})))
 
+		// The same for every mutation of the process, because correcting the
+		// data an application carries neither depends on the table it addresses
+		// nor on who is assigned to the steps.
+		const mutationsEditable = await checkProcessMutationPermission(tx, params.process)
+			.then(() => true)
+			.catch(() => false)
+
 		const signatures = await Promise.all(
 			processItem.signatures.map(async (processSignature) => ({
 				...processSignature,
@@ -130,6 +137,7 @@ export default defineEventHandler(async (event) => {
 					// @ts-expect-error | Table is not typed properly
 					data: await encodeProcessData(tx, mutation.mutation.table, mutation.data),
 					attachments,
+					editable: mutationsEditable,
 				}
 			})),
 		}

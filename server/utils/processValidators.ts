@@ -2,7 +2,7 @@ import type z from 'zod'
 
 import { eq } from 'drizzle-orm'
 
-interface MutationContext {
+export interface MutationContext {
 	initiatorType: 'person' | 'organizationItem'
 	initiatorPerson: string | null
 	initiatorOrganizationItem: string | null

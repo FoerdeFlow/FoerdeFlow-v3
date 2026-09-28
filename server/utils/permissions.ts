@@ -769,6 +769,15 @@ export const availablePermissions = [
 		scope: 'organizationItem',
 		assignable: true,
 	},
+	// Kept apart from `workflowProcesses.update`, which lets someone act on the
+	// steps of a process on behalf of an organization item. Correcting the data
+	// a process carries is a different matter: it rewrites what was applied
+	// for, so it is not granted along with the right to approve it.
+	{
+		id: 'workflowProcessMutations.update',
+		scope: 'global',
+		assignable: true,
+	},
 	{
 		id: 'announcements.read',
 		scope: 'global',

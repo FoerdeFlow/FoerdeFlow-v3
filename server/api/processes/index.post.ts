@@ -159,43 +159,18 @@ export default defineEventHandler(async (event) => {
 				})
 			}
 
+			const data = await validateProcessMutationData(
+				tx,
+				mutation,
+				JSON.parse(entries[`mutation_${mutation.id}_data`]),
+				{
+					initiatorType: body.initiatorType,
+					initiatorPerson: context.user?.person?.id ?? null,
+					initiatorOrganizationItem: body.initiatorOrganizationItem ?? null,
+				},
+			)
+
 			const schemaGroup = processSchemas[mutation.table as keyof typeof processSchemas]
-			const schema = schemaGroup[mutation.action]
-			if(!schema) {
-				throw createError({
-					statusCode: 400,
-					message: `Unbekannte Aktion für Mutation ${mutation.id}`,
-				})
-			}
-			let data: unknown
-			try {
-				data = await schema.parseAsync(applyProcessPresets(
-					JSON.parse(entries[`mutation_${mutation.id}_data`]),
-					mutation.presets,
-				))
-			} catch(error) {
-				throw createError({
-					statusCode: 400,
-					message: `Ungültige Eingabedaten für Mutation ${mutation.id}`,
-					data: error,
-				})
-			}
-
-			if(mutation.table in processValidators) {
-				const validate = processValidators[mutation.table as keyof typeof processValidators]
-				data = await validate(
-					tx,
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					data as any,
-					{
-						initiatorType: body.initiatorType,
-						initiatorPerson: context.user?.person?.id ?? null,
-						initiatorOrganizationItem: body.initiatorOrganizationItem ?? null,
-						meta: mutation.meta,
-					},
-				)
-			}
-
 			const attachments = 'attachments' in schemaGroup ? schemaGroup.attachments : []
 			for(const attachment of attachments) {
 				const attachmentData = entries[`mutation_${mutation.id}_attachment_${attachment}`]

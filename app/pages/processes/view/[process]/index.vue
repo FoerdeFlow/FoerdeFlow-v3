@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import type { ProcessSignatureEditor, ProcessStepConnectionEditor, ProcessStepEditor } from '#components'
+import type {
+	ProcessMutationEditor,
+	ProcessSignatureEditor,
+	ProcessStepConnectionEditor,
+	ProcessStepEditor,
+} from '#components'
 import type {
 	BudgetPlanFormModel,
 	ExpenseAuthorizationFormModel,
@@ -17,6 +22,7 @@ const route = useRoute('processes-view-process')
 const editor = useTemplateRef<typeof ProcessStepEditor>('editor')
 const connectionEditor = useTemplateRef<typeof ProcessStepConnectionEditor>('connectionEditor')
 const signatureEditor = useTemplateRef<typeof ProcessSignatureEditor>('signatureEditor')
+const mutationEditor = useTemplateRef<typeof ProcessMutationEditor>('mutationEditor')
 
 const { data, refresh } = useFetch(`/api/processes/${route.params.process}`)
 
@@ -57,6 +63,11 @@ function openSignatureEditor(id: string) {
 
 function openSignaturePdf(id: string) {
 	window.open(`/api/processSignatures/${id}/pdf`, '_blank')
+}
+
+function openMutationEditor(id: string) {
+	if(!mutationEditor.value) return
+	mutationEditor.value.open(id)
 }
 
 const asBudgetPlan = (data: unknown) => data as BudgetPlanFormModel
@@ -118,8 +129,15 @@ section.my-8(
 	v-for="mutation of data?.mutations"
 	:key="mutation.id"
 )
-	header
+	header.flex.flex-wrap.items-center.justify-between.gap-4
 		h2.kern-heading-medium {{ $t(`${mutation.mutation.table.substring(0, mutation.mutation.table.length - 1)}.${mutation.mutation.action}.title`) }}
+		button.kern-btn.kern-btn--tertiary(
+			v-if="mutation.editable"
+			type="button"
+			@click="openMutationEditor(mutation.id)"
+		)
+			span.kern-icon.kern-icon--edit(aria-hidden="true")
+			span.kern-label Inhalt bearbeiten
 	BudgetPlanForm(
 		v-if="mutation.mutation.table === 'budgetPlans'"
 		readonly
@@ -312,5 +330,9 @@ ProcessSignatureEditor(
 )
 ProcessStepConnectionEditor(
 	ref="connectionEditor"
+)
+ProcessMutationEditor(
+	ref="mutationEditor"
+	@refresh="refresh"
 )
 </template>
