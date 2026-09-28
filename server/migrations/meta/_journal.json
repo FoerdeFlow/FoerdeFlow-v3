@@ -393,6 +393,13 @@
       "when": 1790335167120,
       "tag": "0055_inventory",
       "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1790608287745,
+      "tag": "0056_location_code_per_level",
+      "breakpoints": true
     }
   ]
 }

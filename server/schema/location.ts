@@ -5,6 +5,7 @@ import {
 	integer,
 	pgEnum,
 	pgTable,
+	uniqueIndex,
 	uuid,
 	varchar,
 } from 'drizzle-orm/pg-core'
@@ -45,7 +46,7 @@ export const locations = pgTable('locations', {
 	parent: uuid().references((): AnyPgColumn => locations.id),
 	// Nur bei einem Ad-hoc-Ort gesetzt: das Gremium, das ihn angelegt hat.
 	organizationItem: uuid().references(() => organizationItems.id),
-	code: varchar({ length: 16 }).unique(),
+	code: varchar({ length: 16 }),
 	name: varchar({ length: 256 }).notNull(),
 	// Das Stockwerk eines Raums. Negative Werte stehen für das Untergeschoss.
 	level: integer(),
@@ -53,6 +54,16 @@ export const locations = pgTable('locations', {
 	postalAddress: varchar({ length: 256 }),
 	url: varchar({ length: 1024 }),
 }, (table) => [
+	// Das Kürzel eines Raums nennt nur die Nummer auf dem Stockwerk: `201` im
+	// zweiten Stock heißt `2.201` und steht in jedem Gebäude noch einmal. Erst
+	// Gebäude, Stockwerk und Kürzel zusammen benennen einen Raum.
+	uniqueIndex('room_code_unique')
+		.on(table.parent, table.level, table.code)
+		.where(sql`${table.type} = 'room'`),
+	// Jeder andere Ort trägt sein Kürzel für sich allein.
+	uniqueIndex('location_code_unique')
+		.on(table.code)
+		.where(sql`${table.type} <> 'room'`),
 	check(
 		'valid_location_type',
 		sql`(
