@@ -12,6 +12,7 @@ import type { MutationContext } from './processValidators'
 const processDerivedFields: Partial<Record<keyof typeof processSchemas, string[]>> = {
 	budgetPlanItems: [ 'budget', 'previous' ],
 	representationAllowances: [ 'organizationItem' ],
+	travelClaims: [ 'amount', 'advanceAmount', 'payoutAmount', 'late' ],
 	persons: [ 'person' ],
 	personIbans: [ 'person' ],
 	personPhotos: [ 'person' ],
@@ -61,7 +62,7 @@ export async function validateProcessMutationData(
 		presets: unknown
 	},
 	data: unknown,
-	context: Omit<MutationContext, 'meta'>,
+	context: Omit<MutationContext, 'meta' | 'now'>,
 	now: Date = new Date(),
 ) {
 	if(!(mutation.table in processSchemas)) {
@@ -96,7 +97,7 @@ export async function validateProcessMutationData(
 			tx,
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			result as any,
-			{ ...context, meta: mutation.meta },
+			{ ...context, meta: mutation.meta, now },
 		)
 	}
 

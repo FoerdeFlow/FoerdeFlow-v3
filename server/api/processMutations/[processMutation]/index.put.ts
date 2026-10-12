@@ -55,6 +55,7 @@ export default defineEventHandler(async (event) => {
 				initiatorType: processMutation.process.initiatorType,
 				initiatorPerson: processMutation.process.initiatorPerson,
 				initiatorOrganizationItem: processMutation.process.initiatorOrganizationItem,
+				process: processMutation.process.id,
 			},
 			processMutation.process.createdAt,
 		)

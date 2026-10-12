@@ -138,6 +138,65 @@ async function encodeAffectedPerson(tx: ReturnType<typeof useDatabase>, person: 
 	}))
 }
 
+/**
+ * Expands the origin of a permit for official journeys, so that a reader sees
+ * the budget and the title instead of bare ids.
+ *
+ * @param tx - The transaction to read in
+ * @param origin - The title or the budget the permit is paid from
+ * @returns The title with its plan and budget, and the budget
+ */
+async function encodeTravelPermitOrigin(
+	tx: ReturnType<typeof useDatabase>,
+	origin: {
+		budgetPlanItem?: string | null
+		budget?: string | null
+	},
+) {
+	return {
+		budgetPlanItem: origin.budgetPlanItem
+			? await tx.query.budgetPlanItems.findFirst({
+				where: eq(budgetPlanItems.id, origin.budgetPlanItem),
+				with: {
+					plan: {
+						with: {
+							budget: true,
+						},
+						columns: {
+							budget: false,
+						},
+					},
+				},
+				columns: {
+					plan: false,
+				},
+			}) ?? null
+			: null,
+		budget: origin.budget
+			? await tx.query.budgets.findFirst({
+				where: eq(budgets.id, origin.budget),
+			}) ?? null
+			: null,
+	}
+}
+
+/**
+ * Expands the travellers of a permit for official journeys.
+ *
+ * @param tx - The transaction to read in
+ * @param travelers - The travellers as they are stored
+ * @returns The travellers with the persons they are
+ */
+async function encodeTravelers<T extends { person: string }>(
+	tx: ReturnType<typeof useDatabase>,
+	travelers: T[],
+) {
+	return await Promise.all(travelers.map(async (traveler) => ({
+		...traveler,
+		person: await encodeAffectedPerson(tx, traveler.person),
+	})))
+}
+
 const encoders = {
 	candidates: async (
 		tx: ReturnType<typeof useDatabase>,
@@ -346,6 +405,53 @@ const encoders = {
 			? await encodeAffectedPerson(tx, model.recipientPerson)
 			: null,
 	}),
+	travelPermits: async (
+		tx: ReturnType<typeof useDatabase>,
+		model: z.infer<typeof processSchemas.travelPermits.create>,
+	) => ({
+		...model,
+		...await encodeTravelPermitOrigin(tx, model),
+		travelers: await encodeTravelers(tx, model.travelers),
+	}),
+	travelClaims: async (
+		tx: ReturnType<typeof useDatabase>,
+		model: z.infer<typeof processSchemas.travelClaims.create> & {
+			amount: number
+			advanceAmount: number | null
+			payoutAmount: number
+			late: boolean
+		},
+	) => {
+		const permit = await tx.query.travelPermits.findFirst({
+			where: eq(travelPermits.id, model.permit),
+			with: {
+				travelers: {
+					columns: {
+						permit: false,
+					},
+					orderBy: (travelers, { asc }) => [ asc(travelers.ord) ],
+				},
+			},
+		})
+
+		return {
+			...model,
+			permit: permit
+				? {
+					...permit,
+					...await encodeTravelPermitOrigin(tx, permit),
+					travelers: await encodeTravelers(tx, permit.travelers),
+				}
+				: null,
+			// The bank details stay out of the process data, as they do for a
+			// payment order: everyone who takes part in the process may read it.
+			recipientPerson: await encodeAffectedPerson(tx, model.recipientPerson),
+			items: await Promise.all(model.items.map(async (item) => ({
+				...item,
+				traveler: await encodeAffectedPerson(tx, item.traveler),
+			}))),
+		}
+	},
 	persons: async (
 		tx: ReturnType<typeof useDatabase>,
 		model: z.infer<typeof processSchemas.persons.update> & { person: string },
