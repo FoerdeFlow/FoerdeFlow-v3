@@ -436,6 +436,9 @@ const encoders = {
 
 		return {
 			...model,
+			// Named `title` like every other mutation that carries one, so that
+			// the heading of the process finds one under a single permit, too.
+			title: model.title ?? permit?.title ?? null,
 			permit: permit
 				? {
 					...permit,
@@ -443,12 +446,13 @@ const encoders = {
 					travelers: await encodeTravelers(tx, permit.travelers),
 				}
 				: null,
-			// The bank details stay out of the process data, as they do for a
-			// payment order: everyone who takes part in the process may read it.
-			recipientPerson: await encodeAffectedPerson(tx, model.recipientPerson),
+			// The ids stay, so that the form of the claim can show the data as
+			// it was entered. The bank details stay out of the process data, as
+			// they do for a payment order: everyone who takes part may read it.
+			recipient: await encodeAffectedPerson(tx, model.recipientPerson),
 			items: await Promise.all(model.items.map(async (item) => ({
 				...item,
-				traveler: await encodeAffectedPerson(tx, item.traveler),
+				travelerPerson: await encodeAffectedPerson(tx, item.traveler),
 			}))),
 		}
 	},

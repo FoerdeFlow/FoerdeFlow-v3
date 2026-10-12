@@ -37,11 +37,11 @@ export type TravelClaimItemCategory =
 	| 'conferenceFee'
 	| 'training'
 
-export const travelPermitKinds: TravelPermitKind[] = [ 'single', 'general' ]
+export const travelPermitKindList: TravelPermitKind[] = [ 'single', 'general' ]
 
-export const travelPermitOccasions: TravelPermitOccasion[] = [ 'other', 'parliamentSession' ]
+export const travelPermitOccasionList: TravelPermitOccasion[] = [ 'other', 'parliamentSession' ]
 
-export const travelPermitTravelerBases: TravelPermitTravelerBasis[] = [
+export const travelPermitTravelerBasisList: TravelPermitTravelerBasis[] = [
 	'officeHolder',
 	'employee',
 	'commissioned',
@@ -49,7 +49,7 @@ export const travelPermitTravelerBases: TravelPermitTravelerBasis[] = [
 	'recognizedMember',
 ]
 
-export const travelPermitSpecialInterests: TravelPermitSpecialInterest[] = [
+export const travelPermitSpecialInterestList: TravelPermitSpecialInterest[] = [
 	'none',
 	'campusTravel',
 	'centralBodySession',
@@ -57,9 +57,9 @@ export const travelPermitSpecialInterests: TravelPermitSpecialInterest[] = [
 	'parliamentDecision',
 ]
 
-export const travelPermitCars: TravelPermitCar[] = [ 'none', 'private', 'carsharing' ]
+export const travelPermitCarList: TravelPermitCar[] = [ 'none', 'private', 'carsharing' ]
 
-export const travelClaimItemCategories: TravelClaimItemCategory[] = [
+export const travelClaimItemCategoryList: TravelClaimItemCategory[] = [
 	'publicTransport',
 	'longDistance',
 	'seatReservation',
@@ -120,10 +120,10 @@ function parseEligibility(entry: unknown): TravelEligibility | null {
 	if(typeof record.specialInterest === 'boolean') {
 		return { specialInterest: record.specialInterest }
 	}
-	if(travelPermitOccasions.includes(record.occasion as TravelPermitOccasion)) {
+	if(travelPermitOccasionList.includes(record.occasion as TravelPermitOccasion)) {
 		return { occasion: record.occasion as TravelPermitOccasion }
 	}
-	if(travelPermitTravelerBases.includes(record.travelerBasis as TravelPermitTravelerBasis)) {
+	if(travelPermitTravelerBasisList.includes(record.travelerBasis as TravelPermitTravelerBasis)) {
 		return { travelerBasis: record.travelerBasis as TravelPermitTravelerBasis }
 	}
 	return null
@@ -142,7 +142,7 @@ export function travelMeta(meta: unknown): TravelMeta {
 
 	const kinds = Array.isArray(record.permitKinds)
 		? record.permitKinds.filter((kind): kind is TravelPermitKind =>
-			travelPermitKinds.includes(kind as TravelPermitKind))
+			travelPermitKindList.includes(kind as TravelPermitKind))
 		: []
 
 	return {

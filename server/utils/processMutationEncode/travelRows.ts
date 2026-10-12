@@ -108,7 +108,7 @@ export function travelClaimRows(claim: TravelClaim): TravelRow[] {
 			key: 'Reisezeitraum',
 			value: formatBudgetPlan({ startDate: claim.startDate, endDate: claim.endDate }),
 		},
-		{ key: 'Erstattung an', value: formatPerson(claim.recipientPerson, 'long') },
+		{ key: 'Erstattung an', value: formatPerson(claim.recipient, 'long') },
 		...claim.late
 			? [ { key: 'Hinweis', value: 'Der Antrag wurde nach Ablauf der Frist des § 4 gestellt.' } ]
 			: [],
@@ -124,7 +124,7 @@ export function travelClaimRows(claim: TravelClaim): TravelRow[] {
 export function travelClaimItemRows(claim: TravelClaim): TravelRow[] {
 	return claim.items.map((item) => ({
 		key: [
-			formatPerson(item.traveler),
+			formatPerson(item.travelerPerson),
 			formatTravelClaimItemCategory(item.category),
 			item.description,
 			...item.kilometers ? [ `${item.kilometers} km` ] : [],

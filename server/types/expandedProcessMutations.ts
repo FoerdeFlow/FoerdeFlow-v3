@@ -224,7 +224,8 @@ interface TravelPermitProcessMutation {
 interface TravelClaimProcessMutation {
 	id?: string
 	permit: Omit<TravelPermitProcessMutation, 'id'> | null
-	recipientPerson: TravelPermitPerson | null
+	recipientPerson: string
+	recipient: TravelPermitPerson | null
 	title: string | null
 	destination: string | null
 	startDate: string
@@ -249,7 +250,8 @@ interface TravelClaimProcessMutation {
 		kilometers: number | null
 		event: string | null
 		receipts: number
-		traveler: TravelPermitPerson | null
+		traveler: string
+		travelerPerson: TravelPermitPerson | null
 	}[]
 }
 

@@ -11,6 +11,8 @@ import type {
 	LongtermContractFormModel,
 	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
+	TravelClaimFormModel,
+	TravelPermitFormModel,
 	WorkflowCustomBudgetPlanItemsFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonFormModel,
@@ -80,6 +82,8 @@ const asCandidate = (data: unknown) => data as WorkflowCustomCandidateFormModel
 const asPerson = (data: unknown) => data as WorkflowCustomPersonFormModel
 const asPersonIban = (data: unknown) => data as WorkflowCustomPersonIbanFormModel
 const asPersonPhoto = (data: unknown) => data as WorkflowCustomPersonPhotoFormModel
+const asTravelPermit = (data: unknown) => data as TravelPermitFormModel
+const asTravelClaim = (data: unknown) => data as TravelClaimFormModel
 </script>
 
 <template lang="pug">
@@ -174,6 +178,31 @@ section.my-8(
 		readonly
 		selected-item="summary"
 		:model-value="asRepresentationAllowance(mutation.data)"
+	)
+	TravelPermitForm(
+		v-if="mutation.mutation.table === 'travelPermits'"
+		:meta="mutation.mutation.meta"
+		readonly
+		selected-item="summary"
+		:model-value="asTravelPermit(mutation.data)"
+	)
+	TravelClaimForm(
+		v-if="mutation.mutation.table === 'travelClaims'"
+		:meta="mutation.mutation.meta"
+		readonly
+		selected-item="summary"
+		:process-id="route.params.process"
+		:mutation-id="mutation.mutation.id"
+		:model-value="asTravelClaim(mutation.data)"
+	)
+	TravelClaimForm(
+		v-if="mutation.mutation.table === 'travelClaims'"
+		:meta="mutation.mutation.meta"
+		readonly
+		selected-item="travel-claim-items"
+		:process-id="route.params.process"
+		:mutation-id="mutation.mutation.id"
+		:model-value="asTravelClaim(mutation.data)"
 	)
 	WorkflowCustomCandidateForm(
 		v-if="mutation.mutation.table === 'candidates'"

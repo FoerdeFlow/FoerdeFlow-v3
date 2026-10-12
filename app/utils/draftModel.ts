@@ -133,8 +133,19 @@ export function applyDraftModelFiles(
 	for(const [ path, file ] of Object.entries(files)) {
 		if(!path.startsWith(`${key}_`)) continue
 
-		const field = path.substring(key.length + 1)
-		if(!(field in model)) continue
-		(model as Record<string, unknown>)[field] = file
+		// The path names the fields and list positions down to the file, the
+		// way `encodeDraftValue` built it, e.g. `items_0_receipts_1`. A part of
+		// it the model no longer has is skipped, as a field of its own would be.
+		const segments = path.substring(key.length + 1).split('_')
+		const last = segments.pop()
+		let target: unknown = model
+		for(const segment of segments) {
+			target = typeof target === 'object' && target !== null
+				? (target as Record<string, unknown>)[segment]
+				: undefined
+		}
+		if(typeof target !== 'object' || target === null || last === undefined) continue
+		if(!Array.isArray(target) && !(last in target)) continue
+		(target as Record<string, unknown>)[last] = file
 	}
 }

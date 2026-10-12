@@ -4,6 +4,8 @@ import type {
 	LongtermContractFormModel,
 	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
+	TravelClaimFormModel,
+	TravelPermitFormModel,
 	WorkflowCustomBudgetPlanItemsFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonFormModel,
@@ -110,6 +112,83 @@ const encoders = {
 			})),
 		}),
 	}),
+	travelPermits: (model: TravelPermitFormModel) => {
+		// Only the fields of the chosen origin and of the chosen car travel, the
+		// table accepts only one set of each at a time.
+		const planned = model.type === 'planned'
+		const car = model.car !== 'none'
+
+		return {
+			data: JSON.stringify({
+				kind: model.kind,
+				type: model.type,
+				budgetPlanItem: planned ? model.budgetPlanItem?.id ?? null : null,
+				budget: planned ? null : model.budget?.id ?? null,
+				title: model.title,
+				description: model.description,
+				destination: model.destination,
+				domestic: model.domestic,
+				startDate: serializeDate(model.startDate),
+				endDate: serializeDate(model.endDate),
+				occasion: model.occasion,
+				travelerBasis: model.travelerBasis,
+				specialInterest: model.specialInterest,
+				specialInterestReference: model.specialInterest === 'parliamentDecision'
+					? model.specialInterestReference
+					: null,
+				longDistance: model.longDistance,
+				car: model.car,
+				carInterestReason: car ? model.carInterestReason : null,
+				parkingFeesAllowed: car && model.parkingFeesAllowed,
+				carsharingEstimate: model.car === 'carsharing' ? model.carsharingEstimate ?? 0 : null,
+				advanceAmount: model.kind === 'single' && model.advanceAmount
+					? model.advanceAmount
+					: null,
+				travelers: model.travelers.map((traveler) => ({
+					ord: traveler.ord,
+					person: traveler.person?.id ?? null,
+					amount: traveler.amount,
+					driver: model.car === 'carsharing' && traveler.driver,
+				})),
+			}),
+		}
+	},
+	travelClaims: (model: TravelClaimFormModel) => {
+		const general = model.permit?.kind === 'general'
+		const items = model.items.map((item) => ({
+			item,
+			files: Array.isArray(item.receipts)
+				? item.receipts.filter((file) => file instanceof File)
+				: [],
+		}))
+
+		return {
+			data: JSON.stringify({
+				permit: model.permit?.id ?? null,
+				recipientPerson: model.recipientPerson,
+				title: general ? model.title : null,
+				destination: general ? model.destination : null,
+				startDate: serializeDate(model.startDate),
+				endDate: serializeDate(model.endDate),
+				items: items.map(({ item, files }) => ({
+					ord: item.ord,
+					traveler: item.traveler,
+					category: item.category,
+					description: item.description,
+					amount: item.amount,
+					kilometers: item.kilometers,
+					event: item.event,
+					receipts: files.length,
+				})),
+			}),
+			// Each receipt travels as an attachment of its own, named after the
+			// item it belongs to, the way the server expects it.
+			...Object.fromEntries(items.flatMap(({ item, files }) => files.map((file, index) => [
+				`attachment_receipt_${item.ord}_${index}`,
+				file,
+			]))),
+		}
+	},
 	persons: (model: WorkflowCustomPersonFormModel) => ({
 		data: JSON.stringify({
 			...model,

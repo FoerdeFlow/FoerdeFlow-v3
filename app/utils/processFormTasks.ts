@@ -6,6 +6,8 @@ import type {
 	LongtermContractFormModel,
 	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
+	TravelClaimFormModel,
+	TravelPermitFormModel,
 	WorkflowCustomBudgetPlanItemsFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonIbanFormModel,
@@ -283,6 +285,119 @@ function representationAllowanceTasks(
 	]
 }
 
+function travelPermitTasks(
+	model: TravelPermitFormModel,
+	presets: Presets,
+	meta: unknown,
+): Tasks {
+	const filled = (field: keyof TravelPermitFormModel) =>
+		!!model[field] || presetFixed(presets, field)
+
+	const journeyComplete = filled('title') && filled('destination') &&
+		filled('startDate') && filled('endDate') &&
+		(!model.startDate || !model.endDate || model.endDate >= model.startDate)
+	const journeyStarted = !!model.title || !!model.destination || !!model.startDate
+
+	const budgetField = model.type === 'planned' ? 'budgetPlanItem' : 'budget'
+
+	const referenceSet = model.specialInterest !== 'parliamentDecision' ||
+		filled('specialInterestReference')
+
+	const carSet = model.car === 'none' || filled('carInterestReason')
+
+	const limits = travelPermitLimits(model, meta)
+	const rules = travelMeta(meta)
+	const travelersComplete = model.travelers.length > 0 &&
+		model.travelers.every((traveler) => traveler.person) &&
+		(model.car !== 'carsharing' || model.travelers.some((traveler) => traveler.driver)) &&
+		!limits.violated &&
+		(!rules.domesticOnly || model.domestic)
+
+	return [
+		...presetVisible(presets, 'kind', 'title', 'destination', 'domestic', 'startDate', 'endDate',
+			'occasion', 'description')
+			? [ {
+				id: 'travel-permit-journey',
+				label: 'Dienstreise beschreiben',
+				status: journeyComplete ? 'done' : journeyStarted ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'type', budgetField)
+			? [ {
+				id: 'travel-permit-source',
+				label: 'Haushalt auswählen',
+				status: filled(budgetField) ? 'done' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'travelerBasis', 'specialInterest', 'specialInterestReference')
+			? [ {
+				id: 'travel-permit-basis',
+				label: 'Personenkreis und Interesse angeben',
+				status: referenceSet ? 'done' : 'partial',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'longDistance', 'car', 'carInterestReason', 'parkingFeesAllowed',
+			'carsharingEstimate')
+			? [ {
+				id: 'travel-permit-transport',
+				label: 'Verkehrsmittel angeben',
+				status: carSet ? 'done' : 'partial',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'travelers', 'advanceAmount')
+			? [ {
+				id: 'travel-permit-travelers',
+				label: 'Reisende und Kosten angeben',
+				status: travelersComplete || presetFixed(presets, 'travelers')
+					? 'done'
+					: model.travelers.length > 0 ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+	]
+}
+
+function travelClaimTasks(
+	model: TravelClaimFormModel,
+	presets: Presets,
+	meta: unknown,
+): Tasks {
+	const permit = model.permit
+	const general = permit?.kind === 'general'
+	const journeyComplete = !!permit && !!model.recipientPerson &&
+		!!model.startDate && !!model.endDate && model.endDate >= model.startDate &&
+		(!general || (!!model.title && !!model.destination))
+
+	const approved = Object.fromEntries((permit?.travelers ?? [])
+		.filter((traveler) => traveler.person?.id)
+		.map((traveler) => [ traveler.person?.id ?? '', traveler.amount ]))
+	const { violated } = travelClaimLimits(model.items, approved, meta)
+	const itemsComplete = model.items.length > 0 && !violated && model.items.every((item) =>
+		item.category === 'privateCar' ||
+		(Array.isArray(item.receipts) && item.receipts.some((file) => file instanceof File)))
+
+	return [
+		...presetVisible(presets, 'permit', 'recipientPerson', 'title', 'destination',
+			'startDate', 'endDate')
+			? [ {
+				id: 'travel-claim-journey',
+				label: 'Genehmigung und Reise angeben',
+				status: journeyComplete ? 'done' : permit ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'items')
+			? [ {
+				id: 'travel-claim-items',
+				label: 'Kosten und Belege erfassen',
+				status: !permit
+					? 'blocked'
+					: itemsComplete
+						? 'done'
+						: model.items.length > 0 ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+	]
+}
+
 function workflowCustomCandidateTasks(
 	model: WorkflowCustomCandidateFormModel,
 	presets: Presets,
@@ -449,6 +564,16 @@ export function processFormTasks(
 					parsed,
 					meta,
 				),
+			}
+		case 'travelPermits':
+			return {
+				title: 'Details zur Dienstreisegenehmigung',
+				tasks: travelPermitTasks(model as TravelPermitFormModel, parsed, meta),
+			}
+		case 'travelClaims':
+			return {
+				title: 'Details zur Reisekostenabrechnung',
+				tasks: travelClaimTasks(model as TravelClaimFormModel, parsed, meta),
 			}
 		case 'candidates':
 			return {

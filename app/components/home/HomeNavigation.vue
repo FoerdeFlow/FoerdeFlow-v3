@@ -22,6 +22,7 @@ const areas: HomeNavigationArea[] = [
 			// TODO: Sobald es die Berechtigung gibt: workflowProcesses.read
 			{ title: 'Meine Prozesse', link: '/processes', requiresLogin: true },
 			{ title: 'Prozess starten', link: '/processes/create', permission: 'workflowProcesses.create' },
+			{ title: 'Dienstreisen', link: '/travel', requiresLogin: true },
 		],
 	},
 	{
