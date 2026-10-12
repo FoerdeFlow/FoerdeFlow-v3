@@ -91,9 +91,11 @@ export type TravelEligibility =
 
 export interface TravelMeta {
 	maximumAmountPerPerson: number | null
+	maximumGeneralAmountPerPerson: number
 	domesticOnly: boolean
 	permitKinds: TravelPermitKind[]
 	eligibleIf: TravelEligibility[]
+	excludeIf: TravelEligibility[]
 	kilometerRate: number
 	maximumEventAmountPerPerson: number
 	claimDeadlineDays: number
@@ -147,10 +149,14 @@ export function travelMeta(meta: unknown): TravelMeta {
 
 	return {
 		maximumAmountPerPerson: metaAmount(meta, 'maximumAmountPerPerson'),
+		maximumGeneralAmountPerPerson: metaNumber(record, 'maximumGeneralAmountPerPerson', 25),
 		domesticOnly: record.domesticOnly === true,
 		permitKinds: kinds.length > 0 ? kinds : [ 'single' ],
 		eligibleIf: Array.isArray(record.eligibleIf)
 			? record.eligibleIf.map(parseEligibility).filter((entry) => entry !== null)
+			: [],
+		excludeIf: Array.isArray(record.excludeIf)
+			? record.excludeIf.map(parseEligibility).filter((entry) => entry !== null)
 			: [],
 		kilometerRate: metaNumber(record, 'kilometerRate', 0.3),
 		maximumEventAmountPerPerson: metaNumber(record, 'maximumEventAmountPerPerson', 100),
@@ -192,11 +198,18 @@ export function travelPermitLimits(permit: TravelPermitLimitInput, meta: unknown
 	const reimbursable = currencySum(...permit.travelers.map((traveler) => traveler.amount))
 	const total = currencySum(reimbursable, carsharing)
 
-	const aboveLimit = rules.maximumAmountPerPerson === null
+	// A general permit may only ever be given for small amounts (§ 3 Absatz
+	// 6), whichever body gives it, so its limit applies on top of the one of
+	// the workflow.
+	const limit = permit.kind === 'general'
+		? Math.min(rules.maximumAmountPerPerson ?? Infinity, rules.maximumGeneralAmountPerPerson)
+		: rules.maximumAmountPerPerson
+
+	const aboveLimit = limit === null
 		? []
 		: perPerson
 			.map((amount, index) => ({ index, amount }))
-			.filter((entry) => entry.amount > (rules.maximumAmountPerPerson ?? 0))
+			.filter((entry) => entry.amount > limit)
 
 	// An advance is paid on what the travellers lay out themselves, so the car
 	// sharing the student body pays directly does not count towards it.
@@ -209,6 +222,7 @@ export function travelPermitLimits(permit: TravelPermitLimitInput, meta: unknown
 
 	return {
 		rules,
+		limit,
 		share,
 		perPerson,
 		reimbursable,

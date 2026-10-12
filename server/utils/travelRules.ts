@@ -73,10 +73,52 @@ async function allMembersOf(organizationItem: string, persons: string[], date: D
 }
 
 /**
+ * Checks whether a condition of the meta data holds for a journey.
+ *
+ * @param condition - The condition
+ * @param permit - The facts of the journey
+ * @param initiatorOrganizationItem - The organization item the process is
+ * started for, if any
+ * @returns Whether the condition holds
+ */
+async function travelConditionHolds(
+	condition: TravelEligibility,
+	permit: {
+		startDate: Date
+		occasion: TravelPermitOccasion
+		travelerBasis: TravelPermitTravelerBasis
+		specialInterest: TravelPermitSpecialInterest
+		travelers: { person: string }[]
+	},
+	initiatorOrganizationItem: string | null,
+) {
+	if('specialInterest' in condition) {
+		return condition.specialInterest === (permit.specialInterest !== 'none')
+	}
+	if('occasion' in condition) {
+		return condition.occasion === permit.occasion
+	}
+	if('travelerBasis' in condition) {
+		return condition.travelerBasis === permit.travelerBasis
+	}
+
+	const organizationItem = condition.membershipOf === 'initiator'
+		? initiatorOrganizationItem
+		: condition.membershipOf
+	return !!organizationItem && await allMembersOf(
+		organizationItem,
+		permit.travelers.map((traveler) => traveler.person),
+		permit.startDate,
+	)
+}
+
+/**
  * Checks whether a workflow is responsible for a journey (§ 3 DiReiseR).
  *
  * Without conditions a workflow is responsible for every journey, otherwise
- * one of its conditions has to hold.
+ * one of its conditions has to hold. A single condition the workflow excludes
+ * makes it not responsible, whatever else holds: a board of a student council
+ * may for instance not grant a journey a special interest was established for.
  *
  * @param permit - The facts of the journey
  * @param context - The initiator and the meta data of the mutation
@@ -92,24 +134,18 @@ export async function travelPermitEligible(
 	},
 	context: Omit<MutationContext, 'initiatorPerson'>,
 ) {
-	const { eligibleIf } = travelMeta(context.meta)
-	if(eligibleIf.length === 0) return true
+	const { eligibleIf, excludeIf } = travelMeta(context.meta)
 
-	const persons = permit.travelers.map((traveler) => traveler.person)
+	for(const condition of excludeIf) {
+		if(await travelConditionHolds(condition, permit, context.initiatorOrganizationItem)) {
+			return false
+		}
+	}
+
+	if(eligibleIf.length === 0) return true
 	for(const condition of eligibleIf) {
-		if('specialInterest' in condition) {
-			if(condition.specialInterest === (permit.specialInterest !== 'none')) return true
-		} else if('occasion' in condition) {
-			if(condition.occasion === permit.occasion) return true
-		} else if('travelerBasis' in condition) {
-			if(condition.travelerBasis === permit.travelerBasis) return true
-		} else {
-			const organizationItem = condition.membershipOf === 'initiator'
-				? context.initiatorOrganizationItem
-				: condition.membershipOf
-			if(organizationItem && await allMembersOf(organizationItem, persons, permit.startDate)) {
-				return true
-			}
+		if(await travelConditionHolds(condition, permit, context.initiatorOrganizationItem)) {
+			return true
 		}
 	}
 	return false
@@ -159,7 +195,7 @@ export async function checkTravelPermit(
 			statusCode: 403,
 			statusMessage: 'Der Höchstbetrag je Person wird überschritten',
 			data: {
-				maximumPerPerson: rules.maximumAmountPerPerson,
+				maximumPerPerson: limits.limit,
 				amounts: limits.aboveLimit.map((entry) => entry.amount),
 			},
 		})

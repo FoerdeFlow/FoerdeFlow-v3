@@ -10,8 +10,8 @@ export default defineEventHandler(async (event) => {
 
 	const database = useDatabase()
 
-	// The claims are only shown in full to those who may read them for the
-	// budget, a traveller sees what was claimed on their own permit anyway.
+	// Whoever may see the permit may see what was claimed on it, with the
+	// items, but without the bank details of the recipient.
 	const claims = await database.query.travelClaims.findMany({
 		where: eq(travelClaims.permit, permit.id),
 		with: {

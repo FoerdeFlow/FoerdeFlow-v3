@@ -41,9 +41,9 @@ const carOptions = travelPermitCarList
 	.map((value) => ({ value, label: formatTravelPermitCar(value) }))
 
 const limitBullets = computed(() => [
-	...limits.value.rules.maximumAmountPerPerson === null
+	...limits.value.limit === null
 		? []
-		: [ `Höchstens ${formatCurrency(limits.value.rules.maximumAmountPerPerson)} je Person` +
+		: [ `Höchstens ${formatCurrency(limits.value.limit)} je Person` +
 			(general.value ? ' und Reise' : '') ],
 	...limits.value.rules.domesticOnly ? [ 'Nur Dienstreisen im Inland' ] : [],
 ])
@@ -54,7 +54,7 @@ const violationText = computed(() => [
 			.map((entry) => formatPerson(model.value.travelers[entry.index]?.person ?? null) || '?')
 			.join(', ') +
 			' übersteigen den Höchstbetrag von ' +
-			`${formatCurrency(limits.value.rules.maximumAmountPerPerson)}.` ]
+			`${formatCurrency(limits.value.limit)}.` ]
 		: [],
 	...limits.value.advanceInvalid
 		? [ limits.value.advanceAllowed

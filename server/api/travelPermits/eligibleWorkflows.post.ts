@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
 		}
 		const limits = travelPermitLimits({ ...body, advanceAmount: null }, mutation.meta)
 		if(limits.aboveLimit.length > 0) {
-			reasons.push(`Höchstens ${formatCurrency(rules.maximumAmountPerPerson, 'amount')} je Person`)
+			reasons.push(`Höchstens ${formatCurrency(limits.limit, 'amount')} je Person`)
 		}
 
 		return {
@@ -88,7 +88,7 @@ export default defineEventHandler(async (event) => {
 				name: mutation.workflow.name,
 				description: mutation.workflow.description,
 			},
-			maximumAmountPerPerson: rules.maximumAmountPerPerson,
+			maximumAmountPerPerson: limits.limit,
 			domesticOnly: rules.domesticOnly,
 			eligible: reasons.length === 0,
 			reasons,

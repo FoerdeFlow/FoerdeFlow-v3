@@ -665,11 +665,6 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
-		id: 'travelClaims.read',
-		scope: 'organizationItem',
-		assignable: true,
-	},
-	{
 		id: 'vehicleDrivers.read',
 		scope: 'global',
 		assignable: true,
