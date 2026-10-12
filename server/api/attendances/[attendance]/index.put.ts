@@ -8,7 +8,9 @@ export default defineEventHandler(async (event) => {
 	}).parseAsync(data))
 
 	const body = await readValidatedBody(event, async (data) =>
-		await createUpdateSchema(sessionAttendances).omit({ id: true }).parseAsync(data))
+		// Sitzung und Person bleiben fest; sonst könnte ein Eintrag auf eine schon
+		// erfasste Kombination umgehängt werden.
+		await createUpdateSchema(sessionAttendances).pick({ status: true }).parseAsync(data))
 
 	const database = useDatabase()
 

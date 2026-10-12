@@ -1,0 +1,1 @@
+ALTER TABLE "session_attendances" ADD CONSTRAINT "session_attendance_unique" UNIQUE("session","person");

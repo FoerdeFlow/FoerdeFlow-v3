@@ -19,5 +19,11 @@ export default defineEventHandler(async (event) => {
 	return await database
 		.insert(sessionAttendances)
 		.values(body)
+		// Gibt es für die Person in dieser Sitzung schon einen Eintrag, wird nur
+		// dessen Status überschrieben.
+		.onConflictDoUpdate({
+			target: [ sessionAttendances.session, sessionAttendances.person ],
+			set: { status: body.status },
+		})
 		.returning({ id: sessionAttendances.id })
 })

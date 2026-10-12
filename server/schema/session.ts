@@ -6,6 +6,7 @@ import {
 	pgEnum,
 	pgTable,
 	timestamp,
+	unique,
 	uuid,
 } from 'drizzle-orm/pg-core'
 
@@ -55,7 +56,9 @@ export const sessionAttendances = pgTable('session_attendances', {
 	session: uuid().notNull().references(() => sessions.id),
 	person: uuid().notNull().references(() => persons.id),
 	status: sessionAttendanceStatuses().notNull(),
-})
+}, (table) => [
+	unique('session_attendance_unique').on(table.session, table.person),
+])
 
 export const sessionAttendancesRelations = relations(sessionAttendances, ({ one }) => ({
 	session: one(sessions, {

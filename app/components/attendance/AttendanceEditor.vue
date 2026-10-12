@@ -57,20 +57,21 @@ function cancel() {
 async function save() {
 	if(!dialog.value || !model.value) return
 	try {
-		const body = {
-			session: props.session,
-			person: model.value.person?.id,
-			status: model.value.status,
-		}
 		if(itemId.value) {
 			await $fetch(`/api/attendances/${itemId.value}`, {
 				method: 'PUT',
-				body,
+				body: {
+					status: model.value.status,
+				},
 			})
 		} else {
 			await $fetch('/api/attendances', {
 				method: 'POST',
-				body,
+				body: {
+					session: props.session,
+					person: model.value.person?.id,
+					status: model.value.status,
+				},
 			})
 		}
 		dialog.value.hide()
@@ -98,7 +99,7 @@ KernDialog(
 	template(v-if="model")
 		AttendancePersonInput(
 			v-model="model.person"
-			:readonly="Boolean(itemModel?.person)"
+			:readonly="Boolean(itemId || itemModel?.person)"
 		)
 		AttendanceStatusInput(
 			v-model="model.status"
