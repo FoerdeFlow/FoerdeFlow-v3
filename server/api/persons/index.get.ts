@@ -1,4 +1,4 @@
-import { and, count, eq, ilike, or, sql } from 'drizzle-orm'
+import { and, count, eq, ilike, or } from 'drizzle-orm'
 import { existsSync } from 'node:fs'
 import z from 'zod'
 
@@ -16,30 +16,14 @@ export default defineEventHandler(async (event) => {
 
 	const filter = and(
 		...(query.email ? [ eq(persons.email, query.email) ] : []),
-		...(query.query
-			? [ or(
-				ilike(persons.firstName, `%${query.query}%`),
-				ilike(persons.callName, `%${query.query}%`),
-				ilike(persons.lastName, `%${query.query}%`),
-				ilike(
-					sql`${persons.firstName} || ' ' || ${persons.lastName}`,
-					`%${query.query}%`,
-				),
-				ilike(
-					sql`${persons.callName} || ' ' || ${persons.lastName}`,
-					`%${query.query}%`,
-				),
-				ilike(
-					sql`${persons.lastName} || ', ' || ${persons.firstName}`,
-					`%${query.query}%`,
-				),
-				ilike(
-					sql`${persons.lastName} || ', ' || ${persons.callName}`,
-					`%${query.query}%`,
-				),
-				ilike(persons.email, `%${query.query}%`),
-			) ]
-			: []),
+		// Every word has to appear in one of the fields, wherever it stands, so
+		// that a middle name kept in `firstName` need not be typed along.
+		...(query.query?.split(/[\s,]+/).filter(Boolean) ?? []).map((word) => or(
+			ilike(persons.firstName, `%${word}%`),
+			ilike(persons.callName, `%${word}%`),
+			ilike(persons.lastName, `%${word}%`),
+			ilike(persons.email, `%${word}%`),
+		)),
 	)
 
 	const personsCount = await database
