@@ -10,6 +10,11 @@ const errorsByCode: Record<string, { statusCode: number, statusMessage: string }
 	23514: { statusCode: 400, statusMessage: 'Die Eingabe verletzt eine fachliche Regel' },
 }
 
+// Fachliche Meldungen für einzelne Constraints, die vor der allgemeinen Meldung des Codes gehen.
+const statusMessagesByConstraint: Record<string, string> = {
+	session_number_unique: 'Dieses Gremium hat in dieser Legislatur bereits eine Sitzung mit dieser Nummer',
+}
+
 interface DatabaseError {
 	code: string
 	constraint?: string
@@ -63,7 +68,7 @@ export default function(
 		: mappedError
 
 	error.statusCode = statusCode
-	error.statusMessage = statusMessage
+	error.statusMessage = statusMessagesByConstraint[databaseError.constraint ?? ''] ?? statusMessage
 	error.data = {
 		constraint: databaseError.constraint,
 		table: databaseError.table,

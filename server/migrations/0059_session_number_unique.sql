@@ -1,0 +1,1 @@
+ALTER TABLE "sessions" ADD CONSTRAINT "session_number_unique" UNIQUE("organization_item","period","number");

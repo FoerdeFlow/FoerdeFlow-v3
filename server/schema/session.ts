@@ -25,7 +25,9 @@ export const sessions = pgTable('sessions', {
 	location: uuid().notNull().references(() => locations.id),
 	// Der Videokonferenzraum einer hybriden oder rein digitalen Sitzung.
 	onlineLocation: uuid().references(() => locations.id),
-})
+}, (table) => [
+	unique('session_number_unique').on(table.organizationItem, table.period, table.number),
+])
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
 	organizationItem: one(organizationItems, {
