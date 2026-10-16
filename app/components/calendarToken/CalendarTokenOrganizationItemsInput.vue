@@ -9,6 +9,7 @@ interface TreeItem {
 	id: string
 	code: string
 	name: string
+	inactive: boolean
 	children: TreeItem[]
 }
 
@@ -17,7 +18,10 @@ interface TreeItem {
 // so hält es auch OrganizationItemSelect.
 function flatten(tree: TreeItem[], prefix = ''): { value: string, label: string }[] {
 	return tree.flatMap((item) => [
-		{ value: item.id, label: `${prefix}${formatOrganizationItem(item)}` },
+		{
+			value: item.id,
+			label: `${prefix}${formatOrganizationItem(item)}${item.inactive ? ' – inaktiv' : ''}`,
+		},
 		...flatten(item.children, `${prefix}— `),
 	])
 }

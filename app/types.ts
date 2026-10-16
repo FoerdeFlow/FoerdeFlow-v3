@@ -96,6 +96,8 @@ export interface OrganizationChartNode {
 	code: string
 	name: string
 	organizationType: { name: string }
+	/** Whether the unit or one above it is dissolved; only those who manage units see these. */
+	inactive?: boolean
 	children: OrganizationChartNode[]
 }
 

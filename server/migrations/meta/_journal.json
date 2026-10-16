@@ -428,6 +428,13 @@
       "when": 1792171441631,
       "tag": "0060_organization_sort_order",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1792178464913,
+      "tag": "0061_organization_dissolved_at",
+      "breakpoints": true
     }
   ]
 }

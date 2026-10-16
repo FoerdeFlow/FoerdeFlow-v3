@@ -9,6 +9,8 @@ const { data } = useFetch(() => `/api/organizationItems/${route.params.organizat
 		name: '',
 		description: '',
 		organizationType: { name: '' },
+		dissolvedAt: null,
+		inactive: false,
 		parent: null,
 		children: [],
 	}),
@@ -24,12 +26,13 @@ const chart = computed((): OrganizationChartNode[] => {
 		code: data.value.code,
 		name: data.value.name,
 		organizationType: data.value.organizationType,
-		children: data.value.children.map(({ id, code, name, organizationType }) =>
-			({ id, code, name, organizationType, children: [] })),
+		inactive: data.value.inactive,
+		children: data.value.children.map(({ id, code, name, organizationType, inactive }) =>
+			({ id, code, name, organizationType, inactive, children: [] })),
 	}
 	if(!data.value.parent) return [ current ]
-	const { id, code, name, organizationType } = data.value.parent
-	return [ { id, code, name, organizationType, children: [ current ] } ]
+	const { id, code, name, organizationType, inactive } = data.value.parent
+	return [ { id, code, name, organizationType, inactive, children: [ current ] } ]
 })
 
 const subPages: KernCardNavItems = [
@@ -126,6 +129,11 @@ aside
 header
 	p.kern-preline Organisationseinheit
 	h1.kern-heading-large {{ data.name }} ({{ data.code }})
+	p(v-if="data.inactive || data.dissolvedAt")
+		OrganizationItemStatusBadge(
+			:dissolved-at="data.dissolvedAt"
+			:inactive="data.inactive"
+		)
 .mb-8
 	KernText(:text="data.description")
 section.mb-8(v-if="data.parent || data.children.length > 0")

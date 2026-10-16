@@ -123,6 +123,12 @@ KernTable(
 		em {{ item.organizationType.name }} ({{ item.organizationType.code }})
 		br
 		| {{ item.displayName }}
+		template(v-if="item.inactive || item.dissolvedAt")
+			br
+			OrganizationItemStatusBadge(
+				:dissolved-at="item.dissolvedAt"
+				:inactive="item.inactive"
+			)
 	template(#sortOrder-header)
 		| Sortierung
 	template(#sortOrder-body="{ item }")

@@ -21,6 +21,7 @@ ul.ff3-org-list
 			v-else
 			:to="{ name: 'organizationItems-organizationItem', params: { organizationItem: item.id } }"
 		) {{ item.name }}
+		span.ff3-org-list__inactive(v-if="item.inactive")  (inaktiv)
 		OrganizationChartList(
 			v-if="item.children.length > 0"
 			:items="item.children"
@@ -35,6 +36,10 @@ ul.ff3-org-list
 	border-top: var(--kern-metric-border-width-default) solid var(--kern-color-layout-border);
 	font-size: var(--kern-typography-font-size-small-static);
 	list-style: none;
+}
+
+.ff3-org-list__inactive {
+	color: var(--kern-color-layout-text-muted);
 }
 
 .ff3-org-list .ff3-org-list {

@@ -22,19 +22,38 @@ const flattenTree = <T extends {
 	id: string
 	name: string
 	code: string
+	inactive: boolean
 	children: T[]
 }>(tree: T[], prefix = ''): (T & { displayName: string, disabled?: boolean })[] => tree
 	.filter(filterTreeItem)
 	.flatMap((item) => ([
 		{
 			...item,
-			displayName: `${prefix}${item.name} (${item.code})`,
+			displayName: `${prefix}${item.name} (${item.code})${item.inactive ? ' – inaktiv' : ''}`,
 			disabled: props.filteredIds ? !props.filteredIds.includes(item.id) : false,
 		},
 		...flattenTree(item.children, `${prefix}— `),
 	]))
 
-const items = computed(() => data.value ? flattenTree(data.value) : [])
+const treeItems = computed(() => data.value ? flattenTree(data.value) : [])
+
+/*
+ * Wer Einheiten nicht verwaltet, bekommt inaktive nicht geliefert. Ist eine
+ * davon schon gewählt, bleibt sie trotzdem als Option stehen; sonst zeigte das
+ * Feld nichts an und das nächste Speichern verwürfe die Auswahl.
+ */
+const items = computed(() => {
+	const selected = model.value
+	if(!selected || treeItems.value.some(({ id }) => id === selected.id)) return treeItems.value
+	return [
+		{
+			...selected,
+			displayName: `${selected.name} (${selected.code}) – inaktiv`,
+			disabled: false,
+		},
+		...treeItems.value,
+	]
+})
 
 const model = defineModel<{
 	id: string

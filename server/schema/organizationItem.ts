@@ -3,6 +3,7 @@ import {
 } from 'drizzle-orm'
 import {
 	type AnyPgColumn,
+	date,
 	integer,
 	pgTable,
 	text,
@@ -29,6 +30,8 @@ export const organizationItems = pgTable('organization_items', {
 	name: varchar({ length: 256 }).notNull().unique(),
 	description: text().notNull(),
 	sortOrder: integer().notNull().default(0),
+	/** The day from which on the unit, and every unit below it, counts as inactive. */
+	dissolvedAt: date(),
 })
 
 export const organizationItemsRelations = relations(organizationItems, ({ one, many }) => ({

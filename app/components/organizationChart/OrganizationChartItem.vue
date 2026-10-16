@@ -36,7 +36,7 @@ li.ff3-org__item(
 		:class="hasChildren ? `ff3-org__node--${layout}` : ''"
 	)
 		.ff3-org__card(
-			:class="{ 'ff3-org__card--current': current }"
+			:class="{ 'ff3-org__card--current': current, 'ff3-org__card--inactive': props.item.inactive }"
 		)
 			span.ff3-org__type {{ props.item.organizationType.name }}
 			span.ff3-org__name(
@@ -48,6 +48,8 @@ li.ff3-org__item(
 				:to="{ name: 'organizationItems-organizationItem', params: { organizationItem: props.item.id } }"
 			) {{ props.item.name }}
 			span.ff3-org__code {{ props.item.code }}
+			span.kern-badge.kern-badge--warning.ff3-org__badge(v-if="props.item.inactive")
+				span.kern-label.kern-label--small Inaktiv
 			OrganizationChartList(
 				v-if="layout === 'list' && hasChildren"
 				:items="props.item.children"
@@ -109,6 +111,16 @@ li.ff3-org__item(
 	border-color: var(--kern-color-action-default);
 	background-color: var(--kern-color-layout-background-hued);
 	box-shadow: inset 0 0 0 1px var(--kern-color-action-default);
+}
+
+/* Inaktive Einheiten treten zurück; die Plakette sagt, warum. */
+.ff3-org__card--inactive {
+	border-style: dashed;
+	background-color: transparent;
+}
+
+.ff3-org__badge {
+	margin-top: var(--kern-metric-space-x-small);
 }
 
 .ff3-org__type,

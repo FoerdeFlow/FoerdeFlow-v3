@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
 					id: true,
 					code: true,
 					name: true,
+					dissolvedAt: true,
 				},
 				with: {
 					organizationType: true,
@@ -28,6 +29,7 @@ export default defineEventHandler(async (event) => {
 					id: true,
 					code: true,
 					name: true,
+					dissolvedAt: true,
 				},
 				with: {
 					organizationType: true,
@@ -51,5 +53,34 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return organizationItem
+	/*
+	 * Die Seite einer inaktiven Einheit bleibt erreichbar. Ihre inaktiven Kinder
+	 * sieht aber nur, wer Einheiten verwaltet, wie in der Übersicht.
+	 */
+	const today = getToday()
+	const inactive = await isOrganizationItemInactive(organizationItem.id, today)
+	const includeInactive = canManageOrganizationItems()
+	const { parent } = organizationItem
+
+	return {
+		...organizationItem,
+		inactive,
+		/*
+		 * Spalte und Relation heißen beide `parent`; Drizzle typisiert das Feld
+		 * deshalb als `string & {…}`, das sich nicht ausbreiten lässt.
+		 */
+		parent: parent
+			? {
+				id: parent.id,
+				code: parent.code,
+				name: parent.name,
+				dissolvedAt: parent.dissolvedAt,
+				organizationType: parent.organizationType,
+				inactive: await isOrganizationItemInactive(parent.id, today),
+			}
+			: null,
+		children: organizationItem.children
+			.map((child) => ({ ...child, inactive: inactive || isDissolved(child.dissolvedAt, today) }))
+			.filter((child) => includeInactive || !child.inactive),
+	}
 })

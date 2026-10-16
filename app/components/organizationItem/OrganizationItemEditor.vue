@@ -16,6 +16,7 @@ interface Model {
 	name: string
 	description: string
 	sortOrder: number
+	dissolvedAt: Date | null
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -41,11 +42,15 @@ defineExpose({
 			name: '',
 			description: '',
 			sortOrder: 0,
+			dissolvedAt: null,
 		})
 	},
 	async edit(id: string) {
 		const item = await $fetch(`/api/organizationItems/${id}`)
-		openDialog(id, item)
+		openDialog(id, {
+			...item,
+			dissolvedAt: item.dissolvedAt ? new Date(item.dissolvedAt) : null,
+		})
 	},
 })
 
@@ -68,6 +73,7 @@ async function save() {
 			name: model.value.name,
 			description: model.value.description,
 			sortOrder: model.value.sortOrder,
+			dissolvedAt: serializeDate(model.value.dissolvedAt),
 		}
 		if(itemId.value) {
 			await $fetch(`/api/organizationItems/${itemId.value}`, {
@@ -109,4 +115,5 @@ KernDialog(
 		OrganizationItemNameInput(v-model="model.name")
 		OrganizationItemDescriptionInput(v-model="model.description")
 		OrganizationItemSortOrderInput(v-model="model.sortOrder")
+		OrganizationItemDissolvedAtInput(v-model="model.dissolvedAt")
 </template>

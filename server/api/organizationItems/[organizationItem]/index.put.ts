@@ -13,7 +13,10 @@ export default defineEventHandler(async (event) => {
 	}).parseAsync(data))
 
 	const body = await readValidatedBody(event, async (data) =>
-		await createUpdateSchema(organizationItems).omit({ id: true }).parseAsync(data))
+		await createUpdateSchema(organizationItems, {
+			// Drizzle-Zod nimmt für eine Datumsspalte jede Zeichenkette an.
+			dissolvedAt: z.iso.date().nullable().optional(),
+		}).omit({ id: true }).parseAsync(data))
 
 	for(let parent = body.parent; parent;) {
 		if(parent === params.organizationItem) {

@@ -1,0 +1,1 @@
+ALTER TABLE "organization_items" ADD COLUMN "dissolved_at" date;

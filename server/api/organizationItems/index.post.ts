@@ -1,4 +1,5 @@
 import { createInsertSchema } from 'drizzle-zod'
+import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
 	await checkPermission('organizationItems.create')
@@ -7,7 +8,10 @@ export default defineEventHandler(async (event) => {
 	const client = useOpenslides()
 
 	const body = await readValidatedBody(event, async (data) =>
-		await createInsertSchema(organizationItems).omit({ id: true }).parseAsync(data))
+		await createInsertSchema(organizationItems, {
+			// Drizzle-Zod nimmt für eine Datumsspalte jede Zeichenkette an.
+			dissolvedAt: z.iso.date().nullable().optional(),
+		}).omit({ id: true }).parseAsync(data))
 
 	return await database.transaction(async (tx) => {
 		const [ result ] = await tx
