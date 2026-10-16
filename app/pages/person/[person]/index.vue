@@ -17,16 +17,6 @@ const { data: memberships } = useFetch(
 	{ default: () => [] },
 )
 
-/*
- * Eine Mitgliedschaft gilt als beendet, sobald ihr Enddatum verstrichen ist.
- * Alles andere zählt als aktuell, auch eine Mitgliedschaft, die erst in der
- * Zukunft beginnt, denn sie steht der Person noch bevor.
- */
-const currentMemberships = computed(() => memberships.value.filter((membership) =>
-	!membership.endDate || new Date(membership.endDate) >= new Date()))
-const pastMemberships = computed(() => memberships.value.filter((membership) =>
-	membership.endDate && new Date(membership.endDate) < new Date()))
-
 const details = computed(() => [
 	// Der Rufname steht in der Überschrift, der amtliche Vorname also nur, wenn
 	// er davon abweicht.
@@ -76,16 +66,10 @@ header
 			dt.kern-description-list-item__key {{ item.key }}
 			dd.kern-description-list-item__value {{ item.value }}
 section.mt-8
-	h2.kern-title Aktuelle Gremienmitgliedschaften
+	h2.kern-title Gremienmitgliedschaften
 	MembershipTable(
-		caption="Liste der aktuellen Gremienmitgliedschaften"
-		:memberships="currentMemberships"
-	)
-section.mt-8
-	h2.kern-title Frühere Gremienmitgliedschaften
-	MembershipTable(
-		caption="Liste der früheren Gremienmitgliedschaften"
-		:memberships="pastMemberships"
+		caption="Liste der Gremienmitgliedschaften"
+		:memberships="memberships"
 	)
 p.mt-4.kern-body.kern-body--small.kern-body--muted
 	| Aufgeführt sind nur Mitgliedschaften in Organisationseinheiten, für die Sie die

@@ -18,6 +18,7 @@ const props = defineProps<{
 		membershipType: {
 			name: string
 			code: string
+			sortOrder: number
 		}
 		endReason: {
 			name: string
@@ -25,6 +26,10 @@ const props = defineProps<{
 		} | null
 	}[]
 }>()
+
+// Die Person ist in jeder Zeile dieselbe; innerhalb einer Art entscheidet die Einheit.
+const grouped = useMembershipGroups(() => props.memberships, (a, b) =>
+	a.organizationItem.name.localeCompare(b.organizationItem.name, 'de'))
 </script>
 
 <template lang="pug">
@@ -34,7 +39,8 @@ KernTable(
 	:create-permission="null"
 	:update-permission="null"
 	:delete-permission="null"
-	:data="props.memberships"
+	:data="grouped.items"
+	:groups="grouped.groups"
 )
 	template(#organizationItem-header)
 		em OE-Kategorie
@@ -56,8 +62,9 @@ KernTable(
 	template(#duration-header)
 		| Dauer der Mitgliedschaft
 	template(#duration-body="{ item }")
+		MembershipStatusBadge(:membership="item")
 		template(v-if="item.startDate")
-			| seit {{ formatDate(item.startDate, 'compact') }}
+			| {{ getMembershipStatus(item) === 'future' ? 'ab' : 'seit' }} {{ formatDate(item.startDate, 'compact') }}
 		template(v-if="item.endDate")
 			br
 			| bis {{ formatDate(item.endDate, 'compact') }}

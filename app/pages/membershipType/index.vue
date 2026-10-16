@@ -44,7 +44,7 @@ async function remove({ id }: { id: string }) {
 h1.kern-heading-large Mitgliedschaftsarten
 KernTable(
 	caption="Liste der Mitgliedschaftsarten"
-	:columns="[ 'name' ]"
+	:columns="[ 'name', { name: 'sortOrder', width: '8em' } ]"
 	create-permission="membershipTypes.create"
 	update-permission="membershipTypes.update"
 	delete-permission="membershipTypes.delete"
@@ -57,6 +57,10 @@ KernTable(
 		| Name (Kürzel)
 	template(#name-body="{ item }")
 		| {{ item.name }} ({{ item.code }})
+	template(#sortOrder-header)
+		| Sortierung
+	template(#sortOrder-body="{ item }")
+		| {{ item.sortOrder }}
 MembershipTypeEditor(
 	ref="editor"
 	@refresh="refresh"

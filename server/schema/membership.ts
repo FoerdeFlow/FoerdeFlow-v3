@@ -4,6 +4,7 @@ import {
 } from 'drizzle-orm'
 import {
 	check,
+	integer,
 	pgEnum,
 	pgTable,
 	timestamp,
@@ -18,6 +19,7 @@ export const membershipTypes = pgTable('membership_types', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	code: varchar({ length: 32 }).notNull().unique(),
 	name: varchar({ length: 256 }).notNull().unique(),
+	sortOrder: integer().notNull().default(0),
 })
 
 export const membershipEndReasons = pgTable('membership_end_reasons', {

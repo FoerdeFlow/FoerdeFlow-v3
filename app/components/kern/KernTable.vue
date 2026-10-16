@@ -14,6 +14,18 @@ const props = defineProps<{
 	showActions?: boolean
 	showFooter?: boolean
 	data: T[]
+	/**
+	 * Splits the rows into groups, each with a heading row of its own. The groups
+	 * are meant not to overlap; within a group the rows keep their order from
+	 * `data`, and empty groups are left out.
+	 */
+	groups?: {
+		key: string
+		label: string
+		includes: (item: NoInfer<T>) => boolean
+		/** Sets the rows of the group in a muted colour, for entries of the past. */
+		muted?: boolean
+	}[]
 	scope?: Scope
 }>()
 
@@ -33,6 +45,16 @@ defineSlots<{
 const columns = computed(() =>
 	props.columns.map((column) => typeof column === 'string' ? { name: column } : column),
 )
+
+/*
+ * Ohne Gruppen ist der ganze Inhalt ein einziger Abschnitt ohne Überschrift.
+ * Jeder Abschnitt wird ein eigenes `tbody`, damit Vorlesehilfen die Zeilen
+ * ihrer Gruppenüberschrift zuordnen.
+ */
+const bodies = computed(() =>
+	(props.groups ?? [ { key: 'all', label: null, includes: () => true, muted: false } ])
+		.map((group) => ({ ...group, items: props.data.filter((item) => group.includes(item)) }))
+		.filter((group) => group.items.length > 0))
 
 const authStore = useAuthStore()
 
@@ -80,13 +102,23 @@ const showActions = computed(() => props.showActions || updateAllowed.value || d
 					v-if="showActions"
 					scope="col"
 				) Aktionen
-		tbody.kern-table__body
-			tr.kern-table__row(v-if="data.length === 0")
+		tbody.kern-table__body(v-if="bodies.length === 0")
+			tr.kern-table__row
 				td.kern-table__cell(
 					:colspan="columns.length + (showActions ? 1 : 0)"
 				) Keine Einträge gefunden.
+		tbody.kern-table__body(
+			v-for="body of bodies"
+			:key="body.key"
+			:class="{ 'ff3-table__body--muted': body.muted }"
+		)
+			tr.kern-table__row(v-if="body.label")
+				th.kern-table__header.ff3-table__group(
+					:colspan="columns.length + (showActions ? 1 : 0)"
+					scope="rowgroup"
+				) {{ body.label }}
 			tr.kern-table__row(
-				v-for="(item, idx) of data"
+				v-for="(item, idx) of body.items"
 				:key="idx"
 			)
 				td.kern-table__cell(
@@ -143,5 +175,15 @@ const showActions = computed(() => props.showActions || updateAllowed.value || d
 <style scoped>
 .kern-table__wrapper {
 	overflow-x: auto;
+}
+
+.ff3-table__group {
+	background-color: var(--kern-color-layout-background-hued);
+}
+
+/* Auch Links und Inhalte aus Slots treten zurück, bleiben aber unterstrichen. */
+.ff3-table__body--muted td,
+.ff3-table__body--muted td :deep(a) {
+	color: var(--kern-color-layout-text-muted);
 }
 </style>

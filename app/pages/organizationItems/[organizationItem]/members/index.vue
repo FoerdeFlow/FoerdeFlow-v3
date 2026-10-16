@@ -16,6 +16,23 @@ const { data: organizationItem } =
 const { data, refresh } =
 	useFetch(() => `/api/memberships?organizationItem=${route.params.organizationItem}`)
 
+/*
+ * Innerhalb einer Mitgliedschaftsart stehen Organisationseinheiten vor Personen,
+ * beide alphabetisch.
+ */
+const grouped = useMembershipGroups(data, (a, b) => {
+	if(a.memberType === 'organizationItem' && b.memberType === 'organizationItem') {
+		return a.memberOrganizationItem.name.localeCompare(b.memberOrganizationItem.name, 'de')
+	}
+	if(a.memberType === 'person' && b.memberType === 'person') {
+		const byLastName = a.memberPerson.lastName.localeCompare(b.memberPerson.lastName, 'de')
+		return byLastName !== 0
+			? byLastName
+			: a.memberPerson.firstName.localeCompare(b.memberPerson.firstName, 'de')
+	}
+	return a.memberType === 'organizationItem' ? -1 : 1
+})
+
 const editor = useTemplateRef<InstanceType<typeof MembershipEditor>>('editor')
 
 function create() {
@@ -72,7 +89,8 @@ KernTable(
 	update-permission="memberships.update"
 	delete-permission="memberships.delete"
 	show-actions
-	:data="data ?? []"
+	:data="grouped.items"
+	:groups="grouped.groups"
 	:scope="scope"
 	@create="create"
 	@edit="edit"
@@ -96,8 +114,9 @@ KernTable(
 	template(#duration-header)
 		| Dauer der Mitgliedschaft
 	template(#duration-body="{ item }")
+		MembershipStatusBadge(:membership="item")
 		template(v-if="item.startDate")
-			| seit {{ formatDate(item.startDate, 'compact') }}
+			| {{ getMembershipStatus(item) === 'future' ? 'ab' : 'seit' }} {{ formatDate(item.startDate, 'compact') }}
 		br
 		template(v-if="item.endDate")
 			| bis {{ formatDate(item.endDate, 'compact') }}
