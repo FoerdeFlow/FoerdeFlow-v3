@@ -87,6 +87,18 @@ export type Role = InstanceType<typeof RoleSelect>['$props']['modelValue']
 export type Session = InstanceType<typeof SessionSelect>['$props']['modelValue']
 export type WorkflowStepType = InstanceType<typeof WorkflowStepTypeSelect>['$props']['modelValue']
 
+/**
+ * A unit as the organisation chart draws it. The chart takes its children from
+ * the node itself, so a caller can hand in a cut-out of the tree as well.
+ */
+export interface OrganizationChartNode {
+	id: string
+	code: string
+	name: string
+	organizationType: { name: string }
+	children: OrganizationChartNode[]
+}
+
 export interface BudgetPlanFormModel {
 	budget: Budget
 	startDate: Date | null

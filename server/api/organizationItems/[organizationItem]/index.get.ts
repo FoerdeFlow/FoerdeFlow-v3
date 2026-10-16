@@ -32,6 +32,10 @@ export default defineEventHandler(async (event) => {
 				with: {
 					organizationType: true,
 				},
+				orderBy: (children, { asc }) => [
+					asc(children.sortOrder),
+					asc(children.name),
+				],
 			},
 			organizationType: true,
 		},

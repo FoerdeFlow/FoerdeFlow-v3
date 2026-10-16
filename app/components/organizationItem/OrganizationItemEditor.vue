@@ -15,6 +15,7 @@ interface Model {
 	code: string
 	name: string
 	description: string
+	sortOrder: number
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -39,6 +40,7 @@ defineExpose({
 			code: '',
 			name: '',
 			description: '',
+			sortOrder: 0,
 		})
 	},
 	async edit(id: string) {
@@ -65,6 +67,7 @@ async function save() {
 			code: model.value.code,
 			name: model.value.name,
 			description: model.value.description,
+			sortOrder: model.value.sortOrder,
 		}
 		if(itemId.value) {
 			await $fetch(`/api/organizationItems/${itemId.value}`, {
@@ -105,4 +108,5 @@ KernDialog(
 		OrganizationItemCodeInput(v-model="model.code")
 		OrganizationItemNameInput(v-model="model.name")
 		OrganizationItemDescriptionInput(v-model="model.description")
+		OrganizationItemSortOrderInput(v-model="model.sortOrder")
 </template>

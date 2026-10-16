@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { KernCardNavItems } from '~/types'
+import type { KernCardNavItems, OrganizationChartNode } from '~/types'
 
 const route = useRoute('organizationItems-organizationItem')
 
@@ -8,9 +8,28 @@ const { data } = useFetch(() => `/api/organizationItems/${route.params.organizat
 		code: '',
 		name: '',
 		description: '',
+		organizationType: { name: '' },
 		parent: null,
 		children: [],
 	}),
+})
+
+/*
+ * Ausschnitt des Organigramms: die übergeordnete Einheit, darunter diese und
+ * darunter ihre Kinder. Tiefere Ebenen liefert der Endpunkt nicht mit.
+ */
+const chart = computed((): OrganizationChartNode[] => {
+	const current = {
+		id: route.params.organizationItem,
+		code: data.value.code,
+		name: data.value.name,
+		organizationType: data.value.organizationType,
+		children: data.value.children.map(({ id, code, name, organizationType }) =>
+			({ id, code, name, organizationType, children: [] })),
+	}
+	if(!data.value.parent) return [ current ]
+	const { id, code, name, organizationType } = data.value.parent
+	return [ { id, code, name, organizationType, children: [ current ] } ]
 })
 
 const subPages: KernCardNavItems = [
@@ -109,41 +128,16 @@ header
 	h1.kern-heading-large {{ data.name }} ({{ data.code }})
 .mb-8
 	KernText(:text="data.description")
-.ff3-relations(v-if="data.parent || data.children.length > 0")
-	article.kern-card(v-if="data.parent")
-		.kern-card__container
-			header.kern-card__header
-				hgroup.kern-hgroup
-					h2.kern-title {{ data.parent.name }} ({{ data.parent.code }})
-					p.kern-preline Übergeordnete Organisationseinheit
-	article.kern-card(v-if="data.children.length > 0")
-		.kern-card__container
-			header.kern-card__header
-				h2.kern-title Untergeordnete Organisationseinheiten
-			section.kern-card__body
-				ul.kern-list.kern-list--bullet
-					li(
-						v-for="item of data.children"
-						:key="item.id"
-					)
-						| {{ item.name }} ({{ item.code }})
+section.mb-8(v-if="data.parent || data.children.length > 0")
+	h2.kern-heading-medium Einordnung
+	OrganizationChart(
+		:label="`Einordnung von ${data.name} im Organigramm`"
+		:items="chart"
+		:highlight="route.params.organizationItem"
+		horizontal
+	)
 KernCardNav(
 	:items="subPages"
 	:scope="{ organizationItem: route.params.organizationItem }"
 )
 </template>
-
-<style scoped>
-/* Gleiches Raster wie KernCardNav, damit beide Kartenblöcke fluchten. */
-.ff3-relations {
-	display: grid;
-	gap: var(--kern-metric-space-default);
-	margin-bottom: var(--kern-metric-space-default);
-}
-
-@media (min-width: 48rem) {
-	.ff3-relations {
-		grid-template-columns: 1fr 1fr;
-	}
-}
-</style>

@@ -44,7 +44,7 @@ async function remove({ id }: { id: string }) {
 h1.kern-heading-large OE-Kategorien
 KernTable(
 	caption="Liste der OE-Kategorien"
-	:columns="[ 'name' ]"
+	:columns="[ 'name', { name: 'sortOrder', width: '8em' } ]"
 	create-permission="organizationTypes.create"
 	update-permission="organizationTypes.update"
 	delete-permission="organizationTypes.delete"
@@ -57,6 +57,10 @@ KernTable(
 		| Name (Kürzel)
 	template(#name-body="{ item }")
 		| {{ item.name }} ({{ item.code }})
+	template(#sortOrder-header)
+		| Sortierung
+	template(#sortOrder-body="{ item }")
+		| {{ item.sortOrder }}
 OrganizationTypeEditor(
 	ref="editor"
 	@refresh="refresh"

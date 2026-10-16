@@ -4,9 +4,11 @@ interface OrganizationItem {
 		id: string
 		code: string
 		name: string
+		sortOrder: number
 	}
 	code: string
 	name: string
+	sortOrder: number
 }
 
 interface OrganizationTreeItem extends OrganizationItem {
@@ -34,6 +36,10 @@ export default defineEventHandler(async (_event) => {
 		with: {
 			organizationType: true,
 		},
+		orderBy: (organizationItems, { asc }) => [
+			asc(organizationItems.sortOrder),
+			asc(organizationItems.name),
+		],
 	}))
 		.map((item) => ({ ...item, children: [] }))
 

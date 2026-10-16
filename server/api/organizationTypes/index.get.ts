@@ -3,7 +3,12 @@ export default defineEventHandler(async (_event) => {
 
 	const database = useDatabase()
 
-	const organizationTypes = await database.query.organizationTypes.findMany()
+	const organizationTypes = await database.query.organizationTypes.findMany({
+		orderBy: (organizationTypes, { asc }) => [
+			asc(organizationTypes.sortOrder),
+			asc(organizationTypes.name),
+		],
+	})
 
 	return organizationTypes
 })

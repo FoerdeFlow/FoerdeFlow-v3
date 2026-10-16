@@ -10,6 +10,7 @@ const itemId = ref<string | null>(null)
 interface Model {
 	code: string
 	name: string
+	sortOrder: number
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -31,6 +32,7 @@ defineExpose({
 		openDialog(null, {
 			code: '',
 			name: '',
+			sortOrder: 0,
 		})
 	},
 	async edit(id: string) {
@@ -87,4 +89,5 @@ KernDialog(
 	template(v-if="model")
 		OrganizationTypeCodeInput(v-model="model.code")
 		OrganizationTypeNameInput(v-model="model.name")
+		OrganizationTypeSortOrderInput(v-model="model.sortOrder")
 </template>
