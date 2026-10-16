@@ -50,7 +50,7 @@ const props = defineProps<{
 
 @media (min-width: 48rem) {
 	.ff3-org {
-		--ff3-org-card-width: 14rem;
+		--ff3-org-card-width: 16rem;
 
 		display: flex;
 		flex-wrap: wrap;
