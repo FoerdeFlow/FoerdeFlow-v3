@@ -17,7 +17,7 @@ ul.ff3-org-list
 			v-if="item.id === props.highlight"
 			aria-current="page"
 		) {{ item.name }}
-		NuxtLink.kern-link(
+		NuxtLink.kern-link.kern-link--no-visited-state(
 			v-else
 			:to="{ name: 'organizationItems-organizationItem', params: { organizationItem: item.id } }"
 		) {{ item.name }}

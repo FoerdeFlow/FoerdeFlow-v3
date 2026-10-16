@@ -43,7 +43,7 @@ li.ff3-org__item(
 				v-if="current"
 				aria-current="page"
 			) {{ props.item.name }}
-			NuxtLink.ff3-org__name.kern-link(
+			NuxtLink.ff3-org__name.kern-link.kern-link--no-visited-state(
 				v-else
 				:to="{ name: 'organizationItems-organizationItem', params: { organizationItem: props.item.id } }"
 			) {{ props.item.name }}
