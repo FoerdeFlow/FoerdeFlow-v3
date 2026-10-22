@@ -1,6 +1,7 @@
 import { relations, sql } from 'drizzle-orm'
 import {
 	check,
+	pgEnum,
 	pgTable,
 	timestamp,
 	unique,
@@ -12,6 +13,19 @@ import {
 import { locations } from './location'
 import { organizationItems } from './organizationItem'
 import { persons } from './person'
+
+/**
+ * Ob ein Gegenstand herausgegeben werden darf.
+ *
+ * `pendingDisposal` markiert Stücke, die demnächst aus dem Inventar fliegen
+ * sollen. Sie werden wie `notLendable` nicht mehr verliehen, bleiben aber bis
+ * zur Aussonderung in der Liste stehen.
+ */
+export const inventoryItemLendabilities = pgEnum('inventory_item_lendabilities', [
+	'lendable',
+	'notLendable',
+	'pendingDisposal',
+])
 
 /**
  * Ein Gegenstand aus dem Inventar eines Gremiums.
@@ -29,6 +43,7 @@ export const inventoryItems = pgTable('inventory_items', {
 	description: varchar({ length: 4096 }),
 	// Der Lagerort aus dem Ortskatalog, solange der Gegenstand nicht verliehen ist.
 	location: uuid().references(() => locations.id),
+	lendability: inventoryItemLendabilities().notNull().default('lendable'),
 }, (table) => [
 	// Je Gremium eindeutig, nicht hochschulweit: zwei Gremien vergeben ihre
 	// Nummern unabhängig voneinander. Zeilen ohne Nummer stören sich nicht.

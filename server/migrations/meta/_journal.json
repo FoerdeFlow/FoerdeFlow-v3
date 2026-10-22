@@ -442,6 +442,13 @@
       "when": 1792180067218,
       "tag": "0062_membership_type_sort_order",
       "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1792663994916,
+      "tag": "0063_inventory_item_lendability",
+      "breakpoints": true
     }
   ]
 }

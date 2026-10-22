@@ -840,6 +840,7 @@
 			"name": "Gegenstand",
 			"description": "Beschreibung",
 			"location": "Lagerort",
+			"lendability": "Ausleihbarkeit",
 			"locationOpen": "Nicht erfasst",
 			"status": "Status",
 			"loans": "Ausleihen"
@@ -847,7 +848,9 @@
 		"status": {
 			"available": "Verfügbar",
 			"lent": "Verliehen",
-			"overdue": "Überfällig"
+			"overdue": "Überfällig",
+			"notLendable": "Nicht ausleihbar",
+			"pendingDisposal": "De-Inventarisierung vorgesehen"
 		},
 		"select": {
 			"placeholder": "- Bitte wählen -"
@@ -867,6 +870,10 @@
 			"location": {
 				"label": "Lagerort",
 				"hint": "Wo der Gegenstand steht, wenn er nicht verliehen ist."
+			},
+			"lendability": {
+				"label": "Ausleihbarkeit",
+				"hint": "Nur ausleihbare Gegenstände können herausgegeben werden. Eine laufende Ausleihe bleibt davon unberührt."
 			}
 		},
 		"history": {
@@ -895,6 +902,11 @@
 				"title": "Fehler beim Löschen",
 				"message": "Beim Löschen des Gegenstands ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
 			}
+		},
+		"lendability": {
+			"lendable": "Ausleihbar",
+			"notLendable": "Nicht ausleihbar",
+			"pendingDisposal": "Soll de-inventarisiert werden"
 		}
 	},
 	"inventoryLoan": {

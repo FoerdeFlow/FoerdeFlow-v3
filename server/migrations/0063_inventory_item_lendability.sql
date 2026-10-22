@@ -1,0 +1,2 @@
+CREATE TYPE "public"."inventory_item_lendabilities" AS ENUM('lendable', 'notLendable', 'pendingDisposal');--> statement-breakpoint
+ALTER TABLE "inventory_items" ADD COLUMN "lendability" "inventory_item_lendabilities" DEFAULT 'lendable' NOT NULL;

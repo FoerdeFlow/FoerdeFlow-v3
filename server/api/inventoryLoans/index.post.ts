@@ -1,5 +1,6 @@
 import type { EventContext } from '~~/server/types'
 
+import { eq } from 'drizzle-orm'
 import { createInsertSchema } from 'drizzle-zod'
 import z from 'zod'
 
@@ -23,9 +24,37 @@ export default defineEventHandler(async (event) => {
 
 	const database = useDatabase()
 
-	const organizationItem = await getInventoryItemScope(database, body.item)
+	const item = await database.query.inventoryItems.findFirst({
+		where: eq(inventoryItems.id, body.item),
+		columns: {
+			organizationItem: true,
+			lendability: true,
+		},
+	})
 
-	await checkPermission('inventoryLoans.create', { organizationItem })
+	if(!item) {
+		throw createError({
+			statusCode: 404,
+			statusMessage: 'Gegenstand nicht gefunden',
+			data: {
+				inventoryItemId: body.item,
+			},
+		})
+	}
+
+	await checkPermission('inventoryLoans.create', { organizationItem: item.organizationItem })
+
+	// Nur die Herausgabe ist gesperrt: wer einen verliehenen Gegenstand später
+	// als nicht ausleihbar markiert, nimmt die laufende Ausleihe nicht zurück.
+	if(item.lendability !== 'lendable') {
+		throw createError({
+			statusCode: 409,
+			statusMessage: 'Gegenstand ist nicht zur Ausleihe freigegeben',
+			data: {
+				inventoryItemId: body.item,
+			},
+		})
+	}
 
 	const context = event.context as EventContext
 

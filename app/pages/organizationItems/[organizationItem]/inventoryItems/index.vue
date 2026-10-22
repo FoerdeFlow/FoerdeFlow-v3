@@ -90,6 +90,10 @@ KernTable(
 		| {{ $t('inventoryItem.field.status') }}
 	template(#status-body="{ item }")
 		InventoryItemStatusBadge(:status="getItemStatus(item)")
+		//- Ein verliehener Gegenstand zeigt sonst nur die Ausleihe. Dass er
+		//- danach nicht wieder herausgehen soll, gehört trotzdem in die Liste.
+		span.ml-2(v-if="item.loans.length > 0 && item.lendability !== 'lendable'")
+			InventoryItemStatusBadge(:status="item.lendability")
 		template(
 			v-for="loan of item.loans"
 			:key="loan.id"

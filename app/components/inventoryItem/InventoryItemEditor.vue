@@ -20,6 +20,7 @@ interface Model {
 	name: string
 	description: string | null
 	location: Location
+	lendability: 'lendable' | 'notLendable' | 'pendingDisposal'
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -43,6 +44,7 @@ defineExpose({
 			name: '',
 			description: null,
 			location: null,
+			lendability: 'lendable',
 		})
 	},
 	async edit(id: string) {
@@ -52,6 +54,7 @@ defineExpose({
 			name: item.name,
 			description: item.description,
 			location: item.location,
+			lendability: item.lendability,
 		})
 	},
 })
@@ -76,6 +79,7 @@ async function save() {
 			name: model.value.name,
 			description: model.value.description,
 			location: model.value.location?.id ?? null,
+			lendability: model.value.lendability,
 		}
 		if(itemId.value) {
 			await $fetch(`/api/inventoryItems/${itemId.value}`, {
@@ -124,4 +128,5 @@ KernDialog(
 		InventoryItemNameInput(v-model="model.name")
 		InventoryItemDescriptionInput(v-model="model.description")
 		InventoryItemLocationInput(v-model="model.location")
+		InventoryItemLendabilityInput(v-model="model.lendability")
 </template>

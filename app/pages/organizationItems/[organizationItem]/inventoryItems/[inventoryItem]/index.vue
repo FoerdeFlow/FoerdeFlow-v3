@@ -16,6 +16,7 @@ const { data, refresh } = useFetch(() => `/api/inventoryItems/${route.params.inv
 		name: '',
 		description: null,
 		location: null,
+		lendability: 'lendable' as const,
 		organizationItem: null,
 		loans: [],
 	}),
@@ -48,6 +49,11 @@ const items = computed(() => [
 		value: data.value.location
 			? formatLocation(data.value.location)
 			: t('inventoryItem.field.locationOpen'),
+		person: null,
+	},
+	{
+		key: t('inventoryItem.field.lendability'),
+		value: t(`inventoryItem.lendability.${data.value.lendability}`),
 		person: null,
 	},
 	// Nur solange der Gegenstand verliehen ist, steht hier, bei wem er liegt.
@@ -159,7 +165,7 @@ section.mb-8(v-if="data.description")
 	KernText(:text="data.description")
 .kern-btn-wrapper
 	button.kern-btn.kern-btn--primary(
-		v-if="lendAllowed && !openLoan"
+		v-if="lendAllowed && !openLoan && data.lendability === 'lendable'"
 		@click="lend"
 	)
 		span.kern-icon.kern-icon--add(aria-hidden="true")
