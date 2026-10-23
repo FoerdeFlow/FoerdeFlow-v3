@@ -801,6 +801,23 @@
 				"message": "Beim Löschen der Veranstaltung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
 			}
 		},
+		"filter": {
+			"search": "Suche",
+			"searchPlaceholder": "Titel, Beschreibung, Art oder Ort",
+			"searchReset": "Suche zurücksetzen",
+			"allTypes": "Alle Arten",
+			"from": "Von",
+			"to": "Bis",
+			"reset": "Filter zurücksetzen"
+		},
+		"past": {
+			"summary": "Vergangene Veranstaltungen ({count})",
+			"caption": "Liste der vergangenen Veranstaltungen"
+		},
+		"badge": {
+			"today": "Heute",
+			"running": "Läuft"
+		},
 		"cancelled": {
 			"badge": "Abgesagt",
 			"alert": {

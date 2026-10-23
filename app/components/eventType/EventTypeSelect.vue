@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const props = defineProps<{
 	id: string
+	/** Makes the empty option selectable under this name, e.g. for a filter. */
+	emptyLabel?: string
 }>()
 
 const { data } = await useFetch('/api/eventTypes')
@@ -32,9 +34,9 @@ const selectModel = computed({
 		v-model="selectModel"
 	)
 		option(
-			disabled
+			:disabled="!props.emptyLabel"
 			value=""
-		) - Bitte wählen -
+		) {{ props.emptyLabel ?? '- Bitte wählen -' }}
 		option(
 			v-for="item of data ?? []"
 			:key="item.id"
