@@ -139,11 +139,7 @@ export async function pdfEncodePaymentOrder(entry: {
 		pos.y += valueHeight + 12
 	}
 
-	const logo = await useStorage('assets:server').getItemRaw('img/logo.png')
-	const logoProps = doc.getImageProperties(logo)
-	const logoHeight = 30
-	const logoWidth = logoProps.width / logoProps.height * logoHeight
-	doc.addImage(logo, 'PNG', docWidth - logoWidth - 20, pos.y - logoHeight / 2, logoWidth, logoHeight)
+	const logoWidth = await pdfDrawLogo(doc, options.organizationItem, pos.y)
 
 	doc.setFont('OpenSans', 'bold')
 	doc.setFontSize(24)

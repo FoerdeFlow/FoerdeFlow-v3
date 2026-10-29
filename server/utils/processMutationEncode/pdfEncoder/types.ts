@@ -18,4 +18,6 @@ export interface PdfSignatureOptions {
 export interface PdfEncoderOptions {
 	document?: boolean
 	signature?: PdfSignatureOptions
+	/** The organization item whose logo the document carries. */
+	organizationItem?: string | null
 }

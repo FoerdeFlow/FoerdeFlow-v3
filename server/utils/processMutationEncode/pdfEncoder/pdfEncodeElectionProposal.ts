@@ -1,5 +1,7 @@
 import { jsPDF } from 'jspdf'
 
+import type { PdfEncoderOptions } from './types'
+
 export async function pdfEncodeElectionProposal(entry: {
 	id?: string
 	election: string
@@ -13,7 +15,7 @@ export async function pdfEncodeElectionProposal(entry: {
 	council: string
 	course: string
 	applicationLetter: string
-}) {
+}, options: Pick<PdfEncoderOptions, 'organizationItem'> = {}) {
 	// eslint-disable-next-line new-cap
 	const doc = new jsPDF()
 	const docWidth = doc.internal.pageSize.getWidth()
@@ -21,11 +23,7 @@ export async function pdfEncodeElectionProposal(entry: {
 
 	let y = 20
 
-	const logo = await useStorage('assets:server').getItemRaw('img/logo.png')
-	const logoProps = doc.getImageProperties(logo)
-	const logoHeight = 30
-	const logoWidth = logoProps.width / logoProps.height * logoHeight
-	doc.addImage(logo, 'PNG', docWidth - logoWidth - 20, y - logoHeight / 2, logoWidth, logoHeight)
+	await pdfDrawLogo(doc, options.organizationItem, y)
 
 	doc.setFontSize(32)
 	doc.setFont('OpenSans', 'bold')

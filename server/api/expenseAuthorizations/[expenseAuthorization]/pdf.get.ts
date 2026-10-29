@@ -12,7 +12,10 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	const doc = await pdfEncodeExpenseAuthorization(result)
+	const doc = await pdfEncodeExpenseAuthorization(result, {
+		organizationItem: result.budgetPlanItem?.plan.budget.organizationItem ??
+			result.budget?.organizationItem.id,
+	})
 
 	const blob = doc.output('blob')
 	let filename = 'Einzelausgabe.pdf'

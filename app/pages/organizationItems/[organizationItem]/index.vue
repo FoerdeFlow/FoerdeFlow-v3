@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import type { OrganizationItemLogoEditor } from '#components'
 import type { KernCardNavItems, OrganizationChartNode } from '~/types'
 
 const route = useRoute('organizationItems-organizationItem')
+const authStore = useAuthStore()
 
-const { data } = useFetch(() => `/api/organizationItems/${route.params.organizationItem}`, {
+const logoEditor = useTemplateRef<typeof OrganizationItemLogoEditor>('logo-editor')
+
+const { data, refresh } = useFetch(() => `/api/organizationItems/${route.params.organizationItem}`, {
 	default: () => ({
 		code: '',
 		name: '',
@@ -11,10 +15,21 @@ const { data } = useFetch(() => `/api/organizationItems/${route.params.organizat
 		organizationType: { name: '' },
 		dissolvedAt: null,
 		inactive: false,
+		hasLogo: false,
 		parent: null,
 		children: [],
 	}),
 })
+
+/* Hängt an der Adresse, damit der Browser nach einem Wechsel nicht das alte Bild zeigt. */
+const logoVersion = ref(0)
+const logoUrl = computed(() =>
+	`/api/organizationItems/${route.params.organizationItem}/logo?v=${logoVersion.value}`)
+
+async function refreshLogo() {
+	logoVersion.value++
+	await refresh()
+}
 
 /*
  * Ausschnitt des Organigramms: die übergeordnete Einheit, darunter diese und
@@ -153,8 +168,37 @@ section.mb-8(v-if="data.parent || data.children.length > 0")
 		:highlight="route.params.organizationItem"
 		horizontal
 	)
+section.mb-8
+	h2.kern-heading-medium Logo
+	img.ff3-organization-item__logo(
+		v-if="data.hasLogo"
+		:src="logoUrl"
+		:alt="`Logo von ${data.name}`"
+	)
+	p.kern-body(v-else) Kein eigenes Logo – auf PDF-Dokumenten erscheint das Logo der nächsten übergeordneten Einheit.
+	button.kern-btn.kern-btn--secondary(
+		v-if="authStore.hasPermission('organizationItems.update').value"
+		@click="logoEditor?.edit(route.params.organizationItem, data.hasLogo)"
+	)
+		span.kern-icon.kern-icon--drive-folder-upload(aria-hidden="true")
+		span.kern-label Logo ändern
+	OrganizationItemLogoEditor(
+		ref="logo-editor"
+		@refresh="refreshLogo"
+	)
 KernCardNav(
 	:items="subPages"
 	:scope="{ organizationItem: route.params.organizationItem }"
 )
 </template>
+
+<style scoped>
+.ff3-organization-item__logo {
+	display: block;
+	max-height: 6rem;
+	max-width: 100%;
+	margin-bottom: 1rem;
+	padding: 0.5rem;
+	background: #fff;
+}
+</style>

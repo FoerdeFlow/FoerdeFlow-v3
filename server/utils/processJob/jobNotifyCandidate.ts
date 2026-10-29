@@ -74,6 +74,8 @@ export async function jobNotifyCandidate(
 		council: formatCouncil(data.course?.council ?? null),
 		course: formatCourse(data.course ?? null),
 		applicationLetter: data.applicationLetter ?? '',
+	}, {
+		organizationItem: data.electionCommittee?.committee.id,
 	})
 	const documentBlob = document.output('arraybuffer')
 

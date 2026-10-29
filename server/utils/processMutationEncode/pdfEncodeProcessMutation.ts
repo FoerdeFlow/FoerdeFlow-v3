@@ -7,7 +7,8 @@ import type { PdfEncoderOptions } from './pdfEncoder/types'
  *
  * @param table - The table of the mutation, e.g. `expenseAuthorizations`
  * @param data - The mutation data expanded by {@link encodeProcessData}
- * @param options - Layout options passed through to the encoder
+ * @param options - Layout options passed through to the encoder. Without an
+ * organization item, the one the data belongs to decides the logo.
  * @returns The rendered document
  */
 export async function pdfEncodeProcessMutation(
@@ -16,6 +17,11 @@ export async function pdfEncodeProcessMutation(
 	data: any,
 	options: PdfEncoderOptions = {},
 ): Promise<jsPDF> {
+	options = {
+		...options,
+		organizationItem: options.organizationItem ?? pdfProcessMutationOrganizationItem(table, data),
+	}
+
 	switch(table) {
 		case 'budgetPlans':
 			return await pdfEncodeBudgetPlan(data, options)

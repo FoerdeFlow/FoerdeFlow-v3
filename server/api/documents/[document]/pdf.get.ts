@@ -47,11 +47,7 @@ export default defineEventHandler(async (event) => {
 	// eslint-disable-next-line new-cap
 	const doc = new jsPDF()
 	const docWidth = doc.internal.pageSize.getWidth()
-	const logo = await useStorage('assets:server').getItemRaw('img/logo.png')
-	const logoProps = doc.getImageProperties(logo)
-	const logoHeight = 30
-	const logoWidth = logoProps.width / logoProps.height * logoHeight
-	doc.addImage(logo, 'PNG', docWidth - logoWidth - 20, 20 - logoHeight / 2, logoWidth, logoHeight)
+	await pdfDrawLogo(doc, document.organizationItem.id, 20)
 
 	doc.setFont('OpenSans', 'bold')
 	doc.setFontSize(14)

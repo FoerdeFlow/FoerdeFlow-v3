@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+import { unlink } from 'node:fs/promises'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -23,4 +24,7 @@ export default defineEventHandler(async (event) => {
 			},
 		})
 	}
+
+	await unlink(organizationItemLogoPath(params.organizationItem))
+		.catch(() => { /* ignore */ })
 })

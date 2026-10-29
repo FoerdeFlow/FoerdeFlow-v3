@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+import { existsSync } from 'node:fs'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -65,6 +66,7 @@ export default defineEventHandler(async (event) => {
 	return {
 		...organizationItem,
 		inactive,
+		hasLogo: existsSync(organizationItemLogoPath(organizationItem.id)),
 		/*
 		 * Spalte und Relation heißen beide `parent`; Drizzle typisiert das Feld
 		 * deshalb als `string & {…}`, das sich nicht ausbreiten lässt.

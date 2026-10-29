@@ -12,7 +12,9 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	const doc = await pdfEncodeBudgetPlan(result)
+	const doc = await pdfEncodeBudgetPlan(result, {
+		organizationItem: result.budget.organizationItem,
+	})
 
 	const blob = doc.output('blob')
 	setResponseHeader(

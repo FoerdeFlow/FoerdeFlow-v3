@@ -69,6 +69,8 @@ export default defineEventHandler(async (event) => {
 		council: formatCouncil(candidate.candidate.course?.council ?? null),
 		course: formatCourse(candidate.candidate.course),
 		applicationLetter: candidate.applicationLetter ?? '',
+	}, {
+		organizationItem: electionCommittee.committee.id,
 	})
 
 	const blob = doc.output('blob')

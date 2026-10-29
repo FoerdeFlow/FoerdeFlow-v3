@@ -247,6 +247,7 @@ const encoders = {
 			columns: {
 				code: true,
 				name: true,
+				organizationItem: true,
 			},
 		}) ?? null,
 	}),
@@ -266,6 +267,7 @@ const encoders = {
 			columns: {
 				code: true,
 				name: true,
+				organizationItem: true,
 			},
 		}) ?? null
 
@@ -295,6 +297,7 @@ const encoders = {
 			columns: {
 				code: true,
 				name: true,
+				organizationItem: true,
 			},
 		}) ?? null,
 	}),
@@ -308,6 +311,7 @@ const encoders = {
 		organizationItem: await tx.query.organizationItems.findFirst({
 			where: eq(organizationItems.id, model.organizationItem),
 			columns: {
+				id: true,
 				code: true,
 				name: true,
 			},

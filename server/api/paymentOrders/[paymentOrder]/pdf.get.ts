@@ -12,7 +12,10 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	const doc = await pdfEncodePaymentOrder(result)
+	const doc = await pdfEncodePaymentOrder(result, {
+		organizationItem: result.budgetPlanItem?.plan.budget.organizationItem ??
+			result.budget?.organizationItem.id,
+	})
 
 	const blob = doc.output('blob')
 	let filename = 'Zahlungsanweisung.pdf'

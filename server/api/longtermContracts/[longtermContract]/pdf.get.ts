@@ -12,7 +12,9 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
-	const doc = await pdfEncodeLongtermContract(result)
+	const doc = await pdfEncodeLongtermContract(result, {
+		organizationItem: result.budget.organizationItem,
+	})
 
 	const blob = doc.output('blob')
 	const filename = [
