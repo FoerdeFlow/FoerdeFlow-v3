@@ -13,8 +13,8 @@ interface AppliedItem {
 /**
  * Ensures that every title a change drops can be dropped at all.
  *
- * Expense authorizations and payment orders point at the title they are paid
- * from, and those references have no cascade: dropping such a title would fail
+ * Expense authorizations, payment orders and assigned bank transactions point
+ * at the title they are paid from, and those references have no cascade: dropping such a title would fail
  * on the foreign key alone, which says nothing about what has to happen now.
  * They are therefore looked up beforehand, so that the applicant is told which
  * title is still in use.
@@ -35,7 +35,7 @@ export async function checkBudgetPlanItemsDroppable(
 	if(dropped.length === 0) return dropped
 
 	const droppedIds = dropped.map((item) => item.id)
-	const [ authorizations, orders ] = await Promise.all([
+	const [ authorizations, orders, assignments ] = await Promise.all([
 		tx.query.expenseAuthorizations.findMany({
 			where: inArray(expenseAuthorizations.budgetPlanItem, droppedIds),
 			columns: {
@@ -50,9 +50,16 @@ export async function checkBudgetPlanItemsDroppable(
 				budgetPlanItem: true,
 			},
 		}),
+		tx.query.bankTransactionAssignments.findMany({
+			where: inArray(bankTransactionAssignments.budgetPlanItem, droppedIds),
+			columns: {
+				transaction: true,
+				budgetPlanItem: true,
+			},
+		}),
 	])
 
-	const blocked = new Set([ ...authorizations, ...orders ]
+	const blocked = new Set([ ...authorizations, ...orders, ...assignments ]
 		.flatMap((item) => item.budgetPlanItem ? [ item.budgetPlanItem ] : []))
 	if(blocked.size === 0) return dropped
 
@@ -64,11 +71,13 @@ export async function checkBudgetPlanItemsDroppable(
 	throw createError({
 		statusCode: 409,
 		message: `Der Haushaltstitel ${titles} kann nicht gestrichen werden, weil er noch von ` +
-			'einer Ausgabeermächtigung oder einer Zahlungsanweisung verwendet wird',
+			'einer Ausgabeermächtigung, einer Zahlungsanweisung oder einer zugeordneten Zahlung ' +
+			'verwendet wird',
 		data: {
 			budgetPlanItemIds: [ ...blocked ],
 			expenseAuthorizationIds: authorizations.map((item) => item.id),
 			paymentOrderIds: orders.map((item) => item.id),
+			bankTransactionIds: assignments.map((item) => item.transaction),
 		},
 	})
 }

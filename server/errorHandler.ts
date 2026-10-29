@@ -13,6 +13,8 @@ const errorsByCode: Record<string, { statusCode: number, statusMessage: string }
 // Fachliche Meldungen für einzelne Constraints, die vor der allgemeinen Meldung des Codes gehen.
 const statusMessagesByConstraint: Record<string, string> = {
 	session_number_unique: 'Dieses Gremium hat in dieser Legislatur bereits eine Sitzung mit dieser Nummer',
+	bank_account_iban_unique: 'Für diese IBAN ist bereits ein Bankkonto angelegt',
+	bank_statement_unique: 'Dieser Kontoauszug wurde bereits hochgeladen',
 }
 
 interface DatabaseError {
