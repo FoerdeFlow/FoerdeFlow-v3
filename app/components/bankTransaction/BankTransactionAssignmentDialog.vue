@@ -42,6 +42,12 @@ const transaction = ref<Transaction | null>(null)
 const initialRows = ref<Row[]>([])
 const rows = ref<Row[]>([])
 
+/*
+ * Meist gehört eine Zahlung vollständig zu einem Ziel. Teilbeträge erscheinen
+ * deshalb erst auf Wunsch, oder wenn die Zahlung schon aufgeteilt ist.
+ */
+const split = ref(false)
+
 async function loadTargets() {
 	return await $fetch(`/api/bankAccounts/${props.bankAccount}/assignmentTargets`)
 }
@@ -61,6 +67,8 @@ defineExpose({
 			note: assignment.note ?? '',
 		}))
 		rows.value = structuredClone(toRaw(initialRows.value))
+		split.value = rows.value.length > 1 ||
+			(rows.value.length === 1 && rows.value[0]?.amount !== item.amount)
 		if(rows.value.length === 0) addRow()
 		dialog.value.show()
 	},
@@ -70,7 +78,25 @@ const emit = defineEmits<{
 	refresh: []
 }>()
 
-const modified = computed(() => JSON.stringify(initialRows.value) !== JSON.stringify(rows.value))
+const hasTarget = (row: Row) => Boolean(row.type === 'planned' ? row.budgetPlanItem : row.budget)
+
+const toAssignment = (row: Row, amount: number | null) => ({
+	type: row.type,
+	budgetPlanItem: row.type === 'planned' ? row.budgetPlanItem : null,
+	budget: row.type === 'reserve' ? row.budget : null,
+	paymentOrder: row.paymentOrder,
+	amount: amount ?? 0,
+	note: row.note.trim() || null,
+})
+
+// Ohne Aufteilung trägt das eine Ziel den vollen Betrag. Bleibt es leer, wird
+// die bisherige Zuordnung entfernt.
+const assignments = computed(() => split.value
+	? rows.value.map((row) => toAssignment(row, row.amount))
+	: rows.value.filter(hasTarget).slice(0, 1).map((row) => toAssignment(row, transaction.value?.amount ?? 0)))
+
+const modified = computed(() => JSON.stringify(initialRows.value.map((row) => toAssignment(row, row.amount))) !==
+	JSON.stringify(assignments.value))
 
 const remaining = computed(() => currencySum(
 	transaction.value?.amount ?? 0,
@@ -118,6 +144,24 @@ function removeRow(index: number) {
 	rows.value.splice(index, 1)
 }
 
+function startSplit() {
+	const [ first ] = rows.value
+	if(first) first.amount = transaction.value?.amount ?? null
+	split.value = true
+}
+
+function clearAssignment() {
+	rows.value = []
+	addRow()
+}
+
+// Das erste Ziel bleibt erhalten und übernimmt wieder den vollen Betrag.
+function endSplit() {
+	rows.value.splice(1)
+	if(rows.value.length === 0) addRow()
+	split.value = false
+}
+
 // Eine Zahlungsanweisung legt fest, worauf gebucht wird.
 function onPaymentOrderChange(row: Row) {
 	const order = paymentOrderOptions.value.find((item) => item.id === row.paymentOrder)
@@ -142,8 +186,9 @@ function onTypeChange(row: Row) {
 	onTargetChange(row)
 }
 
-const valid = computed(() => remaining.value >= 0 && rows.value.every((row) =>
-	(row.amount ?? 0) > 0 && (row.type === 'planned' ? row.budgetPlanItem : row.budget)))
+const valid = computed(() => split.value
+	? remaining.value >= 0 && rows.value.every((row) => (row.amount ?? 0) > 0 && hasTarget(row))
+	: assignments.value.length > 0 || initialRows.value.length > 0)
 
 function cancel() {
 	if(!dialog.value) return
@@ -156,14 +201,7 @@ async function save() {
 		await $fetch(`/api/bankTransactions/${transaction.value.id}/assignments`, {
 			method: 'PUT',
 			body: {
-				assignments: rows.value.map((row) => ({
-					type: row.type,
-					budgetPlanItem: row.type === 'planned' ? row.budgetPlanItem : null,
-					budget: row.type === 'reserve' ? row.budget : null,
-					paymentOrder: row.paymentOrder,
-					amount: row.amount ?? 0,
-					note: row.note.trim() || null,
-				})),
+				assignments: assignments.value,
 			},
 		})
 		dialog.value.hide()
@@ -206,7 +244,8 @@ KernDialog(
 			v-for="(row, index) of rows"
 			:key="index"
 		)
-			legend.kern-label Teilbetrag {{ index + 1 }}
+			legend.kern-label
+				| {{ split ? $t('bankTransaction.assign.part', { number: index + 1 }) : $t('bankTransaction.assign.target') }}
 			.kern-fieldset__body
 				.kern-form-input
 					label.kern-label(:for="`${id}-${index}-type`") {{ $t('bankTransaction.assign.type') }}
@@ -275,6 +314,7 @@ KernDialog(
 								:value="order.id"
 							) {{ order.title }} ({{ formatCurrency(order.amount) }})
 				KernCurrencyInput(
+					v-if="split"
 					v-model="row.amount"
 					:label="$t('bankTransaction.assign.amount')"
 				)
@@ -290,26 +330,55 @@ KernDialog(
 						maxlength="256"
 					)
 				button.kern-btn.kern-btn--tertiary.self-start(
+					v-if="split"
 					type="button"
 					@click="removeRow(index)"
 				)
 					span.kern-icon.kern-icon--delete(aria-hidden="true")
 					span.kern-label {{ $t('bankTransaction.assign.remove') }}
-		p.kern-body.mb-4(v-if="remaining >= 0")
-			| {{ $t('bankTransaction.assign.remaining', { amount: formatCurrency(remaining, 'amount') }) }}
-		p.kern-error.mb-4(
-			v-else
-			role="alert"
-		)
-			span.kern-icon.kern-icon--danger(aria-hidden="true")
-			span.kern-body {{ $t('bankTransaction.assign.exceeded', { amount: formatCurrency(-remaining) }) }}
-		button.kern-btn.kern-btn--secondary(
-			v-if="hasTargets"
-			type="button"
-			@click="addRow()"
-		)
-			span.kern-icon.kern-icon--add(aria-hidden="true")
-			span.kern-label {{ $t('bankTransaction.assign.add') }}
+		template(v-if="split")
+			p.kern-body.mb-4(v-if="remaining >= 0")
+				| {{ $t('bankTransaction.assign.remaining', { amount: formatCurrency(remaining, 'amount') }) }}
+			p.kern-error.mb-4(
+				v-else
+				role="alert"
+			)
+				span.kern-icon.kern-icon--danger(aria-hidden="true")
+				span.kern-body {{ $t('bankTransaction.assign.exceeded', { amount: formatCurrency(-remaining) }) }}
+			.flex.flex-wrap.gap-2
+				button.kern-btn.kern-btn--secondary(
+					v-if="hasTargets"
+					type="button"
+					@click="addRow()"
+				)
+					span.kern-icon.kern-icon--add(aria-hidden="true")
+					span.kern-label {{ $t('bankTransaction.assign.add') }}
+				button.kern-btn.kern-btn--tertiary(
+					v-if="rows.length <= 1"
+					type="button"
+					@click="endSplit()"
+				)
+					span.kern-icon.kern-icon--close(aria-hidden="true")
+					span.kern-label {{ $t('bankTransaction.assign.unsplit') }}
+		.flex.flex-wrap.gap-2(v-else-if="hasTargets")
+			button.kern-btn.kern-btn--tertiary(
+				type="button"
+				:aria-describedby="`${id}-split-hint`"
+				@click="startSplit()"
+			)
+				span.kern-icon.kern-icon--add(aria-hidden="true")
+				span.kern-label {{ $t('bankTransaction.assign.split') }}
+			button.kern-btn.kern-btn--tertiary(
+				v-if="assignments.length > 0"
+				type="button"
+				@click="clearAssignment()"
+			)
+				span.kern-icon.kern-icon--delete(aria-hidden="true")
+				span.kern-label {{ $t('bankTransaction.assign.clear') }}
+		p.kern-hint(
+			v-if="!split && hasTargets"
+			:id="`${id}-split-hint`"
+		) {{ $t('bankTransaction.assign.splitHint') }}
 </template>
 
 <style scoped>
