@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const bankTransactionAssignmentSchema = z.strictObject({
-	type: z.enum([ 'planned', 'reserve' ]).nullish(),
+	type: z.enum([ 'planned', 'reserve', 'transfer' ]).nullish(),
 	budgetPlanItem: idSchema.nullish(),
 	budget: idSchema.nullish(),
 	paymentOrder: idSchema.nullish(),

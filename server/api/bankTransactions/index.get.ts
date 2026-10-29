@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, lte } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, lte, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -72,6 +72,14 @@ export default defineEventHandler(async (event) => {
 		columns: {
 			importKey: false,
 		},
+		// Lets the assignment suggest a transfer, without telling which account,
+		// as it may belong to another organization item. The subquery is written
+		// out, because Drizzle points every column in here to the outer table.
+		extras: (table) => ({
+			counterpartyIsOwnAccount: sql<boolean>`exists (
+				select 1 from bank_accounts own where own.iban = ${table.counterpartyIban}
+			)`.as('counterparty_is_own_account'),
+		}),
 		orderBy: [
 			desc(bankTransactions.bookingDate),
 			asc(bankTransactions.id),

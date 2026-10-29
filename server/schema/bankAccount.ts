@@ -120,10 +120,15 @@ export const bankTransactionsRelations = relations(bankTransactions, ({ one, man
 export const bankTransactionAssignmentTypes = pgEnum('bank_transaction_assignment_types', [
 	'planned',
 	'reserve',
+	// Money moved between accounts of the student body, such as the remainder
+	// of a budget put on the reserve account and paid back from there. It is
+	// neither revenue nor expense of a budget.
+	'transfer',
 ])
 
-// A part of a transaction booked on a budget plan item or on the reserve of a
-// budget. The parts of a transaction never exceed its amount.
+// A part of a transaction booked on a budget plan item, on the reserve of a
+// budget or marked as a transfer between own accounts. The parts of a
+// transaction never exceed its amount.
 export const bankTransactionAssignments = pgTable('bank_transaction_assignments', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
 	transaction: uuid().notNull(),
@@ -146,6 +151,8 @@ export const bankTransactionAssignments = pgTable('bank_transaction_assignments'
 		columns: [ table.budgetPlanItem ],
 		foreignColumns: [ budgetPlanItems.id ],
 	}),
+	// The transfer is compared as text: the migration adding the value runs in
+	// one transaction, and within it Postgres refuses to use a new enum value.
 	check(
 		'valid_type',
 		sql`(
@@ -156,6 +163,11 @@ export const bankTransactionAssignments = pgTable('bank_transaction_assignments'
 			${table.type} = 'reserve' AND
 			${table.budget} IS NOT NULL AND
 			${table.budgetPlanItem} IS NULL
+		) OR (
+			${table.type}::text = 'transfer' AND
+			${table.budget} IS NULL AND
+			${table.budgetPlanItem} IS NULL AND
+			${table.paymentOrder} IS NULL
 		)`,
 	),
 	check(

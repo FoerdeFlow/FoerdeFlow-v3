@@ -75,6 +75,9 @@ function resetFilter() {
 }
 
 function describeAssignment(assignment: (typeof transactions.value)[number]['assignments'][number]) {
+	if(assignment.type === 'transfer') {
+		return t('bankTransaction.transfer')
+	}
 	if(!assignment.budgetPlanItem) {
 		return t('bankTransaction.reserve', { budget: formatBudget(assignment.budget) })
 	}

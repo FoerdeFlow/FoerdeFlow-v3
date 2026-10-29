@@ -6,7 +6,7 @@ Ablauf:
 
 1. **Konto anlegen**: Gremium → Bankkonten → Erstellen, mit Bezeichnung und IBAN. Ein Konto gehört genau einer OE, und jede IBAN gibt es nur einmal.
 2. **Auszug hochladen**: Auf der Seite des Kontos „Kontoauszug hochladen“. Das Konto wird an der IBAN im Auszug erkannt. Eine Datei darf Auszüge mehrerer Konten enthalten, dann braucht es die Berechtigung für jedes davon.
-3. **Zuordnen**: Je Zahlung ein oder mehrere Teilbeträge auf Titel oder Rücklage. Ziele sind nur Haushalte der OE, der das Konto gehört.
+3. **Zuordnen**: Je Zahlung ein Ziel, auf das der volle Betrag gebucht wird: ein Haushaltstitel, die Rücklage eines Haushalts oder eine Umbuchung zwischen eigenen Konten. Ziele sind nur Haushalte der OE, der das Konto gehört. Nur bei Bedarf lässt sich eine Zahlung in Teilbeträge auf mehrere Ziele aufteilen.
 
 ## Berechtigungen
 
@@ -39,6 +39,7 @@ Die Oberfläche erreicht das Konto nur mit `bankTransactions.read`. Wer hochlade
 - Eingänge zählen als Einnahmen, Ausgänge als Ausgaben des Titels. Eine Erstattung auf einen Ausgabentitel erscheint also als Einnahme dieses Titels und wird nicht mit den Ausgaben verrechnet.
 - Nur ein Ausgang kann eine Zahlungsanweisung ausführen. Der Teilbetrag bucht dann auf deren Titel bzw. Rücklage.
 - Ein Titel mit zugeordneten Zahlungen lässt sich nicht aus dem Haushaltsplan streichen.
+- **Umbuchungen zwischen eigenen Konten** sind weder Einnahme noch Ausgabe eines Haushalts. Das betrifft etwa die Umbuchung der Haushaltsreste auf das Rücklagenkonto am Ende der Periode und die Rückbuchung vom Rücklagenkonto auf das Hauptkonto vor einer Ausschüttung. Sie gelten als zugeordnet, erscheinen aber nicht in der Ist-Übersicht. Die anschließende Auszahlung vom Hauptkonto wird wie bisher der Rücklage des Haushalts zugeordnet. Ist die Gegen-IBAN ein in FördeFlow angelegtes Konto, schlägt der Dialog die Umbuchung vor.
 - Die Rücklage gehört zu keinem Plan. Die Ist-Übersicht zeigt deshalb die Rücklagenbuchungen, deren Buchungstag im Planzeitraum liegt.
 
 ## Bewusst nicht abgebildet

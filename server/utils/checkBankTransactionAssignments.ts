@@ -11,7 +11,8 @@ function refuse(statusMessage: string): never {
  * Checks the parts a transaction is to be assigned to and completes them.
  *
  * The parts must not add up to more than the transaction, and they may only
- * book on budgets of the organization item owning the account. A part
+ * book on budgets of the organization item owning the account. A transfer
+ * between own accounts books on no budget at all. A part
  * referring to a payment order books on the budget plan item or the reserve
  * the order is paid out of; a part naming a different one is refused.
  *
@@ -37,6 +38,22 @@ export async function checkBankTransactionAssignments(
 	const result = []
 
 	for(const assignment of assignments) {
+		if(assignment.type === 'transfer') {
+			if(assignment.budgetPlanItem || assignment.budget || assignment.paymentOrder) {
+				refuse('Eine Umbuchung zwischen eigenen Konten bucht auf keinen Haushalt')
+			}
+
+			result.push({
+				type: 'transfer' as const,
+				budgetPlanItem: null,
+				budget: null,
+				paymentOrder: null,
+				amount: assignment.amount,
+				note: assignment.note?.length ? assignment.note : null,
+			})
+			continue
+		}
+
 		let { type, budgetPlanItem, budget } = assignment
 
 		if(assignment.paymentOrder) {

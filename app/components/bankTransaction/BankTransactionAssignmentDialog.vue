@@ -17,8 +17,9 @@ interface Transaction {
 	counterpartyName: string | null
 	purpose: string | null
 	additionalInfo: string | null
+	counterpartyIsOwnAccount: boolean
 	assignments: {
-		type: 'planned' | 'reserve'
+		type: AssignmentType
 		budgetPlanItem: { id: string } | null
 		budget: { id: string } | null
 		paymentOrder: { id: string } | null
@@ -27,8 +28,10 @@ interface Transaction {
 	}[]
 }
 
+type AssignmentType = 'planned' | 'reserve' | 'transfer'
+
 interface Row {
-	type: 'planned' | 'reserve'
+	type: AssignmentType
 	budgetPlanItem: string | null
 	budget: string | null
 	paymentOrder: string | null
@@ -78,13 +81,14 @@ const emit = defineEmits<{
 	refresh: []
 }>()
 
-const hasTarget = (row: Row) => Boolean(row.type === 'planned' ? row.budgetPlanItem : row.budget)
+const hasTarget = (row: Row) => row.type === 'transfer' ||
+	Boolean(row.type === 'planned' ? row.budgetPlanItem : row.budget)
 
 const toAssignment = (row: Row, amount: number | null) => ({
 	type: row.type,
 	budgetPlanItem: row.type === 'planned' ? row.budgetPlanItem : null,
 	budget: row.type === 'reserve' ? row.budget : null,
-	paymentOrder: row.paymentOrder,
+	paymentOrder: row.type === 'transfer' ? null : row.paymentOrder,
 	amount: amount ?? 0,
 	note: row.note.trim() || null,
 })
@@ -129,9 +133,12 @@ const paymentOrderOptions = computed(() => targets.value?.paymentOrders ?? [])
 
 const hasTargets = computed(() => budgetOptions.value.length > 0)
 
+// Geht das Geld an ein eigenes Konto oder kommt es von dort, ist es meist eine
+// Umbuchung, etwa auf das Rücklagenkonto.
 function addRow() {
+	const transfer = rows.value.length === 0 && transaction.value?.counterpartyIsOwnAccount
 	rows.value.push({
-		type: 'planned',
+		type: transfer ? 'transfer' : 'planned',
 		budgetPlanItem: null,
 		budget: null,
 		paymentOrder: null,
@@ -240,6 +247,7 @@ KernDialog(
 			dt.kern-label {{ $t('bankTransaction.field.amount') }}
 			dd.kern-body {{ formatCurrency(getSignedAmount(transaction), 'amount') }}
 		p.kern-body(v-if="!hasTargets") {{ $t('bankTransaction.assign.noTargets') }}
+		p.kern-hint.mb-4(v-if="transaction.counterpartyIsOwnAccount") {{ $t('bankTransaction.assign.ownAccount') }}
 		fieldset.kern-fieldset.ff3-assignment(
 			v-for="(row, index) of rows"
 			:key="index"
@@ -257,6 +265,7 @@ KernDialog(
 						)
 							option(value="planned") {{ $t('bankTransaction.assign.typePlanned') }}
 							option(value="reserve") {{ $t('bankTransaction.assign.typeReserve') }}
+							option(value="transfer") {{ $t('bankTransaction.assign.typeTransfer') }}
 				.kern-form-input(v-if="row.type === 'planned'")
 					label.kern-label(:for="`${id}-${index}-item`") {{ $t('bankTransaction.assign.budgetPlanItem') }}
 					.kern-form-input__select-wrapper
@@ -279,7 +288,7 @@ KernDialog(
 									:key="item.id"
 									:value="item.id"
 								) {{ formatBudgetPlanItem(item) }}
-				.kern-form-input(v-else)
+				.kern-form-input(v-else-if="row.type === 'reserve'")
 					label.kern-label(:for="`${id}-${index}-budget`") {{ $t('bankTransaction.assign.budget') }}
 					.kern-form-input__select-wrapper
 						select.kern-form-input__select(
@@ -296,7 +305,7 @@ KernDialog(
 								:key="budget.id"
 								:value="budget.id"
 							) {{ formatBudget(budget) }}
-				.kern-form-input(v-if="transaction.direction === 'debit'")
+				.kern-form-input(v-if="transaction.direction === 'debit' && row.type !== 'transfer'")
 					label.kern-label(:for="`${id}-${index}-order`")
 						| {{ $t('bankTransaction.assign.paymentOrder') }}
 						|
@@ -347,7 +356,6 @@ KernDialog(
 				span.kern-body {{ $t('bankTransaction.assign.exceeded', { amount: formatCurrency(-remaining) }) }}
 			.flex.flex-wrap.gap-2
 				button.kern-btn.kern-btn--secondary(
-					v-if="hasTargets"
 					type="button"
 					@click="addRow()"
 				)
@@ -360,7 +368,7 @@ KernDialog(
 				)
 					span.kern-icon.kern-icon--close(aria-hidden="true")
 					span.kern-label {{ $t('bankTransaction.assign.unsplit') }}
-		.flex.flex-wrap.gap-2(v-else-if="hasTargets")
+		.flex.flex-wrap.gap-2(v-else)
 			button.kern-btn.kern-btn--tertiary(
 				type="button"
 				:aria-describedby="`${id}-split-hint`"
@@ -376,7 +384,7 @@ KernDialog(
 				span.kern-icon.kern-icon--delete(aria-hidden="true")
 				span.kern-label {{ $t('bankTransaction.assign.clear') }}
 		p.kern-hint(
-			v-if="!split && hasTargets"
+			v-if="!split"
 			:id="`${id}-split-hint`"
 		) {{ $t('bankTransaction.assign.splitHint') }}
 </template>

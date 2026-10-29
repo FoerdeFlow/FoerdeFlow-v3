@@ -1200,6 +1200,7 @@
 		},
 		"reversal": "Storno",
 		"reserve": "Rücklage {budget}",
+		"transfer": "Umbuchung zwischen eigenen Konten",
 		"assign": {
 			"button": "Zuordnen",
 			"title": "Zahlung zuordnen",
@@ -1216,6 +1217,8 @@
 			"type": "Buchen auf",
 			"typePlanned": "Haushaltstitel",
 			"typeReserve": "Rücklage",
+			"typeTransfer": "Umbuchung zwischen eigenen Konten",
+			"ownAccount": "Die Gegenseite ist ein eigenes Konto. Vorgeschlagen ist deshalb eine Umbuchung, etwa auf das Rücklagenkonto oder von dort zurück.",
 			"budgetPlanItem": "Haushaltstitel",
 			"budget": "Haushalt",
 			"paymentOrder": "Zahlungsanweisung",

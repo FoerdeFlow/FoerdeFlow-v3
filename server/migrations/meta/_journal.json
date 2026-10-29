@@ -456,6 +456,13 @@
       "when": 1793283124755,
       "tag": "0064_bank_accounts",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1793303329086,
+      "tag": "0065_bank_transfer_assignments",
+      "breakpoints": true
     }
   ]
 }
