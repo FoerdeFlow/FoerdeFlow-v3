@@ -65,7 +65,10 @@
 			"vehicleDrivers": "Fahrberechtigungen",
 			"settings": "Einstellungen",
 			"inventoryItems": "Inventar",
-			"inventoryLoans": "Ausleihen"
+			"inventoryLoans": "Ausleihen",
+			"bankAccounts": "Bankkonten",
+			"bankTransactions": "Zahlungen",
+			"budgetPlanActuals": "Ist-Übersicht der Haushaltspläne"
 		}
 	},
 	"processes": {

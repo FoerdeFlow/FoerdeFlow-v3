@@ -660,6 +660,60 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'bankAccounts.read',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'bankAccounts.create',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'bankAccounts.update',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
+		id: 'bankAccounts.delete',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	// Zahlungen der Konten einer OE samt ihrer Zuordnungen und der
+	// importierten Kontoauszüge lesen.
+	{
+		id: 'bankTransactions.read',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	// Kontoauszüge im Format camt.053 hochladen.
+	{
+		id: 'bankTransactions.create',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	// Zahlungen Haushaltstiteln oder der Rücklage eines Haushalts derselben OE
+	// zuordnen und Zuordnungen ändern.
+	{
+		id: 'bankTransactions.update',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	// Einen importierten Kontoauszug zurücknehmen, solange keine seiner
+	// Zahlungen zugeordnet ist.
+	{
+		id: 'bankTransactions.delete',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	// Die Summen je Haushaltstitel lesen (Soll, bewilligt, angeordnet, Ist, Rest),
+	// ohne die einzelnen Zahlungen zu sehen.
+	{
+		id: 'budgetPlanActuals.read',
+		scope: 'organizationItem',
+		assignable: true,
+	},
+	{
 		id: 'travelPermits.read',
 		scope: 'organizationItem',
 		assignable: true,

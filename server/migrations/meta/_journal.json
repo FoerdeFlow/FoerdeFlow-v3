@@ -449,6 +449,13 @@
       "when": 1792663994916,
       "tag": "0063_inventory_item_lendability",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1793283124755,
+      "tag": "0064_bank_accounts",
+      "breakpoints": true
     }
   ]
 }
