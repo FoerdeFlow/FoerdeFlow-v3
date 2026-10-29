@@ -3,30 +3,30 @@ const id = useId()
 const periodModel = defineModel<number | null>('period', { required: true })
 const numberModel = defineModel<number | null>('number', { required: true })
 
-const period = ref<number | null>(null)
-const number = ref<number | null>(null)
+const periodInput = ref<number | null>(null)
+const numberInput = ref<number | null>(null)
 
 const valid = computed(() =>
-	period.value !== null &&
-	number.value !== null &&
-	!Number.isNaN(period.value) &&
-	!Number.isNaN(number.value) &&
-	period.value > 1000 &&
-	number.value > 0,
+	periodInput.value !== null &&
+	numberInput.value !== null &&
+	!Number.isNaN(periodInput.value) &&
+	!Number.isNaN(numberInput.value) &&
+	periodInput.value > 1000 &&
+	numberInput.value > 0,
 )
 
 watch([ periodModel, numberModel ], ([ newPeriod, newNumber ]) => {
-	if(period.value !== newPeriod && newPeriod !== null) {
-		period.value = newPeriod
+	if(periodInput.value !== newPeriod && newPeriod !== null) {
+		periodInput.value = newPeriod
 	}
-	if(number.value !== newNumber && newNumber !== null) {
-		number.value = newNumber
+	if(numberInput.value !== newNumber && newNumber !== null) {
+		numberInput.value = newNumber
 	}
 }, { immediate: true })
 
 watchEffect(() => {
-	periodModel.value = valid.value ? period.value : null
-	numberModel.value = valid.value ? number.value : null
+	periodModel.value = valid.value ? periodInput.value : null
+	numberModel.value = valid.value ? numberInput.value : null
 })
 </script>
 
@@ -36,7 +36,7 @@ watchEffect(() => {
 		label.kern-label(:for="`${id}-period`") Periode (erstes Jahr)
 		input.kern-form-input__input(
 			:id="`${id}-period`"
-			v-model.number="period"
+			v-model.number="periodInput"
 			type="text"
 			inputmode="numeric"
 		)
@@ -44,7 +44,7 @@ watchEffect(() => {
 		label.kern-label(:for="`${id}-number`") Fortlaufende Nummer
 		input.kern-form-input__input(
 			:id="`${id}-number`"
-			v-model.number="number"
+			v-model.number="numberInput"
 			type="text"
 			inputmode="numeric"
 		)

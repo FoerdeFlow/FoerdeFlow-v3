@@ -710,7 +710,7 @@ section.mb-8(v-if="!editingDraft && continuableDrafts.length")
 									: 'Keine Angabe',
 						},
 					]`
-					@click.prevent="selectedItem = 'meta-role'"
+					@click.prevent="openedItem = 'meta-role'"
 				)
 			template(
 				v-for="(form, idx) of mutationForms"
