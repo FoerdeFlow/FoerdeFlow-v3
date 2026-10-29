@@ -116,6 +116,15 @@ const subPages: KernCardNavItems = [
 		},
 		permission: 'representationAllowances.read',
 	},
+	{
+		title: 'Bankkonten',
+		description: 'Konten, Kontoauszüge und Zahlungen',
+		link: {
+			name: 'organizationItems-organizationItem-bankAccounts',
+			params: { organizationItem: route.params.organizationItem },
+		},
+		permission: 'bankTransactions.read',
+	},
 ]
 </script>
 

@@ -47,6 +47,7 @@ function findDatabaseError(error: unknown) {
 
 export default function(
 	error: {
+		message?: string
 		statusCode?: number
 		statusMessage?: string
 		data?: unknown
@@ -71,6 +72,9 @@ export default function(
 
 	error.statusCode = statusCode
 	error.statusMessage = statusMessagesByConstraint[databaseError.constraint ?? ''] ?? statusMessage
+	// The dialogs show `message`, which would otherwise carry the failed query
+	// together with its parameters.
+	error.message = error.statusMessage
 	error.data = {
 		constraint: databaseError.constraint,
 		table: databaseError.table,

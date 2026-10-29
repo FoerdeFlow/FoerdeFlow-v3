@@ -1079,5 +1079,173 @@
 			"session": "Sitzungen"
 		},
 		"all": "alle"
+	},
+	"bankAccount": {
+		"title": "Bankkonten",
+		"menu": {
+			"title": "Bankkonten",
+			"description": "Konten, Kontoauszüge und Zahlungen"
+		},
+		"table": {
+			"caption": "Liste der Bankkonten"
+		},
+		"field": {
+			"name": "Bezeichnung",
+			"iban": "IBAN",
+			"balance": "Kontostand"
+		},
+		"input": {
+			"name": {
+				"label": "Bezeichnung"
+			},
+			"iban": {
+				"label": "IBAN"
+			}
+		},
+		"balance": "Kontostand laut Auszug vom {date}: {amount}",
+		"noStatement": "Noch kein Kontoauszug hochgeladen.",
+		"unassigned": "Nicht vollständig zugeordnete Zahlungen: {count}, offen insgesamt {amount}",
+		"allAssigned": "Alle Zahlungen sind vollständig zugeordnet.",
+		"create": {
+			"title": "Bankkonto anlegen",
+			"error": {
+				"title": "Fehler beim Anlegen",
+				"message": "Beim Anlegen des Bankkontos ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"edit": {
+			"title": "Bankkonto bearbeiten",
+			"error": {
+				"title": "Fehler bei der Bearbeitung",
+				"message": "Beim Bearbeiten des Bankkontos ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"remove": {
+			"title": "Bankkonto löschen",
+			"text": "Soll das Bankkonto wirklich gelöscht werden? Ein Konto mit hochgeladenen Auszügen kann nicht gelöscht werden.",
+			"error": {
+				"title": "Fehler beim Löschen",
+				"message": "Beim Löschen des Bankkontos ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
+	"bankStatement": {
+		"title": "Importierte Kontoauszüge",
+		"summary": "Importierte Kontoauszüge ({count})",
+		"table": {
+			"caption": "Liste der importierten Kontoauszüge"
+		},
+		"field": {
+			"statementId": "Auszug",
+			"period": "Zeitraum",
+			"closingBalance": "Endsaldo",
+			"transactionCount": "Zahlungen",
+			"uploaded": "Hochgeladen"
+		},
+		"upload": {
+			"button": "Kontoauszug hochladen",
+			"title": "Kontoauszug hochladen",
+			"label": "Datei im Format camt.053",
+			"hint": "Erlaubt ist eine XML-Datei nach camt.053.001.02, höchstens 10 MB. Das Konto wird an der IBAN im Auszug erkannt.",
+			"result": "Auszug {statementId}: {imported} Zahlungen übernommen, {duplicates} bereits vorhanden, {pending} vorgemerkte Buchungen übersprungen.",
+			"success": "Kontoauszug hochgeladen",
+			"error": {
+				"title": "Fehler beim Hochladen",
+				"message": "Beim Hochladen des Kontoauszugs ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		},
+		"download": "Als XML herunterladen",
+		"remove": {
+			"title": "Kontoauszug zurücknehmen",
+			"text": "Sollen der Kontoauszug und seine Zahlungen wirklich entfernt werden? Das geht nur, solange keine seiner Zahlungen zugeordnet ist.",
+			"error": {
+				"title": "Fehler beim Zurücknehmen",
+				"message": "Beim Zurücknehmen des Kontoauszugs ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
+	"bankTransaction": {
+		"title": "Zahlungen",
+		"table": {
+			"caption": "Liste der Zahlungen"
+		},
+		"field": {
+			"bookingDate": "Buchungstag",
+			"counterparty": "Gegenseite",
+			"purpose": "Verwendungszweck",
+			"amount": "Betrag",
+			"status": "Status",
+			"assignments": "Zuordnung"
+		},
+		"status": {
+			"unassigned": "Offen",
+			"partial": "Teilweise zugeordnet",
+			"assigned": "Zugeordnet"
+		},
+		"direction": {
+			"all": "Alle",
+			"credit": "Eingänge",
+			"debit": "Ausgänge"
+		},
+		"filter": {
+			"search": "Suche",
+			"searchPlaceholder": "Gegenseite, Zweck, Titel …",
+			"searchReset": "Suche leeren",
+			"status": "Status",
+			"allStatus": "Alle",
+			"direction": "Richtung",
+			"from": "Von",
+			"to": "Bis",
+			"reset": "Filter zurücksetzen"
+		},
+		"reversal": "Storno",
+		"reserve": "Rücklage {budget}",
+		"assign": {
+			"button": "Zuordnen",
+			"title": "Zahlung zuordnen",
+			"add": "Teilbetrag hinzufügen",
+			"remove": "Teilbetrag entfernen",
+			"remaining": "Noch nicht zugeordnet: {amount}",
+			"exceeded": "Die Teilbeträge übersteigen die Zahlung um {amount}.",
+			"type": "Buchen auf",
+			"typePlanned": "Haushaltstitel",
+			"typeReserve": "Rücklage",
+			"budgetPlanItem": "Haushaltstitel",
+			"budget": "Haushalt",
+			"paymentOrder": "Zahlungsanweisung",
+			"paymentOrderNone": "Keine",
+			"currentPeriod": "laufende Periode",
+			"amount": "Betrag",
+			"note": "Notiz",
+			"noTargets": "Für diese Organisationseinheit gibt es noch keine Haushalte.",
+			"error": {
+				"title": "Fehler bei der Zuordnung",
+				"message": "Beim Zuordnen der Zahlung ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."
+			}
+		}
+	},
+	"budgetPlanActuals": {
+		"menu": {
+			"title": "Ist-Übersicht",
+			"description": "Soll, Bewilligt, Angeordnet und Ist je Haushaltstitel"
+		},
+		"title": "Ist-Übersicht",
+		"table": {
+			"caption": "Soll und Ist je Haushaltstitel"
+		},
+		"field": {
+			"item": "Haushaltstitel",
+			"plannedRevenues": "Einnahmen Soll",
+			"actualRevenues": "Einnahmen Ist",
+			"remainingRevenues": "Einnahmen Rest",
+			"plannedExpenses": "Ausgaben Soll",
+			"authorized": "Bewilligt",
+			"ordered": "Angewiesen",
+			"actualExpenses": "Ausgaben Ist",
+			"remainingExpenses": "Ausgaben Rest"
+		},
+		"reserve": "Rücklage (Buchungen im Zeitraum)",
+		"total": "Summe",
+		"hint": "Ist-Werte stammen aus den zugeordneten Zahlungen. Eingänge zählen als Einnahmen, Ausgänge als Ausgaben des Titels."
 	}
 }

@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 			organizationItem: true,
 			// The balance of the account is the one of its latest statement.
 			statements: {
-				orderBy: [ desc(bankStatements.createdAt) ],
+				orderBy: [ desc(bankStatements.createdAt), desc(bankStatements.uploadedAt) ],
 				limit: 1,
 				columns: {
 					id: true,
