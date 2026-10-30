@@ -714,21 +714,6 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
-		id: 'travelPermits.read',
-		scope: 'organizationItem',
-		assignable: true,
-	},
-	{
-		id: 'vehicleDrivers.read',
-		scope: 'global',
-		assignable: true,
-	},
-	{
-		id: 'vehicleDrivers.update',
-		scope: 'global',
-		assignable: true,
-	},
-	{
 		id: 'workflows.read',
 		scope: 'global',
 		assignable: true,

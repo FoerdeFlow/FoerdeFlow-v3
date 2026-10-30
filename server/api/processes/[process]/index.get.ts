@@ -122,10 +122,7 @@ export default defineEventHandler(async (event) => {
 			dependencies: await processDependencies(tx, params.process),
 			mutations: await Promise.all(processItem.mutations.map(async (mutation) => {
 				const schema = processSchemas[mutation.mutation.table as keyof typeof processSchemas]
-				const declared = 'attachments' in schema ? schema.attachments : []
-				const attachmentNames = typeof declared === 'function'
-					? declared(mutation.data as Parameters<typeof declared>[0])
-					: declared
+				const attachmentNames = 'attachments' in schema ? schema.attachments : []
 				const attachments = (await Promise.all(attachmentNames.map(async (attachment) => ({
 					name: attachment,
 					present: await access(

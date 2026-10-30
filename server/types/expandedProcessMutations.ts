@@ -167,94 +167,6 @@ interface RepresentationAllowanceProcessMutation {
 	}[]
 }
 
-interface TravelPermitPerson {
-	firstName: string
-	lastName: string
-	callName: string | null
-	pronouns: string | null
-}
-
-interface TravelPermitProcessMutation {
-	id?: string
-	kind: 'single' | 'general'
-	budgetPlanItem: {
-		title: string
-		plan: {
-			budget: {
-				name: string
-				code: string
-			}
-			startDate: string
-			endDate: string
-		}
-	} | null
-	budget: {
-		name: string
-		code: string
-	} | null
-	title: string
-	description: string | null
-	destination: string
-	domestic: boolean
-	startDate: string
-	endDate: string
-	occasion: 'parliamentSession' | 'other'
-	travelerBasis: 'officeHolder' | 'employee' | 'commissioned' | 'sports' | 'recognizedMember'
-	specialInterest:
-		| 'none'
-		| 'campusTravel'
-		| 'centralBodySession'
-		| 'vehicleCosts'
-		| 'parliamentDecision'
-	specialInterestReference: string | null
-	longDistance: boolean
-	car: 'none' | 'private' | 'carsharing'
-	carInterestReason: string | null
-	parkingFeesAllowed: boolean
-	carsharingEstimate: number | null
-	advanceAmount: number | null
-	travelers: {
-		ord: number
-		amount: number
-		driver: boolean
-		person: TravelPermitPerson | null
-	}[]
-}
-
-interface TravelClaimProcessMutation {
-	id?: string
-	permit: Omit<TravelPermitProcessMutation, 'id'> | null
-	recipientPerson: string
-	recipient: TravelPermitPerson | null
-	title: string | null
-	destination: string | null
-	startDate: string
-	endDate: string
-	amount: number
-	advanceAmount: number | null
-	payoutAmount: number
-	late: boolean
-	items: {
-		ord: number
-		category:
-			| 'publicTransport'
-			| 'longDistance'
-			| 'seatReservation'
-			| 'privateCar'
-			| 'parking'
-			| 'vehicleExpenses'
-			| 'conferenceFee'
-			| 'training'
-		description: string
-		amount: number
-		kilometers: number | null
-		event: string | null
-		receipts: number
-		traveler: string
-		travelerPerson: TravelPermitPerson | null
-	}[]
-}
-
 export interface ExpandedProcessMutations {
 	budgetPlan: BudgetPlanProcessMutation
 	budgetPlanItem: BudgetPlanItemsProcessMutation
@@ -262,8 +174,6 @@ export interface ExpandedProcessMutations {
 	paymentOrder: PaymentOrderProcessMutation
 	longtermContract: LongtermContractProcessMutation
 	representationAllowance: RepresentationAllowanceProcessMutation
-	travelPermit: TravelPermitProcessMutation
-	travelClaim: TravelClaimProcessMutation
 }
 
 export type ProcessMutation = keyof ExpandedProcessMutations

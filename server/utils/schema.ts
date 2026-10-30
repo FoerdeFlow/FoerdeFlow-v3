@@ -17,7 +17,6 @@ export * from '../schema/paymentOrder'
 export * from '../schema/bankAccount'
 export * from '../schema/longtermContract'
 export * from '../schema/representationAllowance'
-export * from '../schema/travel'
 export * from '../schema/university'
 export * from '../schema/candidate'
 

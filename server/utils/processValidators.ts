@@ -7,10 +7,6 @@ export interface MutationContext {
 	initiatorPerson: string | null
 	initiatorOrganizationItem: string | null
 	meta: unknown
-	/** The process the data belongs to, once it exists. */
-	process?: string | null
-	/** The day the data counts as handed in on. */
-	now?: Date
 }
 
 /**
@@ -283,20 +279,6 @@ export const processValidators = {
 
 		return { ...data, organizationItem: context.initiatorOrganizationItem }
 	},
-	travelPermits: async (
-		tx: ReturnType<typeof useDatabase>,
-		data: z.infer<typeof processSchemas.travelPermits.create>,
-		context: MutationContext,
-	) => {
-		await checkBudgetOrigin(tx, data, context)
-		await checkTravelPermit(tx, data, context)
-		return data
-	},
-	travelClaims: async (
-		tx: ReturnType<typeof useDatabase>,
-		data: z.infer<typeof processSchemas.travelClaims.create>,
-		context: MutationContext,
-	) => await checkTravelClaim(tx, data, context),
 	persons: (
 		_tx: ReturnType<typeof useDatabase>,
 		data: z.infer<typeof processSchemas.persons.update>,

@@ -34,10 +34,7 @@ export function pdfProcessMutationOrganizationItem(
 		case 'longtermContracts':
 		case 'expenseAuthorizations':
 		case 'paymentOrders':
-		case 'travelPermits':
 			return budgetOriginOrganizationItem(data)
-		case 'travelClaims':
-			return budgetOriginOrganizationItem(data.permit)
 		case 'representationAllowances':
 			return data.organizationItem?.id ?? null
 		default:

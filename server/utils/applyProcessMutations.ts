@@ -442,79 +442,6 @@ async function updatePersonPhoto(
 }
 
 /**
- * Writes a permit for official journeys that was granted, with its travellers.
- *
- * @param tx - The transaction to write in
- * @param _dataId - Unused, a permit is always created anew
- * @param data - The data of the mutation
- * @returns The id of the permit that was created
- */
-async function createTravelPermit(
-	tx: ReturnType<typeof useDatabase>,
-	_dataId: string | null,
-	data: Omit<InferInsertModel<typeof travelPermits>, 'id'> & {
-		travelers: Omit<InferInsertModel<typeof travelPermitTravelers>, 'id' | 'permit'>[]
-	},
-) {
-	const { travelers, ...permit } = data
-	const [ result ] = await tx
-		.insert(travelPermits)
-		.values(permit)
-		.returning({ id: travelPermits.id })
-
-	if(!result) {
-		throw createError({
-			statusCode: 500,
-			statusMessage: 'Dienstreisegenehmigung konnte nicht erstellt werden',
-		})
-	}
-
-	await tx.insert(travelPermitTravelers).values(travelers.map((traveler) => ({
-		...traveler,
-		permit: result.id,
-	})))
-
-	return result.id
-}
-
-/**
- * Writes a claim for the costs of an official journey that was approved, with
- * its items. The receipts stay where they are, as attachments of the process.
- *
- * @param tx - The transaction to write in
- * @param _dataId - Unused, a claim is always created anew
- * @param data - The data of the mutation, with the amounts derived from it
- * @returns The id of the claim that was created
- */
-async function createTravelClaim(
-	tx: ReturnType<typeof useDatabase>,
-	_dataId: string | null,
-	data: Omit<InferInsertModel<typeof travelClaims>, 'id' | 'createdAt'> & {
-		items: Omit<InferInsertModel<typeof travelClaimItems>, 'id' | 'claim'>[]
-	},
-) {
-	const { items, ...claim } = data
-	const [ result ] = await tx
-		.insert(travelClaims)
-		.values(claim)
-		.returning({ id: travelClaims.id })
-
-	if(!result) {
-		throw createError({
-			statusCode: 500,
-			statusMessage: 'Erstattung der Reisekosten konnte nicht erstellt werden',
-		})
-	}
-
-	await tx.insert(travelClaimItems).values(items.map((item) => ({
-		...item,
-		claim: result.id,
-	})))
-
-	return result.id
-}
-
-/**
  * Writes the titles an approved application changed a budget plan to.
  *
  * The change is written the same way the direct way writes it, so that an
@@ -609,16 +536,6 @@ export async function applyProcessMutations(
 			},
 			representationAllowances: {
 				create: createRepresentationAllowance,
-				update: () => { /**/ },
-				delete: () => { /**/ },
-			},
-			travelPermits: {
-				create: createTravelPermit,
-				update: () => { /**/ },
-				delete: () => { /**/ },
-			},
-			travelClaims: {
-				create: createTravelClaim,
 				update: () => { /**/ },
 				delete: () => { /**/ },
 			},

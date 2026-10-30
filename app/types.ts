@@ -30,14 +30,6 @@ import type {
 	WorkflowStepTypeSelect,
 } from '#components'
 import type { DestructureArray } from '#shared/types'
-import type {
-	TravelClaimItemCategory,
-	TravelPermitCar,
-	TravelPermitKind,
-	TravelPermitOccasion,
-	TravelPermitSpecialInterest,
-	TravelPermitTravelerBasis,
-} from '#shared/utils/travel'
 
 export type AttendanceStatus = InstanceType<typeof AttendanceStatusSelect>['$props']['modelValue']
 export type Budget = InstanceType<typeof BudgetSelect>['$props']['modelValue']
@@ -261,98 +253,4 @@ export type RepresentationAllowanceRecipientInput = {
 	ord: number | null
 	person: Person
 	amount: number
-}
-
-/**
- * A permit for official journeys as the API lists it. Taken from the API rather
- * than from a select, so that it stays a real type outside of the components.
- */
-export type TravelPermit = DestructureArray<InternalApi['/api/travelPermits']['get']>
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type TravelPermitTravelerInput = {
-	id: string | symbol | null
-	ord: number | null
-	person: Person
-	amount: number
-	driver: boolean
-}
-
-export interface TravelPermitFormModel {
-	kind: TravelPermitKind
-	type: PaymentOrderType
-	budgetPlanItem: BudgetPlanItem
-	budget: Budget
-	title: string
-	description: string | null
-	destination: string
-	domestic: boolean
-	startDate: Date | null
-	endDate: Date | null
-	occasion: TravelPermitOccasion
-	travelerBasis: TravelPermitTravelerBasis
-	specialInterest: TravelPermitSpecialInterest
-	specialInterestReference: string | null
-	longDistance: boolean
-	car: TravelPermitCar
-	carInterestReason: string | null
-	parkingFeesAllowed: boolean
-	carsharingEstimate: number | null
-	advanceAmount: number | null
-	travelers: TravelPermitTravelerInput[]
-}
-
-/** A person as a permit or a claim names them. */
-export interface TravelPerson {
-	id?: string
-	firstName: string
-	lastName: string
-	callName: string | null
-	pronouns: string | null
-}
-
-/**
- * The permit a claim is made on. While a claim is written it is the permit the
- * API lists, in a process it is the one the process data was expanded with, so
- * only what both have in common is relied on.
- */
-export interface TravelClaimPermit {
-	id: string
-	kind: TravelPermitKind
-	title: string
-	destination: string
-	startDate: string
-	endDate: string
-	longDistance: boolean
-	car: TravelPermitCar
-	parkingFeesAllowed: boolean
-	advanceAmount: number | null
-	travelers: {
-		amount: number
-		person: TravelPerson | null
-	}[]
-}
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-export type TravelClaimItemInput = {
-	id: string | symbol | null
-	ord: number | null
-	traveler: string | null
-	category: TravelClaimItemCategory
-	description: string
-	amount: number
-	kilometers: number | null
-	event: string | null
-	/** The files while the claim is written, their number once it was sent. */
-	receipts: (File | null)[] | number
-}
-
-export interface TravelClaimFormModel {
-	permit: TravelClaimPermit | null
-	recipientPerson: string | null
-	title: string | null
-	destination: string | null
-	startDate: Date | null
-	endDate: Date | null
-	items: TravelClaimItemInput[]
 }

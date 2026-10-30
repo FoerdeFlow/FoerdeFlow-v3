@@ -172,21 +172,11 @@ export default defineEventHandler(async (event) => {
 
 			const schemaGroup = processSchemas[mutation.table as keyof typeof processSchemas]
 			const attachments = 'attachments' in schemaGroup ? schemaGroup.attachments : []
-			// Attachments whose names follow from the data are announced by it,
-			// so each of them has to arrive. Fixed ones may be left out.
-			const announced = typeof attachments === 'function'
-			const names = announced
-				? attachments(data as Parameters<typeof attachments>[0])
-				: attachments
-			for(const attachment of names) {
+			for(const attachment of attachments) {
 				const attachmentData = entries[`mutation_${mutation.id}_attachment_${attachment}`]
-				if(!attachmentData) {
-					if(!announced) continue
-					throw createError({
-						statusCode: 400,
-						message: `Fehlender Anhang ${attachment} für Mutation ${mutation.id}`,
-					})
-				}
+				// An attachment that was not sent simply stays absent, the
+				// process must not fail while its rows are already written.
+				if(!attachmentData) continue
 				attachmentFiles[`${mutation.id}_${attachment}`] = attachmentData
 			}
 
