@@ -85,6 +85,20 @@ function describeAssignment(assignment: (typeof transactions.value)[number]['ass
 	return `${formatBudget(plan.budget)}: ${formatBudgetPlanItem(assignment.budgetPlanItem)}`
 }
 
+// Der Beleg, den die Zahlung ausführt, mit seiner Art, sofern es einen gibt.
+function describeDocument(assignment: (typeof transactions.value)[number]['assignments'][number]) {
+	if(assignment.paymentOrder) {
+		return `${t('bankTransaction.assign.paymentOrder')} „${assignment.paymentOrder.title}“`
+	}
+	if(assignment.travelAdvance) {
+		return `${t('bankTransaction.assign.travelAdvance')} „${assignment.travelAdvance.permit.title}“`
+	}
+	if(assignment.travelClaim) {
+		return `${t('bankTransaction.assign.travelClaim')} „${assignment.travelClaim.permit.title}“`
+	}
+	return null
+}
+
 // Jedes Wort der Suche muss in einem der Felder vorkommen, wie bei den Terminen.
 const filtered = computed(() => {
 	const words = search.value.toLocaleLowerCase('de').split(/\s+/).filter(Boolean)
@@ -102,7 +116,7 @@ const filtered = computed(() => {
 			formatCurrencyAmount(transaction.amount),
 			...transaction.assignments.map((assignment) => [
 				describeAssignment(assignment),
-				assignment.paymentOrder?.title,
+				describeDocument(assignment),
 				assignment.note,
 			].join('\n')),
 		].join('\n').toLocaleLowerCase('de')
@@ -311,9 +325,9 @@ KernTable(
 			span
 				| {{ describeAssignment(assignment) }}:
 				| {{ formatCurrency(assignment.amount, 'amount') }}
-				template(v-if="assignment.paymentOrder")
+				template(v-if="describeDocument(assignment)")
 					|
-					| ({{ $t('bankTransaction.assign.paymentOrder') }} „{{ assignment.paymentOrder.title }}“)
+					| ({{ describeDocument(assignment) }})
 	template(#actions="{ item }")
 		button.kern-btn.kern-btn--tertiary(
 			v-if="assignAllowed"

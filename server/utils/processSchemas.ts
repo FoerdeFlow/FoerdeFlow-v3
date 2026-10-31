@@ -141,6 +141,58 @@ export const processSchemas = {
 		update: null,
 		delete: null,
 	},
+	travelPermits: {
+		create: z.strictObject({
+			traveler: z.uuid(),
+			role: z.uuid(),
+			specialAllocation: z.uuid().nullable(),
+			title: z.string().min(1).max(256),
+			description: z.string().min(1).max(1024).nullable(),
+			origin: z.string().min(1).max(256),
+			destination: z.string().min(1).max(256),
+			startDate: z.coerce.date(),
+			endDate: z.coerce.date(),
+			transportMode: z.uuid(),
+			transportReason: z.uuid().nullable(),
+			type: z.enum([ 'planned', 'reserve' ]),
+			// The budget follows from the role or the special allocation, so only
+			// the title is chosen, and nothing at all for the reserve.
+			budgetPlanItem: z.uuid().nullable(),
+			items: z.array(z.strictObject({
+				ord: z.number().int().nonnegative(),
+				costType: z.uuid(),
+				description: z.string().min(1).max(1024).nullable(),
+				amount: z.number().multipleOf(0.01).positive(),
+			})).min(1)
+				.refine((items) => new Set(items.map((item) => item.ord)).size === items.length),
+		})
+			.refine((o) => o.endDate >= o.startDate)
+			.refine((o) => (o.type === 'planned') === (o.budgetPlanItem !== null)),
+		update: null,
+		delete: null,
+	},
+	travelAdvances: {
+		create: z.strictObject({
+			permit: z.uuid(),
+			amount: z.number().multipleOf(0.01).positive(),
+		}),
+		update: null,
+		delete: null,
+	},
+	travelClaims: {
+		create: z.strictObject({
+			permit: z.uuid(),
+			items: z.array(z.strictObject({
+				ord: z.number().int().nonnegative(),
+				permitItem: z.uuid(),
+				description: z.string().min(1).max(256).nullable(),
+				amount: z.number().multipleOf(0.01).positive(),
+			})).min(1)
+				.refine((items) => new Set(items.map((item) => item.ord)).size === items.length),
+		}),
+		update: null,
+		delete: null,
+	},
 	candidates: {
 		create: z.strictObject({
 			electionCommittee: z.uuid(),

@@ -420,6 +420,106 @@ export const availablePermissions = [
 		assignable: true,
 	},
 	{
+		id: 'travelRoles.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelRoles.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelRoles.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelRoles.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelSpecialAllocations.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelSpecialAllocations.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelSpecialAllocations.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelSpecialAllocations.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelCostTypes.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelCostTypes.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelCostTypes.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelCostTypes.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelTransportModes.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelTransportModes.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelTransportModes.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelTransportModes.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelTransportReasons.read',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelTransportReasons.create',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelTransportReasons.update',
+		scope: 'global',
+		assignable: true,
+	},
+	{
+		id: 'travelTransportReasons.delete',
+		scope: 'global',
+		assignable: true,
+	},
+	{
 		id: 'elections.read',
 		scope: 'global',
 		assignable: true,

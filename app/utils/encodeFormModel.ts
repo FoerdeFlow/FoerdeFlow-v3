@@ -4,6 +4,9 @@ import type {
 	LongtermContractFormModel,
 	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
+	TravelAdvanceFormModel,
+	TravelClaimFormModel,
+	TravelPermitFormModel,
 	WorkflowCustomBudgetPlanItemsFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonFormModel,
@@ -107,6 +110,50 @@ const encoders = {
 				ord: recipient.ord,
 				person: recipient.person?.id ?? null,
 				amount: recipient.amount,
+			})),
+		}),
+	}),
+	travelPermits: (model: TravelPermitFormModel) => ({
+		data: JSON.stringify({
+			traveler: model.traveler?.id ?? null,
+			role: model.role?.id ?? null,
+			specialAllocation: model.specialAllocation?.id ?? null,
+			title: model.title,
+			description: model.description,
+			origin: model.origin,
+			destination: model.destination,
+			startDate: serializeDate(model.startDate),
+			endDate: serializeDate(model.endDate),
+			transportMode: model.transportMode?.id ?? null,
+			// Only asked for where the means of transport needs it, a reason
+			// left over from another one is dropped.
+			transportReason: model.transportMode?.reasonRequired
+				? model.transportReason?.id ?? null
+				: null,
+			type: model.type,
+			budgetPlanItem: model.type === 'planned' ? model.budgetPlanItem?.id ?? null : null,
+			items: model.items.map((item) => ({
+				ord: item.ord,
+				costType: item.costType?.id ?? null,
+				description: item.description,
+				amount: item.amount,
+			})),
+		}),
+	}),
+	travelAdvances: (model: TravelAdvanceFormModel) => ({
+		data: JSON.stringify({
+			permit: model.permit?.id ?? null,
+			amount: model.amount,
+		}),
+	}),
+	travelClaims: (model: TravelClaimFormModel) => ({
+		data: JSON.stringify({
+			permit: model.permit?.id ?? null,
+			items: model.items.map((item) => ({
+				ord: item.ord,
+				permitItem: item.permitItem,
+				description: item.description,
+				amount: item.amount,
 			})),
 		}),
 	}),

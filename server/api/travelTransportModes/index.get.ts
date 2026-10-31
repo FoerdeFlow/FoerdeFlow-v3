@@ -1,0 +1,28 @@
+import type { EventContext } from '~~/server/types'
+
+export default defineEventHandler(async (event) => {
+	// Every user may read the list, the forms of the processes offer it.
+	if(!(event.context as EventContext).user) {
+		throw createError({
+			statusCode: 401,
+			statusMessage: 'Unauthorized',
+			data: 'User is not authenticated',
+		})
+	}
+
+	const database = useDatabase()
+
+	const result = await database.query.travelTransportModes.findMany({
+		with: {
+			reasons: {
+				columns: {
+					transportMode: false,
+				},
+				orderBy: (reasons, { asc }) => [ asc(reasons.code) ],
+			},
+		},
+		orderBy: (items, { asc }) => [ asc(items.code) ],
+	})
+
+	return result
+})

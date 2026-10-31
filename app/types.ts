@@ -27,6 +27,11 @@ import type {
 	PersonSelect,
 	RoleSelect,
 	SessionSelect,
+	TravelCostTypeSelect,
+	TravelRoleSelect,
+	TravelSpecialAllocationSelect,
+	TravelTransportModeSelect,
+	TravelTransportReasonSelect,
 	WorkflowStepTypeSelect,
 } from '#components'
 import type { DestructureArray } from '#shared/types'
@@ -77,6 +82,11 @@ export type OrganizationType = InstanceType<typeof OrganizationTypeSelect>['$pro
 export type Person = InstanceType<typeof PersonSelect>['$props']['modelValue']
 export type Role = InstanceType<typeof RoleSelect>['$props']['modelValue']
 export type Session = InstanceType<typeof SessionSelect>['$props']['modelValue']
+export type TravelCostType = InstanceType<typeof TravelCostTypeSelect>['$props']['modelValue']
+export type TravelRole = InstanceType<typeof TravelRoleSelect>['$props']['modelValue']
+export type TravelSpecialAllocation = InstanceType<typeof TravelSpecialAllocationSelect>['$props']['modelValue']
+export type TravelTransportMode = InstanceType<typeof TravelTransportModeSelect>['$props']['modelValue']
+export type TravelTransportReason = InstanceType<typeof TravelTransportReasonSelect>['$props']['modelValue']
 export type WorkflowStepType = InstanceType<typeof WorkflowStepTypeSelect>['$props']['modelValue']
 
 /**
@@ -123,6 +133,58 @@ export interface ExpenseAuthorizationFormModel {
 	description: string | null
 	amount: number
 	items: ExpenseAuthorizationItemInput[]
+}
+
+/** A title a journey may be paid from, as the travel API offers it. */
+export type TravelPermitBudgetPlanItem =
+	DestructureArray<InternalApi['/api/travelPermits/budgetPlanItems']['get']> | null
+
+/** A permit of the user, with its lines and what was paid on it so far. */
+export type TravelPermitSummary = DestructureArray<InternalApi['/api/travelPermits']['get']>
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type TravelPermitItemInput = {
+	id: string | symbol | null
+	ord: number | null
+	costType: TravelCostType
+	description: string | null
+	amount: number
+}
+
+export interface TravelPermitFormModel {
+	traveler: Person
+	role: TravelRole
+	specialAllocation: TravelSpecialAllocation
+	title: string
+	description: string | null
+	origin: string
+	destination: string
+	startDate: Date | null
+	endDate: Date | null
+	transportMode: TravelTransportMode
+	transportReason: TravelTransportReason
+	type: PaymentOrderType
+	budgetPlanItem: TravelPermitBudgetPlanItem
+	items: TravelPermitItemInput[]
+}
+
+export interface TravelAdvanceFormModel {
+	permit: TravelPermitSummary | null
+	amount: number
+}
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type TravelClaimItemInput = {
+	id: string | symbol | null
+	ord: number | null
+	permitItem: string | null
+	description: string | null
+	amount: number
+}
+
+export interface TravelClaimFormModel {
+	permit: TravelPermitSummary | null
+	items: TravelClaimItemInput[]
 }
 
 export interface PaymentOrderFormModel {

@@ -1,6 +1,6 @@
 import type z from 'zod'
 
-import { eq, type InferSelectModel } from 'drizzle-orm'
+import { eq, inArray, type InferSelectModel } from 'drizzle-orm'
 
 /**
  * Expands a reference to an item of a budget plan that is still being applied
@@ -136,6 +136,96 @@ async function encodeAffectedPerson(tx: ReturnType<typeof useDatabase>, person: 
 			pronouns: true,
 		},
 	}))
+}
+
+/**
+ * Expands the master data a permit for an official journey refers to, so that
+ * a reader sees codes and names instead of bare ids.
+ *
+ * @param tx - The transaction to read in
+ * @param model - The permit as it is stored in the process
+ * @returns The permit with its references expanded
+ */
+async function encodeTravelPermit(
+	tx: ReturnType<typeof useDatabase>,
+	model: z.infer<typeof processSchemas.travelPermits.create> & {
+		budget: string | null
+		amount: number
+	},
+) {
+	const codedColumns = { id: true, code: true, name: true } as const
+
+	const costTypes = await tx.query.travelCostTypes.findMany({
+		where: inArray(travelCostTypes.id, model.items.map((item) => item.costType)),
+		columns: codedColumns,
+	})
+
+	return {
+		...model,
+		traveler: await encodeAffectedPerson(tx, model.traveler),
+		role: await tx.query.travelRoles.findFirst({
+			where: eq(travelRoles.id, model.role),
+			with: {
+				organizationItem: {
+					columns: {
+						id: true,
+						name: true,
+					},
+				},
+				budget: true,
+			},
+			columns: codedColumns,
+		}) ?? null,
+		specialAllocation: model.specialAllocation
+			? await tx.query.travelSpecialAllocations.findFirst({
+				where: eq(travelSpecialAllocations.id, model.specialAllocation),
+				with: {
+					budget: true,
+				},
+				columns: codedColumns,
+			}) ?? null
+			: null,
+		transportMode: await tx.query.travelTransportModes.findFirst({
+			where: eq(travelTransportModes.id, model.transportMode),
+			columns: {
+				...codedColumns,
+				reasonRequired: true,
+			},
+		}) ?? null,
+		transportReason: model.transportReason
+			? await tx.query.travelTransportReasons.findFirst({
+				where: eq(travelTransportReasons.id, model.transportReason),
+				columns: codedColumns,
+			}) ?? null
+			: null,
+		budgetPlanItem: model.budgetPlanItem
+			? await tx.query.budgetPlanItems.findFirst({
+				where: eq(budgetPlanItems.id, model.budgetPlanItem),
+				with: {
+					plan: {
+						with: {
+							budget: true,
+						},
+						columns: {
+							budget: false,
+						},
+					},
+				},
+				columns: {
+					plan: false,
+				},
+			}) ?? null
+			: null,
+		budget: model.budget
+			? await tx.query.budgets.findFirst({
+				where: eq(budgets.id, model.budget),
+			}) ?? null
+			: null,
+		items: model.items.map((item) => ({
+			...item,
+			costType: costTypes.find((costType) => costType.id === item.costType) ?? null,
+		})),
+	}
 }
 
 const encoders = {
@@ -349,6 +439,25 @@ const encoders = {
 		recipientPerson: model.recipientPerson
 			? await encodeAffectedPerson(tx, model.recipientPerson)
 			: null,
+	}),
+	travelPermits: encodeTravelPermit,
+	travelAdvances: async (
+		tx: ReturnType<typeof useDatabase>,
+		model: z.infer<typeof processSchemas.travelAdvances.create>,
+	) => ({
+		...model,
+		permit: await readTravelPermit(tx, model.permit),
+	}),
+	travelClaims: async (
+		tx: ReturnType<typeof useDatabase>,
+		model: z.infer<typeof processSchemas.travelClaims.create> & {
+			requestedAmount: number
+			amount: number
+			payoutAmount: number
+		},
+	) => ({
+		...model,
+		permit: await readTravelPermit(tx, model.permit),
 	}),
 	persons: async (
 		tx: ReturnType<typeof useDatabase>,

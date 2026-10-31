@@ -12,6 +12,8 @@ import type { MutationContext } from './processValidators'
 const processDerivedFields: Partial<Record<keyof typeof processSchemas, string[]>> = {
 	budgetPlanItems: [ 'budget', 'previous' ],
 	representationAllowances: [ 'organizationItem' ],
+	travelPermits: [ 'budget', 'amount' ],
+	travelClaims: [ 'requestedAmount', 'amount', 'payoutAmount' ],
 	persons: [ 'person' ],
 	personIbans: [ 'person' ],
 	personPhotos: [ 'person' ],
@@ -47,7 +49,8 @@ export function processMutationInput(table: string, data: unknown) {
  * @param mutation - The mutation of the workflow the data belongs to
  * @param data - The submitted data
  * @param context - The initiator of the process the data belongs to
- * @param now - The date the date tokens of the presets are resolved relative to
+ * @param now - The day the data counts as submitted on, the date tokens of the
+ * presets and the deadlines of the validators are measured from it
  * @returns The data as it is to be stored
  * @throws When the mutation has no schema or the data does not match it
  */
@@ -61,7 +64,7 @@ export async function validateProcessMutationData(
 		presets: unknown
 	},
 	data: unknown,
-	context: Omit<MutationContext, 'meta'>,
+	context: Omit<MutationContext, 'meta' | 'now'>,
 	now: Date = new Date(),
 ) {
 	if(!(mutation.table in processSchemas)) {
@@ -96,7 +99,7 @@ export async function validateProcessMutationData(
 			tx,
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			result as any,
-			{ ...context, meta: mutation.meta },
+			{ ...context, meta: mutation.meta, now },
 		)
 	}
 

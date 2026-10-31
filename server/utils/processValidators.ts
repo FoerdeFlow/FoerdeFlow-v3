@@ -7,6 +7,11 @@ export interface MutationContext {
 	initiatorPerson: string | null
 	initiatorOrganizationItem: string | null
 	meta: unknown
+	/**
+	 * The day the data counts as submitted on. A correction keeps the day the
+	 * process was created, so that a deadline does not catch up with it.
+	 */
+	now: Date
 }
 
 /**
@@ -278,6 +283,82 @@ export const processValidators = {
 		}
 
 		return { ...data, organizationItem: context.initiatorOrganizationItem }
+	},
+	travelPermits: async (
+		tx: ReturnType<typeof useDatabase>,
+		data: z.infer<typeof processSchemas.travelPermits.create>,
+		context: MutationContext,
+	) => await checkTravelPermit(tx, data, context),
+	travelAdvances: async (
+		tx: ReturnType<typeof useDatabase>,
+		data: z.infer<typeof processSchemas.travelAdvances.create>,
+		context: MutationContext,
+	) => {
+		const permit = await readTravelPermitOfTraveler(tx, data.permit, context)
+		if(permit.advance) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: 'Auf diese Dienstreisegenehmigung wurde bereits ein Vorschuss gezahlt',
+			})
+		}
+		if(permit.claim) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: 'Für diese Dienstreise wurde die Erstattung bereits beantragt',
+			})
+		}
+
+		const maximumAmount = travelAdvanceMaximum(permit.amount, context.meta)
+		if(data.amount > maximumAmount) {
+			throw createError({
+				statusCode: 403,
+				statusMessage: 'Der Vorschuss übersteigt den zulässigen Anteil der geplanten Kosten',
+				data: { maximumAmount, amount: data.amount },
+			})
+		}
+
+		return data
+	},
+	travelClaims: async (
+		tx: ReturnType<typeof useDatabase>,
+		data: z.infer<typeof processSchemas.travelClaims.create>,
+		context: MutationContext,
+	) => {
+		const permit = await readTravelPermitOfTraveler(tx, data.permit, context)
+		if(permit.claim) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: 'Für diese Dienstreise wurde die Erstattung bereits beantragt',
+			})
+		}
+
+		const window = travelClaimWindow(permit.endDate, context.now)
+		if(window !== 'open') {
+			throw createError({
+				statusCode: 400,
+				statusMessage: window === 'early'
+					? 'Die Erstattung kann erst nach dem Ende der Dienstreise beantragt werden'
+					: 'Die Erstattung war bis zum ' +
+						`${formatDate(travelClaimDeadline(permit.endDate))} zu beantragen`,
+			})
+		}
+
+		const known = new Set(permit.items.map((item) => item.id))
+		if(data.items.some((item) => !known.has(item.permitItem))) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: 'Eine Kostenzeile gehört nicht zu dieser Dienstreisegenehmigung',
+			})
+		}
+
+		const { requestedAmount, amount } = travelClaimAmounts(permit.items, data.items)
+
+		return {
+			...data,
+			requestedAmount,
+			amount,
+			payoutAmount: currencySum(amount, -(permit.advance?.amount ?? 0)),
+		}
 	},
 	persons: (
 		_tx: ReturnType<typeof useDatabase>,

@@ -23,6 +23,8 @@ interface Transaction {
 		budgetPlanItem: { id: string } | null
 		budget: { id: string } | null
 		paymentOrder: { id: string } | null
+		travelAdvance: { id: string } | null
+		travelClaim: { id: string } | null
 		amount: number
 		note: string | null
 	}[]
@@ -35,9 +37,15 @@ interface Row {
 	budgetPlanItem: string | null
 	budget: string | null
 	paymentOrder: string | null
+	travelAdvance: string | null
+	travelClaim: string | null
 	amount: number | null
 	note: string
 }
+
+/** The kinds of documents a part may carry out, each with the key of its row. */
+type DocumentKind = 'paymentOrder' | 'travelAdvance' | 'travelClaim'
+const documentKinds: DocumentKind[] = [ 'paymentOrder', 'travelAdvance', 'travelClaim' ]
 
 const dialog = useTemplateRef<typeof KernDialog>('dialog')
 
@@ -66,6 +74,8 @@ defineExpose({
 			budgetPlanItem: assignment.budgetPlanItem?.id ?? null,
 			budget: assignment.budget?.id ?? null,
 			paymentOrder: assignment.paymentOrder?.id ?? null,
+			travelAdvance: assignment.travelAdvance?.id ?? null,
+			travelClaim: assignment.travelClaim?.id ?? null,
 			amount: assignment.amount,
 			note: assignment.note ?? '',
 		}))
@@ -89,6 +99,8 @@ const toAssignment = (row: Row, amount: number | null) => ({
 	budgetPlanItem: row.type === 'planned' ? row.budgetPlanItem : null,
 	budget: row.type === 'reserve' ? row.budget : null,
 	paymentOrder: row.type === 'transfer' ? null : row.paymentOrder,
+	travelAdvance: row.type === 'transfer' ? null : row.travelAdvance,
+	travelClaim: row.type === 'transfer' ? null : row.travelClaim,
 	amount: amount ?? 0,
 	note: row.note.trim() || null,
 })
@@ -129,7 +141,60 @@ const planGroups = computed(() => {
 
 const budgetOptions = computed(() => targets.value?.budgets ?? [])
 
-const paymentOrderOptions = computed(() => targets.value?.paymentOrders ?? [])
+/*
+ * Die Belege, die eine Zahlung in ihrer Richtung ausführen kann: Ausgaben zahlen
+ * Anweisungen, Vorschüsse und Erstattungen aus, Einnahmen können nur die
+ * Rückzahlung eines zu hohen Vorschusses sein.
+ */
+const documentGroups = computed(() => {
+	const debit = transaction.value?.direction === 'debit'
+	return [
+		{
+			kind: 'paymentOrder' as const,
+			label: t('bankTransaction.assign.paymentOrders'),
+			items: debit
+				? (targets.value?.paymentOrders ?? []).map((order) => ({
+					...order,
+					label: `${order.title} (${formatCurrency(order.amount)})`,
+				}))
+				: [],
+		},
+		{
+			kind: 'travelAdvance' as const,
+			label: t('bankTransaction.assign.travelAdvances'),
+			items: debit
+				? (targets.value?.travelAdvances ?? []).map((advance) => ({
+					...advance,
+					label: `${advance.title} (${formatCurrency(advance.amount)})`,
+				}))
+				: [],
+		},
+		{
+			kind: 'travelClaim' as const,
+			label: t('bankTransaction.assign.travelClaims'),
+			items: (targets.value?.travelClaims ?? [])
+				.filter((claim) => debit ? claim.payoutAmount > 0 : claim.payoutAmount < 0)
+				.map((claim) => ({
+					...claim,
+					label: `${claim.title} (` +
+						(debit ? '' : `${t('bankTransaction.assign.travelClaimRepayment')} `) +
+						`${formatCurrency(Math.abs(claim.payoutAmount))})`,
+				})),
+		},
+	].filter((group) => group.items.length > 0)
+})
+
+const documentOf = (row: Row) => {
+	const kind = documentKinds.find((item) => row[item])
+	return kind ? `${kind}:${row[kind]}` : null
+}
+
+const findDocument = (key: string | null) => {
+	const [ kind, documentId ] = key?.split(':') ?? []
+	const group = documentGroups.value.find((item) => item.kind === kind)
+	const document = group?.items.find((item) => item.id === documentId)
+	return group && document ? { kind: group.kind, document } : null
+}
 
 const hasTargets = computed(() => budgetOptions.value.length > 0)
 
@@ -142,6 +207,8 @@ function addRow() {
 		budgetPlanItem: null,
 		budget: null,
 		paymentOrder: null,
+		travelAdvance: null,
+		travelClaim: null,
 		amount: remaining.value > 0 ? remaining.value : null,
 		note: '',
 	})
@@ -169,21 +236,33 @@ function endSplit() {
 	split.value = false
 }
 
-// Eine Zahlungsanweisung legt fest, worauf gebucht wird.
-function onPaymentOrderChange(row: Row) {
-	const order = paymentOrderOptions.value.find((item) => item.id === row.paymentOrder)
-	if(!order) return
-	row.type = order.type
-	row.budgetPlanItem = order.budgetPlanItem
-	row.budget = order.budget
+// Ein Beleg legt fest, worauf gebucht wird.
+function onDocumentChange(row: Row, key: string) {
+	const found = findDocument(key)
+	for(const kind of documentKinds) {
+		row[kind] = kind === found?.kind ? found.document.id : null
+	}
+	if(!found) return
+	row.type = found.document.type
+	row.budgetPlanItem = found.document.budgetPlanItem
+	row.budget = found.document.budget
 }
 
-// Wer das Ziel von Hand ändert, löst die Zahlung von der Anweisung.
+function onDocumentSelect(row: Row, event: Event) {
+	onDocumentChange(row, (event.target as HTMLSelectElement).value)
+}
+
+// Wer das Ziel von Hand ändert, löst die Zahlung von ihrem Beleg.
 function onTargetChange(row: Row) {
-	const order = paymentOrderOptions.value.find((item) => item.id === row.paymentOrder)
-	if(!order) return
-	if(order.type !== row.type || order.budgetPlanItem !== row.budgetPlanItem || order.budget !== row.budget) {
-		row.paymentOrder = null
+	const found = findDocument(documentOf(row))
+	if(!found) return
+	const { document } = found
+	if(
+		document.type !== row.type ||
+		document.budgetPlanItem !== row.budgetPlanItem ||
+		document.budget !== row.budget
+	) {
+		onDocumentChange(row, '')
 	}
 }
 
@@ -305,23 +384,28 @@ KernDialog(
 								:key="budget.id"
 								:value="budget.id"
 							) {{ formatBudget(budget) }}
-				.kern-form-input(v-if="transaction.direction === 'debit' && row.type !== 'transfer'")
+				.kern-form-input(v-if="row.type !== 'transfer' && (documentGroups.length > 0 || documentOf(row))")
 					label.kern-label(:for="`${id}-${index}-order`")
-						| {{ $t('bankTransaction.assign.paymentOrder') }}
+						| {{ $t('bankTransaction.assign.document') }}
 						|
 						| #[span.kern-label__optional - Optional]
 					.kern-form-input__select-wrapper
 						select.kern-form-input__select(
 							:id="`${id}-${index}-order`"
-							v-model="row.paymentOrder"
-							@change="onPaymentOrderChange(row)"
+							:value="documentOf(row) ?? ''"
+							@change="onDocumentSelect(row, $event)"
 						)
-							option(:value="null") {{ $t('bankTransaction.assign.paymentOrderNone') }}
-							option(
-								v-for="order of paymentOrderOptions"
-								:key="order.id"
-								:value="order.id"
-							) {{ order.title }} ({{ formatCurrency(order.amount) }})
+							option(value="") {{ $t('bankTransaction.assign.documentNone') }}
+							optgroup(
+								v-for="group of documentGroups"
+								:key="group.kind"
+								:label="group.label"
+							)
+								option(
+									v-for="document of group.items"
+									:key="document.id"
+									:value="`${group.kind}:${document.id}`"
+								) {{ document.label }}
 				KernCurrencyInput(
 					v-if="split"
 					v-model="row.amount"

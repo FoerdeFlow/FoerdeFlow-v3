@@ -5,6 +5,9 @@ export const pdfSupportedMutationTables = [
 	'paymentOrders',
 	'longtermContracts',
 	'representationAllowances',
+	'travelPermits',
+	'travelAdvances',
+	'travelClaims',
 ] as const
 
 export type PdfSupportedMutationTable = typeof pdfSupportedMutationTables[number]

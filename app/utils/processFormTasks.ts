@@ -6,6 +6,9 @@ import type {
 	LongtermContractFormModel,
 	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
+	TravelAdvanceFormModel,
+	TravelClaimFormModel,
+	TravelPermitFormModel,
 	WorkflowCustomBudgetPlanItemsFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonIbanFormModel,
@@ -283,6 +286,130 @@ function representationAllowanceTasks(
 	]
 }
 
+function travelPermitTasks(
+	model: TravelPermitFormModel,
+	presets: Presets,
+	meta: unknown,
+): Tasks {
+	const filled = (field: keyof TravelPermitFormModel) =>
+		!!model[field] || presetFixed(presets, field)
+
+	const rules = travelPermitMeta(meta)
+	const roleAllowed = !rules.roles || (!!model.role && rules.roles.includes(model.role.code))
+	const allocationAllowed = !rules.specialAllocations ||
+		(!!model.specialAllocation && rules.specialAllocations.includes(model.specialAllocation.code))
+	const travelerComplete = filled('traveler') && filled('role') && roleAllowed && allocationAllowed
+
+	const startDate = model.startDate instanceof Date ? serializeDate(model.startDate) : model.startDate
+	const endDate = model.endDate instanceof Date ? serializeDate(model.endDate) : model.endDate
+	const journeyComplete = filled('title') && filled('origin') && filled('destination') &&
+		!!startDate && !!endDate && endDate >= startDate
+	const journeyStarted = !!model.title || !!model.origin || !!model.destination || !!startDate
+
+	const reasonRequired = !!model.transportMode?.reasonRequired
+	const transportComplete = filled('transportMode') && (!reasonRequired || filled('transportReason'))
+
+	// The title has to be one of the plan in force when the journey starts, of
+	// the budget the role or the special allocation names.
+	const budget = model.specialAllocation?.budget ?? model.role?.budget ?? null
+	const item = model.budgetPlanItem
+	const itemFits = !!item && item.plan.budget.id === budget?.id && !!startDate &&
+		item.plan.startDate <= startDate && startDate <= item.plan.endDate
+	const budgetComplete = model.type === 'reserve' || itemFits || presetFixed(presets, 'budgetPlanItem')
+
+	const violations = travelPermitViolations(
+		model.items.map((entry) => ({ costType: entry.costType?.code ?? null, amount: entry.amount })),
+		meta,
+	)
+	const itemsComplete = model.items.length > 0 && violations.length === 0 &&
+		model.items.every((entry) => entry.costType && entry.amount > 0)
+
+	return [
+		...presetVisible(presets, 'traveler', 'role', 'specialAllocation')
+			? [ {
+				id: 'travel-permit-traveler',
+				label: 'Reisende*n und Rolle angeben',
+				status: travelerComplete ? 'done' : model.role ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'title', 'description', 'origin', 'destination', 'startDate', 'endDate')
+			? [ {
+				id: 'travel-permit-journey',
+				label: 'Dienstreise beschreiben',
+				status: journeyComplete ? 'done' : journeyStarted ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'transportMode', 'transportReason')
+			? [ {
+				id: 'travel-permit-transport',
+				label: 'Verkehrsmittel angeben',
+				status: transportComplete ? 'done' : model.transportMode ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'type', 'budgetPlanItem')
+			? [ {
+				id: 'travel-permit-budget',
+				label: 'Haushaltstitel auswählen',
+				status: !model.role || !startDate
+					? 'blocked'
+					: budgetComplete ? 'done' : item ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'items')
+			? [ {
+				id: 'travel-permit-items',
+				label: 'Kosten aufstellen',
+				status: itemsComplete || presetFixed(presets, 'items')
+					? 'done'
+					: model.items.length > 0 ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+	]
+}
+
+function travelAdvanceTasks(
+	model: TravelAdvanceFormModel,
+	presets: Presets,
+	meta: unknown,
+): Tasks {
+	const maximumAmount = model.permit ? travelAdvanceMaximum(model.permit.amount, meta) : 0
+
+	return presetVisible(presets, 'permit', 'amount')
+		? [ {
+			id: 'travel-advance',
+			label: 'Vorschuss beantragen',
+			status: model.permit && model.amount > 0 && model.amount <= maximumAmount
+				? 'done'
+				: model.permit ? 'partial' : 'open',
+		} ]
+		: []
+}
+
+function travelClaimTasks(model: TravelClaimFormModel, presets: Presets): Tasks {
+	const known = new Set(model.permit?.items.map((item) => item.id) ?? [])
+	const itemsComplete = model.items.length > 0 && model.items
+		.every((item) => item.permitItem && known.has(item.permitItem) && item.amount > 0)
+
+	return [
+		...presetVisible(presets, 'permit')
+			? [ {
+				id: 'travel-claim-permit',
+				label: 'Dienstreise auswählen',
+				status: model.permit || presetFixed(presets, 'permit') ? 'done' : 'open',
+			} ] satisfies Tasks
+			: [],
+		...presetVisible(presets, 'items')
+			? [ {
+				id: 'travel-claim-items',
+				label: 'Tatsächliche Kosten angeben',
+				status: !model.permit
+					? 'blocked'
+					: itemsComplete ? 'done' : model.items.length > 0 ? 'partial' : 'open',
+			} ] satisfies Tasks
+			: [],
+	]
+}
+
 function workflowCustomCandidateTasks(
 	model: WorkflowCustomCandidateFormModel,
 	presets: Presets,
@@ -449,6 +576,21 @@ export function processFormTasks(
 					parsed,
 					meta,
 				),
+			}
+		case 'travelPermits':
+			return {
+				title: 'Details zur Dienstreisegenehmigung',
+				tasks: travelPermitTasks(model as TravelPermitFormModel, parsed, meta),
+			}
+		case 'travelAdvances':
+			return {
+				title: 'Details zum Vorschuss',
+				tasks: travelAdvanceTasks(model as TravelAdvanceFormModel, parsed, meta),
+			}
+		case 'travelClaims':
+			return {
+				title: 'Details zur Reisekostenerstattung',
+				tasks: travelClaimTasks(model as TravelClaimFormModel, parsed),
 			}
 		case 'candidates':
 			return {

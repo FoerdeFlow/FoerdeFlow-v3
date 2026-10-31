@@ -5,6 +5,8 @@ export const bankTransactionAssignmentSchema = z.strictObject({
 	budgetPlanItem: idSchema.nullish(),
 	budget: idSchema.nullish(),
 	paymentOrder: idSchema.nullish(),
+	travelAdvance: idSchema.nullish(),
+	travelClaim: idSchema.nullish(),
 	amount: z.number().positive().multipleOf(0.01),
 	note: z.string().trim().max(256).nullish(),
 })

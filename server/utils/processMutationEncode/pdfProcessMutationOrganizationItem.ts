@@ -37,6 +37,12 @@ export function pdfProcessMutationOrganizationItem(
 			return budgetOriginOrganizationItem(data)
 		case 'representationAllowances':
 			return data.organizationItem?.id ?? null
+		// The role decides the letterhead of everything about a journey.
+		case 'travelPermits':
+			return data.role?.organizationItem?.id ?? null
+		case 'travelAdvances':
+		case 'travelClaims':
+			return data.permit?.role?.organizationItem?.id ?? null
 		default:
 			return null
 	}

@@ -40,6 +40,21 @@ const encoders = {
 		pdf: pdfEncodeRepresentationAllowance,
 		title: titleEncodeRepresentationAllowance,
 	},
+	travelPermit: {
+		html: htmlEncodeTravelPermit,
+		pdf: pdfEncodeTravelPermit,
+		title: titleEncodeTravelPermit,
+	},
+	travelAdvance: {
+		html: htmlEncodeTravelAdvance,
+		pdf: pdfEncodeTravelAdvance,
+		title: titleEncodeTravelAdvance,
+	},
+	travelClaim: {
+		html: htmlEncodeTravelClaim,
+		pdf: pdfEncodeTravelClaim,
+		title: titleEncodeTravelClaim,
+	},
 } as const satisfies { [M in ProcessMutation]: MutationEncoders<ExpandedProcessMutations[M]> }
 
 export async function encodeProcessMutation<M extends ProcessMutation, F extends EncodingFormat>(

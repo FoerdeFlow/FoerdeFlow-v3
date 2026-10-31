@@ -11,6 +11,9 @@ import type {
 	OrganizationItem,
 	PaymentOrderFormModel,
 	RepresentationAllowanceFormModel,
+	TravelAdvanceFormModel,
+	TravelClaimFormModel,
+	TravelPermitFormModel,
 	WorkflowCustomBudgetPlanItemsFormModel,
 	WorkflowCustomCandidateFormModel,
 	WorkflowCustomPersonFormModel,
@@ -24,6 +27,9 @@ import {
 	LongtermContractForm,
 	PaymentOrderForm,
 	RepresentationAllowanceForm,
+	TravelAdvanceForm,
+	TravelClaimForm,
+	TravelPermitForm,
 	WorkflowCustomBudgetPlanItemsForm,
 	WorkflowCustomCandidateForm,
 	WorkflowCustomPersonForm,
@@ -135,6 +141,24 @@ const ownPhoto: WorkflowCustomPersonPhotoFormModel = {
 	photo: null,
 }
 
+/** Typed explicitly, so that the initiator can be filled in as the traveller. */
+const travelPermitModel: TravelPermitFormModel = {
+	traveler: null,
+	role: null,
+	specialAllocation: null,
+	title: '',
+	description: null,
+	origin: '',
+	destination: '',
+	startDate: null,
+	endDate: null,
+	transportMode: null,
+	transportReason: null,
+	type: 'planned',
+	budgetPlanItem: null,
+	items: [],
+}
+
 const model = ref({
 	candidate: {
 		electionCommittee: null,
@@ -196,6 +220,15 @@ const model = ref({
 		endDate: null,
 		recipients: [],
 	} satisfies RepresentationAllowanceFormModel,
+	travelPermit: travelPermitModel,
+	travelAdvance: {
+		permit: null,
+		amount: 0,
+	} satisfies TravelAdvanceFormModel,
+	travelClaim: {
+		permit: null,
+		items: [],
+	} satisfies TravelClaimFormModel,
 	person: ownData,
 	personIban: ownIban,
 	personPhoto: ownPhoto,
@@ -247,6 +280,8 @@ watch(() => authStore.userInfo.person, (person) => {
 	own.matriculationNumber ??= person.matriculationNumber
 	own.postalAddress ??= person.postalAddress
 	model.value.personIban.iban ??= person.iban
+	// Most people apply for their own journeys.
+	model.value.travelPermit.traveler ??= { ...person, course: null, hasPhoto: false }
 }, { immediate: true })
 
 /** Whether the course of the initiator was already looked up below. */
@@ -279,6 +314,9 @@ const formsByTable: Record<string, Component> = {
 	longtermContracts: LongtermContractForm,
 	paymentOrders: PaymentOrderForm,
 	representationAllowances: RepresentationAllowanceForm,
+	travelPermits: TravelPermitForm,
+	travelAdvances: TravelAdvanceForm,
+	travelClaims: TravelClaimForm,
 	persons: WorkflowCustomPersonForm,
 	personIbans: WorkflowCustomPersonIbanForm,
 	personPhotos: WorkflowCustomPersonPhotoForm,

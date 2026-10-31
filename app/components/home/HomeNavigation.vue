@@ -22,6 +22,7 @@ const areas: HomeNavigationArea[] = [
 			// TODO: Sobald es die Berechtigung gibt: workflowProcesses.read
 			{ title: 'Meine Prozesse', link: '/processes', requiresLogin: true },
 			{ title: 'Prozess starten', link: '/processes/create', permission: 'workflowProcesses.create' },
+			{ title: 'Meine Dienstreisen', link: '/travel', requiresLogin: true },
 		],
 	},
 	{
@@ -63,6 +64,27 @@ const areas: HomeNavigationArea[] = [
 			{ title: 'Vorlagenarten', link: '/documentTypes', permission: 'documentTypes.read' },
 			{ title: 'Veranstaltungsarten', link: '/eventTypes', permission: 'eventTypes.read' },
 			{ title: 'Kalender-Abos', link: '/calendarTokens', permission: 'calendarTokens.read' },
+			{ title: 'Dienstreiserollen', link: '/travelRoles', permission: 'travelRoles.read' },
+			{
+				title: 'Sonderzuweisungen für Dienstreisen',
+				link: '/travelSpecialAllocations',
+				permission: 'travelSpecialAllocations.read',
+			},
+			{
+				title: 'Dienstreisekostenarten',
+				link: '/travelCostTypes',
+				permission: 'travelCostTypes.read',
+			},
+			{
+				title: 'Verkehrsmittel',
+				link: '/travelTransportModes',
+				permission: 'travelTransportModes.read',
+			},
+			{
+				title: 'Gründe für die Wahl des Verkehrsmittels',
+				link: '/travelTransportReasons',
+				permission: 'travelTransportReasons.read',
+			},
 			{ title: 'Workflows', link: '/workflows', permission: 'workflows.read' },
 			{ title: 'Ankündigungen', link: '/announcements', permission: 'announcements.create' },
 			{ title: 'Rollen', link: '/roles', permission: 'roles.read' },

@@ -167,6 +167,87 @@ interface RepresentationAllowanceProcessMutation {
 	}[]
 }
 
+interface TravelCoded {
+	code: string
+	name: string
+}
+
+interface TravelPerson {
+	firstName: string
+	lastName: string
+	callName: string | null
+	pronouns: string | null
+}
+
+/**
+ * A permit for an official journey, either as a process carries it or as it
+ * is read from the database for an advance or a claim referring to it.
+ */
+interface TravelPermitProcessMutation {
+	id?: string
+	traveler: TravelPerson | null
+	role: (TravelCoded & {
+		organizationItem: {
+			id: string
+			name: string
+		}
+	}) | null
+	specialAllocation: TravelCoded | null
+	title: string
+	description: string | null
+	origin: string
+	destination: string
+	startDate: string
+	endDate: string
+	transportMode: TravelCoded | null
+	transportReason: TravelCoded | null
+	type: 'planned' | 'reserve'
+	budgetPlanItem: {
+		ord: number | null
+		title: string
+		plan: {
+			budget: {
+				name: string
+				code: string
+			}
+			startDate: string
+			endDate: string
+		}
+	} | null
+	budget: {
+		name: string
+		code: string
+	} | null
+	amount: number
+	items: {
+		id?: string
+		ord: number
+		costType: TravelCoded | null
+		description: string | null
+		amount: number
+	}[]
+}
+
+interface TravelAdvanceProcessMutation {
+	id?: string
+	permit: TravelPermitProcessMutation | null
+	amount: number
+}
+
+interface TravelClaimProcessMutation {
+	id?: string
+	permit: TravelPermitProcessMutation | null
+	requestedAmount: number
+	amount: number
+	payoutAmount: number
+	items: {
+		ord: number
+		permitItem: string
+		description: string | null
+		amount: number
+	}[]
+}
+
 export interface ExpandedProcessMutations {
 	budgetPlan: BudgetPlanProcessMutation
 	budgetPlanItem: BudgetPlanItemsProcessMutation
@@ -174,6 +255,9 @@ export interface ExpandedProcessMutations {
 	paymentOrder: PaymentOrderProcessMutation
 	longtermContract: LongtermContractProcessMutation
 	representationAllowance: RepresentationAllowanceProcessMutation
+	travelPermit: TravelPermitProcessMutation
+	travelAdvance: TravelAdvanceProcessMutation
+	travelClaim: TravelClaimProcessMutation
 }
 
 export type ProcessMutation = keyof ExpandedProcessMutations

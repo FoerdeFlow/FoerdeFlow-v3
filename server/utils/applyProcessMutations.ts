@@ -358,6 +358,157 @@ async function createRepresentationAllowance(
 }
 
 /**
+ * Writes a permit for an official journey that was granted, with its lines.
+ *
+ * @param tx - The transaction to write in
+ * @param _dataId - Unused, a permit is always created anew
+ * @param data - The data of the mutation, with its budget and its sum
+ * @returns The id of the permit that was created
+ */
+async function createTravelPermit(
+	tx: ReturnType<typeof useDatabase>,
+	_dataId: string | null,
+	data: Omit<InferInsertModel<typeof travelPermits>, 'id'> & {
+		items: Omit<InferInsertModel<typeof travelPermitItems>, 'id' | 'permit'>[]
+	},
+) {
+	const { items, ...permit } = data
+	const [ result ] = await tx
+		.insert(travelPermits)
+		.values(permit)
+		.returning({ id: travelPermits.id })
+
+	if(!result) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Dienstreisegenehmigung konnte nicht erstellt werden',
+		})
+	}
+
+	await tx.insert(travelPermitItems).values(items.map((item) => ({
+		...item,
+		permit: result.id,
+	})))
+
+	return result.id
+}
+
+/**
+ * Writes an advance that was granted on a permit. A claim made in the meantime
+ * already set off the costs, so an advance is no longer possible then.
+ *
+ * @param tx - The transaction to write in
+ * @param _dataId - Unused, an advance is always created anew
+ * @param data - The data of the mutation
+ * @returns The id of the advance that was created
+ */
+async function createTravelAdvance(
+	tx: ReturnType<typeof useDatabase>,
+	_dataId: string | null,
+	data: Omit<InferInsertModel<typeof travelAdvances>, 'id'>,
+) {
+	const claim = await tx.query.travelClaims.findFirst({
+		where: eq(travelClaims.permit, data.permit),
+		columns: {
+			id: true,
+		},
+	})
+	if(claim) {
+		throw createError({
+			statusCode: 409,
+			statusMessage: 'Für diese Dienstreise wurde die Erstattung bereits beantragt',
+		})
+	}
+
+	const [ result ] = await tx
+		.insert(travelAdvances)
+		.values(data)
+		.onConflictDoNothing()
+		.returning({ id: travelAdvances.id })
+
+	if(!result) {
+		throw createError({
+			statusCode: 409,
+			statusMessage: 'Auf diese Dienstreisegenehmigung wurde bereits ein Vorschuss gezahlt',
+		})
+	}
+
+	return result.id
+}
+
+/**
+ * Writes a claim that was approved, with its costs. The amounts are computed
+ * anew, as an advance may have been granted after the claim was submitted.
+ *
+ * @param tx - The transaction to write in
+ * @param _dataId - Unused, a claim is always created anew
+ * @param data - The data of the mutation
+ * @returns The id of the claim that was created
+ */
+async function createTravelClaim(
+	tx: ReturnType<typeof useDatabase>,
+	_dataId: string | null,
+	data: {
+		permit: string
+		items: Omit<InferInsertModel<typeof travelClaimItems>, 'id' | 'claim'>[]
+	},
+) {
+	const permit = await tx.query.travelPermits.findFirst({
+		where: eq(travelPermits.id, data.permit),
+		with: {
+			items: {
+				columns: {
+					id: true,
+					amount: true,
+				},
+			},
+			advance: {
+				columns: {
+					amount: true,
+				},
+			},
+		},
+		columns: {},
+	})
+	if(!permit) {
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Die Dienstreisegenehmigung der Erstattung wurde nicht gefunden',
+		})
+	}
+
+	const { requestedAmount, amount } = travelClaimAmounts(permit.items, data.items)
+
+	const [ result ] = await tx
+		.insert(travelClaims)
+		.values({
+			permit: data.permit,
+			requestedAmount,
+			amount,
+			payoutAmount: currencySum(amount, -(permit.advance?.amount ?? 0)),
+		})
+		.onConflictDoNothing()
+		.returning({ id: travelClaims.id })
+
+	if(!result) {
+		throw createError({
+			statusCode: 409,
+			statusMessage: 'Für diese Dienstreise wurde die Erstattung bereits beantragt',
+		})
+	}
+
+	await tx.insert(travelClaimItems).values(data.items.map((item) => ({
+		ord: item.ord,
+		permitItem: item.permitItem,
+		description: item.description,
+		amount: item.amount,
+		claim: result.id,
+	})))
+
+	return result.id
+}
+
+/**
  * Writes the data a person adjusted about themselves.
  *
  * The whole set of fields is written, not only the ones that were changed. The
@@ -536,6 +687,21 @@ export async function applyProcessMutations(
 			},
 			representationAllowances: {
 				create: createRepresentationAllowance,
+				update: () => { /**/ },
+				delete: () => { /**/ },
+			},
+			travelPermits: {
+				create: createTravelPermit,
+				update: () => { /**/ },
+				delete: () => { /**/ },
+			},
+			travelAdvances: {
+				create: createTravelAdvance,
+				update: () => { /**/ },
+				delete: () => { /**/ },
+			},
+			travelClaims: {
+				create: createTravelClaim,
 				update: () => { /**/ },
 				delete: () => { /**/ },
 			},

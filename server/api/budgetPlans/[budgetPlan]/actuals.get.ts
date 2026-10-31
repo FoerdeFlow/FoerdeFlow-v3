@@ -41,8 +41,8 @@ export default defineEventHandler(async (event) => {
 
 	const itemIds = plan.items.map((item) => item.id)
 
-	const [ authorized, ordered, actual ] = itemIds.length === 0
-		? [ [], [], [] ]
+	const [ authorized, ordered, actual, travelAuthorized, travelOrdered ] = itemIds.length === 0
+		? [ [], [], [], [], [] ]
 		: await Promise.all([
 			database
 				.select({
@@ -76,6 +76,26 @@ export default defineEventHandler(async (event) => {
 					bankTransactionAssignments.budgetPlanItem,
 					bankTransactions.direction,
 				),
+			database
+				.select({
+					item: travelPermits.budgetPlanItem,
+					amount: sumOf(travelPermits.amount),
+				})
+				.from(travelPermits)
+				.where(inArray(travelPermits.budgetPlanItem, itemIds))
+				.groupBy(travelPermits.budgetPlanItem),
+			// A claim supersedes the advance it sets off, so a journey counts
+			// with its claim once there is one and with its advance before.
+			database
+				.select({
+					item: travelPermits.budgetPlanItem,
+					amount: sumOf(sql`coalesce(${travelClaims.amount}, ${travelAdvances.amount})`),
+				})
+				.from(travelPermits)
+				.leftJoin(travelAdvances, eq(travelAdvances.permit, travelPermits.id))
+				.leftJoin(travelClaims, eq(travelClaims.permit, travelPermits.id))
+				.where(inArray(travelPermits.budgetPlanItem, itemIds))
+				.groupBy(travelPermits.budgetPlanItem),
 		])
 
 	// The reserve is not part of a plan, so only what was booked on it within
@@ -105,8 +125,14 @@ export default defineEventHandler(async (event) => {
 
 		return {
 			...item,
-			authorized: amountOf(authorized, item.id),
-			ordered: amountOf(ordered, item.id),
+			authorized: currencySum(
+				amountOf(authorized, item.id),
+				amountOf(travelAuthorized, item.id),
+			),
+			ordered: currencySum(
+				amountOf(ordered, item.id),
+				amountOf(travelOrdered, item.id),
+			),
 			actualRevenues,
 			actualExpenses,
 			remainingRevenues: currencySum(item.revenues, -actualRevenues),

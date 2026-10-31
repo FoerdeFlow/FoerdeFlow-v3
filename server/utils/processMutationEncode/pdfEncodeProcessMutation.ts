@@ -35,6 +35,12 @@ export async function pdfEncodeProcessMutation(
 			return await pdfEncodeLongtermContract(data, options)
 		case 'representationAllowances':
 			return await pdfEncodeRepresentationAllowance(data, options)
+		case 'travelPermits':
+			return await pdfEncodeTravelPermit(data, options)
+		case 'travelAdvances':
+			return await pdfEncodeTravelAdvance(data, options)
+		case 'travelClaims':
+			return await pdfEncodeTravelClaim(data, options)
 		default:
 			throw createError({
 				statusCode: 400,

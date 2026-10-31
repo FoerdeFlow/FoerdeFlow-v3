@@ -470,6 +470,13 @@
       "when": 1793397278323,
       "tag": "0066_remove_travel",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1793408129594,
+      "tag": "0067_travel",
+      "breakpoints": true
     }
   ]
 }

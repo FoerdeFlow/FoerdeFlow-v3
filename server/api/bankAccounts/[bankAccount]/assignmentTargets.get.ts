@@ -68,8 +68,59 @@ export default defineEventHandler(async (event) => {
 			},
 		})
 
+	const permits = budgetIds.length === 0
+		? []
+		: await database.query.travelPermits.findMany({
+			where: or(
+				inArray(travelPermits.budget, budgetIds),
+				itemIds.length > 0 ? inArray(travelPermits.budgetPlanItem, itemIds) : undefined,
+			),
+			with: {
+				traveler: {
+					columns: {
+						firstName: true,
+						lastName: true,
+						callName: true,
+					},
+				},
+				advance: {
+					columns: {
+						id: true,
+						amount: true,
+					},
+				},
+				claim: {
+					columns: {
+						id: true,
+						payoutAmount: true,
+					},
+				},
+			},
+			columns: {
+				type: true,
+				budgetPlanItem: true,
+				budget: true,
+				title: true,
+			},
+		})
+
+	// Offered with the budget they are paid from, like the payment orders, so
+	// that picking one also picks where it is booked.
+	const target = (permit: typeof permits[number]) => ({
+		type: permit.type,
+		budgetPlanItem: permit.budgetPlanItem,
+		budget: permit.budget,
+		title: `${permit.title} (${formatPerson(permit.traveler)})`,
+	})
+
 	return {
 		budgets: budgetList,
 		paymentOrders: orders,
+		travelAdvances: permits.flatMap((permit) => permit.advance
+			? [ { id: permit.advance.id, amount: permit.advance.amount, ...target(permit) } ]
+			: []),
+		travelClaims: permits.flatMap((permit) => permit.claim && permit.claim.payoutAmount !== 0
+			? [ { id: permit.claim.id, payoutAmount: permit.claim.payoutAmount, ...target(permit) } ]
+			: []),
 	}
 })

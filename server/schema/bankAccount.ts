@@ -17,6 +17,7 @@ import { budgetPlanItems, budgets } from './budget'
 import { organizationItems } from './organizationItem'
 import { paymentOrders } from './paymentOrder'
 import { persons } from './person'
+import { travelAdvances, travelClaims } from './travel'
 
 export const bankAccounts = pgTable('bank_accounts', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
@@ -137,6 +138,10 @@ export const bankTransactionAssignments = pgTable('bank_transaction_assignments'
 	budget: uuid().references(() => budgets.id),
 	// The payment order the transaction carries out, if any.
 	paymentOrder: uuid().references(() => paymentOrders.id),
+	// The advance or the claim for travel costs the transaction pays out, or
+	// for a claim also the repayment of an advance that exceeded the costs.
+	travelAdvance: uuid(),
+	travelClaim: uuid(),
 	amount: numeric({ precision: 16, scale: 2, mode: 'number' }).notNull(),
 	note: varchar({ length: 256 }),
 }, (table) => [
@@ -150,6 +155,16 @@ export const bankTransactionAssignments = pgTable('bank_transaction_assignments'
 		name: 'bank_transaction_assignment_budget_plan_item_fk',
 		columns: [ table.budgetPlanItem ],
 		foreignColumns: [ budgetPlanItems.id ],
+	}),
+	foreignKey({
+		name: 'bank_transaction_assignment_travel_advance_fk',
+		columns: [ table.travelAdvance ],
+		foreignColumns: [ travelAdvances.id ],
+	}),
+	foreignKey({
+		name: 'bank_transaction_assignment_travel_claim_fk',
+		columns: [ table.travelClaim ],
+		foreignColumns: [ travelClaims.id ],
 	}),
 	// The transfer is compared as text: the migration adding the value runs in
 	// one transaction, and within it Postgres refuses to use a new enum value.
@@ -167,8 +182,18 @@ export const bankTransactionAssignments = pgTable('bank_transaction_assignments'
 			${table.type}::text = 'transfer' AND
 			${table.budget} IS NULL AND
 			${table.budgetPlanItem} IS NULL AND
-			${table.paymentOrder} IS NULL
+			${table.paymentOrder} IS NULL AND
+			${table.travelAdvance} IS NULL AND
+			${table.travelClaim} IS NULL
 		)`,
+	),
+	check(
+		'single_document',
+		sql`num_nonnulls(
+			${table.paymentOrder},
+			${table.travelAdvance},
+			${table.travelClaim}
+		) <= 1`,
 	),
 	check(
 		'amount_positive',
@@ -192,5 +217,13 @@ export const bankTransactionAssignmentsRelations = relations(bankTransactionAssi
 	paymentOrder: one(paymentOrders, {
 		fields: [ bankTransactionAssignments.paymentOrder ],
 		references: [ paymentOrders.id ],
+	}),
+	travelAdvance: one(travelAdvances, {
+		fields: [ bankTransactionAssignments.travelAdvance ],
+		references: [ travelAdvances.id ],
+	}),
+	travelClaim: one(travelClaims, {
+		fields: [ bankTransactionAssignments.travelClaim ],
+		references: [ travelClaims.id ],
 	}),
 }))

@@ -62,6 +62,32 @@ export default defineEventHandler(async (event) => {
 							amount: true,
 						},
 					},
+					travelAdvance: {
+						with: {
+							permit: {
+								columns: {
+									title: true,
+								},
+							},
+						},
+						columns: {
+							id: true,
+							amount: true,
+						},
+					},
+					travelClaim: {
+						with: {
+							permit: {
+								columns: {
+									title: true,
+								},
+							},
+						},
+						columns: {
+							id: true,
+							payoutAmount: true,
+						},
+					},
 				},
 				columns: {
 					transaction: false,
