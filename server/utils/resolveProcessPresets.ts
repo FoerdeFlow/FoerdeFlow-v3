@@ -105,6 +105,80 @@ const resolveRecipients: Resolver = async (database, value) => {
 	}))
 }
 
+// The travel master data is resolved in the shape its lists hand it out in,
+// as the selects of the forms pick from those lists.
+const budgetWithOrganizationItem = {
+	with: {
+		organizationItem: true,
+	},
+	columns: {
+		organizationItem: false,
+	},
+} as const
+
+const resolveTravelRole: Resolver = async (database, value) => {
+	if(typeof value !== 'string') return null
+	return await database.query.travelRoles.findFirst({
+		where: eq(travelRoles.id, value),
+		with: {
+			organizationItem: true,
+			budget: budgetWithOrganizationItem,
+		},
+		columns: {
+			organizationItem: false,
+			budget: false,
+		},
+	}) ?? null
+}
+
+const resolveTravelSpecialAllocation: Resolver = async (database, value) => {
+	if(typeof value !== 'string') return null
+	return await database.query.travelSpecialAllocations.findFirst({
+		where: eq(travelSpecialAllocations.id, value),
+		with: {
+			budget: budgetWithOrganizationItem,
+		},
+		columns: {
+			budget: false,
+		},
+	}) ?? null
+}
+
+const resolveTravelTransportMode: Resolver = async (database, value) => {
+	if(typeof value !== 'string') return null
+	return await database.query.travelTransportModes.findFirst({
+		where: eq(travelTransportModes.id, value),
+	}) ?? null
+}
+
+const resolveTravelTransportReason: Resolver = async (database, value) => {
+	if(typeof value !== 'string') return null
+	const reason = await database.query.travelTransportReasons.findFirst({
+		where: eq(travelTransportReasons.id, value),
+		with: travelTransportReasonLinksWith,
+	})
+	return reason ? withTravelTransportReasonLinks(reason) : null
+}
+
+const resolveTravelPermitItems: Resolver = async (database, value) => {
+	if(!Array.isArray(value)) return value
+	return await Promise.all(value.map(async (item, index) => {
+		if(typeof item !== 'object' || item === null) return item
+		const { costType } = item as { costType?: unknown }
+		return {
+			// The lines of a form are told apart by an id, which a preset
+			// does not carry.
+			id: `preset-${index}`,
+			...item,
+			costType: typeof costType === 'string'
+				? await database.query.travelCostTypes.findFirst({
+					where: eq(travelCostTypes.id, costType),
+				}) ?? null
+				: null,
+		}
+	}))
+}
+
 const resolvers: Record<string, Record<string, Resolver>> = {
 	budgetPlans: {
 		budget: resolveBudget,
@@ -134,6 +208,15 @@ const resolvers: Record<string, Record<string, Resolver>> = {
 	},
 	persons: {
 		course: resolveCourse,
+	},
+	travelPermits: {
+		traveler: resolvePerson,
+		role: resolveTravelRole,
+		specialAllocation: resolveTravelSpecialAllocation,
+		transportMode: resolveTravelTransportMode,
+		transportReason: resolveTravelTransportReason,
+		budgetPlanItem: resolveBudgetPlanItem,
+		items: resolveTravelPermitItems,
 	},
 }
 

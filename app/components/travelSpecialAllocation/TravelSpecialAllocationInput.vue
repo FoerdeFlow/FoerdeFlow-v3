@@ -16,7 +16,7 @@ const model = defineModel<TravelSpecialAllocation>({
 
 <template lang="pug">
 .kern-form-input
-	label.kern-label(:for="id") Sonderzuweisung (optional)
+	label.kern-label(:for="id") Haushaltssonderzuweisung #[span.kern-label__optional - Optional]
 	TravelSpecialAllocationSelect(
 		:id="id"
 		v-model="model"
