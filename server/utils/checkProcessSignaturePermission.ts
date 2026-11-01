@@ -31,6 +31,7 @@ export async function checkProcessSignaturePermission(
 				columns: {
 					assignee: true,
 					assigneeReferencedPerson: true,
+					assigneeReferencedOrganizationItem: true,
 					assigneeOrganizationItem: true,
 				},
 			},

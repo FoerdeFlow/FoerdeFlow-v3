@@ -21,9 +21,10 @@ export async function checkParticipantPermission(
 		initiatorOrganizationItem: string | null
 	},
 	participant: {
-		assignee: 'initiator' | 'referencedPerson' | 'organizationItem'
+		assignee: 'initiator' | 'referencedPerson' | 'organizationItem' | 'referencedOrganizationItem'
 		assigneeReferencedPerson: string | null
 		assigneeOrganizationItem: string | null
+		assigneeReferencedOrganizationItem: string | null
 	},
 	options: {
 		allowMembershipFallback?: boolean
@@ -56,53 +57,12 @@ export async function checkParticipantPermission(
 			}
 			break
 		case 'referencedPerson': {
-			const [ referencedPersonTable, ...referencedPersonSteps ] =
-				participant.assigneeReferencedPerson?.split('.') ?? []
-			if(!referencedPersonTable || referencedPersonSteps.length <= 0) {
-				throw createError({
-					statusCode: 403,
-					statusMessage: 'Forbidden',
-					data: 'Invalid referenced person assignment',
-				})
-			}
-
-			const mutation = await tx.query.workflowProcessMutations.findFirst({
-				where: (tbl, { and, eq, exists }) => and(
-					eq(tbl.process, process.id),
-					exists(tx.select()
-						.from(workflowMutations)
-						.where(and(
-							eq(workflowMutations.id, tbl.mutation),
-							eq(workflowMutations.table, referencedPersonTable),
-						))),
-				),
-				columns: {
-					data: true,
-				},
-			})
-			if(!mutation) {
-				throw createError({
-					statusCode: 403,
-					statusMessage: 'Forbidden',
-					data: 'Referenced person mutation not found',
-				})
-			}
-
-			let referencedPersonData: unknown = mutation.data
-			for(const referencedPersonStep of referencedPersonSteps) {
-				if(typeof referencedPersonData === 'object' && referencedPersonData !== null) {
-					const record = referencedPersonData as Record<string, unknown>
-					referencedPersonData = record[referencedPersonStep]
-				} else {
-					referencedPersonData = undefined
-					break
-				}
-			}
-
-			const referencedPersonId = typeof referencedPersonData === 'string'
-				? referencedPersonData
-				: undefined
-			if(referencedPersonId !== (event.context as EventContext).user?.person?.id) {
+			const referencedPerson = await readProcessMutationField(
+				tx,
+				process.id,
+				participant.assigneeReferencedPerson,
+			)
+			if(!referencedPerson || referencedPerson !== (event.context as EventContext).user?.person?.id) {
 				throw createError({
 					statusCode: 403,
 					statusMessage: 'Forbidden',
@@ -112,22 +72,34 @@ export async function checkParticipantPermission(
 			break
 		}
 		case 'organizationItem':
+		case 'referencedOrganizationItem': {
+			// A referenced organization item is resolved first, from then on it
+			// is checked like one that is fixed by the workflow.
+			const organizationItem = participant.assignee === 'referencedOrganizationItem'
+				? await readProcessMutationField(
+					tx,
+					process.id,
+					participant.assigneeReferencedOrganizationItem,
+				)
+				: participant.assigneeOrganizationItem
+
 			try {
 				await checkPermission(
 					'workflowProcesses.update',
-					{ organizationItem: participant.assigneeOrganizationItem ?? '' },
+					{ organizationItem: organizationItem ?? '' },
 					{ exactScopeMatch: true },
 				)
 			} catch(error) {
 				if(
-					!options.allowMembershipFallback ||
+					!options.allowMembershipFallback || !organizationItem ||
 					!(event.context as EventContext).user?.memberships?.some((membership) =>
-						membership.organizationItem.id === participant.assigneeOrganizationItem,
+						membership.organizationItem.id === organizationItem,
 					)
 				) {
 					throw error
 				}
 			}
 			break
+		}
 	}
 }

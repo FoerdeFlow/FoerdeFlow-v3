@@ -22,7 +22,8 @@ function refuse(statusMessage: string, statusCode = 400, data?: unknown): never 
  * @param tx - The transaction to read in
  * @param data - The permit as submitted
  * @param context - The initiator and the meta data of the mutation
- * @returns The permit with its budget and the sum of its lines
+ * @returns The permit with its budget, the organization item of its role and
+ * the sum of its lines
  */
 export async function checkTravelPermit(
 	tx: ReturnType<typeof useDatabase>,
@@ -36,6 +37,7 @@ export async function checkTravelPermit(
 		columns: {
 			code: true,
 			budget: true,
+			organizationItem: true,
 		},
 	})
 	if(!role) refuse('Die angegebene Dienstreiserolle wurde nicht gefunden')
@@ -156,6 +158,9 @@ export async function checkTravelPermit(
 	return {
 		...data,
 		budget: data.type === 'reserve' ? budget : null,
+		// Kept with the data, so that a step can be assigned to the unit of
+		// the role, see `referencedOrganizationItem`.
+		organizationItem: role.organizationItem,
 		amount: currencySum(...data.items.map((item) => item.amount)),
 	}
 }

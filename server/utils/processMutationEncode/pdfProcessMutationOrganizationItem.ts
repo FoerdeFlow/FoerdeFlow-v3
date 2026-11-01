@@ -35,14 +35,12 @@ export function pdfProcessMutationOrganizationItem(
 		case 'expenseAuthorizations':
 		case 'paymentOrders':
 			return budgetOriginOrganizationItem(data)
+		// For a journey it is the unit of the role, kept with the data.
 		case 'representationAllowances':
-			return data.organizationItem?.id ?? null
-		// The role decides the letterhead of everything about a journey.
 		case 'travelPermits':
-			return data.role?.organizationItem?.id ?? null
 		case 'travelAdvances':
 		case 'travelClaims':
-			return data.permit?.role?.organizationItem?.id ?? null
+			return data.organizationItem?.id ?? null
 		default:
 			return null
 	}

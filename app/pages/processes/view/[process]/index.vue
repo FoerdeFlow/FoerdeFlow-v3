@@ -265,6 +265,8 @@ KernTable.mt-8(
 			| {{ formatReferencedPerson(item.step.assigneeReferencedPerson, data?.mutations) }}
 		template(v-else-if="item.step.assignee === 'organizationItem'")
 			| {{ formatOrganizationItem(item.step.assigneeOrganizationItem) }}
+		template(v-else-if="item.step.assignee === 'referencedOrganizationItem'")
+			| {{ formatReferencedOrganizationItem(item.step.assigneeReferencedOrganizationItem, data?.mutations) }}
 	template(#type-header)
 		| Typ
 	template(#type-body="{ item }")
@@ -327,6 +329,8 @@ section.mt-8(v-if="data?.signatures.length")
 				| {{ formatReferencedPerson(item.signature.assigneeReferencedPerson, data?.mutations) }}
 			template(v-else-if="item.signature.assignee === 'organizationItem'")
 				| {{ formatOrganizationItem(item.signature.assigneeOrganizationItem) }}
+			template(v-else-if="item.signature.assignee === 'referencedOrganizationItem'")
+				| {{ formatReferencedOrganizationItem(item.signature.assigneeReferencedOrganizationItem, data?.mutations) }}
 		template(#status-header)
 			| Status
 		template(#status-body="{ item }")

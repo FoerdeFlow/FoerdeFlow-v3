@@ -139,6 +139,24 @@ async function encodeAffectedPerson(tx: ReturnType<typeof useDatabase>, person: 
 }
 
 /**
+ * Expands the organization item a mutation was derived to belong to.
+ *
+ * @param tx - The transaction to read in
+ * @param organizationItem - The id of the organization item
+ * @returns The organization item or `null` if it does not exist any more
+ */
+async function encodeOrganizationItem(tx: ReturnType<typeof useDatabase>, organizationItem: string) {
+	return await tx.query.organizationItems.findFirst({
+		where: eq(organizationItems.id, organizationItem),
+		columns: {
+			id: true,
+			code: true,
+			name: true,
+		},
+	}) ?? null
+}
+
+/**
  * Expands the master data a permit for an official journey refers to, so that
  * a reader sees codes and names instead of bare ids.
  *
@@ -150,6 +168,7 @@ async function encodeTravelPermit(
 	tx: ReturnType<typeof useDatabase>,
 	model: z.infer<typeof processSchemas.travelPermits.create> & {
 		budget: string | null
+		organizationItem: string
 		amount: number
 	},
 ) {
@@ -163,6 +182,7 @@ async function encodeTravelPermit(
 	return {
 		...model,
 		traveler: await encodeAffectedPerson(tx, model.traveler),
+		organizationItem: await encodeOrganizationItem(tx, model.organizationItem),
 		role: await tx.query.travelRoles.findFirst({
 			where: eq(travelRoles.id, model.role),
 			with: {
@@ -443,20 +463,25 @@ const encoders = {
 	travelPermits: encodeTravelPermit,
 	travelAdvances: async (
 		tx: ReturnType<typeof useDatabase>,
-		model: z.infer<typeof processSchemas.travelAdvances.create>,
+		model: z.infer<typeof processSchemas.travelAdvances.create> & {
+			organizationItem: string
+		},
 	) => ({
 		...model,
+		organizationItem: await encodeOrganizationItem(tx, model.organizationItem),
 		permit: await readTravelPermit(tx, model.permit),
 	}),
 	travelClaims: async (
 		tx: ReturnType<typeof useDatabase>,
 		model: z.infer<typeof processSchemas.travelClaims.create> & {
+			organizationItem: string
 			requestedAmount: number
 			amount: number
 			payoutAmount: number
 		},
 	) => ({
 		...model,
+		organizationItem: await encodeOrganizationItem(tx, model.organizationItem),
 		permit: await readTravelPermit(tx, model.permit),
 	}),
 	persons: async (

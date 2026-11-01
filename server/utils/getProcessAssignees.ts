@@ -12,9 +12,10 @@ import { eq } from 'drizzle-orm'
  * @returns The addressed persons, empty when the assignment cannot be resolved
  */
 export async function getProcessAssignees(options: {
-	assignee: 'initiator' | 'organizationItem' | 'referencedPerson'
+	assignee: 'initiator' | 'organizationItem' | 'referencedPerson' | 'referencedOrganizationItem'
 	assigneeReferencedPerson: string | null
 	assigneeOrganizationItem: string | null
+	assigneeReferencedOrganizationItem: string | null
 	processId: string
 	initiatorType: 'person' | 'organizationItem'
 	initiatorPerson: string | null
@@ -38,39 +39,26 @@ export async function getProcessAssignees(options: {
 		}
 	}
 
-	if(options.assignee === 'referencedPerson' && options.assigneeReferencedPerson) {
-		const mutations = await database.query.workflowProcessMutations.findMany({
-			where: (mutation, { eq }) => eq(mutation.process, options.processId),
-			with: {
-				mutation: {
-					columns: {
-						table: true,
-					},
-				},
-			},
-			columns: {
-				data: true,
-			},
-		})
-
-		const [ table, ...steps ] = options.assigneeReferencedPerson.split('.')
-		const mutation = mutations.find((m) => m.mutation.table === table)
-		if(!mutation) {
-			return []
-		}
-
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const field = steps.reduce<any>(
-			(acc, step) => acc?.[step] ?? null,
-			mutation.data,
+	if(options.assignee === 'referencedPerson') {
+		const person = await readProcessMutationField(
+			database,
+			options.processId,
+			options.assigneeReferencedPerson,
 		)
-		if(typeof field !== 'string') {
-			return []
-		}
+		return person
+			? await database.query.persons.findMany({
+				where: eq(persons.id, person),
+			})
+			: []
+	}
 
-		return await database.query.persons.findMany({
-			where: eq(persons.id, field),
-		})
+	if(options.assignee === 'referencedOrganizationItem') {
+		const organizationItem = await readProcessMutationField(
+			database,
+			options.processId,
+			options.assigneeReferencedOrganizationItem,
+		)
+		return organizationItem ? await getEffectiveMembers([ organizationItem ], null) : []
 	}
 
 	return []

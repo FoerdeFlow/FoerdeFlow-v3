@@ -477,24 +477,47 @@ export function formatElection(
 	return election.title
 }
 
-export function formatReferencedPerson(
-	reference: string | null,
-	mutations?: {
-		mutation: {
-			table: string,
-		},
-		data: Record<string, unknown>,
-	}[],
-) {
-	if(!reference || !mutations) return ''
+type ReferencedMutations = {
+	mutation: {
+		table: string,
+	},
+	data: Record<string, unknown>,
+}[]
+
+/**
+ * Follows a reference such as `travelPermits.organizationItem` into the data of
+ * the mutations of a process, as the process API hands them out expanded.
+ *
+ * @param reference - The table and the path to the field, separated by dots
+ * @param mutations - The mutations of the process
+ * @returns The value of the field, `null` if the reference leads nowhere
+ */
+function readReferencedField(reference: string | null, mutations?: ReferencedMutations) {
+	if(!reference || !mutations) return null
 	const [ table, ...steps ] = reference.split('.')
 
-	let data: Record<string, unknown> | null | undefined =
-		mutations.find((m) => m.mutation.table === table)?.data
-	while(typeof data === 'object' && data !== null && steps.length > 0) {
-		const step = steps.shift()
-		if(step === undefined) break
-		data = data[step] as Record<string, unknown> | null | undefined
+	let data: unknown = mutations.find((m) => m.mutation.table === table)?.data
+	for(const step of steps) {
+		data = typeof data === 'object' && data !== null
+			? (data as Record<string, unknown>)[step]
+			: undefined
 	}
-	return formatPerson((data ?? null) as Parameters<typeof formatPerson>[0])
+	return data ?? null
+}
+
+export function formatReferencedPerson(
+	reference: string | null,
+	mutations?: ReferencedMutations,
+) {
+	return formatPerson(readReferencedField(reference, mutations) as Parameters<typeof formatPerson>[0])
+}
+
+export function formatReferencedOrganizationItem(
+	reference: string | null,
+	mutations?: ReferencedMutations,
+) {
+	const item = readReferencedField(reference, mutations)
+	return typeof item === 'object'
+		? formatOrganizationItem(item as Parameters<typeof formatOrganizationItem>[0])
+		: ''
 }

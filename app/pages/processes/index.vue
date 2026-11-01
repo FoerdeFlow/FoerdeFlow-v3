@@ -122,6 +122,8 @@ KernTable(
 			em {{ $t(`processes.${item.currentStep.step.assigneeReferencedPerson}`) }}
 		template(v-else-if="item.currentStep?.step.assignee === 'organizationItem'")
 			| {{ formatOrganizationItem(item.currentStep.step.assigneeOrganizationItem) }}
+		template(v-else-if="item.currentStep?.step.assignee === 'referencedOrganizationItem'")
+			em {{ $t(`processes.${item.currentStep.step.assigneeReferencedOrganizationItem}`) }}
 		template(v-if="item.previousStep")
 			br
 			span.kern-body.kern-body--small seit {{ formatDatetime(item.previousStep.modifiedAt ?? null, 'compact') }}

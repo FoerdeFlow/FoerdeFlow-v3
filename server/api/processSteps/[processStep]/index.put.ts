@@ -51,6 +51,7 @@ export default defineEventHandler(async (event) => {
 			columns: {
 				assignee: true,
 				assigneeReferencedPerson: true,
+				assigneeReferencedOrganizationItem: true,
 				assigneeOrganizationItem: true,
 				type: true,
 				code: true,

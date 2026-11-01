@@ -20,6 +20,11 @@ export async function readTravelPermitOfTraveler(
 	const permit = await tx.query.travelPermits.findFirst({
 		where: eq(travelPermits.id, permitId),
 		with: {
+			role: {
+				columns: {
+					organizationItem: true,
+				},
+			},
 			items: {
 				columns: {
 					id: true,

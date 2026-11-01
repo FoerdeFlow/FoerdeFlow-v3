@@ -88,6 +88,8 @@ KernTable(
 			| {{ item.assigneeReferencedPerson }}
 		template(v-if="item.assignee === 'organizationItem'")
 			| {{ formatOrganizationItem(item.assigneeOrganizationItem) }}
+		template(v-if="item.assignee === 'referencedOrganizationItem'")
+			| {{ item.assigneeReferencedOrganizationItem }}
 WorkflowSignatureEditor(
 	ref="editor"
 	:workflow="route.params.workflow"

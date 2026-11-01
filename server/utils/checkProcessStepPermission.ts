@@ -53,6 +53,7 @@ export async function checkProcessStepPermission(
 		columns: {
 			assignee: true,
 			assigneeReferencedPerson: true,
+			assigneeReferencedOrganizationItem: true,
 			assigneeOrganizationItem: true,
 			type: true,
 			code: true,

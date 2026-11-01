@@ -12,8 +12,9 @@ import type { MutationContext } from './processValidators'
 const processDerivedFields: Partial<Record<keyof typeof processSchemas, string[]>> = {
 	budgetPlanItems: [ 'budget', 'previous' ],
 	representationAllowances: [ 'organizationItem' ],
-	travelPermits: [ 'budget', 'amount' ],
-	travelClaims: [ 'requestedAmount', 'amount', 'payoutAmount' ],
+	travelPermits: [ 'budget', 'organizationItem', 'amount' ],
+	travelAdvances: [ 'organizationItem' ],
+	travelClaims: [ 'organizationItem', 'requestedAmount', 'amount', 'payoutAmount' ],
 	persons: [ 'person' ],
 	personIbans: [ 'person' ],
 	personPhotos: [ 'person' ],

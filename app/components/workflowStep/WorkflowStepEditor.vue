@@ -18,9 +18,10 @@ interface Model {
 	code: string
 	name: string
 	type: WorkflowStepType
-	assignee: 'initiator' | 'referencedPerson' | 'organizationItem'
+	assignee: 'initiator' | 'referencedPerson' | 'organizationItem' | 'referencedOrganizationItem'
 	assigneeReferencedPerson: string | null
 	assigneeOrganizationItem: OrganizationItem
+	assigneeReferencedOrganizationItem: string | null
 	commentRequired: boolean
 	commentLabel: string | null
 	reminderEnabled: boolean
@@ -65,6 +66,7 @@ defineExpose({
 			assignee: 'initiator',
 			assigneeReferencedPerson: null,
 			assigneeOrganizationItem: null,
+			assigneeReferencedOrganizationItem: null,
 			commentRequired: false,
 			commentLabel: null,
 			reminderEnabled: false,
@@ -85,6 +87,7 @@ defineExpose({
 			assignee: item.assignee,
 			assigneeReferencedPerson: item.assigneeReferencedPerson,
 			assigneeOrganizationItem: item.assigneeOrganizationItem,
+			assigneeReferencedOrganizationItem: item.assigneeReferencedOrganizationItem,
 			commentRequired: item.commentRequired,
 			commentLabel: item.commentLabel,
 			reminderEnabled: item.reminderEnabled,
@@ -120,6 +123,9 @@ async function save() {
 				: null,
 			assigneeOrganizationItem: model.value.assignee === 'organizationItem'
 				? model.value.assigneeOrganizationItem?.id
+				: null,
+			assigneeReferencedOrganizationItem: model.value.assignee === 'referencedOrganizationItem'
+				? model.value.assigneeReferencedOrganizationItem
 				: null,
 			...commentConfigurable.value && model.value.commentRequired
 				? {
@@ -187,6 +193,7 @@ KernDialog(
 			v-model:type="model.assignee"
 			v-model:referenced-person="model.assigneeReferencedPerson"
 			v-model:organization-item="model.assigneeOrganizationItem"
+			v-model:referenced-organization-item="model.assigneeReferencedOrganizationItem"
 		)
 		template(v-if="commentConfigurable")
 			WorkflowStepCommentRequiredInput(v-model="model.commentRequired")

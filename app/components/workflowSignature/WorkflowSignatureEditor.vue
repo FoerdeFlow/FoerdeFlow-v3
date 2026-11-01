@@ -21,9 +21,10 @@ interface Model {
 	hint: string | null
 	mutation: string | null
 	lines: { label: string, hint: string | null }[]
-	assignee: 'initiator' | 'referencedPerson' | 'organizationItem'
+	assignee: 'initiator' | 'referencedPerson' | 'organizationItem' | 'referencedOrganizationItem'
 	assigneeReferencedPerson: string | null
 	assigneeOrganizationItem: OrganizationItem
+	assigneeReferencedOrganizationItem: string | null
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
@@ -60,6 +61,7 @@ defineExpose({
 			assignee: 'organizationItem',
 			assigneeReferencedPerson: null,
 			assigneeOrganizationItem: null,
+			assigneeReferencedOrganizationItem: null,
 		})
 	},
 	async edit(id: string) {
@@ -75,6 +77,7 @@ defineExpose({
 			assignee: item.assignee,
 			assigneeReferencedPerson: item.assigneeReferencedPerson,
 			assigneeOrganizationItem: item.assigneeOrganizationItem,
+			assigneeReferencedOrganizationItem: item.assigneeReferencedOrganizationItem,
 		})
 	},
 })
@@ -108,6 +111,9 @@ async function save() {
 				: null,
 			assigneeOrganizationItem: model.value.assignee === 'organizationItem'
 				? model.value.assigneeOrganizationItem?.id
+				: null,
+			assigneeReferencedOrganizationItem: model.value.assignee === 'referencedOrganizationItem'
+				? model.value.assigneeReferencedOrganizationItem
 				: null,
 		}
 		if(itemId.value) {
@@ -162,5 +168,6 @@ KernDialog(
 			v-model:type="model.assignee"
 			v-model:referenced-person="model.assigneeReferencedPerson"
 			v-model:organization-item="model.assigneeOrganizationItem"
+			v-model:referenced-organization-item="model.assigneeReferencedOrganizationItem"
 		)
 </template>

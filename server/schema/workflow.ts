@@ -66,6 +66,8 @@ export const workflowParticipants = pgEnum('workflow_participants', [
 	'initiator',
 	'referencedPerson',
 	'organizationItem',
+	// An organization item named by a field of the data of the process.
+	'referencedOrganizationItem',
 ])
 
 export const workflowStepTypes = pgEnum('workflow_step_types', [
@@ -85,6 +87,7 @@ export const workflowSteps = pgTable('workflow_steps', {
 	assignee: workflowParticipants().notNull(),
 	assigneeReferencedPerson: varchar({ length: 256 }),
 	assigneeOrganizationItem: uuid().references(() => organizationItems.id),
+	assigneeReferencedOrganizationItem: varchar({ length: 256 }),
 	commentRequired: boolean().notNull().default(false),
 	commentLabel: varchar({ length: 256 }),
 	reminderEnabled: boolean().notNull().default(false),
@@ -141,6 +144,7 @@ export const workflowSignatures = pgTable('workflow_signatures', {
 	assignee: workflowParticipants().notNull(),
 	assigneeReferencedPerson: varchar({ length: 256 }),
 	assigneeOrganizationItem: uuid().references(() => organizationItems.id),
+	assigneeReferencedOrganizationItem: varchar({ length: 256 }),
 })
 
 export const workflowSignaturesRelations = relations(workflowSignatures, ({ one }) => ({

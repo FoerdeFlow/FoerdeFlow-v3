@@ -317,7 +317,7 @@ export const processValidators = {
 			})
 		}
 
-		return data
+		return { ...data, organizationItem: permit.role.organizationItem }
 	},
 	travelClaims: async (
 		tx: ReturnType<typeof useDatabase>,
@@ -355,6 +355,7 @@ export const processValidators = {
 
 		return {
 			...data,
+			organizationItem: permit.role.organizationItem,
 			requestedAmount,
 			amount,
 			payoutAmount: currencySum(amount, -(permit.advance?.amount ?? 0)),

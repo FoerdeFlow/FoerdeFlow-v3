@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
 							type: true,
 							assignee: true,
 							assigneeReferencedPerson: true,
+							assigneeReferencedOrganizationItem: true,
 						},
 					},
 				},

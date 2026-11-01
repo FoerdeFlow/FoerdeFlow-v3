@@ -86,6 +86,16 @@
 		},
 		"personPhotos": {
 			"person": "Betroffene Person"
+		},
+		"travelPermits": {
+			"traveler": "Reisende*r",
+			"organizationItem": "OE der Dienstreiserolle"
+		},
+		"travelAdvances": {
+			"organizationItem": "OE der Dienstreiserolle"
+		},
+		"travelClaims": {
+			"organizationItem": "OE der Dienstreiserolle"
 		}
 	},
 	"budget": {

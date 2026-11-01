@@ -25,9 +25,10 @@ export async function isProcessWaitingForUser(process: {
 	currentStep: {
 		step: {
 			type: 'comment' | 'approval' | 'task' | 'job'
-			assignee: 'initiator' | 'referencedPerson' | 'organizationItem'
+			assignee: 'initiator' | 'referencedPerson' | 'organizationItem' | 'referencedOrganizationItem'
 			assigneeReferencedPerson: string | null
 			assigneeOrganizationItem: { id: string } | null
+			assigneeReferencedOrganizationItem: string | null
 		}
 	} | null
 }) {
@@ -40,6 +41,7 @@ export async function isProcessWaitingForUser(process: {
 		assignee: process.currentStep.step.assignee,
 		assigneeReferencedPerson: process.currentStep.step.assigneeReferencedPerson,
 		assigneeOrganizationItem: process.currentStep.step.assigneeOrganizationItem?.id ?? null,
+		assigneeReferencedOrganizationItem: process.currentStep.step.assigneeReferencedOrganizationItem,
 		processId: process.id,
 		initiatorType: process.initiatorType,
 		initiatorPerson: process.initiatorPerson?.id ?? null,
