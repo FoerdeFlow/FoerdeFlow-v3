@@ -22,11 +22,17 @@ const modified = computed(() => {
 
 const valid = computed(() => !!model.value?.costType && model.value.amount > 0)
 
+// Cloned through JSON, the nested entries of a line are reactive proxies that
+// `structuredClone` refuses, even behind `toRaw`.
+function clone(data: Model): Model {
+	return JSON.parse(JSON.stringify(data)) as Model
+}
+
 function openDialog(id: string | symbol | null, data: Model) {
 	if(!dialog.value) return
 	itemId.value = id
-	itemModel.value = structuredClone(toRaw(data))
-	model.value = structuredClone(toRaw(data))
+	itemModel.value = clone(data)
+	model.value = clone(data)
 	dialog.value.show()
 }
 
