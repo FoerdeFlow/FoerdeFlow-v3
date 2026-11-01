@@ -1276,5 +1276,20 @@
 		"reserve": "Rücklage (Buchungen im Zeitraum)",
 		"total": "Summe",
 		"hint": "Ist-Werte stammen aus den zugeordneten Zahlungen. Eingänge zählen als Einnahmen, Ausgänge als Ausgaben des Titels."
+	},
+	"travelPermit": {
+		"create": {
+			"title": "Dienstreisegenehmigung erstellen"
+		}
+	},
+	"travelAdvance": {
+		"create": {
+			"title": "Vorschuss auf Reisekosten erstellen"
+		}
+	},
+	"travelClaim": {
+		"create": {
+			"title": "Antrag auf Reisekostenerstattung erstellen"
+		}
 	}
 }

@@ -28,9 +28,11 @@ export default defineEventHandler(async (event) => {
 		},
 	})
 
+	// Ordered by the code of the workflow, as the list of all workflows is.
 	const of = (table: typeof travelTables[number]) => mutations
 		.filter((mutation) => mutation.table === table)
 		.map((mutation) => ({ ...mutation.workflow, meta: mutation.meta }))
+		.sort((a, b) => a.code.localeCompare(b.code, 'de', { numeric: true }))
 
 	return {
 		permits: of('travelPermits'),
