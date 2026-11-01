@@ -30,7 +30,7 @@ export const travelRoles = pgTable('travel_roles', {
 	budget: uuid().notNull().references(() => budgets.id),
 })
 
-export const travelRolesRelations = relations(travelRoles, ({ one }) => ({
+export const travelRolesRelations = relations(travelRoles, ({ one, many }) => ({
 	organizationItem: one(organizationItems, {
 		fields: [ travelRoles.organizationItem ],
 		references: [ organizationItems.id ],
@@ -39,6 +39,7 @@ export const travelRolesRelations = relations(travelRoles, ({ one }) => ({
 		fields: [ travelRoles.budget ],
 		references: [ budgets.id ],
 	}),
+	transportReasons: many(travelTransportReasonRoles),
 }))
 
 /** A budget set aside for certain journeys, it pays instead of the role. */
@@ -71,28 +72,82 @@ export const travelTransportModes = pgTable('travel_transport_modes', {
 })
 
 export const travelTransportModesRelations = relations(travelTransportModes, ({ many }) => ({
-	reasons: many(travelTransportReasons),
+	reasons: many(travelTransportReasonModes),
 }))
 
+/** A reason for the choice of a means of transport, given for one or several. */
 export const travelTransportReasons = pgTable('travel_transport_reasons', {
 	id: uuid().notNull().primaryKey().defaultRandom(),
-	transportMode: uuid().notNull(),
-	code: varchar({ length: 16 }).notNull(),
+	code: varchar({ length: 16 }).notNull().unique('travel_transport_reason_code_unique'),
 	name: varchar({ length: 256 }).notNull(),
+})
+
+export const travelTransportReasonsRelations = relations(travelTransportReasons, ({ many }) => ({
+	transportModes: many(travelTransportReasonModes),
+	roles: many(travelTransportReasonRoles),
+}))
+
+/**
+ * The means of transport a reason may be given for, at least one. A means that
+ * a reason is given for cannot be deleted, the reason would lose its meaning.
+ */
+export const travelTransportReasonModes = pgTable('travel_transport_reason_modes', {
+	id: uuid().notNull().primaryKey().defaultRandom(),
+	reason: uuid().notNull(),
+	transportMode: uuid().notNull(),
 }, (table) => [
-	unique('travel_transport_reason_code_unique').on(table.transportMode, table.code),
-	// Named by hand, the generated name exceeds the 63 bytes Postgres keeps.
+	unique('travel_transport_reason_mode_unique').on(table.reason, table.transportMode),
+	// Named by hand, the generated names exceed the 63 bytes Postgres keeps.
 	foreignKey({
-		name: 'travel_transport_reason_transport_mode_fk',
+		name: 'travel_transport_reason_mode_reason_fk',
+		columns: [ table.reason ],
+		foreignColumns: [ travelTransportReasons.id ],
+	}).onDelete('cascade'),
+	foreignKey({
+		name: 'travel_transport_reason_mode_transport_mode_fk',
 		columns: [ table.transportMode ],
 		foreignColumns: [ travelTransportModes.id ],
 	}),
 ])
 
-export const travelTransportReasonsRelations = relations(travelTransportReasons, ({ one }) => ({
+export const travelTransportReasonModesRelations = relations(travelTransportReasonModes, ({ one }) => ({
+	reason: one(travelTransportReasons, {
+		fields: [ travelTransportReasonModes.reason ],
+		references: [ travelTransportReasons.id ],
+	}),
 	transportMode: one(travelTransportModes, {
-		fields: [ travelTransportReasons.transportMode ],
+		fields: [ travelTransportReasonModes.transportMode ],
 		references: [ travelTransportModes.id ],
+	}),
+}))
+
+/**
+ * The roles a reason may be given in. A reason without any is open to every
+ * role. A role that restricts a reason cannot be deleted, the reason would
+ * silently be open to every role then.
+ */
+export const travelTransportReasonRoles = pgTable('travel_transport_reason_roles', {
+	id: uuid().notNull().primaryKey().defaultRandom(),
+	reason: uuid().notNull(),
+	role: uuid().notNull().references(() => travelRoles.id),
+}, (table) => [
+	unique('travel_transport_reason_role_unique').on(table.reason, table.role),
+	// Named by hand, the generated name exceeds the 63 bytes Postgres keeps.
+	foreignKey({
+		name: 'travel_transport_reason_role_reason_fk',
+		columns: [ table.reason ],
+		foreignColumns: [ travelTransportReasons.id ],
+	}).onDelete('cascade'),
+])
+
+export const travelTransportReasonRolesRelations = relations(travelTransportReasonRoles, ({ one }) => ({
+	reason: one(travelTransportReasons, {
+		fields: [ travelTransportReasonRoles.reason ],
+		references: [ travelTransportReasons.id ],
+	}),
+	role: one(travelRoles, {
+		fields: [ travelTransportReasonRoles.role ],
+		references: [ travelRoles.id ],
 	}),
 }))
 

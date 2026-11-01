@@ -111,6 +111,7 @@ template(v-if="props.selectedItem === 'travel-permit-transport'")
 		v-if="presets.visible('transportReason') && model.transportMode?.reasonRequired"
 		v-model="model.transportReason"
 		:transport-mode="model.transportMode?.id ?? null"
+		:role="model.role?.id ?? null"
 		:readonly="presets.readonly('transportReason')"
 	)
 template(v-if="props.selectedItem === 'travel-permit-budget'")

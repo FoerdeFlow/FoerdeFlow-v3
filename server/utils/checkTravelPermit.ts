@@ -16,7 +16,8 @@ function refuse(statusMessage: string, statusCode = 400, data?: unknown): never 
  * from the role. A title has to belong to a plan of that budget which is in
  * force when the journey starts. A workflow that names roles or special
  * allocations in its meta data only grants permits for them; naming special
- * allocations makes one of them obligatory.
+ * allocations makes one of them obligatory. A reason for the means of
+ * transport that is restricted to certain roles may only be given in them.
  *
  * @param tx - The transaction to read in
  * @param data - The permit as submitted
@@ -102,12 +103,25 @@ export async function checkTravelPermit(
 	if(data.transportReason) {
 		const reason = await tx.query.travelTransportReasons.findFirst({
 			where: eq(travelTransportReasons.id, data.transportReason),
-			columns: {
-				transportMode: true,
+			with: {
+				transportModes: {
+					columns: {
+						transportMode: true,
+					},
+				},
+				roles: {
+					columns: {
+						role: true,
+					},
+				},
 			},
+			columns: {},
 		})
-		if(reason?.transportMode !== data.transportMode) {
+		if(!reason?.transportModes.some((entry) => entry.transportMode === data.transportMode)) {
 			refuse('Der Grund gehört nicht zum gewählten Verkehrsmittel')
+		}
+		if(reason.roles.length > 0 && !reason.roles.some((entry) => entry.role === data.role)) {
+			refuse('Der Grund kann in dieser Dienstreiserolle nicht angegeben werden')
 		}
 	} else if(transportMode.reasonRequired) {
 		refuse('Für dieses Verkehrsmittel ist ein Grund anzugeben')

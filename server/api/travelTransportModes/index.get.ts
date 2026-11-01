@@ -13,14 +13,6 @@ export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 
 	const result = await database.query.travelTransportModes.findMany({
-		with: {
-			reasons: {
-				columns: {
-					transportMode: false,
-				},
-				orderBy: (reasons, { asc }) => [ asc(reasons.code) ],
-			},
-		},
 		orderBy: (items, { asc }) => [ asc(items.code) ],
 	})
 

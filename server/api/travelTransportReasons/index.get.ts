@@ -1,6 +1,5 @@
 import type { EventContext } from '~~/server/types'
 
-import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 
 export default defineEventHandler(async (event) => {
@@ -20,24 +19,12 @@ export default defineEventHandler(async (event) => {
 	const database = useDatabase()
 
 	const result = await database.query.travelTransportReasons.findMany({
-		where: query.transportMode
-			? eq(travelTransportReasons.transportMode, query.transportMode)
-			: undefined,
-		with: {
-			transportMode: true,
-		},
-		columns: {
-			transportMode: false,
-		},
-		orderBy: (reasons, { asc, sql }) => [
-			asc(sql<string>`(
-				SELECT code
-				FROM ${travelTransportModes} ff3_ttm
-				WHERE ff3_ttm.id = ${reasons.transportMode}
-			)`),
-			asc(reasons.code),
-		],
+		with: travelTransportReasonLinksWith,
+		orderBy: (reasons, { asc }) => [ asc(reasons.code) ],
 	})
 
 	return result
+		.map(withTravelTransportReasonLinks)
+		.filter((reason) => !query.transportMode ||
+			reason.transportModes.some((mode) => mode.id === query.transportMode))
 })

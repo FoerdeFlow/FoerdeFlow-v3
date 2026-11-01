@@ -48,20 +48,24 @@ KernTable(
 	create-permission="travelTransportReasons.create"
 	update-permission="travelTransportReasons.update"
 	delete-permission="travelTransportReasons.delete"
-	:columns="[ 'transportMode', 'name' ]"
+	:columns="[ 'name', 'transportModes', 'roles' ]"
 	:data="data || []"
 	@create="create"
 	@edit="edit"
 	@remove="remove"
 )
-	template(#transportMode-header)
-		| Verkehrsmittel
-	template(#transportMode-body="{ item }")
-		| {{ formatTravelCoded(item.transportMode) }}
 	template(#name-header)
 		| Name (Kürzel)
 	template(#name-body="{ item }")
 		| {{ formatTravelCoded(item) }}
+	template(#transportModes-header)
+		| Verkehrsmittel
+	template(#transportModes-body="{ item }")
+		| {{ item.transportModes.map((transportMode) => formatTravelCoded(transportMode)).join(', ') }}
+	template(#roles-header)
+		| Dienstreiserollen
+	template(#roles-body="{ item }")
+		| {{ item.roles.length > 0 ? item.roles.map((role) => formatTravelCoded(role)).join(', ') : 'alle' }}
 TravelTransportReasonEditor(
 	ref="editor"
 	@refresh="refresh"

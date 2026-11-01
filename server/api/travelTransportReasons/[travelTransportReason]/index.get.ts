@@ -12,12 +12,7 @@ export default defineEventHandler(async (event) => {
 
 	const item = await database.query.travelTransportReasons.findFirst({
 		where: eq(travelTransportReasons.id, params.travelTransportReason),
-		with: {
-			transportMode: true,
-		},
-		columns: {
-			transportMode: false,
-		},
+		with: travelTransportReasonLinksWith,
 	})
 
 	if(!item) {
@@ -30,5 +25,5 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	return item
+	return withTravelTransportReasonLinks(item)
 })

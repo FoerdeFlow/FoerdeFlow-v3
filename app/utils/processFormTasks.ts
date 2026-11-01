@@ -307,7 +307,12 @@ function travelPermitTasks(
 	const journeyStarted = !!model.title || !!model.origin || !!model.destination || !!startDate
 
 	const reasonRequired = !!model.transportMode?.reasonRequired
-	const transportComplete = filled('transportMode') && (!reasonRequired || filled('transportReason'))
+	// A reason restricted to certain roles no longer fits once the role changes.
+	const reason = model.transportReason
+	const reasonFits = !reason || reason.roles.length === 0 ||
+		reason.roles.some((role) => role.id === model.role?.id)
+	const transportComplete = filled('transportMode') &&
+		(!reasonRequired || filled('transportReason')) && reasonFits
 
 	// The title has to be one of the plan in force when the journey starts, of
 	// the budget the role or the special allocation names.

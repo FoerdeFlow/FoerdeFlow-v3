@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 
-import type { TravelTransportMode } from '~/types'
-
 import { KernDialog } from '#components'
 
 const dialog = useTemplateRef<typeof KernDialog>('dialog')
@@ -10,14 +8,19 @@ const dialog = useTemplateRef<typeof KernDialog>('dialog')
 const itemId = ref<string | null>(null)
 
 interface Model {
-	transportMode: TravelTransportMode
+	transportModes: string[]
 	code: string
 	name: string
+	roles: string[]
 }
 const itemModel = ref<Model | null>(null)
 const model = ref<Model | null>(null)
 const modified = computed(() => !!itemModel.value && !!model.value &&
 	JSON.stringify(itemModel.value) !== JSON.stringify(model.value))
+
+// A reason is only ever given for a means of transport, so it needs one.
+const valid = computed(() => !!model.value && model.value.code.trim() !== '' &&
+	model.value.name.trim() !== '' && model.value.transportModes.length > 0)
 
 function openDialog(id: string | null, data: Model) {
 	if(!dialog.value) return
@@ -30,14 +33,20 @@ function openDialog(id: string | null, data: Model) {
 defineExpose({
 	create() {
 		openDialog(null, {
-			transportMode: null,
+			transportModes: [],
 			code: '',
 			name: '',
+			roles: [],
 		})
 	},
 	async edit(id: string) {
 		const item = await $fetch(`/api/travelTransportReasons/${id}`)
-		openDialog(id, item)
+		openDialog(id, {
+			code: item.code,
+			name: item.name,
+			transportModes: item.transportModes.map((transportMode) => transportMode.id),
+			roles: item.roles.map((role) => role.id),
+		})
 	},
 })
 
@@ -54,9 +63,10 @@ async function save() {
 	if(!dialog.value || !model.value) return
 	try {
 		const body = {
-			transportMode: model.value.transportMode?.id,
+			transportModes: model.value.transportModes,
 			code: model.value.code,
 			name: model.value.name,
+			roles: model.value.roles,
 		}
 		if(itemId.value) {
 			await $fetch(`/api/travelTransportReasons/${itemId.value}`, {
@@ -88,11 +98,13 @@ KernDialog(
 	ref="dialog"
 	:title="`Grund für die Wahl des Verkehrsmittels ${itemId ? 'bearbeiten' : 'erstellen'}`"
 	:modal="modified"
+	:valid="valid"
 	@cancel="cancel"
 	@save="save"
 )
 	template(v-if="model")
-		TravelTransportReasonTransportModeInput(v-model="model.transportMode")
 		TravelTransportReasonCodeInput(v-model="model.code")
 		TravelTransportReasonNameInput(v-model="model.name")
+		TravelTransportReasonTransportModesInput(v-model="model.transportModes")
+		TravelTransportReasonRolesInput(v-model="model.roles")
 </template>
