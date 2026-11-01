@@ -89,18 +89,19 @@ template(v-if="props.selectedItem === 'travel-permit-journey'")
 		label="Zielort"
 		:readonly="presets.readonly('destination')"
 	)
-	TravelDateInput(
-		v-if="presets.visible('startDate')"
-		v-model="model.startDate"
-		label="Reisebeginn"
-		:readonly="presets.readonly('startDate')"
-	)
-	TravelDateInput(
-		v-if="presets.visible('endDate')"
-		v-model="model.endDate"
-		label="Reiseende"
-		:readonly="presets.readonly('endDate')"
-	)
+	.kern-fieldset__body.kern-fieldset__body--horizontal
+		TravelDateInput.flex-1(
+			v-if="presets.visible('startDate')"
+			v-model="model.startDate"
+			label="Reisebeginn"
+			:readonly="presets.readonly('startDate')"
+		)
+		TravelDateInput.flex-1(
+			v-if="presets.visible('endDate')"
+			v-model="model.endDate"
+			label="Reiseende"
+			:readonly="presets.readonly('endDate')"
+		)
 template(v-if="props.selectedItem === 'travel-permit-transport'")
 	TravelTransportModeInput(
 		v-if="presets.visible('transportMode')"
