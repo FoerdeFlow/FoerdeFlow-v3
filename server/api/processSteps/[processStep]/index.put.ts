@@ -131,8 +131,10 @@ export default defineEventHandler(async (event) => {
 		.innerJoin(workflowSteps, eq(workflowProcessSteps.step, workflowSteps.id))
 		.where(eq(workflowProcessSteps.process, currentStep?.process ?? ''))
 		.orderBy(asc(workflowSteps.stage))
+	// A failed step fails the process, so no automatic step may follow it.
+	const anyFailed = steps.some((s) => s.status === 'failed')
 	const nextStep = steps.find((s) => s.status === 'pending')
-	if(nextStep?.step.type === 'job') {
+	if(!anyFailed && nextStep?.step.type === 'job') {
 		await $fetch(`/api/processSteps/${nextStep.id}`, {
 			method: 'PUT',
 			headers: {
