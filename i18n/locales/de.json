@@ -245,6 +245,12 @@
 			"title": "Titel der Ausgabe",
 			"amount": "Betrag"
 		},
+		"limit": {
+			"title": "Höchstbetrag",
+			"text": "Die Ausgabeermächtigung darf höchstens {amount} umfassen.",
+			"exceededTitle": "Höchstbetrag überschritten",
+			"exceeded": "Die Summe von {total} überschreitet den Höchstbetrag von {amount}."
+		},
 		"create": {
 			"title": "Ausgabeermächtigung erstellen",
 			"error": {

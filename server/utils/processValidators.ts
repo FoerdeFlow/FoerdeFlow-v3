@@ -189,6 +189,15 @@ export const processValidators = {
 	) => {
 		await checkBudgetOrigin(tx, data, context)
 
+		const maximumAmount = metaAmount(context.meta, 'maximumAmount')
+		if(maximumAmount !== null && data.amount > maximumAmount) {
+			throw createError({
+				statusCode: 403,
+				statusMessage: 'Der Höchstbetrag der Ausgabeermächtigung wird überschritten',
+				data: { maximumAmount, amount: data.amount },
+			})
+		}
+
 		const reference = data.pendingBudgetPlanItem
 		if(!reference) return data
 

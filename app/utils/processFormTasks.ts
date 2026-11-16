@@ -110,6 +110,22 @@ export function expenseAuthorizationAllowsPendingBudgetPlan(meta: unknown): bool
 		'allowPendingBudgetPlan' in meta && meta.allowPendingBudgetPlan === true
 }
 
+/**
+ * Checks the amount of an expense authorization against the maximum its
+ * mutation defines.
+ *
+ * @param model - The model of the form
+ * @param meta - The meta data of the mutation, holding the maximum
+ * @returns Whether the amount exceeds the maximum
+ */
+export function expenseAuthorizationAboveLimit(
+	model: ExpenseAuthorizationFormModel,
+	meta: unknown,
+): boolean {
+	const maximumAmount = metaAmount(meta, 'maximumAmount')
+	return maximumAmount !== null && model.amount > maximumAmount
+}
+
 function expenseAuthorizationTasks(
 	model: ExpenseAuthorizationFormModel,
 	presets: Presets,
@@ -144,7 +160,9 @@ function expenseAuthorizationTasks(
 			? [ {
 				id: 'expense-authorization-amount-and-items',
 				label: 'Kostenaufstellung hinzufügen',
-				status: model.amount !== 0 || presetFixed(presets, 'items') ? 'done' : 'open',
+				status: expenseAuthorizationAboveLimit(model, meta)
+					? 'partial'
+					: model.amount !== 0 || presetFixed(presets, 'items') ? 'done' : 'open',
 			} ] satisfies Tasks
 			: [],
 	]

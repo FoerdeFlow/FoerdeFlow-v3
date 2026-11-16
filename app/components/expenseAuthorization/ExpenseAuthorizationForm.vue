@@ -9,7 +9,11 @@ const props = defineProps<{
 	selectedItem: string | null
 	readonly?: boolean
 	summaryOffset?: number
-	meta?: { type?: 'planned' | 'reserve', allowPendingBudgetPlan?: boolean }
+	meta?: {
+		type?: 'planned' | 'reserve'
+		allowPendingBudgetPlan?: boolean
+		maximumAmount?: number
+	}
 	/** The organization item whose budgets may be picked, if it is restricted. */
 	organizationItem?: string | null
 	presets?: unknown
@@ -19,6 +23,8 @@ const presets = useProcessPresets(() => props.presets, () => props.readonly)
 
 const type = computed(() => expenseAuthorizationType(props.meta))
 const pending = computed(() => expenseAuthorizationAllowsPendingBudgetPlan(props.meta))
+const maximumAmount = computed(() => metaAmount(props.meta, 'maximumAmount'))
+const aboveLimit = computed(() => expenseAuthorizationAboveLimit(model.value, props.meta))
 
 const emit = defineEmits<{
 	select: [item: string]
@@ -62,6 +68,23 @@ template(v-if="props.selectedItem === 'expense-authorization-title'")
 		:readonly="presets.readonly('description')"
 	)
 template(v-if="props.selectedItem === 'expense-authorization-amount-and-items'")
+	KernAlert(
+		v-if="aboveLimit"
+		type="danger"
+		:dismissible="false"
+		:title="$t('expenseAuthorization.limit.exceededTitle')"
+		:text=`$t('expenseAuthorization.limit.exceeded', {
+			amount: formatCurrency(maximumAmount ?? 0),
+			total: formatCurrency(model.amount),
+		})`
+	)
+	KernAlert(
+		v-else-if="maximumAmount !== null"
+		type="info"
+		:dismissible="false"
+		:title="$t('expenseAuthorization.limit.title')"
+		:text="$t('expenseAuthorization.limit.text', { amount: formatCurrency(maximumAmount) })"
+	)
 	ExpenseAuthorizationItemsInput(
 		v-model="model.items"
 		:readonly="presets.readonly('items')"
@@ -128,6 +151,15 @@ template(v-if="props.selectedItem === 'summary'")
 				key: 'Gesamtbetrag',
 				value: formatCurrency(model.amount),
 			},
+			...(maximumAmount === null
+				? []
+				: [
+					{
+						key: $t('expenseAuthorization.limit.title'),
+						value: formatCurrency(maximumAmount),
+					},
+				]
+			),
 			...(model.items.length === 0
 				? [
 					{
