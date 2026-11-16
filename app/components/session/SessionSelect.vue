@@ -42,5 +42,7 @@ const selectModel = computed({
 			v-for="item of data"
 			:key="item.id"
 			:value="item.id"
-		) {{ item.organizationItem.code }}-Sitzung {{ formatSessionNumber(item.period, item.number) }}
+		)
+			| {{ item.organizationItem.code }}-Sitzung {{ formatSessionNumber(item.period, item.number) }}
+			| ({{ formatDatetime(item.plannedDate, 'compact') }})
 </template>
