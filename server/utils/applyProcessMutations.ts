@@ -2,6 +2,7 @@ import type z from 'zod'
 
 import { and, eq, gt, inArray, type InferInsertModel, isNull, or } from 'drizzle-orm'
 import { access, copyFile } from 'node:fs/promises'
+import { mapGender } from 'openslides-client/utils/mapGender'
 
 async function createCandidate(
 	tx: ReturnType<typeof useDatabase>,
@@ -515,6 +516,10 @@ async function createTravelClaim(
  * form starts out with the values the person has at the moment, so everything
  * that was left untouched is written back unchanged.
  *
+ * The name, the pronouns and the gender are shown in OpenSlides as well, so a
+ * change to any of them is carried over there. A person without an account in
+ * OpenSlides has nothing to carry over to.
+ *
  * @param tx - The transaction to write in
  * @param _dataId - Unused, the person exists before the process
  * @param data - The data of the mutation, with the person it applies to
@@ -525,6 +530,25 @@ async function updatePerson(
 	_dataId: string | null,
 	data: z.infer<typeof processSchemas.persons.update> & { person: string },
 ) {
+	const person = await tx.query.persons.findFirst({
+		where: eq(persons.id, data.person),
+		columns: {
+			firstName: true,
+			lastName: true,
+			email: true,
+			callName: true,
+			pronouns: true,
+			gender: true,
+		},
+	})
+	if(!person) {
+		throw createError({
+			statusCode: 409,
+			message: 'Die Person, deren Daten geändert werden sollten, existiert nicht mehr',
+			data: { personId: data.person },
+		})
+	}
+
 	await tx.update(persons).set({
 		callName: data.callName,
 		pronouns: data.pronouns,
@@ -533,6 +557,25 @@ async function updatePerson(
 		course: data.course,
 		postalAddress: data.postalAddress,
 	}).where(eq(persons.id, data.person))
+
+	const concernsOpenslides =
+		person.callName !== data.callName ||
+		person.pronouns !== data.pronouns ||
+		person.gender !== data.gender
+	if(concernsOpenslides) {
+		const client = useOpenslides()
+		await client.connect()
+		const id = await getOpenslidesPersonId(client, person.email)
+		if(id) {
+			await client.user.update({
+				id,
+				first_name: data.callName ?? person.firstName,
+				last_name: person.lastName,
+				pronoun: data.pronouns ?? '',
+				...(data.gender ? { gender_id: mapGender(data.gender) } : {}),
+			})
+		}
+	}
 
 	return data.person
 }
