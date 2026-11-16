@@ -291,11 +291,11 @@ KernTable.mt-8(
 			v-if=`
 				item.editable &&
 				item.status === 'pending' &&
-				item.step.assignee === 'organizationItem' &&
+				item.organizationItem &&
 				[ 'comment', 'approval' ].includes(item.step.type)
 			`
 			type="button"
-			@click="openConnectionEditor(item.id, item.step.assigneeOrganizationItem?.id ?? '')"
+			@click="openConnectionEditor(item.id, item.organizationItem)"
 		)
 			span.kern-icon.kern-icon--content-copy(aria-hidden="true")
 			span.kern-label.kern-sr-only Zu OpenSlides übertragen

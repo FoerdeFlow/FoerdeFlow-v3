@@ -47,7 +47,12 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	if(step.step.assignee !== 'organizationItem' || !step.step.assigneeOrganizationItem) {
+	const organizationItem = await getParticipantOrganizationItem(database, {
+		...step.process,
+		initiatorOrganizationItem: step.process.initiatorOrganizationItem?.id ?? null,
+	}, step.step)
+
+	if(!organizationItem) {
 		throw createError({
 			statusCode: 400,
 			statusMessage: 'Prozessschritt ist nicht einem Organisationselement zugeordnet',
@@ -57,7 +62,7 @@ export default defineEventHandler(async (event) => {
 		})
 	}
 
-	await checkPermission('workflowProcesses.update', { organizationItem: step.step.assigneeOrganizationItem })
+	await checkPermission('workflowProcesses.update', { organizationItem })
 
 	const body = await readValidatedBody(event, async (data) => await z.object({
 		session: z.uuid(),

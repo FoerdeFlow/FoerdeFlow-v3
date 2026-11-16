@@ -88,6 +88,14 @@ export default defineEventHandler(async (event) => {
 
 		const steps = await Promise.all(processItem.steps.map(async (processStep) => ({
 			...processStep,
+			organizationItem: await getParticipantOrganizationItem(tx, {
+				...processItem,
+				initiatorOrganizationItem: processItem.initiatorOrganizationItem?.id ?? null,
+			}, {
+				assignee: processStep.step.assignee,
+				assigneeOrganizationItem: processStep.step.assigneeOrganizationItem?.id ?? null,
+				assigneeReferencedOrganizationItem: processStep.step.assigneeReferencedOrganizationItem,
+			}),
 			editable: await checkProcessStepPermission(tx, processStep.id)
 				.then(() => true)
 				.catch(() => false),
