@@ -52,6 +52,11 @@ export const useAuthStore = defineStore('auth', () => {
 		)
 	}
 
+	// Für Seiten, die die Gremien selbst nach der Berechtigung filtern.
+	function hasPermissionInAnyScope(permission: string): Ref<boolean> {
+		return computed(() => userInfo.value.permissions.some((item) => item.permission === permission))
+	}
+
 	const impersonating = computed(() => Boolean(userInfo.value.impersonator))
 
 	const isAdmin = computed(() => userInfo.value.roles.some((role) => role.isAdmin))
@@ -93,6 +98,7 @@ export const useAuthStore = defineStore('auth', () => {
 		canImpersonate,
 		displayName,
 		hasPermission,
+		hasPermissionInAnyScope,
 		impersonate,
 		impersonating,
 		isAdmin,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FetchError } from 'ofetch'
 
-import type { BankStatementUploadDialog, BankTransactionAssignmentDialog } from '#components'
+import type { BankTransactionAssignmentDialog } from '#components'
 
 const route = useRoute('organizationItems-organizationItem-bankAccounts-bankAccount')
 const authStore = useAuthStore()
@@ -29,7 +29,6 @@ const scope = computed(() => ({
 	organizationItem: route.params.organizationItem,
 }))
 
-const uploadAllowed = authStore.hasPermission('bankTransactions.create', scope.value)
 const assignAllowed = authStore.hasPermission('bankTransactions.update', scope.value)
 
 // Der Kontostand ist der Endsaldo des zuletzt erstellten Auszugs.
@@ -134,13 +133,7 @@ const groups = computed(() => months.value.map((month) => ({
 	includes: (transaction: { bookingDate: string }) => transaction.bookingDate.startsWith(month),
 })))
 
-const uploadDialog = useTemplateRef<typeof BankStatementUploadDialog>('uploadDialog')
 const assignmentDialog = useTemplateRef<typeof BankTransactionAssignmentDialog>('assignmentDialog')
-
-function upload() {
-	if(!uploadDialog.value) return
-	uploadDialog.value.show()
-}
 
 async function assign(transaction: (typeof transactions.value)[number]) {
 	if(!assignmentDialog.value) return
@@ -201,13 +194,6 @@ header.mb-8
 	p.kern-body(v-if="open.length > 0")
 		| {{ $t('bankAccount.unassigned', { count: open.length, amount: formatCurrency(openAmount, 'amount') }) }}
 	p.kern-body(v-else-if="transactions.length > 0") {{ $t('bankAccount.allAssigned') }}
-.mb-8(v-if="uploadAllowed")
-	button.kern-btn.kern-btn--primary(
-		type="button"
-		@click="upload()"
-	)
-		span.kern-icon.kern-icon--drive-folder-upload(aria-hidden="true")
-		span.kern-label {{ $t('bankStatement.upload.button') }}
 .ff3-transaction-filter.mb-8
 	.kern-form-input
 		label.kern-label(:for="searchId") {{ $t('bankTransaction.filter.search') }}
@@ -388,10 +374,6 @@ details.mt-8(v-if="statements.length > 0")
 			)
 				span.kern-icon.kern-icon--download(aria-hidden="true")
 				span.kern-label.kern-sr-only {{ $t('bankStatement.download') }}
-BankStatementUploadDialog(
-	ref="uploadDialog"
-	@refresh="refresh"
-)
 BankTransactionAssignmentDialog(
 	ref="assignmentDialog"
 	:bank-account="route.params.bankAccount"

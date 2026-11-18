@@ -3,6 +3,8 @@ interface HomeNavigationEntry {
 	title: string
 	link: string
 	permission?: string
+	// Genügt die Berechtigung für ein einzelnes Gremium
+	anyScope?: boolean
 	requiresLogin?: boolean
 }
 
@@ -36,6 +38,12 @@ const areas: HomeNavigationArea[] = [
 			},
 			{ title: 'Personen', link: '/person', permission: 'personDetails.read' },
 			{ title: 'Haushalte', link: '/budgets', permission: 'budgets.read' },
+			{
+				title: 'Bankkonten',
+				link: '/bankAccounts',
+				permission: 'bankTransactions.read',
+				anyScope: true,
+			},
 			{ title: 'Wahlen', link: '/elections', permission: 'elections.read' },
 		],
 	},
@@ -101,7 +109,9 @@ const visibleAreas = computed(() => areas
 		...area,
 		entries: area.entries.filter((entry) =>
 			(!entry.requiresLogin || authStore.loggedIn) &&
-			(!entry.permission || authStore.hasPermission(entry.permission).value),
+			(!entry.permission || (entry.anyScope
+				? authStore.hasPermissionInAnyScope(entry.permission)
+				: authStore.hasPermission(entry.permission)).value),
 		),
 	}))
 	.filter((area) => area.entries.length > 0))

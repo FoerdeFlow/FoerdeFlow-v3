@@ -1125,6 +1125,21 @@
 		"noStatement": "Noch kein Kontoauszug hochgeladen.",
 		"unassigned": "Nicht vollständig zugeordnete Zahlungen: {count}, offen insgesamt {amount}",
 		"allAssigned": "Alle Zahlungen sind vollständig zugeordnet.",
+		"overview": {
+			"title": "Bankkonten",
+			"description": "Hier lassen sich Kontoauszüge für alle Konten hochladen. Die Übersicht zeigt die Bankkonten aller Gremien, auf deren Zahlungen Sie Zugriff haben; über ein Konto gelangen Sie zum Zuordnen seiner Zahlungen.",
+			"table": {
+				"caption": "Bankkonten aller Gremien"
+			},
+			"field": {
+				"open": "Offene Zahlungen"
+			},
+			"balanceDate": "laut Auszug vom {date}",
+			"noStatement": "Noch kein Auszug",
+			"open": "Eine Zahlung, offen {amount} | {count} Zahlungen, offen {amount}",
+			"allAssigned": "Alles zugeordnet",
+			"show": "Zahlungen von {name} zuordnen"
+		},
 		"create": {
 			"title": "Bankkonto anlegen",
 			"error": {
@@ -1162,12 +1177,24 @@
 			"uploaded": "Hochgeladen"
 		},
 		"upload": {
-			"button": "Kontoauszug hochladen",
-			"title": "Kontoauszug hochladen",
-			"label": "Datei im Format camt.053",
-			"hint": "Erlaubt ist eine XML-Datei nach camt.053.001.02, höchstens 10 MB. Das Konto wird an der IBAN im Auszug erkannt.",
+			"title": "Kontoauszüge hochladen",
+			"submit": "Hochladen",
+			"uploading": "Wird hochgeladen …",
+			"label": "Datei im Format camt.053 oder ZIP-Archiv",
+			"hint": "Erlaubt ist eine XML-Datei nach camt.053.001.02 oder eine ZIP-Datei mit mehreren solchen XML-Dateien, höchstens 10 MB. Die Auszüge dürfen verschiedene Konten und Zeiträume betreffen; das Konto wird jeweils an der IBAN im Auszug erkannt.",
 			"result": "Auszug {statementId}: {imported} Zahlungen übernommen, {duplicates} bereits vorhanden, {pending} vorgemerkte Buchungen übersprungen.",
-			"success": "Kontoauszug hochgeladen",
+			"skipped": "Auszug {statementId} war bereits importiert und wurde übersprungen.",
+			"summary": "{statements} Auszüge für {accounts} übernommen: {imported} Zahlungen neu, {duplicates} bereits vorhanden, {pending} vorgemerkte Buchungen übersprungen.",
+			"summarySkipped": "{skipped} Auszüge waren bereits importiert und wurden übersprungen.",
+			"success": "Kontoauszüge hochgeladen",
+			"results": {
+				"caption": "Ergebnis des Uploads",
+				"file": "Datei",
+				"bankAccount": "Konto",
+				"outcome": "Ergebnis",
+				"imported": "{imported} Zahlungen übernommen, {duplicates} bereits vorhanden, {pending} vorgemerkte Buchungen übersprungen",
+				"skipped": "Bereits importiert, übersprungen"
+			},
 			"error": {
 				"title": "Fehler beim Hochladen",
 				"message": "Beim Hochladen des Kontoauszugs ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie den Administrator oder versuchen Sie es erneut."

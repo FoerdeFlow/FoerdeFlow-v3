@@ -4,19 +4,22 @@ const route = useRoute()
 
 const menuOpen = ref(false)
 
-const items: { title: string, link: string, permission?: string }[] = [
+const items: { title: string, link: string, permission?: string, anyScope?: boolean }[] = [
 	{ title: 'Start', link: '/' },
 	{ title: 'Meine Prozesse', link: '/processes' },
 	{ title: 'Organisationseinheiten', link: '/organizationItems', permission: 'organizationItems.read' },
 	{ title: 'Personen', link: '/person', permission: 'personDetails.read' },
 	{ title: 'Haushalte', link: '/budgets', permission: 'budgets.read' },
+	{ title: 'Bankkonten', link: '/bankAccounts', permission: 'bankTransactions.read', anyScope: true },
 	{ title: 'Wahlen', link: '/elections', permission: 'elections.read' },
 ]
 
 // Für Gäste gibt es keine erreichbaren Inhalte, daher entfällt die Navigation.
 const navigation = computed(() => authStore.loggedIn
 	? items
-		.filter((item) => !item.permission || authStore.hasPermission(item.permission).value)
+		.filter((item) => !item.permission || (item.anyScope
+			? authStore.hasPermissionInAnyScope(item.permission)
+			: authStore.hasPermission(item.permission)).value)
 		.map((item) => ({
 			...item,
 			active: item.link === '/'
